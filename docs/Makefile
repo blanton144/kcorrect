@@ -18,7 +18,7 @@ all :
 	ln -sf ../../data/filters html/filters
 
 #
-# Install things in their proper places in $(IDLUTILS_DIR)
+# Install things in their proper places in $(VAGC_DIR)
 #
 install :
 
