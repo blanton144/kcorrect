@@ -146,7 +146,6 @@ for i=0, n_elements(mustdoplates)-1L do begin
     inplate_indx=where(sp.plate eq mustdoplates[i],inplate_count)
     if(inplate_count gt 0) then mustdo[inplate_indx]=1
 endfor
-mustdo[tostack]=1
 includegal=lonarr(n_elements(sp))
 ninchunk=fltarr(nzchunks)
 first=-1
@@ -169,7 +168,6 @@ for i=nzchunks-1L,0,-1 do begin
         endelse
     endif
 endfor
-stop
 include_indx=where(includegal gt 0 or mustdo gt 0,include_count)
 if(include_count eq 0) then begin
     klog,'no remaining galaxies after equalizing redshifts.'
@@ -178,6 +176,7 @@ endif
 tm=tm[include_indx]
 sp=sp[include_indx]
 help,sp,tm
+stop
 
 ; set up which magnitudes are used
 klog,'use model past z='+string(modelzlim)
