@@ -19,6 +19,9 @@
 ;   version       - version of templates to use (default 'default')
 ;   vpath   - path to templates (default $KCORRECT_DIR/data/etemplates)
 ;   maggies       - set if input and output in 10^{-0.4*mag}
+;   invvar        - if maggies is set, this means that magerr is
+;                   actually invvar
+;   sdssfix       - uses k_sdssfix to "fix" the SDSS magnitudes
 ;
 ; OUTPUTS:
 ;   photoz        - photometric redshifts
@@ -49,13 +52,13 @@
 ;   04-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro kphotoz, galaxy_mag, galaxy_magerr, photoz, coeffs=coeffs, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, invvar=invvar
+pro kphotoz, galaxy_mag, galaxy_magerr, photoz, coeffs=coeffs, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, invvar=invvar, sdssfix=sdssfix
 
 ; Need at least 6 parameters
 if (N_params() LT 3) then begin
     print, 'Syntax - kphotoz, galaxy_mag, galaxy_magerr, photoz [, coeffs=, $'
     print, '         version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=, $'
-    print, '         /invvar]
+    print, '         /invvar, /sdssfix]'
     return
 endif
 
@@ -68,6 +71,20 @@ if(NOT keyword_set(vpath)) then $
   vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
 if(NOT keyword_set(version)) then $
   version='defaultpz'
+
+; Fix SDSS mags if desired
+if(keyword_set(sdssfix)) then begin
+   if(n_elements(rmatrix) gt 0 AND n_elements(zvals) gt 0 AND $
+      n_elements(ematrix) gt 0) then begin
+       k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
+         filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
+         ematrix=ematrix
+   endif else begin
+       k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
+	       version=version,vpath=vpath,filterpath=filterpath,rmatrix=rmatrix, $
+	       zvals=zvals,ematrix=ematrix
+   endelse
+endif
 
 ; Calculate maggies if necessary
 if(NOT keyword_set(maggies)) then begin
