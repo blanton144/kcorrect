@@ -64,9 +64,10 @@ The best way to obtain the code is to simply download the latest
 version from this site. The tagged and released versions, from latest
 to earliest, are:
 <ol>
-<li> <a href="kcorrect.v3_2.tar.gz"> kcorrect.v3_2.tar.gz</a> 
+<li> <a href="kcorrect.v3_2.tar.gz"> kcorrect.v3_2.tar.gz</a> (latest
+recommended version)
 <li> <a href="kcorrect.v1_16.tar.gz"> kcorrect.v1_16.tar.gz</a>
-(latest recommended old version)
+(older recommended version)
 </ol>
 The earlier version is only included so that you can reproduce old
 results if you like. Note that there have been some usage changes.
@@ -202,7 +203,7 @@ the K-correction. By absolute magnitude we mean: the apparent
 magnitude in band Q the object would have if it were observed at rest,
 10 pc away, using an aperture that contains its total flux. See <a
 href="http://cosmo.nyu.edu/blanton/pubs.html#hogg02c"> Hogg et
-al. (2002)</a> for a full description of what the K correction
+al. (2002)</a> for a full description of what the K-correction
 is. Essentially, the K-correction is fully determined by the galaxy
 SED and the description of the bandpasses, so that with the SED fits
 above we have everything we need to calculate K-corrections.</p>
@@ -226,16 +227,16 @@ overall offset --- see the <a href="#note1"> note</a> at bottom). </p>
 <ol>
 <li> SDSS observations calibrated off of the Photometric Telescope
 patches (which includes anything in tsObj catalog files and in the
-official survey database) are NOT on our best guess for the AB system
-(<b>ref</b>). A set of offsets must be applied to the magnitudes to
+official survey database) are NOT on our best guess for the AB
+system. A set of offsets must be applied to the magnitudes to
 achieve our best guess.
 <li> SDSS catalog magnitudes obtained from the official survey
 database are luptitudes, which for reasonably bright objects are
 equivalent to AB magnitudes. "Maggies" are simply the linearized
 version of AB magnitudes; that is, they are 10^{-0.4*mag} (the
 conversion from luptitudes to maggies is a bit more complicated, see
-the description accompanying the <a href="http://www.sdss.org/dr1/">
-DR1 documentation</a>). 
+the description accompanying the <a href="http://www.sdss.org/dr2/">
+DR2 documentation</a>). 
 </ol>
 </p>
 
@@ -270,7 +271,9 @@ kcorrect, maggies, maggies_ivar, redshift, kcorrect [ , $
 </pre>
 By default, you hand the code AB maggies in SDSS ugriz, the inverse
 variance of the maggies (1/stddev^2), and the redshift, and it passes
-back K-corrections to redshift zero for those bandpasses, based on the
+back K-corrections (in magnitudes) to redshift zero for those
+bandpasses, 
+based on the
 nonnegative fit of three carefully chosen templates.  The flags mean
 the following:
 <ol>
@@ -293,7 +296,7 @@ translates to maggies and inverse variance in the AB system (using our
 best guess for the AB offsets); automatically sets
 /magnitude and /stddev
 <li> <b>/magnitude</b>: "maggies" inputs are in magnitudes, not
-maggies; returns K-corrections in magnitudes
+maggies
 <li> <b>/stddev</b>: "maggies_ivar" inputs are the standard deviation,
 not the inverse variance
 </ol>
@@ -352,10 +355,7 @@ kcorrect, [1., 4.78, 10.96, 14.45, 19.05],  $
           vmatrix=vmatrix, lambda=lambda, coeffs=coeffs
 plot, lambda, vmatrix#coeffs, xra=[2000., 12000.]
 </pre>
-will plot the best fit spectrum. You can project these 
-You will find that the second call takes far less time than the first,
-because the temporary data stored in rmatrix and zvals will not have
-to be regenerated.</p>
+will plot the best fit spectrum.</p>
 
 <p> If you want to project that spectrum onto a new set of bandpasses,
 use k_reconstruct_maggies. For example, to project back onto the SDSS
@@ -399,8 +399,8 @@ magnitudes.
 <b>fit_coeffs</b> has a help flag:
 <pre>
 apeiron.[kcorrect].7 % fit_coeffs --help
-Usage: cat <galaxy file> | fit_coeffs [--vfile <vfile> --lfile <lfile>
-            --ffile <ffile> ]
+Usage: cat <galaxy file> | fit_coeffs [--vfile vfile --lfile lfile
+            --ffile ffile ]
 </pre>
 As indicated, you would call it like
 <pre>
@@ -433,8 +433,8 @@ flux, observed at any redshift through a shifted bandpass, using
 <b>reconstruct_maggies</b> yields 
 <pre>
 apeiron.[kcorrect].8 % reconstruct_maggies --help
-Usage: cat <coeffs file> | reconstruct_maggies [--vfile <vfile> --lfile <lfile>
-            --ffile <ffile> --band-shift <band_shift> --redshift <redshift>]
+Usage: cat <coeffs file> | reconstruct_maggies [--vfile vfile --lfile lfile
+            --ffile ffile --band-shift band_shift --redshift redshift]
 </pre>
 So you can call it like:
 <pre>
@@ -470,7 +470,7 @@ file which contains a list of the filters to use (by default, it uses
 the SDSS filters). </p>
 
 <p> As I noted above, I have not worked very hard to make the
-stand-alone C code or the C library *very* usable, as generally
+stand-alone C code or the C library <i>very</i> usable, as generally
 speaking that would have meant replicating features in IDL and C, and
 I wasn't sure how many people would use the pure C versions. If there
 is a need to do this, I might be convinced to -- or if YOU do it, we
@@ -619,7 +619,7 @@ sdss_z0.par
 The other SDSS files refer to the responses for each camcol.</p>
 
 <p> The files are in a special SDSS format called FTCL described at <a
-href="http://www.sdss.org/dr1/data/parfiles.html"> the SDSS DR1
+href="http://www.sdss.org/dr2/data/parfiles.html"> the SDSS DR2
 site</a>. IDL code (in particular, yanny_readone()) exists in <a
 href="http://spectro.princeton.edu"> idlutils</a> to read in such files. </p>
 

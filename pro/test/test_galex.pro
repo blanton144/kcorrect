@@ -33,8 +33,8 @@ undefine,rmatrix
 undefine,zvals
 
 k_load_vmatrix,vmatrix,lambda, $
-  vpath='/global/data/sdss/kcorrect/data/v3_3', vfile='vmatrix.test.dat', $
-  lfile='lambda.test.dat'
+  vpath='/global/data/sdss/kcorrect/data/v3_3', vfile='vmatrix.test9.dat', $
+  lfile='lambda.test9.dat'
 nv=n_elements(vmatrix)/(n_elements(lambda)-1L)
 vmatrix=vmatrix/1.e+38
 iuse=lindgen(n_elements(galex))
@@ -48,7 +48,8 @@ coeffs=k_fit_nonneg(abmaggies[*,iuse], abmaggies_ivar[*,iuse],vmatrix, $
 k_reconstruct_maggies, coeffs, galex[iuse].z, rmaggies, rmatrix=rmatrix, $
   zvals=zvals
 
-set_print,filename='~/galex-full.ps'
+band=['F','N','u','g','r','i','z']
+set_print,filename='~/galex-full9.ps'
 for i=0, 6 do $
   djs_plot, galex[iuse].z, abmaggies[i,iuse]/rmaggies[i,iuse], psym=4, $
   yra=[-0.5,4.5], xtitle='z', ytitle='f_'+band[i]+'/f_{m,'+band[i]+'}'
