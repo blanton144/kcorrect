@@ -52,7 +52,8 @@ pro k_make_sdss_training_set,zlimits=zlimits, $
                              errband=errband, errlimit=errlimit, $
                              maglimit=maglimit, name=name
 
-if(NOT keyword_set(nophotozplates)) then mustdoplates=[669,670,671,672] 
+if(NOT keyword_set(nophotozplates)) then $
+  mustdoplates=[669,670,671,672,807,808,809,810,1629] 
 if(NOT keyword_set(zlimits)) then zlimits=[1.e-3,0.8]
 if(NOT keyword_set(nzchunks)) then nzchunks=8
 if(NOT keyword_set(shiftband)) then shiftband=[-0.042,0.036,0.015,0.013,-0.002]
