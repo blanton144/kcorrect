@@ -137,8 +137,19 @@ sp[tostack].modelflux_ivar=stacked_ivar
 ikeep=lonarr(n_elements(sp))
 ikeep[where(sp.z gt 0.6)]=1
 ikeep[tostack]=1
+ikeep[where(sp.modelflux[0] le 0. or $
+            sp.modelflux[1] le 0. or $
+            sp.modelflux[2] le 0. or $
+            sp.modelflux[3] le 0. or $
+            sp.modelflux[4] le 0. or $
+            sp.modelflux_ivar[0] le 0. or $
+            sp.modelflux_ivar[1] le 0. or $
+            sp.modelflux_ivar[2] le 0. or $
+            sp.modelflux_ivar[3] le 0. or $
+            sp.modelflux_ivar[4] le 0.)]=0
 sp=sp[where(ikeep)]
 tm=tm[where(ikeep)]
+help,sp,tm
 mustdo=lonarr(n_elements(sp))
 for i=0, n_elements(mustdoplates)-1L do begin
     inplate_indx=where(sp.plate eq mustdoplates[i],inplate_count)
@@ -175,19 +186,6 @@ tm=tm[include_indx]
 sp=sp[include_indx]
 help,sp,tm
 
-goodindx=where(sp.modelflux[0] gt 0. and $
-               sp.modelflux[1] gt 0. and $
-               sp.modelflux[2] gt 0. and $
-               sp.modelflux[3] gt 0. and $
-               sp.modelflux[4] gt 0. and $
-               sp.modelflux_ivar[0] gt 0. and $
-               sp.modelflux_ivar[1] gt 0. and $
-               sp.modelflux_ivar[2] gt 0. and $
-               sp.modelflux_ivar[3] gt 0. and $
-               sp.modelflux_ivar[4] gt 0.)
-sp=sp[goodindx]
-tm=tm[goodindx]
-help,sp,tm
 
 ;   HACK to rid of bad u-band (bad uband!)
 umg=-2.5*alog10(sp.modelflux[0]/sp.modelflux[1])
@@ -202,55 +200,46 @@ hdr=strarr(1)
 sxaddpar,hdr,'DATE',systime(),'date of creation'
 sxaddpar,hdr,'KVERSION',k_version(),'version of kcorrect'
 outstr1={maggies:fltarr(8), maggies_ivar:fltarr(8), redshift:0.D, ra:0.D, $
-         dec:0.D, objc_rowc:0.D, objc_colc:0.D, sdss_imaging_tag:long64(0L), $
-         sdss_spectro_tag:long64(0L)}
+         dec:0.D, objc_rowc:0.D, objc_colc:0.D}
 outstr=replicate(outstr1,n_elements(sp)+n_elements(cnoc2))
 isdss=0L+lindgen(n_elements(sp))
 icnoc2=n_elements(sp)+lindgen(n_elements(cnoc2))
-outstr[isdss].ra=im.ra
-outstr[isdss].dec=im.dec
+outstr[isdss].ra=sp.plug_ra
+outstr[isdss].dec=sp.plug_dec
 outstr[isdss].redshift=sp.z
-outstr[isdss].maggies[0:4]=lups2maggies(mag[0:4,*])
-outstr[isdss].maggies_ivar[0:4]= $
-  reform(sdss_err2ivar(mag_err[0:4,*]),5,n_elements(isdss))/ $
-  (outstr[isdss].maggies[0:4]*0.4*alog(10.))^2
-twomass_indx=where(twomass.j_m_k20fe gt 0. and $
-                   twomass.h_m_k20fe gt 0. and $
-                   twomass.k_m_k20fe gt 0., twomass_count)
+outstr[isdss].maggies[0:4]=sdssflux2ab(sp.modelflux)
+outstr[isdss].maggies_ivar[0:4]=sdssflux2ab(sp.modelflux_ivar,/ivar)
+twomass_indx=where(tm.j_m_ext gt 0. and $
+                   tm.h_m_ext gt 0. and $
+                   tm.k_m_ext gt 0., twomass_count)
 if(twomass_count gt 0) then begin
     outstr[isdss[twomass_indx]].maggies[5]= $
-      10.^(-0.4*(twomass[twomass_indx].j_m_k20fe+ $
+      10.^(-0.4*(tm[twomass_indx].j_m_ext+ $
                  (k_vega2ab(filterlist='twomass_J.par',/kurucz))[0]))
     outstr[isdss[twomass_indx]].maggies_ivar[5]= $
       1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[5]* $
-          twomass[twomass_indx].j_msig_k20fe)^2
+          tm[twomass_indx].j_msig_ext)^2
     outstr[isdss[twomass_indx]].maggies[6]= $
-      10.^(-0.4*(twomass[twomass_indx].h_m_k20fe+ $
+      10.^(-0.4*(tm[twomass_indx].h_m_ext+ $
                  (k_vega2ab(filterlist='twomass_H.par',/kurucz))[0]))
     outstr[isdss[twomass_indx]].maggies_ivar[6]= $
       1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[6]* $
-          twomass[twomass_indx].h_msig_k20fe)^2
+          tm[twomass_indx].h_msig_ext)^2
     outstr[isdss[twomass_indx]].maggies[7]= $
-      10.^(-0.4*(twomass[twomass_indx].k_m_k20fe+ $
+      10.^(-0.4*(tm[twomass_indx].k_m_ext+ $
                  (k_vega2ab(filterlist='twomass_Ks.par',/kurucz))[0]))
     outstr[isdss[twomass_indx]].maggies_ivar[7]= $
       1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[7]* $
-          twomass[twomass_indx].k_msig_k20fe)^2
+          tm[twomass_indx].k_msig_ext)^2
 endif
-outstr[isdss].sdss_imaging_tag=im.sdss_imaging_tag
-outstr[isdss].sdss_spectro_tag=sp.sdss_spectro_tag
 outstr[icnoc2].ra=cnoc2_childobj.ra
 outstr[icnoc2].dec=cnoc2_childobj.dec
 outstr[icnoc2].redshift=cnoc2.z
 ; AB shifts
 for i=0, 4 do begin
-    outstr[icnoc2].maggies[i]=cnoc2_childobj.modelflux[i]*1.e-9* $
-      10.^(-0.4*shiftband[i])
-    outstr[icnoc2].maggies_ivar[i]=cnoc2_childobj.modelflux_ivar[i]*1.e+18* $
-      10.^(0.8*shiftband[i])
+    outstr[icnoc2].maggies[i]=sdssflux2ab(cnoc_stacked)
+    outstr[icnoc2].maggies_ivar[i]=sdssflux2ab(cnoc_stacked_ivar,/ivar)
 endfor
-outstr[icnoc2].sdss_imaging_tag=-1
-outstr[icnoc2].sdss_spectro_tag=-1
 
 ; now reddening correct all
 euler,outstr.ra,outstr.dec,ll,bb,1
