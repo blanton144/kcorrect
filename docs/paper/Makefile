@@ -23,6 +23,6 @@ apj: dummy
 	${HOME}/environment/bin/mkapj
 
 common: dummy
-	${HOME}/environment/bin/mkcommon
+	${HOME}/environment/bin/mkcommon paper 300000 800
 
 dummy:
