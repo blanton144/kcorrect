@@ -39,12 +39,12 @@ if(NOT keyword_set(filterlist)) then $
 if(NOT keyword_set(band_shift)) then band_shift=0.
 
 ; load in the filters
-filterlist=filterpath+'/'+filterlist+'.dat'
-k_load_filters,filterlist,filter_n,filter_lambda,filter_pass
+fullfilterlist=filterpath+'/'+filterlist+'.dat'
+k_load_filters,fullfilterlist,filter_n,filter_lambda,filter_pass
 filter_lambda=filter_lambda/(1.+band_shift)
 
-lambda_eff=dblarr(n_elements(filterlist))
-for k=0, n_elements(filterlist)-1 do begin
+lambda_eff=dblarr(n_elements(fullfilterlist))
+for k=0, n_elements(fullfilterlist)-1 do begin
   dloglambda=dblarr(filter_n[k])
   dloglambda[0]=alog(filter_lambda[1,k])-alog(filter_lambda[0,k])
   dloglambda[filter_n[k]-1]=alog(filter_lambda[filter_n[k]-1,k])- $
