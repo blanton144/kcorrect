@@ -89,16 +89,19 @@ if(NOT keyword_set(version)) then $
   version='default'
 
 ; Fix SDSS mags if desired
+tmp_galaxy_mag=galaxy_mag
+tmp_galaxy_magerr=galaxy_magerr
 if(keyword_set(sdssfix)) then begin
    if(n_elements(rmatrix) gt 0 AND n_elements(zvals) gt 0 AND $
       n_elements(ematrix) gt 0) then begin
-       k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
+       k_sdssfix,tmp_galaxy_mag,tmp_galaxy_magerr,galaxy_z=galaxy_z, $
          filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
-         ematrix=ematrix
+         ematrix=ematrix,maggies=maggies,invvar=invvar
    endif else begin
-       k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
+       k_sdssfix,tmp_galaxy_mag,tmp_galaxy_magerr,galaxy_z=galaxy_z, $
 	       version=version,vpath=vpath,filterpath=filterpath, $
-         rmatrix=tmprmatrix, zvals=tmpzvals,ematrix=tmpematrix
+         rmatrix=tmprmatrix, zvals=tmpzvals,ematrix=tmpematrix, $
+         maggies=maggies,invvar=invvar
    endelse
    if(NOT keyword_set(addgrgap)) then begin
        rmatrix=tmprmatrix
@@ -112,15 +115,17 @@ endif
   
 ; Calculate maggies if necessary
 if(NOT keyword_set(maggies)) then begin
-    galaxy_maggies=10.^(-0.4*galaxy_mag)
-    galaxy_invvar=1./(galaxy_maggies*0.4*alog(10.)*galaxy_magerr)^2
+    galaxy_maggies=10.^(-0.4*tmp_galaxy_mag)
+    galaxy_invvar=1./(galaxy_maggies*0.4*alog(10.)*tmp_galaxy_magerr)^2
 endif else begin
-    galaxy_maggies=galaxy_mag
+    galaxy_maggies=tmp_galaxy_mag
     if(NOT keyword_set(invvar)) then $
-      galaxy_invvar=1./galaxy_magerr^2
+      galaxy_invvar=1./tmp_galaxy_magerr^2
     if(keyword_set(invvar)) then $
-      galaxy_invvar=galaxy_magerr
+      galaxy_invvar=tmp_galaxy_magerr
 endelse 
+tmp_galaxy_mag=0l
+tmp_galaxy_magerr=0l
 
 ; Set the grgap maggie if appropriate
 if(keyword_set(addgrgap)) then begin

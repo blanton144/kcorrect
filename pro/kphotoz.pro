@@ -78,11 +78,11 @@ if(keyword_set(sdssfix)) then begin
       n_elements(ematrix) gt 0) then begin
        k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
          filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
-         ematrix=ematrix
+         ematrix=ematrix,maggies=maggies,invvar=invvar
    endif else begin
        k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
 	       version=version,vpath=vpath,filterpath=filterpath,rmatrix=rmatrix, $
-	       zvals=zvals,ematrix=ematrix
+	       zvals=zvals,ematrix=ematrix,maggies=maggies,invvar=invvar
    endelse
 endif
 

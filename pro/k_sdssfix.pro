@@ -34,7 +34,7 @@
 ;   07-Feb-2002  Written by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_sdssfix,mags,magserr,galaxy_z=galaxy_z, errlimit=errlimit, maglimit=maglimit, errband=errband, defaultcoeff=defaultcoeff, defaultmags=defaultmags, defaultz=defaultz, version=version, vpath=vpath, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, filterpath=filterpath, defaultzlimits=defaultzlimits
+pro k_sdssfix,mags,magserr,galaxy_z=galaxy_z, errlimit=errlimit, maglimit=maglimit, errband=errband, defaultcoeff=defaultcoeff, defaultmags=defaultmags, defaultz=defaultz, version=version, vpath=vpath, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, filterpath=filterpath, defaultzlimits=defaultzlimits, maggies=maggies, invvar=invvar
 
 nk=5
 ngalaxy=n_elements(mags)/nk
@@ -78,7 +78,7 @@ if(keyword_set(maggies)) then begin
     if(poscount gt 0) then begin
 		   if(keyword_set(invvar)) then $
 				     magserr[k,posindx]=sqrt(1./magserr[k,posindx])
-			 magserr[k,posindx]=2.5d*alog(0.1d)*magserr[k,posindx]/mags[k,posindx]
+			 magserr[k,posindx]=2.5d/alog(10.d)*magserr[k,posindx]/mags[k,posindx]
 			 mags[k,posindx]=-2.5*alog10(mags[k,posindx])
 		endif
   endfor
