@@ -1,0 +1,142 @@
+
+             --  CNOC2 catalogs  --
+
+Version Feb. 13, 2001 : 
+fixed photometric offset of 0.2-0.3 mag in a2 & a3 fields
+
+I. General
+
+(1) Please refer to Yee et al. (2000, ApJS, Sep; astro-ph/0004026, 
+    hereafter Paper I) for a much more detailed explanation of
+    the catalog.
+
+(2) The catalogs are sorted in R magnitude, with galaxies listed first,
+    and stars at the end.
+
+(3) The 5-sigma detection limits for each field can be found in Paper I.
+    This is not intended as a completeness limit; the 100% completeness 
+    is about 0.7 to 0.9 mag brighter than the 5-sigma limit.  Note that 
+    there is significant variation in the 5-sig limit from field to field.
+
+(4) The nominal spectroscopic limit is defined at the magnitude where 
+    the magnitude weight is about 5. Note that there is significant 
+    variations of the nominal spectroscopic limit from field to field.
+
+(5) An important feature of the catalog is the various weights
+    computed to allow the sample to be used as a complete sample. A
+    detailed description of the weights are given in paper I.  The
+    primary weight is the magnitude weight Wm.  The subsidiary weights
+    modify the magnitude weight Wm as follows:
+
+         W(tot) = Wm X Wxy X Wc X Wz,
+
+    where Wxy=geometric weight, Wc=color weight, and Wz=redshift weight.
+    Note that each filter has its own Wm, Wxy and Wc.  However, Wz, which
+    is model dependent, is determined only for the R filter.
+   
+(6) The total area of the 0223 patch is 1409 square arcminutes.  An array 
+    representing the shape of the sampled area (called the field-area map) 
+    using 1's and 0's with a resolution of 2"/pixel is available.
+
+(7) The origin of the co-ordinate system (delta RA=0.0, delta Dec=0.0) is
+       02:23:29.95 +00:05:12.9 (1950)
+    The large-scale astrometry is good to about +-1" RMS.
+
+(8) There is a small systematic redshift difference for emission-line 
+    objects (Sc=5) depending on whether the redshift is obtained from 
+    [OII]3727 or H-beta/[OIII]4959,5007.  This arises from imperfect
+    wavelength calibration of the cross-correlation template spectra.
+    It will be corrected in a future version of the catalog.
+
+
+II. Data Columns:  Note: entries with "9" in all spaces except for the
+		   decimal point are blank entries (no data available).
+
+(1) pppid: last 4 digits: ppp# within each field,
+          first 2 digits: field number.  See paper I.  When discussing
+          objects from different patches, prepend the 4-digit patch code
+	  followed by decimal point; i.e., 0223.062246 instead of 062246.
+
+(2) spnum: spectrum name.  The last 4 characters denote mask number,
+  (A,B,C) and spectrum number (e.g. A034), the first 2 numbers denote 
+  field numbers (same as (1)).  Note that for objects with multiple 
+  observations only one of the spectrum IDs is listed (usually the one 
+  with the highest Rval value).
+
+(3,4) d_RA and d_Dec: Delta RA and delta Dec, both in arcsec, relative to
+  the central position.  Positive numbers denote offsets WEST and NORTH.
+  Thus:  RA = RA_central_position - (d_RA)/cos(DEC)
+        DEC = DEC_central_position + (d_Dec)
+
+(5) z: redshift
+
+(6) zerr: redshift error listed in units of 10^-5 in z
+
+(7) Rval: cross correlation coefficient for redshift determination.
+     Normally the redshift ID is robust if Rval>4 for Sc=2 or 4, or
+     Rval>5 for Sc=5.
+
+(8) Sc: spectral class from cross correlation.  Sc=2: absorption line/
+     early type; Sc=4: intermediate-late type; Sc=5: emission line;
+     Sc=6: AGN; Sc=77: star; Sc=88: unknown; Sc=99: slit but no spectrum
+     (object too faint); Sc=0: object not targeted for spectroscopy.
+
+(9) Wz: redshift weight (to account for the redshift limit imposed by
+    the band-limited spectra), applicable to the R filter.  This 
+    dependent on the luminosity function model.
+
+(10) Imag: I magnitude. All magnitude are given in ppp total magnitude
+     derived based on the growth curve of the R image.  See
+     paper I for a detailed description of the derivation of the 
+     total magnitude of each filter.  
+
+(11) Ime: I magnitude error (for the total magnitude) expressed as a 
+     percentage of the flux.  Note that for small error (<0.15 mag), the 
+     fractional error is equivalent to the error in magnitude.  All 
+     (total) magnitude errors include a 0.03 mag "aperture error" added
+     in quadrature to the photon statistic error.  All errors do not
+     include systematic errors arising from calibration uncertainties.
+     An error of 800 denotes that the magnitude is a sigma sky limit.
+
+(12) Ice: color aperture magnitude error.  This is the magnitude error
+     within the aperture used to determine the color of the object.
+     An approximate uncertainty in the color between any two filters
+     can be derived by added the two color aperture errors in quadrature.
+
+(13) Iwm: I magnitude weight.  The magnitude weights are determined using
+     a sample within each field (MOS image), not the entire patch.
+
+(14) Iwc: I color weight.
+
+(15) Iwxy: I geometric weight.
+
+(16) Rmag, (17) Rme, (18) Rce, (19) Rwm, (20) Rwc, (21) Rwxy: mag, mag error,
+     color aperture mag error, mag weight, color weight, and geometric weight,
+     for filter R.
+
+(22) Vmag, (23) Vme, (24) Vce, (25) Vwm, (26) Vwc, (27) Vwxy: mag, mag error,
+     color aperture mag error, mag weight, color weight, and geometric weight,
+     for filter V.
+
+(28) Bmag, (29) Bme, (30) Bce, (31) Bwm, (32) Bwc, (33) Bwxy: mag, mag error,
+     color aperture mag error, mag weight, color weight, and geometric weight,
+     for filter B.
+
+(34) Umag, (35) Ume, (36) Uce, (37) Uwm, (38) Uwc, (39) Uwxy: mag, mag error,
+     color aperture mag error, mag weight, color weight, and geometric weight,
+     for filter U.
+
+(40) Pcl: ppp star-galaxy classification: 0=cosmic ray/non detection, 
+     1=galaxy, 2=probable galaxy, 3=star, 4=saturated star.
+
+(41) Rkor: K-correction for the R filter derived from fitted SED.
+
+(42) x: x pixel co-ordinate in original CCD image.
+
+(43) y: y pixel co-ordinate in original CCD image.
+
+(44,45,46) Right Ascension (1950): hours, minutes, seconds.
+
+(47,48,49) Declination (1950): degrees, arcminutes, arcseconds.
+	   Note that degrees is an explicitly signed integer.
+
