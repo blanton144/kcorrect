@@ -21,7 +21,9 @@ foreach $arg (@ARGV) {
 	} 
 	$args{$argw[0]}="$argw[1]";
 }
-
+if($args{'ptsfile'} eq "") {
+   $args{'ptsfile'}="/global/data/sdss/kcorrect/data/default/main.$args{'version'}.pts\n";
+} 
 if($args{'outfile'} eq "") {
 	$args{'outfile'}="$ENV{'KCORRECT_DIR'}/docs/html/coeff_anim.$args{'version'}.$args{'windowsize'}.gif";
 } 
@@ -60,7 +62,7 @@ sub move {
 		$pos[2]=$distance*cos($yangle)*cos($xangle);
 		open(infile,">tmpanim.in");
 		print infile "outfile tmpanim.$number.tiff\n";
-		print infile "pointfile $ENV{'KCORRECT_DIR'}/data/etemplates/$args{'version'}.pts\n";
+		print infile "pointfile $args{'ptsfile'}\n";
 		print infile "pointcolor 1. 1. 1. $args{'acolor'}\n";
 		print infile "windowsize $args{'windowsize'}\n";
 		print infile "zclip 0.003\n";
