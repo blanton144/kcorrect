@@ -1,8 +1,7 @@
 ###############################################################################
 # Sloan Digital Sky Survey (SDSS)
-# IDL support code for products: kcorrect
-#
-# S. Burles & D. Schlegel
+# kcorrect
+# M. Blanton
 ###############################################################################
 
 SHELL = /bin/sh
@@ -21,6 +20,7 @@ all :
 # Install things in their proper places in $(KCORRECT_DIR)
 #
 install :
+	- cp -r mk_doc v_11_msg html paper $(KCORRECT_DIR)/docs
 
 clean :
 	- /bin/rm -f *~ core www/*~ www/core

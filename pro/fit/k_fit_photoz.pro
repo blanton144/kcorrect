@@ -22,15 +22,12 @@
 ;   zprior/lprior - grid of redshift and -2ln(prior) values to apply
 ;   /verbose - verbose output
 ; OUTPUTS:
+;   photoz - estimated redshift
 ;   chi2 - chi^2 value for each fit
 ;   coeffs - coeffs for each fit
 ;   rmatrix - projection table used
 ;   zvals - redshift list for projection table used
-; OPTIONAL INPUT/OUTPUTS:
-; COMMENTS:
-; EXAMPLES:
-; BUGS:
-; PROCEDURES CALLED:
+;   niter - number of iterations for last fit
 ; REVISION HISTORY:
 ;   01-May-2003  Written by Mike Blanton, NYU
 ;-

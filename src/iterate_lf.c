@@ -5,16 +5,19 @@
 float sum_AB_lf(float *AB, float phi[], int k, int nsample, int nparam);
 float philike(float Asum[], float Bsum[], int nsample);
 
+/* iterates the EEP equations to maximize the likelihood to determine
+   the luminosity function */
+
 float iterate_lf(float phi[],
-									float lum[],
+                 float lum[],
                  float weight[], 
-									float *A,
-									float *B,
-									float *Asum,
-									float *Bsum,
-									int nsample,
+                 float *A,
+                 float *B,
+                 float *Asum,
+                 float *Bsum,
+                 int nsample,
 									int nparam,
-									float tolerance)
+                 float tolerance)
 {
 	float sum,minphi;
 	float bottom,bottomnumer,bottomdenom;

@@ -1,16 +1,21 @@
-NOTES:
+check z-band
+check metallicities
+check stellar masses
+create many primer data sets
+create the full data set
+make sure vmatrix/lambda stuff works fine
+run on full
 
-note dependence on idlutils
-better notes on how to calc kcorrection using reconstruct_maggies
-sawtooth behavior --- diagnose
-luptitudes for sdssfix --- docs on how to set errors, too
 
-recommendation for use of JHK?? -- use v5_4
-2MASS photometry checks
-switch to v5_4 (at level of vagc, though)
-photo-z efficiency (don't always restart iteration)
-test IMFs
-Charlot templates?
-back out stellar masses?
-evolution estimates
-add python
+clean up TODO:
+remove lf.h lf_utils.c lf_zbrent.c lf_polint.c lf_qromo.c ztransform.h
+lf_locate.c lf_midpnt.c phierrors_lf_old.c
+remove k_fit_sdss_training_set.pro k_ortho_templates.pro
+k_tweak_templates.pro 
+
+move k_run_nmf to "fit" subdir
+
+new docs:
+  how to calculate corrections from one band to another using
+   reconstruct_maggies
+  

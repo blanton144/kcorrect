@@ -27,7 +27,6 @@
 ; OPTIONAL INPUTS/OUTPUTS:
 ; COMMENTS:
 ;   vmax is returned in h^{-3} Mpc^3 comoving
-; BUGS:
 ; DEPENDENCIES:
 ;   idlutils
 ;   kcorrect (in kcorrect product)
@@ -37,7 +36,7 @@
 pro lf_calc_vmax,appm,absm,coeffs,in_filtername,marea,mmin,mmax, $
                  sample_zmin,sample_zmax,im=im, vmax=vmax, omega0=in_omega0, $
                  omegal0=in_omegal0,zmin=zmin, zmax=zmax, $
-                 band_shift=in_band_shift, qevolve=in_qevolve, qz0=in_qz0, $
+                 band_shift=in_band_shift, q0=in_q0, q1=in_q1, qz0=in_qz0, $
                  actual_z=actual_z, actual_k=actual_k, $
                  magoffset=in_magoffset, absmagdep=absmagdep, $
                  ref_absmagdep=ref_absmagdep, rmatrix=rmatrix, zvals=zvals
@@ -52,18 +51,17 @@ ngals=n_elements(absm)
 if(n_elements(in_omega0) eq 0) then in_omega0=0.3
 if(n_elements(in_omegal0) eq 0) then in_omegal0=0.7
 if(n_elements(in_band_shift) eq 0) then in_band_shift=0.
-if(n_elements(in_qevolve) eq 0) then in_qevolve=0.
+if(n_elements(in_q0) eq 0) then in_q0=0.
+if(n_elements(in_q1) eq 0) then in_q1=0.
 if(n_elements(in_qz0) eq 0) then in_qz0=0.
-if(n_elements(in_qevolve) eq 0) then in_qevolve=0.
-if(n_elements(absmagdep) eq 0) then absmagdep=0.
-if(n_elements(ref_absmagdep) eq 0) then ref_absmagdep=0.
 if(n_elements(in_magoffset) eq 0) then in_magoffset=0.
 if(n_elements(im) eq 0) then im=lonarr(ngals)
 omega0=in_omega0
 omegal0=in_omegal0
 filtername=in_filtername
 band_shift=in_band_shift
-qevolve=in_qevolve
+q0=in_q0
+q1=in_q1
 qz0=in_qz0
 magoffset=in_magoffset
 nv=n_elements(coeffs)/n_elements(absm)
@@ -81,14 +79,7 @@ zmin=fltarr(ngals)
 zmax=fltarr(ngals)
 for i=0L,ngals-1L do begin
     if((i mod 1000) eq 0) then splog,' galaxy '+string(i)
-    if (0) then begin
-        if(absm[i] lt ref_absmagdep) then $
-          curr_zdep=absmagdep $
-        else $
-          curr_zdep=qevolve
-    endif
-    curr_zdep=qevolve*(1.+absmagdep*(absm[i]-ref_absmagdep))
-    curr_absm=absm[i]+curr_zdep*(actual_z[i]-qz0)
+    curr_absm=k_evolve(absm[i], actual_z[i], q0, q1, qz0)
     curr_coeffs=coeffs[*,i]
     
     for j=0L, n_elements(marea)-1L do begin
@@ -104,9 +95,9 @@ for i=0L,ngals-1L do begin
                              long(nz),float(rmatrix),long(nk), $
                              float(sample_zmin),float(sample_zmax), $
                              float(curr_mmin),float(curr_mmax), $
-                             float(qevolve),float(qz0),float(absmagdep), $
-                             float(ref_absmagdep), float(band_shift), $
-                             float(magoffset),float(omega0),float(omegal0), $
+                             float(q0),float(q1),float(qz0), $
+                             float(band_shift),float(magoffset), $
+                             float(omega0),float(omegal0), $
                              float(curr_zmin),float(curr_zmax))
         
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

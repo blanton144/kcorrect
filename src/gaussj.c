@@ -25,7 +25,7 @@ void free_ivector(int *v, long nl, long nh)
 void gaussj(float **a, int n, float **b, int m)
 {
 	int *indxc,*indxr,*ipiv;
-	int i,icol,irow,j,k,l,ll;
+	int i,icol=0,irow=0,j,k,l,ll;
 	float big,dum,pivinv,temp;
 
 	indxc=ivector(1,n);

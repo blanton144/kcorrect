@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "lf.h"
+#include "kcorrect.h"
 
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 static void free_memory()
 {
 }
+
+/* IDL/C wrapper on code which converts from redshift to enclosed
+   comoving volume; uses the utitilities in ztransform.c */
 
 /********************************************************************/
 IDL_LONG idl_ztoV(int      argc,

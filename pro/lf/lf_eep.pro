@@ -9,7 +9,7 @@
 ;       absmagdep=, ref_absmagdep=, omega0=, omegal0=, /calc_err ]
 ; INPUTS:
 ;   zz               [N] redshifts
-;   absmag           [N] absolute magnitudes
+;   absmag           [N] absolute magnitudes (kcorrected, unevolved)
 ;   kcorrect         [N] K-correction for each galaxy
 ;   mmin             [N] minimum apparent mag for each galaxy
 ;   mmax             [N] maximum apparent mag for each galaxy
@@ -18,8 +18,6 @@
 ; OPTIONAL INPUTS:
 ;   omega0           omega_matter to use (default: 0.3)
 ;   omegal0          omega_lambda to use (default: 0.7)
-;   qevolve          evolution
-;   qz0              pivot for redshift evolution
 ; KEYWORDS:
 ;   /calc_err        if set, calculate the error bars
 ; OUTPUTS:
@@ -30,18 +28,16 @@
 ;   2003-10-20  written - Blanton
 ;-
 pro lf_eep,zz,absmag,kcorrect,mmin,mmax,sample_absmmin,sample_absmmax, $
-           absmk,phi,phi_err,nbin=nbin,qevolve=qevolve,qz0=qz0, $
-           absmagdep=absmagdep,ref_absmagdep=ref_absmagdep,omega0=omega0, $
-           omegal0=omegal0, calc_err=calc_err, weight=weight
+           absmk,phi,phi_err,nbin=nbin,q0=q0,q1=q1, qz0=qz0, $
+           omega0=omega0, omegal0=omegal0, calc_err=calc_err, weight=weight
 
 ; set defaults
 if(n_elements(nbin) eq 0) then nbin=40L
 if(n_elements(omega0) eq 0) then omega0=0.3
 if(n_elements(omegal0) eq 0) then omegal0=0.7
+if(n_elements(q0) eq 0) then q0=0.0
+if(n_elements(q1) eq 0) then q1=0.0
 if(n_elements(qz0) eq 0) then qz0=0.1
-if(n_elements(qevolve) eq 0) then qevolve=0.0
-if(n_elements(absmagdep) eq 0) then absmagdep=0.
-if(n_elements(ref_absmagdep) eq 0) then ref_absmagdep=-20.0
 if(n_elements(calc_err) eq 0) then calc_err=0L
 if(n_elements(weight) eq 0) then weight=fltarr(n_elements(zz))+1.
 
@@ -54,23 +50,18 @@ ngals=n_elements(zz)
 
 ; calculate absmag limits (without evolution, which is accounted for within)
 dm=lf_distmod(zz,omega0=omega0,omegal0=omegal0)
-; ??? hack
-currq=qevolve*(1.+absmagdep*(zz-qz0))
-dmK=dm+kcorrect-currq*(zz-qz0)
-absmmin=((mmin-dmK) > sample_absmmin) < sample_absmmax
-absmmax=((mmax-dmK) > sample_absmmin) < sample_absmmax
+dmK=dm+kcorrect
+absmmin=k_evolve((mmin-dmK), zz, q0, q1, qz0)
+absmmax=k_evolve((mmax-dmK), zz, q0, q1, qz0)
+absmmin=(absmmin > sample_absmmin) < sample_absmmax
+absmmax=(absmmax > sample_absmmin) < sample_absmmax
+absmag_evol=k_evolve(absmag, zz, q0, q1, qz0)
 
 soname=filepath('libkcorrect.'+idlutils_so_ext(), $
                 root_dir=getenv('KCORRECT_DIR'), subdirectory='lib')
-; ??? hack
-qevolveuse=0.
-absmagdepuse=0.
-absmaguse=absmag+currq*(zz-qz0)
 retval=call_external(soname, 'idl_lf_eep', float(zz), $
-                     float(absmaguse),float(absmmin),float(absmmax), $
-                     long(ngals),float(qevolveuse),float(qz0), $
-                     float(absmagdepuse),float(ref_absmagdep), $
-                     float(sample_absmmin),float(sample_absmmax), $
+                     float(absmag_evol),float(absmmin),float(absmmax), $
+                     long(ngals),float(sample_absmmin),float(sample_absmmax), $
                      float(absmk),float(phi),float(phi_err), $
                      float(covar),long(nbin),long(calc_err), $
                      float(weight))

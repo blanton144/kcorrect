@@ -11,10 +11,7 @@ void k_choldc(float *a, int n, float p[])
 		for (j=i;j<n;j++) { 
 			for (sum=a[i*n+j],k=i-1;k>=0;k--) sum -= a[i*n+k]*a[j*n+k];
 			if (i == j) {
-				if (sum <= 0.0) {
-					fprintf(stderr,"ERROR: choldc failed (sum==%e)\n",sum);
-					return;
-				}
+				if (sum <= 0.0) return;
 				p[i]=sqrt(sum);
 			} else a[j*n+i]=sum/p[i];
 		}

@@ -61,13 +61,7 @@ OBJECTS = \
 	lf_eepfit.o \
 	lf_WH_interp.o \
 	lf_set_AB.o \
-	lf_sum_AB.o \
-	lf_midpnt.o \
-	lf_locate.o \
-	lf_qromo.o \
-	lf_polint.o \
-	lf_zbrent.o \
-	lf_utils.o 
+	lf_sum_AB.o 
 
 all: \
   $(BIN)/k_test_filter $(BIN)/fit_coeffs \
@@ -101,4 +95,4 @@ $(BIN)/reconstruct_maggies: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) \
 install : 
 
 clean :
-	- /bin/rm -f *~ core *.o so_locations
+	- /bin/rm -f *~ core *.o so_locations $(BIN)/fit_coeffs $(BIN)/k_test_filter $(BIN)/fit_photoz $(BIN)/reconstruct_maggies $(LIB)/libkcorrect.$(SO_EXT) 

@@ -8,6 +8,9 @@ static void free_memory()
 {
 }
 
+/* IDL/C wrapper on code to create the rmatrix, which expresses how
+   each template contributes to each filter at each redshift */
+
 /********************************************************************/
 IDL_LONG idl_k_projection_table
   (int      argc,

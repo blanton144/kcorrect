@@ -106,9 +106,5 @@ IDL_LONG k_yanny_readone(char filename[255],
 	}
 	fclose(fp);
 	
-#if 0
-	k_strfree(columns,ncolumns);
-#endif
-
   return(0);
 } /* end k_yanny_readone */

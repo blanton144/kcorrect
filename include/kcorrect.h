@@ -75,6 +75,51 @@ void k_free_filter_struct(void ***input_struct, int nrows);
 void k_copy_filter_struct(void **filter_struct, int filter_n,
 													float *filter_lambda, float *filter_pass);
 
+/* calculate maximum volume */
+int lf_calc_vmax(float in_absm, float *in_coeffs, int in_nv, float *in_zvals, 
+                 int in_nz, float *in_rmatrix, int in_nk,
+                 float in_sample_zmin, float in_sample_zmax, float mmin, 
+                 float mmax, float in_q0, float in_q1, float in_qz0, 
+                 float in_band_shift, float in_magoffset, float in_omega0, 
+                 float in_omegal0, float *zmin, float *zmax);
+
+/* calculate EEP luminosity function */
+IDL_LONG lf_eep(float *in_redshift, float *in_absmag, 
+                float *in_absmmin, float *in_absmmax, IDL_LONG in_ngals,
+                float in_sample_absmmin, float in_sample_absmmax, 
+                float *in_absmk, float *in_phi, float *in_phi_err, 
+                float *in_covar, IDL_LONG in_nbin, IDL_LONG calc_err, 
+                float *in_weight);
+
+/* calculate selection function based on EEP LF */
+IDL_LONG lf_select_eep(float *in_redshift, float *in_absmag, 
+                       float *in_absmmin, float *in_absmmax, 
+                       IDL_LONG in_ngals, float sample_absmmin, 
+                       float sample_absmmax, float *in_absmk, float *in_phi, 
+                       float *sel, IDL_LONG in_nbin);
+
+/* implementation of simple luminosity evolution */
+float k_evolve(float absm, float z, float q0, float q1, float qz0);
+
+/* Converts redshift z into comoving distance r in km/s */
+float ztor(float z, float omega0, float omegal0);
+/* Converts redshift z to comoving volume element dV in h^{-3} Mpc^3 */
+float ztodV(float z, float omega0, float omegal0);
+/* Converts redshift z to comoving enclosed volume in h^{-3} Mpc^3 */
+float ztoV(float z, float omega0, float omegal0);
+/* Converts to redshift z from comoving enclosed volume in h^{-3} Mpc^3 */
+float Vtoz(float V, float omega0, float omegal0);
+/* Converts comoving distance r in km/s to redshift z */
+float rtoz(float r, float omega0, float omegal0);
+/* Converts redshift z into distance modulus dm */
+float z2dm(float z, float omega0, float omegal0);
+/* Converts redshift z into distance modulus dm */
+float dm2z(float dm, float omega0, float omegal0);
+/* Gives the angular diameter distance in km/s at redshift z */
+float z2add(float z, float omega0, float omegal0);
+/* returns age of universe at redshift z in h^{-1} Gyrs */
+float z2t(float z, float omega0, float omegal0);
+
 /* NR routines, renamed so as not to overload */
 float *k_vector(long nl, long nh);
 void k_free_vector(float *v, long nl, long nh);

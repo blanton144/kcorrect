@@ -4,8 +4,14 @@
 #include <stdlib.h>
 
 /*
- * ztransform.c: calculate r given z and vice-versa, for 
- * a flat or open universe, and given a certain K-correction
+ * ztransform.c: utilities to convert among redshift, lookback time,
+ * comoving distance, volume element, enclosed volume, distance
+ * modulus, and angular diameter distance.
+ *
+ * Works up to redshift 10 or so.
+ *
+ * Originally started circa 1999, Michael Blanton
+ *
  */
 
 #define ZRF_NUM 10000
@@ -26,10 +32,10 @@ static float zrf_V[ZRF_NUM];
 static float zrf_dm[ZRF_NUM];
 static float zrf_add[ZRF_NUM];
 
-float lf_qromo(float (*func)(float), float a, float b,
+float k_qromo(float (*func)(float), float a, float b,
 	float (*choose)(float(*)(float), float, float, int));
-float lf_midpnt(float (*func)(float), float a, float b, int n);
-void lf_locate(float xx[], unsigned long n, float x, unsigned long *j);
+float k_midpnt(float (*func)(float), float a, float b, int n);
+void k_locate(float xx[], unsigned long n, float x, unsigned long *j);
 void init_zrf(float omega0, float omegal0);
 float ztor_flat_integrand(float a);
 float z2t_flat_integrand(float a);
@@ -47,7 +53,7 @@ float ztor(float z,
 	if(!zrf_initialized || omega0!=zrf_omega0 || omegal0!=zrf_omegal0) 
 		init_zrf(omega0, omegal0);
 
-	lf_locate(zrf_z, ZRF_NUM, z, &i);
+	k_locate(zrf_z, ZRF_NUM, z, &i);
 	if(i==ZRF_NUM || i==ZRF_NUM-1) i=ZRF_NUM-2;
 	if(i==-1) i=0;
 	ip1=i+1;
@@ -67,7 +73,7 @@ float ztodV(float z,
 	if(!zrf_initialized || omega0!=zrf_omega0 || omegal0!=zrf_omegal0) 
 		init_zrf(omega0, omegal0);
 
-	lf_locate(zrf_z, ZRF_NUM, z, &i);
+	k_locate(zrf_z, ZRF_NUM, z, &i);
 	if(i==ZRF_NUM || i==ZRF_NUM-1) i=ZRF_NUM-2;
 	if(i==-1) i=0;
 	ip1=i+1;
@@ -87,7 +93,7 @@ float ztoV(float z,
 	if(!zrf_initialized || omega0!=zrf_omega0 || omegal0!=zrf_omegal0) 
 		init_zrf(omega0, omegal0);
 
-	lf_locate(zrf_z, ZRF_NUM, z, &i);
+	k_locate(zrf_z, ZRF_NUM, z, &i);
 	if(i==ZRF_NUM || i==ZRF_NUM-1) i=ZRF_NUM-2;
 	if(i==-1) i=0;
 	ip1=i+1;
@@ -107,7 +113,7 @@ float Vtoz(float V,
 	if(!zrf_initialized || omega0!=zrf_omega0 || omegal0!=zrf_omegal0) 
 		init_zrf(omega0, omegal0);
 
-	lf_locate(zrf_V, ZRF_NUM, V, &i);
+	k_locate(zrf_V, ZRF_NUM, V, &i);
 	if(i==ZRF_NUM || i==ZRF_NUM-1) i=ZRF_NUM-2;
 	if(i==-1) i=0;
 	ip1=i+1;
@@ -127,7 +133,7 @@ float rtoz(float r,
 	if(!zrf_initialized || omega0!=zrf_omega0 || omegal0!=zrf_omegal0) 
 		init_zrf(omega0, omegal0);
 
-	lf_locate(zrf_r, ZRF_NUM, r, &i);
+	k_locate(zrf_r, ZRF_NUM, r, &i);
 	if(i==ZRF_NUM || i==ZRF_NUM-1) i=ZRF_NUM-2;
 	if(i==-1) i=0;
 	ip1=i+1;
@@ -147,7 +153,7 @@ float z2dm(float z,
 	if(!zrf_initialized || omega0!=zrf_omega0 || omegal0!=zrf_omegal0) 
 		init_zrf(omega0, omegal0);
 
-	lf_locate(zrf_z, ZRF_NUM, (float)z, &i);
+	k_locate(zrf_z, ZRF_NUM, (float)z, &i);
 	if(i==ZRF_NUM || i==ZRF_NUM-1) i=ZRF_NUM-2;
 	if(i==-1) i=0;
 	ip1=i+1;
@@ -167,7 +173,7 @@ float dm2z(float dm,
 	if(!zrf_initialized || omega0!=zrf_omega0 || omegal0!=zrf_omegal0) 
 		init_zrf(omega0, omegal0);
 
-	lf_locate(zrf_dm, ZRF_NUM, (float)dm, &i);
+	k_locate(zrf_dm, ZRF_NUM, (float)dm, &i);
 	if(i==ZRF_NUM || i==ZRF_NUM-1) i=ZRF_NUM-2;
 	if(i==-1) i=0;
 	ip1=i+1;
@@ -188,7 +194,7 @@ float z2add(float z,
 	if(!zrf_initialized || omega0!=zrf_omega0 || omegal0!=zrf_omegal0) 
 		init_zrf(omega0, omegal0);
 
-	lf_locate(zrf_z, ZRF_NUM, (float)z, &i);
+	k_locate(zrf_z, ZRF_NUM, (float)z, &i);
 	if(i==ZRF_NUM || i==ZRF_NUM-1) i=ZRF_NUM-2;
 	if(i==-1) i=0;
 	ip1=i+1;
@@ -208,7 +214,7 @@ float z2t(float z,
 	if(!zrf_initialized || omega0!=zrf_omega0 || omegal0!=zrf_omegal0) 
 		init_zrf(omega0, omegal0);
 
-	lf_locate(zrf_z, ZRF_NUM, (float)z, &i);
+	k_locate(zrf_z, ZRF_NUM, (float)z, &i);
 	if(i==ZRF_NUM || i==ZRF_NUM-1) i=ZRF_NUM-2;
 	if(i==-1) i=0;
 	ip1=i+1;
@@ -274,7 +280,7 @@ void init_zrf(float omega0,
 		for(i=0;i<ZRF_NUM;i++) {
 			amin=ZRF_AMIN+(ZRF_AMAX-ZRF_AMIN)*((float)i+0.5)/(float)ZRF_NUM;
 			zrf_z[i]=1./amin-1.;
-			Eint=lf_qromo(ztor_open_integrand,amin,1.,lf_midpnt);
+			Eint=k_qromo(ztor_open_integrand,amin,1.,k_midpnt);
 			zrf_r[i]=ZRF_C*Eint;
 			DM=ZRF_C*sinh(sqrt(1.-zrf_omega0)*Eint)/sqrt(1.-zrf_omega0);
 			zrf_dm[i]=25.+5.*log10(0.01*DM*(1.+zrf_z[i]));
@@ -285,20 +291,20 @@ void init_zrf(float omega0,
 			zrf_V[i]=(1.5*1.e-6*ZRF_C*ZRF_C*ZRF_C/(1.-omega0))*
 				(DM/ZRF_C*sqrt(1.+(1.-omega0)*DM*DM/(ZRF_C*ZRF_C))
 				 -asinh(sqrt(1.-omega0)*DM/ZRF_C)/sqrt(1.-omega0));
-			zrf_t[i]=lf_qromo(z2t_open_integrand,0.,amin,lf_midpnt);
+			zrf_t[i]=k_qromo(z2t_open_integrand,0.,amin,k_midpnt);
 		} /* end for */
 	} else {
 		for(i=0;i<ZRF_NUM;i++) {
 			amin=ZRF_AMIN+(ZRF_AMAX-ZRF_AMIN)*((float)i+0.5)/(float)ZRF_NUM;
 			zrf_z[i]=1./amin-1.;
-			zrf_r[i]=ZRF_C*lf_qromo(ztor_flat_integrand,amin,1.,lf_midpnt);
+			zrf_r[i]=ZRF_C*k_qromo(ztor_flat_integrand,amin,1.,k_midpnt);
 			zrf_dm[i]=25.+5.*log10(0.01*zrf_r[i]*(1.+zrf_z[i]));
 			zrf_dV[i]=1.e-6*ZRF_C*zrf_r[i]*zrf_r[i]/
 				sqrt(omega0*(1.+zrf_z[i])*(1.+zrf_z[i])*(1.+zrf_z[i])
 						 +omegal0);
 			zrf_V[i]=1.e-6*zrf_r[i]*zrf_r[i]*zrf_r[i];
 			zrf_add[i]=zrf_r[i]/(1.+zrf_z[i]);
-			zrf_t[i]=lf_qromo(z2t_flat_integrand,0.,amin,lf_midpnt);
+			zrf_t[i]=k_qromo(z2t_flat_integrand,0.,amin,k_midpnt);
 		} /* end for */
 	} /* end if..else */
 } /* end init_zrf */

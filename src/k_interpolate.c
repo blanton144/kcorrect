@@ -15,9 +15,9 @@
 
 /* linear interpolate in a given vector; out of bounds --> 0 */
 float k_interpolate(float currpos,
-										 float vals[],
-										 float pos[],
-										 IDL_LONG n)
+                    float vals[],
+                    float pos[],
+                    IDL_LONG n)
 {
 	unsigned long i,ip1;
 	float sp,currval;
@@ -34,9 +34,9 @@ float k_interpolate(float currpos,
 /* linear interpolate in a given vector; out of bounds --> 0;
  * assume x-axis is given equally spaced */
 float k_interpolate_es(float currpos,
-											float vals[],
-											float pos[],
-											IDL_LONG n)
+                       float vals[],
+                       float pos[],
+                       IDL_LONG n)
 {
 	long i,ip1;
 	float sp,currval;

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "lf.h"
+#include "kcorrect.h"
 
 /*
  * lf_eep.c
@@ -22,8 +22,6 @@ static float tolerance=1.e-5;
 static IDL_LONG minn=0;
 static IDL_LONG ngals;
 static IDL_LONG interp_choice=1;
-static float absmagdep, absmagdep0;
-static float qevolve,qz0;
 static float sample_absmmin, sample_absmmax;
 
 static float *galaxy_absmag=NULL;
@@ -72,10 +70,6 @@ IDL_LONG lf_eep(float *in_redshift,
                 float *in_absmmin, 
                 float *in_absmmax, 
                 IDL_LONG in_ngals,
-                float in_qevolve,
-                float in_qz0,
-                float in_absmagdep,
-                float in_absmagdep0,
                 float in_sample_absmmin,
                 float in_sample_absmmax,
                 float *in_absmk, 
@@ -115,10 +109,6 @@ IDL_LONG lf_eep(float *in_redshift,
   phi_err=(float *) malloc(nbin*sizeof(float));
   galaxy_lum=(float *) malloc(sizeof(float)*ngals);
   factor=(float *) malloc(sizeof(float)*ngals);
-  absmagdep=in_absmagdep;
-  absmagdep0=in_absmagdep0;
-  qevolve=in_qevolve;
-  qz0=in_qz0;
   sample_absmmin=in_sample_absmmin;
   sample_absmmax=in_sample_absmmax;
   lumk=(float *) malloc(sizeof(float)*(nbin+1));
@@ -140,7 +130,7 @@ IDL_LONG lf_eep(float *in_redshift,
 	/*
 	 * Define some parameters
 	 */
-	like=eepfit_fit(qevolve);
+	like=eepfit_fit(0.);
 
 	/*
 	 * Calculate the errors 
@@ -151,55 +141,33 @@ IDL_LONG lf_eep(float *in_redshift,
     phierrors_lf(phi,phi_err,covar,lumk,A,B,Asum,Bsum,ngals,nbin);
   }
 
-	/*
-	 * Output the relevant information; phihat is output
-	 * in number per h^{-3} Mpc^3 per unit magnitude
-	 */
-#if 0
-  printf("Output luminosity function ...\n");
-  fflush(stdout);
-     fp=fileopen(PHIFILE,"w");
-     fprintf(fp,"%le %le %le %le %le\n",1.,0.,1.,1.,p[1]);
-     for(i=0;i<NPARAM;i++) {
-     phihat[i]=0.4*LN10*exp(0.5*(log(lum[i])+log(lum[i+1])))*phi[i];
-     fprintf(fp,"%le %le %le %le %le %d\n",0.5*(M[i]+M[i+1]),phihat[i],
-     errphi[i],phi[i],lum[i],num[i]);
-     } /* end for i */
-	fclose(fp);
-	printf("Output the covariance matrix ...\n");
-	fflush(stdout);
-	fp=fileopen(COVARFILE,"wb");
-	fwrite((void *) covar, sizeof(covar), 1, fp);
-	fclose(fp); */
-#endif
-
-    for(i=0;i<nbin;i++) 
-      for(j=0;j<nbin;j++) 
-        in_covar[i*nbin+j]=covar[i*nbin+j];
-    for(i=0;i<nbin;i++) {
-      in_phi[i]=0.4*log(10.)*exp(0.5*(log(lumk[i])+log(lumk[i+1])))*phi[i];
-      in_phi_err[i]=phi_err[i];
-    }
-    for(i=0;i<=nbin;i++) 
-      in_absmk[i]=absmk[i];
-
-    FREEVEC(covar);
-    FREEVEC(galaxy_lum);
-    FREEVEC(factor);
-    FREEVEC(num);
-    FREEVEC(lumk);
-    FREEVEC(A);
-    FREEVEC(Asum);
-    FREEVEC(B);
-    FREEVEC(Bsum);
-    FREEVEC(galaxy_absmag);
-    FREEVEC(galaxy_absmmin);
-    FREEVEC(galaxy_absmmax);
-    FREEVEC(galaxy_redshift);
-    FREEVEC(phi);
-    FREEVEC(phi_err);
-    FREEVEC(absmk);
-    return(1);
+  for(i=0;i<nbin;i++) 
+    for(j=0;j<nbin;j++) 
+      in_covar[i*nbin+j]=covar[i*nbin+j];
+  for(i=0;i<nbin;i++) {
+    in_phi[i]=0.4*log(10.)*exp(0.5*(log(lumk[i])+log(lumk[i+1])))*phi[i];
+    in_phi_err[i]=phi_err[i];
+  }
+  for(i=0;i<=nbin;i++) 
+    in_absmk[i]=absmk[i];
+  
+  FREEVEC(covar);
+  FREEVEC(galaxy_lum);
+  FREEVEC(factor);
+  FREEVEC(num);
+  FREEVEC(lumk);
+  FREEVEC(A);
+  FREEVEC(Asum);
+  FREEVEC(B);
+  FREEVEC(Bsum);
+  FREEVEC(galaxy_absmag);
+  FREEVEC(galaxy_absmmin);
+  FREEVEC(galaxy_absmmax);
+  FREEVEC(galaxy_redshift);
+  FREEVEC(phi);
+  FREEVEC(phi_err);
+  FREEVEC(absmk);
+  return(1);
 } /* end lf_eep */
 
 float eepfit_fit(float zdep)
@@ -207,15 +175,7 @@ float eepfit_fit(float zdep)
 	int i;
 	float like,likeoff,curr_zdep;
 	for(i=0;i<ngals;i++) {
-    curr_zdep=zdep;
-#if 0
-    if(galaxy_absmag[i]<absmagdep0)
-      curr_zdep=absmagdep;
-    else
-      curr_zdep=zdep;
-		curr_zdep=zdep*(1.+absmagdep*(galaxy_absmag[i]-absmagdep0));
-#endif
-		factor[i]=pow(10.,0.4*curr_zdep*(galaxy_redshift[i]-qz0));
+		factor[i]=1.;
 		galaxy_lum[i]=pow(10.,-0.4*(galaxy_absmag[i]+20.));
 	} /* end for i */
 	printf("Fit using zdep=%f\n",zdep);

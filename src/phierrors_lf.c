@@ -9,6 +9,7 @@
 
 void gaussj(float **a, int n, float **b, int m);
 
+/* calculates errors in an EEP luminosity function */
 
 float **matrix(long nrl, long nrh, long ncl, long nch)
 /* allocate a float matrix with subscript range m[nrl..nrh][ncl..nch] */

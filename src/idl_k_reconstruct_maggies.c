@@ -8,6 +8,9 @@ static void free_memory()
 {
 }
 
+/* IDL/C wrapper on code to reconstruct maggies from a set of
+   templates and coefficients */
+
 /********************************************************************/
 IDL_LONG idl_k_reconstruct_maggies
   (int      argc,

@@ -7,6 +7,9 @@
 /*
  * k_load_filters.c
  *
+ * Load filters into a filter structure. Used by the stand-alone C
+ * code.
+ *
  * Mike Blanton
  * 1/2002
  */

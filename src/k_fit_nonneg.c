@@ -14,7 +14,6 @@
 
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 
-/* Create the rmatrix, a lookup table which speeds analysis */
 IDL_LONG k_fit_nonneg(float *coeffs,
 											float *rmatrix,
 											IDL_LONG nk,
@@ -91,13 +90,6 @@ IDL_LONG k_fit_nonneg(float *coeffs,
 		 * as best as can be for the first few spectra, take the absolute 
 		 * value of all components, and then put in a little bit of all the 
 		 * other spectra... */
-#if 0
-		for(j=0;j<ngood;j++) 
-			for(jp=0;jp<ngood;jp++) 
-				if(cholesky[j*ngood+jp]<=0.) 
-					printf("ch: %d %d %e\n",j,jp,cholesky[j*ngood+jp]);
-		fflush(stdout);
-#endif
     if(!dontinit) {
       if(ngood<=nv) {
         ngood=1;

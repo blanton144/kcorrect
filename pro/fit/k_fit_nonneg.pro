@@ -22,14 +22,20 @@
 ;   band_shift - shifted bands if desired
 ;   /verbose - verbose output
 ; OUTPUTS:
-;   chi2 - chi^2 value for each fit
+;   coeffs - best-fit coefficients
 ;   rmatrix - projection table used
 ;   zvals - redshift list for projection table used
-; OPTIONAL INPUT/OUTPUTS:
-; COMMENTS:
-; EXAMPLES:
-; BUGS:
-; PROCEDURES CALLED:
+;   chi2 - chi^2 value for each fit
+;   niter - number of iterations used
+; EXAMPLE:
+;    maggies=[1.,2.,3.,4.,5]
+;    maggies_fracerr=[0.2, 0.2, 0.2, 0.2, 0.2]
+;    maggies_ivar=1./(maggies*maggies_fracerr)^2
+;    filterlist= 'sdss_'+['u', 'g', 'r', 'i', 'z']+'0.par'
+;    k_load_vmatrix, vmatrix, lambda
+;    redshift=0.1
+;    coeffs= k_fit_nonneg(maggies, maggies_ivar, vmatrix, lambda, $
+;      redshift=redshift, filterlist=filterlist)
 ; REVISION HISTORY:
 ;   01-May-2003  Written by Mike Blanton, NYU
 ;-
@@ -41,7 +47,7 @@ function k_fit_nonneg, maggies, maggies_ivar, vmatrix, lambda, $
                        band_shift=band_shift, tolerance=tolerance, $
                        verbose=verbose, niter=niter
                   
-if(n_params() lt 2) then begin
+if(n_params() lt 4 OR n_elements(redshift) eq 0) then begin
     print,'Syntax - coeffs= k_fit_nonneg(maggies, maggies_ivar [, vmatrix, lambda, $'
     print,'          redshift=, filterlist=, chi2=, rmatrix=, zvals=, maxiter=, filterpath=, ]'
     print,'          zmin=, zmax=, nz=, band_shift=, /verbose ])'

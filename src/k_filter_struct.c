@@ -7,7 +7,7 @@
 /*
  * k_filter_struct
  *
- * Deal with the filter structure
+ * Deal with the filter structure. 
  *
  * Mike Blanton
  * 6/2003 

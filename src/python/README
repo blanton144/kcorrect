@@ -1,0 +1,3 @@
+Attempt of Wherry to make interface between C and Python. This was
+done before numarray was mature. There may be a better way of
+translating arrays across by now.

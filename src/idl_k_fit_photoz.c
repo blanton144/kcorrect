@@ -8,6 +8,9 @@ static void free_memory()
 {
 }
 
+/* IDL/C wrapper on code to fit photometric redshifts to a set of
+   maggies */
+
 /********************************************************************/
 IDL_LONG idl_k_fit_photoz
   (int      argc,

@@ -8,6 +8,9 @@ static void free_memory()
 {
 }
 
+/* IDL/C wrapper on code to fit nonnegative coefficients to a set of
+   maggies */
+
 /********************************************************************/
 IDL_LONG idl_k_fit_nonneg
   (int      argc,

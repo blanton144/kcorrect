@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "lf.h"
+#include "kcorrect.h"
 
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 static void free_memory()
 {
 }
+
+/* IDL/C wrapper on code to calculate the selection function based on
+   an EEP luminosity function */
 
 /********************************************************************/
 IDL_LONG idl_lf_select_eep(int      argc,
@@ -14,7 +17,7 @@ IDL_LONG idl_lf_select_eep(int      argc,
 {
   IDL_LONG ngals, nbin;
   float *redshift, *absmag, *absmmin, *absmmax, *absmk, *phi, *sel;
-  float qevolve,qz0,absmagdep,absmagdep0,sample_absmmin,sample_absmmax;
+  float sample_absmmin,sample_absmmax;
 	
 	IDL_LONG i;
 	IDL_LONG retval=1;
@@ -26,10 +29,6 @@ IDL_LONG idl_lf_select_eep(int      argc,
 	absmmin=((float *)argv[i]); i++;
 	absmmax=((float *)argv[i]); i++;
 	ngals=*((IDL_LONG *)argv[i]); i++;
-	qevolve=*((float *)argv[i]); i++;
-	qz0=*((float *)argv[i]); i++;
-	absmagdep=*((float *)argv[i]); i++;
-	absmagdep0=*((float *)argv[i]); i++;
 	sample_absmmin=*((float *)argv[i]); i++;
 	sample_absmmax=*((float *)argv[i]); i++;
 	absmk=((float *)argv[i]); i++;
@@ -38,8 +37,8 @@ IDL_LONG idl_lf_select_eep(int      argc,
 	nbin=*((IDL_LONG *)argv[i]); i++;
 	
 	/* 1. run the fitting routine */
-	retval=lf_select_eep(redshift,absmag,absmmin,absmmax,ngals,qevolve,qz0,
-                       absmagdep,absmagdep0,sample_absmmin,sample_absmmax,
+	retval=lf_select_eep(redshift,absmag,absmmin,absmmax,ngals,
+                       sample_absmmin,sample_absmmax,
                        absmk,phi,sel,nbin);
 	
 	/* 2. free memory and leave */

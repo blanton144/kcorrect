@@ -5,9 +5,9 @@
 #include <kcorrect.h>
 
 /*
- * k_fit_nonneg.c
+ * k_fit_photoz.c
  *
- * Given the rmatrix, does a nonnegative fit of templates to data. 
+ * Given maggies (and maybe a prior) pick the best redshift 
  *
  * Mike Blanton
  * 5/2003 */
@@ -45,7 +45,6 @@ float pz_fit_coeffs(float z)
 	return(chi2);
 } /* end pz_fit_coeffs */
 
-/* Create the rmatrix, a lookup table which speeds analysis */
 IDL_LONG k_fit_photoz(float *photoz,
 											float *coeffs,
 											float *rmatrix,
@@ -118,23 +117,6 @@ IDL_LONG k_fit_photoz(float *photoz,
 				jmin=j;
 			} /* end if */
     
-#if 0
-		/* then search for minimum more intelligently around it */
-		if(jmin==0) {
-			az=zgrid[jmin];
-			bz=0.5*(zgrid[jmin]+zgrid[jmin+1]);
-			cz=zgrid[jmin+1];
-		} else if(jmin==nzsteps-1) {
-			az=zgrid[jmin-1];
-			bz=0.5*(zgrid[jmin-1]+zgrid[jmin]);
-			cz=zgrid[jmin];
-		} else {
-			az=zgrid[jmin-1];
-			bz=zgrid[jmin];
-			cz=zgrid[jmin+1];
-		} /* end if..else */
-		chi2min=k_brent(az,bz,cz,pz_fit_coeffs,TOL,&(photoz[i]));
-#else 
 		/* then search for minimum more intelligently around it */
 		if(jmin==0) {
 			az=zgrid[jmin];
@@ -184,7 +166,6 @@ IDL_LONG k_fit_photoz(float *photoz,
     photoz[i]=z_0+0.5*TOL-(chi2_1-chi2_0)*TOL/(chi2_2-2.*chi2_1+chi2_0);
     if(photoz[i]<z_0) photoz[i]=z_0;
     if(photoz[i]>z_2) photoz[i]=z_2;
-#endif
 
 		/* evaluate coefficients at final z (using REAL chi2) */
     pz_applyprior=0;

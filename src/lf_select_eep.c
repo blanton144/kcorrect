@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include "lf.h"
+#include "kcorrect.h"
 
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 
@@ -18,11 +18,16 @@ static float *galaxy_absmmax=NULL;
 static float *lumk=NULL;
 static float *absmk=NULL;
 static float *phi=NULL;
-static float qz0,qevolve,absmagdep,absmagdep0;
 static float sample_absmmin, sample_absmmax;
 static IDL_LONG interp_choice;
 static IDL_LONG ngals;
 static IDL_LONG nbin;
+
+/* lf_select_eep.c
+ * 
+ * Calculates selection function based on an EEP luminosity function
+ * 
+ */ 
 
 float selfunc_lf(float n1,
                  float phi[],
@@ -60,10 +65,6 @@ IDL_LONG lf_select_eep(float *in_redshift,
                        float *in_absmmin, 
                        float *in_absmmax, 
                        IDL_LONG in_ngals,
-                       float in_qevolve,
-                       float in_qz0,
-                       float in_absmagdep,
-                       float in_absmagdep0,
                        float in_sample_absmmin,
                        float in_sample_absmmax,
                        float *in_absmk, 
@@ -71,7 +72,6 @@ IDL_LONG lf_select_eep(float *in_redshift,
                        float *sel,
                        IDL_LONG in_nbin)
 {
-  float curr_absmmin,curr_absmmax,curr_zdep;
   IDL_LONG i;
 
   interp_choice=1;
@@ -97,28 +97,13 @@ IDL_LONG lf_select_eep(float *in_redshift,
   lumk=(float *) malloc(sizeof(float)*(nbin+1));
   sample_absmmin=in_sample_absmmin;
   sample_absmmax=in_sample_absmmax;
-  absmagdep=in_absmagdep;
-  absmagdep0=in_absmagdep0;
-  qevolve=in_qevolve;
-  qz0=in_qz0;
 
 	set_WH_interp(interp_choice, sample_absmmax, sample_absmmin, lumk, absmk, 
                 nbin);
   for(i=0;i<nbin;i++) 
     phi[i]=in_phi[i]/(0.4*log(10.)*exp(0.5*(log(lumk[i])+log(lumk[i+1]))));
-  curr_zdep=qevolve;
-	for(i=0;i<ngals;i++) {
-#if 0
-    if(galaxy_absmag[i]<absmagdep0)
-      curr_zdep=absmagdep;
-    else
-      curr_zdep=qevolve;
-		curr_zdep=qevolve*(1.+absmagdep*(galaxy_absmag[i]-absmagdep0));
-#endif
-    curr_absmmin=galaxy_absmmin[i]+curr_zdep*(galaxy_redshift[i]-qz0);
-    curr_absmmax=galaxy_absmmax[i]+curr_zdep*(galaxy_redshift[i]-qz0);
-    sel[i]=selfunc_lf(1.,phi,absmk,nbin,curr_absmmin,curr_absmmax);
-	} /* end for i */
+	for(i=0;i<ngals;i++) 
+    sel[i]=selfunc_lf(1.,phi,absmk,nbin,galaxy_absmmin[i],galaxy_absmmax[i]);
 	unset_WH_interp();
 
   FREEVEC(lumk);
