@@ -63,6 +63,8 @@ ngal=n_elements(galvmatrix)/(n_elements(lambda)-1L)
 vmatrix=fltarr(n_elements(lambda)-1L,ngal)
 vmatrix[*,0:ngal-1]=galvmatrix
 
+for i=0L, ngal-1L do vmatrix[*,i]=smooth(vmatrix[*,i],5)
+
 ; output the appropriate files
 k_write_ascii_table,vmatrix,'vmatrix.'+name+'.dat'
 k_write_ascii_table,lambda,'lambda.'+name+'.dat'

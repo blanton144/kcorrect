@@ -205,6 +205,7 @@ goodindx=where(cnoc_stacked[0,*] gt 0 and $
                cnoc_stacked_ivar[3,*] gt 0 and $
                cnoc_stacked_ivar[4,*] gt 0)
 cnoc2=cnoc2[goodindx]
+cnoc2_childobj=cnoc2_childobj[goodindx]
 cnoc_stacked=cnoc_stacked[*,goodindx]
 cnoc_stacked_ivar=cnoc_stacked_ivar[*,goodindx]
 help,cnoc2
