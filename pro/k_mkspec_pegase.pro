@@ -33,13 +33,6 @@ if (N_params() LT 5) then begin
     return
 endif
 
-; settings
-pi=3.14159265358979D
-littleh=0.7
-km2Mpc=1./3.086d+19
-s2yr=1./3600./24./365.25
-hubble_time=s2yr/(littleh*100.*km2Mpc)
-
 ; defaults
 if(NOT keyword_set(pegasepath)) then $
   pegasepath=getenv('DATA')+'/specmodels/PEGASE.2'
@@ -75,7 +68,7 @@ for m = 0, n_elements(metallicity)-1L do begin
     for a = 0, n_elements(sfhpars)-1L do begin
         contrib=dt*exp(-0.5*((sfhpars[a].age-attime-time)/ $
                              sfhpars[a].agesigma)^2)/ $
-          sqrt(2.*pi*sfhpars[a].agesigma^2)
+          sqrt(2.*!DPI*sfhpars[a].agesigma^2)
         if(keyword_set(maxage)) then begin
             indx=where(time gt maxage-attime,count)
             if(count gt 0) then contrib[indx]=0.d

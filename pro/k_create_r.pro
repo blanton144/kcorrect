@@ -3,12 +3,7 @@
 ;   k_create_r
 ;
 ; PURPOSE:
-;   Create lookup table for calculating SED fits. This tabulates the
-;   projection of each basis element b onto each filter k, as a
-;   function of redshift. You only have to perform this projection
-;   once, since every spectrum we will deal with will be a linear
-;   combination of the basis elements b. To get a particular redshift,
-;   you interpolate the rmatrix in the z direction.
+;   Create lookup table for calculating SED fits. 
 ;
 ; CALLING SEQUENCE:
 ;   k_create_r, rmatrix, bmatrix, lambda, zvals, filterlist, $
@@ -31,9 +26,14 @@
 ;   zmin, zmax, nz  - settings for setting zvals
 ;
 ; COMMENTS:
-;   Keep in mind that this only creates the r matrix for a specific
-;   redshift range; e.g. you have to change the defaults in order to
-;   consider redshifts greater than unity.
+;   This tabulates the projection of each basis element b onto each
+;   filter k, as a function of redshift. You only have to perform this
+;   projection once, since every spectrum we will deal with will be a
+;   linear combination of the basis elements b. To get a particular
+;   redshift, you interpolate the rmatrix in the z direction.  Keep in
+;   mind that this only creates the r matrix for a specific redshift
+;   range; e.g. you have to change the defaults in order to consider
+;   redshifts greater than unity.
 ;
 ; EXAMPLES:
 ;
@@ -48,6 +48,12 @@
 ;-
 ;------------------------------------------------------------------------------
 pro k_create_r, rmatrix, bmatrix, lambda, zvals, filterlist, zmin=zmin, zmax=zmax, nz=nz, filterpath=filterpath
+
+if(n_params() ne 5) then begin
+    print,'Syntax - k_create_r, rmatrix, bmatrix, lambda, zvals, filterlist [, zmin=, $'
+    print,'         zmax=, filterpath=]'
+    return
+endif
 
 klog,'Creating rmatrix ...'
 

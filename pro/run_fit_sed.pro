@@ -100,7 +100,8 @@ if(NOT file_test(savfile)) then begin
 ; get redshifts for all spectra
     sp=hogg_mrdfits(getenv('SDSS_VAGCDIR')+'/sdss_spectro_catalog.fits',1, $
                     columns=['sdss_spectro_z', 'sdss_spectro_zerr', $
-                             'sdss_spectro_zwarning','sdss_spectro_class'],nrowchunk=40000)
+                             'sdss_spectro_zwarning','sdss_spectro_class'], $
+                    nrowchunk=40000)
     
 ; find imaging for all spectra objects
     im_matches=find_matches('sdss_spectro','sdss_imaging')
