@@ -21,7 +21,13 @@ if(nlez gt 0) then begin
     ivar[ilez]=0.
 endif
 
-nmf_sq_m_err, data, 6, mmatrix, ivar, 5000L, ww=ww, hh=hh
+if(file_test('k_nmf_soln.fits')) then begin
+    ww0=mrdfits('k_nmf_soln.fits',0)
+    hh0=mrdfits('k_nmf_soln.fits',1)
+    nmf_sq_m_err, data, 6, mmatrix, ivar, 5000L, ww0, hh0, ww=ww, hh=hh
+endif else begin
+    nmf_sq_m_err, data, 6, mmatrix, ivar, 5000L, ww=ww, hh=hh
+endelse
 
 mwrfits, ww, 'k_nmf_soln.fits', /create
 mwrfits, hh, 'k_nmf_soln.fits'

@@ -7,16 +7,19 @@
 ;     color-color plots, spectra vs. model spectra, star-formation 
 ;     histories, etc.
 ;   Also determines:
-;     stellar mass per unit coefficient of each template
 ;     mass-weighted metallicity of each template
 ;     mass-weighted age of each template 
 ;     passive evolution estimates for each template, assuming constant
-;       SFR into the future, based on +/- 0.5 Gyr 
+;       SFR into the future, based on looking 0.5 Gyr younger
+;     makes standard vmatrix/lambda files 
 ; REVISION HISTORY:
 ;   30-Nov-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
 pro k_qa_nmf
+
+version='test'
+nsubsp=130
 
 ;; read in the template basics
 mmatrix=mrdfits('k_nmf_mmatrix.fits',0,hdr)
@@ -25,9 +28,11 @@ dust=mrdfits('k_nmf_mmatrix.fits',2)
 met=mrdfits('k_nmf_mmatrix.fits',3)
 age=mrdfits('k_nmf_mmatrix.fits',4)
 rawspec=mrdfits('k_nmf_rawspec.fits',0)
-filterlist=mrdfits('k_nmf_mmatrix.fits',5)
+filterlist=string(mrdfits('k_nmf_mmatrix.fits',5))
+early=mrdfits('k_nmf_early.fits',0,earlyhdr)
 zf=mrdfits('k_nmf_mmatrix.fits',6)
 nspec=long(sxpar(hdr, 'NSPEC'))
+back=long(sxpar(hdr, 'BACK'))
 nel=long(sxpar(hdr, 'NEL'))
 nzf=long(sxpar(hdr, 'NZ'))
 nfilter=long(sxpar(hdr, 'NFILTER'))
@@ -48,6 +53,7 @@ templates=mrdfits('k_nmf_soln.fits')
 coeffs=mrdfits('k_nmf_soln.fits',1)
 nt=(size(templates, /dim))[1]
 model=mmatrix#templates#coeffs
+emodel=early#templates#coeffs
 
 ;; determine basic derived quantities from the templates
 t_mass=total(templates[0:nages*nmets*ndusts-1L,*], 1)
@@ -61,6 +67,21 @@ t_age=total((reform(age, nages*nmets*ndusts, 1)# $
              replicate(1., nt))* $
             templates[0:nages*nmets*ndusts-1L,*], 1)/t_mass
 splog, t_age
+mwrfits, t_mass, 'k_nmf_derived.fits', hdr, /create
+mwrfits, t_metallicity, 'k_nmf_derived.fits'
+mwrfits, t_age, 'k_nmf_derived.fits'
+
+;; make vmatrix and lambda
+outvmatrix=mmatrix[0:nspec-1L,*]#templates
+absrc=3.631*2.99792*1.e-2/(lambda[0:nspec-1L])^2
+for i=0L, nt-1L do $
+  outvmatrix[*,i]=outvmatrix[*,i]*absrc
+outlambda=fltarr(nspec+1L)
+dlg10l=alog10(lambda[1])-alog10(lambda[0])
+outlambda[0:nspec-1L]= 10.^(alog10(lambda[0:nspec-1L])-0.5*dlg10l)
+outlambda[nspec]= 10.^(alog10(lambda[nspec-1L])+0.5*dlg10l)
+k_write_ascii_table,outvmatrix,'vmatrix.'+version+'.dat'
+k_write_ascii_table,outlambda,'lambda.'+version+'.dat'
 
 ;; create broadband model fluxes + data
 mfluxes=fltarr(nfilter, n_elements(zhelio))
@@ -159,6 +180,23 @@ for ifilter=0L, nfilter-3L do begin
       ytitle=filternames[ifilter+1]+'-'+filternames[ifilter+2]
     djs_oploterr, color0, color1, xerr=colorerr0, yerr=colorerr1
     djs_oplot, mcolor0, mcolor1, psym=4, color='red'
+endfor
+
+;; look at K-corrections for sanity check
+kcorrect, fluxes, fluxes_ivar, zhelio, kcorrect, $
+  vfile='vmatrix.test.dat', lfile='lambda.test.dat', $
+  filterlist=filterlist
+for i=0L, n_elements(filterlist)-1L do begin
+    djs_plot, zhelio, kcorrect[i,*], psym=4
+endfor
+
+;; random set of spectra
+iran=shuffle_indx(n_elements(zhelio), num_sub=nsubsp)
+for i=0L, nsubsp-1L do begin
+    djs_plot, lambda[0:nspec-1], model[0:nspec-1,iran[i]], color='red', $
+      xra=[3000., 10000.]
+    djs_oplot, lambda[0:nspec-1], data[0:nspec-1,iran[i]], $
+      xra=[3000., 10000.]
 endfor
 
 end_print
