@@ -6,6 +6,9 @@
 //line6
 void printArray( Int32 * );
 
+/* Written Nic Wherry circa July 2003 */
+
+
 void test(void)
 {
   Int32 arr[SIZE] = {1, 2, 3, 4, 5};

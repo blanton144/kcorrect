@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Written Nic Wherry circa July 2003 */
+
 int add(int m, int n)
 {
   return(m+n);

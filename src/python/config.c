@@ -16,6 +16,9 @@ redistribution of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 /* This file contains the table of built-in modules.
    See init_builtin() in import.c. */
 
+/* Altered Nic Wherry circa July 2003 */
+
+
 #include "Python.h"
 
 

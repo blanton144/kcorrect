@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "libnumarray.h"
 #include "numarray.h"
+
+/* Written Nic Wherry circa July 2003 */
+
 #define SIZE 5
 //line 6
 void changeElem( Int32 * );

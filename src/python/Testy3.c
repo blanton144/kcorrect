@@ -6,6 +6,9 @@
 //line 6
 void copyIt(void);
 
+/* Written Nic Wherry circa July 2003 */
+
+
 void test(void)
 {
   printf("This is only a test");

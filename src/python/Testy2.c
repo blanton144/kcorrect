@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Written Nic Wherry circa July 2003 */
+
+
 double dubb( double elem )
 {
   return (2.0*elem);
