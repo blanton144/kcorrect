@@ -1,0 +1,138 @@
+J/ApJ/538/29     HDF-N Caltech faint galaxy redshift survey. X. (Cohen+, 2000)
+================================================================================
+Caltech faint galaxy redshift survey.
+X. A redshift survey in the region of the Hubble Deep Field North.
+    Cohen J.G., Hogg D.W., Blandford R., Cowie L.L., Hu E., Songaila A.,
+    Shopbell P., Richberg K.
+   <Astrophys. J. 538, 29 (2000)>
+   =2000ApJ...538...29C
+================================================================================
+ADC_Keywords: Galaxy catalogs ; Surveys ; Redshifts
+Keywords: cosmology: observations - galaxies: distances and redshifts -
+          galaxies: luminosity function, mass function - surveys
+
+Abstract:
+    A redshift survey has been carried out in the region of the Hubble
+    Deep Field North using the Low Resolution Imaging Spectrograph (LRIS)
+    at the Keck Observatory. The resulting redshift catalog, which
+    contains 671 entries, is a compendium of our own data together with
+    published LRIS/Keck data.
+
+File Summary:
+--------------------------------------------------------------------------------
+ FileName   Lrecl  Records   Explanations
+--------------------------------------------------------------------------------
+ReadMe         80        .   This file
+table2a.dat    59      510   Redshift catalog for the flanking fields of the HDF
+table2b.dat    60      146   Catalog for the HDF
+table3.dat     52       15   Objects slightly outside the sample area
+--------------------------------------------------------------------------------
+
+See also:
+  J/ApJ/471/L5  : Redshift clustering in the Hubble Deep Field (Cohen+ 1996)
+  J/ApJS/127/1  : UGRK Photometry in the Hubble Deep field region (Hogg+, 2000)
+  J/AJ/121/2895 : HDF-N Caltech faint galaxy redshift survey. XIII. (Cohen 2001)
+
+Byte-by-byte Description of file: table2?.dat table3.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1-  2  I2    h       RAh       Right ascension (J2000.0)
+   4-  5  I2    min     RAm       Right ascension (J2000.0)
+   7- 11  F5.2  s       RAs       Right ascension (J2000.0)
+      13  A1    ---     DE-       Declination sign (J2000.0)
+  14- 15  I2    deg     DEd       Declination (J2000.0)
+  17- 18  I2    arcmin  DEm       Declination (J2000.0)
+  20- 24  F5.2  arcsec  DEs       Declination (J2000.0)
+      25  A1    ---   l_Rmag      Limit flag on Rmag
+  26- 30  F5.2  mag     Rmag      R magnitude
+  32- 36  F5.3  ---     z         ? Redshift
+  38- 39  I2    ---     Qual      [1/11]? Quality (1)
+      40  A1    ---   u_Qual      [?] ?: unknown quality
+  42- 43  A2    ---     SpType    Spectral type (2)
+  45- 55  A11   ---   r_SpType    Source (3)
+  57- 59  A3    ---     Note      Individual note (4)
+--------------------------------------------------------------------------------
+Note (1): Quality class (from Cohen et al., 1999ApJS..120..171C):
+       1: Multiple features, {sigma}(z)<=0.002/feature
+       2: Multiple features, {sigma}(z)<=0.004/feature
+       3: Multiple features, faint, id uncertain, {sigma}(z) small 75% of
+           time, and wildly off 25% of time
+       4: One emission line only, solid, assume 3727{AA}
+       5: One emission line only, reality uncertain, assume 3727{AA}
+       6: Multiple features, at least one broad emission line
+       7: Only one broad emission line, assumed to be 2800{AA}
+       8: Single break, assumed to be 4000{AA} break
+       9: Single strong absorption feature, assumed to be 2800{AA}
+           because of shape of continuum
+      11: Etremely faint objects (R>24.3) observed by the Caltech group
+           which turned up serendipitously in slitlets intended for some
+           brighter nearby galaxy and which show only a single emission line
+           with no sign of a continuum. In our previous work, for spectra
+           showing only a single emission line, the assumption was always
+           made that this line is the [O II] line at 3727{AA}. However, in
+           these particular cases, the objects are so faint that we have
+           instead assumed that the emission line is Ly{alpha}.
+Note (2): Spectral type (from Cohen et al., 1999ApJS..120..171C):
+       E: galaxies have spectra dominated by emission lines
+       A: galaxies have spectra dominated by absorption lines
+       I: galaxies are of intermediate type
+       Q: galaxies with broad emission lines
+       B: Starburst galaxies showing the higher Balmer lines (H{gamma},
+           H{delta}, etc.) in emission
+       X: galaxies for which spectra were not available
+       M: stars with presence of TiO bands
+           (and/or CaH bands, for M subdwarfs)
+       S: stars with absence of TiO bands
+           (and/or CaH bands, for M subdwarfs)
+Note (3): Source:
+     Previously published:
+     c96: Cohen et al., 1996, Cat. <J/ApJ/471/L5> (Caltech + Hawaii)
+     l96: Phillips et al., 1997ApJ...489..543P +
+          Lowenthal et al., 1997ApJ...481..673L
+     s96: Steidel et al., 1996AJ....112..352S (see also Dickinson 1998,
+           in The Hubble Deep Field, ed. M. Livio, S. M. Fall, & P. Madau
+           (Cambridge: Cambridge Univ. Press), 219)
+     s99: Steidel et al., 1999, Cat. <J/ApJ/519/1>
+     spi: Spinrad et al., 1998AJ....116.2617S
+     wad: Waddington et al., 1999ApJ...526L..77W
+     wey: Weymann et al., 1998ApJ...505L..95W
+    This paper:
+     cal: Cohen
+     haw: Hawaii
+     st0: Steidel
+Note (4): Individual notes:
+       c: Supplementary object in Hogg et al. (2000, Cat. <J/ApJS/127/1>)
+           catalog
+       d: z changed from published value. See Appendix.
+       e: One of a close pair.
+       f: Available spectra are too red to see 4000{AA} region.
+           Galaxy spectral type could be E, EI, IE or I
+       g: Definite emission line at 8340{AA}, possible emission line at
+           6363{AA}. If both are real, z=0.271. If only the stronger one is
+           real, then z=1.238. Spectrum too red to reach 3727{AA} if z=0.271
+       h: changed from preliminary value in Hogg et al., 1998AJ....115.1418H
+       i: M subdwarf.
+       j: Continuum weak. Spectral type could be E, EI, IE or I
+       k: Emission in H{beta} stronger than in the [O III] line at 5007{AA}
+       l: Faint object in a confused region, match is uncertain.
+       m: The R mag is uncertain.
+       n: The R mag may be slightly too bright due to the close proximity of
+           a brighter galaxy.
+       o: Emission line at 8340{AA} is interpreted at H{alpha}.
+           Spectrum too red to reach 3727{AA} if z=0.271.
+--------------------------------------------------------------------------------
+
+Acknowledgements: From ApJ electronic version
+
+References:
+   Cohen et al.,         Paper VII     1999ApJS..120..171C
+   Cohen et al.,         Paper VIII    1999ApJ...512...30C
+   Hogg et al.,          Paper IX      2000ApJS..127....1H, Cat. <J/ApJS/127/1>
+   Calberg et al.,       Paper XI      2000ApJ...532L...1C
+   Hogg et al.,          Paper XII     2000ApJ...545...32H
+   Cohen,                Paper XIII    2001AJ....121.2895C, Cat. <J/AJ/121/2895>
+   van den Bergh et al., Paper XIV     2000AJ....120.2190V
+   van den Bergh et al., Paper XV      2001AJ....122..611V
+================================================================================
+(End)                                        Patricia Bauer [CDS]    23-Oct-2000

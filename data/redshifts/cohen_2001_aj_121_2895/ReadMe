@@ -1,0 +1,153 @@
+J/AJ/121/2895   HDF-N Caltech faint galaxy redshift survey. XIII.   (Cohen 2001)
+================================================================================
+Caltech Faint Galaxy Redshift Survey.
+XIII. Spectral energy distributions for galaxies in the region of the
+Hubble Deep Field North.
+     Cohen J.G.
+    <Astron. J. 121, 2895 (2001)>
+    =2001AJ....121.2895C
+================================================================================
+ADC_Keywords: Galaxy catalogs ; Energy distributions ; Redshifts
+Keywords: cosmology: observations - galaxies: fundamental parameters -
+          galaxies: luminosity function, mass function - surveys
+
+Abstract:
+    We introduce a new empirical function for modeling the spectral energy
+    distributions (SEDs) of galaxies. We apply it to a sample of 590
+    galaxies in the region of the Hubble Deep Field (HDF) with z<1.5
+    using multicolor photometry with wide wavelength coverage combined
+    with spectroscopic redshifts from our 93% complete R-selected redshift
+    survey there.
+
+File Summary:
+--------------------------------------------------------------------------------
+ FileName  Lrecl  Records  Explanations
+--------------------------------------------------------------------------------
+ReadMe        80        .  This file
+table1.dat    65      542  SED Parameters for Objects in the Region of the HDF
+table6a.dat   45       53  Additional redshifts for galaxies in the HDF-N
+table6b.dat   50        5  Additional redshifts for galaxies in the flanking
+                            fields of the HDF-N
+table7a.dat   64       47  SED parameters for additional galaxies in the
+                            flanking fields of the HDF-N
+table7b.dat   64        2  SED parameters for additional galaxies in the HDF-N
+table8.dat    40        3  Corrections to redshifts for galaxies in the HDF-N
+--------------------------------------------------------------------------------
+
+See also:
+   J/ApJS/127/1 : UGRK Photometry in the Hubble Deep field region (Hogg+, 2000)
+   J/ApJ/538/29 : HDF-N Caltech Faint Galaxy Redshift Survey. X. (Cohen+, 2000)
+
+Byte-by-byte Description of file: table1.dat table7a.dat table7b.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1-  2  I2    h       RAh       Right Ascension (J2000) (1)
+   4-  5  I2    min     RAm       Right Ascension (J2000)
+   7- 11  F5.2  s       RAs       Right Ascension (J2000)
+      13  A1    ---     DE-       Sign of the Declination (J2000)
+  14- 15  I2    deg     DEd       Declination (J2000)
+  17- 18  I2    arcmin  DEm       Declination (J2000)
+  20- 23  F4.1  arcsec  DEs       Declination (J2000)
+  25- 29  F5.2 [W]      logLB     Log of the B band luminosity (2)
+  31- 34  F4.2  ---     UV2p      Rest frame UV power law index of the 2p SED
+                                    model (3)
+  36- 40  F5.2  ---     IR2p      Rest frame power law index in the region
+                                    redward of 4000{AA} of the 2p SED model (3)
+  42- 46  F5.2  ---     UVsBB     Rest frame UV index of the "stretched black
+                                    body" (sBB) SED model (3)
+  48- 52  F5.2 [W]      logLblue  Log of the blue {lambda}_m_ side luminosity
+                                    of the sBB SED model (3)
+  54- 58  I5    ---     Temp      Planck function temperature in the sBB SED
+                                    model (3)
+  60- 64  F5.2 [W]      logLred   Log of the red {lambda}_m_ side luminosity
+                                    of the sBB SED model (3)
+--------------------------------------------------------------------------------
+Note (1): Objects are identified as [C2001b] JHHMMSS.ss+DDMMSS.s in Simbad
+Note (2): M_B_ = -21.0 (rest frame) is equivalent to logLB = 36.9.
+Note (3): Models:
+    We initially adopted the same form for SEDs as Cohen et al.
+    (1999ApJ...512...30C), namely, we assume that the emitted luminosity
+    per unit frequency in the rest frame over the wavelength regime
+    0.2-1.6{mu} can be represented by a power law whose index may change
+    at 4000{AA}. Thus L_{nu}_, with units of watts per hertz, is assumed
+    to be ~{nu}^-{alpha}^, with an index in the region redward of 4000{AA}
+    (in the rest frame), denoted by {alpha}_IR_, and an index in the
+    rest-frame UV of {alpha}_UV_. Three parameters are required to
+    characterize each SED. We refer to this as the 2p SED model.
+
+    To avoid the difficulties of the 2p SED model described above, we have
+    developed a new model for galaxy SEDs. One natural way to introduce
+    the desired curvature in the optical and near-IR spectra region is to
+    replace the power law with a blackbody function. However, the peak of
+    the Planck function itself is too narrow to give a good fit to actual
+    galaxy SEDs, as one might expect for a composite stellar population
+    containing stars with a range of effective temperatures. The
+    empirically determined function we adopt as our SED model, which
+    provides a simple but versatile parameterization of galaxy SEDs with
+    parameters that are physically motivated, has a mathematical form that
+    we denote as a "stretched blackbody" (henceforth sBB). We apply the
+    sBB function to fit the optical/near-IR, while we retain a power-law
+    fit to the UV.
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file: table6a.dat table6b.dat table8.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1-  2  I2    h       RAh       Right Ascension (J2000)
+   4-  5  I2    min     RAm       Right Ascension (J2000)
+   7- 11  F5.2  s       RAs       Right Ascension (J2000)
+      13  A1    ---     DE-       Sign of the Declination (J2000)
+  14- 15  I2    deg     DEd       Declination (J2000)
+  17- 18  I2    arcmin  DEm       Declination (J2000)
+  20- 23  F4.1  arcsec  DEs       Declination (J2000)
+  25- 29  F5.2  mag     Rmag      R magnitude
+  31- 35  F5.3  ---     z         Redshift (1)
+  37- 38  I2    ---   q_z         Quality (2)
+  40- 41  A2    ---     Sp        [AEIM ] Spectral type (3)
+  43- 52  A10   ---   r_z         Source of redshift (4)
+--------------------------------------------------------------------------------
+Note (1): adopted redshift in table8
+Note (2): Quality class:
+     1: Multiple features, sigma(z)<=0.002/feature
+     2: Multiple features, sigma(z)<=0.004/feature
+     3: Multiple features, faint, id uncertain,
+         sigma(z) small 75% of time, and wildly off 25% of time
+     4: One emission line only, solid, assume 3727{AA}
+     5: One emission line only, reality uncertain, assume 3727{AA}
+     6: Multiple features, at least one broad emission line
+     7: Only one broad emission line, assumed to be 2800{AA}
+     8: Single break, assumed to be 4000{AA} break
+     9: Single strong absorption feature, assumed to be 2800{AA}
+         because of shape of continuum
+     0: No redshift
+    11: Not specified in the text (only 3 objects)
+Note (3): Spectral type:
+     A: No emission lines, only absorption features (corresponds to E)
+     E: Dominated by emission lines, 3727, 5007 (corresponds to Sc)
+     I: Intermediate (corresponds to Sa)
+     M: TiO bands (M dwarfs); CaH bands (M subdwarfs)
+Note (4): Source of redshift:
+      AS: From Adelberger & Steidel, 2000ApJ...544..218A
+     Cal: This work
+     St0: Not specified
+     Daw: From Dawson et al., 2001AJ....122..598D
+   Stern: Published in Stern & Spinrad, 1999PASP..111.1475S
+--------------------------------------------------------------------------------
+
+History:
+    From electronic version of the journal
+
+References:
+    Cohen et al.,         Paper VII    1999ApJS..120..171C
+    Cohen et al.,         Paper VIII   1999ApJ...512...30C
+    Hogg et al.,          Paper IX     2000ApJS..127....1H, Cat. <J/ApJS/127/1>
+    Cohen et al.,         Paper X      2000ApJ...538...29C, Cat. <J/ApJ/538/29>
+    Carlberg et al.,      Paper XI     2000ApJ...532L...1C
+    Hogg et al.,          Paper XII    2000ApJ...545...32H
+    Cohen,                Paper XIII   2001AJ....121.2895C, Cat. <J/AJ/121/2895>
+    van den Bergh et al., Paper XIV    2000AJ....120.2190V
+    van den Bergh et al., Paper XV     2001AJ....122..611V
+================================================================================
+(End)                    Greg Schwarz [AAS], Patricia Bauer [CDS]    11-Sep-2001
