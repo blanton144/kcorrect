@@ -3,7 +3,7 @@
 #  "pass" is the contribution to the detector signal per photon
 #         entering the atmosphere of Earth
 #
-# Bandpass Name(s): [SPECIFY]
+# Bandpass Name(s): R
 #
 # Instrument: Hypothetical system developed to match known "standards"
 #             of Johnson/Cousins to spectrophotometry
@@ -32,3 +32,33 @@
 # Michael Blanton
 # 2002-08-19
 #
+
+typedef struct {
+  double lambda;
+  double pass;
+} KFILTER;
+
+KFILTER 5500. 0.00
+KFILTER 5600. 0.23
+KFILTER 5700. 0.74
+KFILTER 5800. 0.91
+KFILTER 5900. 0.98
+KFILTER 6000. 1.00
+KFILTER 6100. 0.98
+KFILTER 6200. 0.96
+KFILTER 6300. 0.93
+KFILTER 6400. 0.90
+KFILTER 6500. 0.86
+KFILTER 6600. 0.81
+KFILTER 6700. 0.78
+KFILTER 6800. 0.72
+KFILTER 6900. 0.67
+KFILTER 7000. 0.61
+KFILTER 7100. 0.56
+KFILTER 7200. 0.51
+KFILTER 7300. 0.46
+KFILTER 7400. 0.40
+KFILTER 7500. 0.35
+KFILTER 8000. 0.14
+KFILTER 8500. 0.03
+KFILTER 9000. 0.00

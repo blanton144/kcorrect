@@ -14,34 +14,36 @@ foreach $band (@bands) {
 	open(ifp,"$twomassdir/${band}total.html");
 	$nlines=0;
 	while(<ifp>) {
-		chop;
+		chomp;
 		split;
 		if($_[0]>0) {
 			$nlines++;	
 		}
 	}
 	
-	open(ofp,">./twomass_$band.dat");
+	open(ofp,">./twomass_$band.par");
 	open(ifp,"twomassheader");
 	while(<ifp>) {
 		s/\[SPECIFY\]/$band/g;	
 		print ofp;
 	}
 	close(ifp);
-	printf ofp "%d 2 2\n",$nlines;
+	print ofp "\ntypedef struct {\n";
+	print ofp "  double lambda;\n";
+	print ofp "  double pass;\n";
+	print ofp "} KFILTER;\n\n";
 	open(ifp,"$twomassdir/${band}total.html");
 	while(<ifp>) {
 		$line=$_;
+		chomp;
 		split;
 		if($_[0]>0) {
-			chop;
+			chomp;
 			split;
 			$lambda=$_[1]*10000.;
 			$response=$_[2];
-			printf ofp "%e %e\n",$lambda,$response;
-		} else {
-			print ofp "# $line";
-		}
+			printf ofp "KFILTER %e %e\n",$lambda,$response;
+		} 
 	}
 	close(ifp);
 	close(ofp);

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w 
+#!/usr/local/bin/perl 
 
 #
 # Give the directory with the JEG results, and it 
@@ -19,8 +19,9 @@ foreach $band (@bands) {
 				$nlines++;	
 			}
 		}
+		close(ifp);
 
-		open(ofp,">./sdss_$band$col.dat");
+		open(ofp,">./sdss_$band$col.par");
 		open(ifp,"sdssheader");
 		$colname="Column $col";
 		if($col == 0) {
@@ -32,10 +33,19 @@ foreach $band (@bands) {
 			print ofp;
 		}
 		close(ifp);
-		printf ofp "%d 6 3\n",$nlines;
+		print ofp "\ntypedef struct {\n";
+		print ofp "  double lambda;\n";
+		print ofp "  double vacuum_pass;\n";
+		print ofp "  double pass_1_0;\n";
+		print ofp "  double pass;\n";
+		print ofp "  double pass_1_6;\n";
+		print ofp "  double pass_1_9;\n";
+		print ofp "} KFILTER_SDSS;\n\n";
 		open(ifp,"$jegdir/sdss_$band$col.res");
 		while(<ifp>) {
-			print ofp;
+			if(!/^\#.*/) {
+				print ofp "KFILTER_SDSS $_";
+			}
 		}
 		close(ifp);
 		close(ofp);

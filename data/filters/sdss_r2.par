@@ -1,0 +1,115 @@
+# Units:
+#  "lambda" is in Angstroms
+#  "pass" is the contribution to the detector signal per photon
+#         entering the atmosphere of Earth (for airmass 1.3)
+#  "pass_1_[069]" are the contribution to the signal for airmasses
+#         1.0, 1.6, and 1.9 respectively
+#
+# Bandpass Name(s): r
+#
+# Instrument: SDSS telescope at APO Column 2
+# 
+# Determined by: Jim Gunn, Mamoru Doi, Daniel Eisenstein
+#
+# Date of determination: 2001-12-18
+#
+# Meaning of/Reason for default column: 1.3 airmass; SDSS magnitudes are
+#   calibrated to this airmass
+#
+# Notes:
+#
+#  Keep in mind that SDSS pipelines are output in the MAYBE magnitude 
+#  system, which is currently (2002-08-19) thought to be related to
+#  the AB magnitude system by the offsets:
+#
+#    u(AB,2.5m) = u(MAYBE,2.5m) - 0.042
+#    g(AB,2.5m) = g(MAYBE,2.5m) + 0.036
+#    r(AB,2.5m) = r(MAYBE,2.5m) + 0.015
+#    i(AB,2.5m) = i(MAYBE,2.5m) + 0.013
+#    z(AB,2.5m) = z(MAYBE,2.5m) - 0.002
+#
+#  See sdss-general/2486 or contact David W. Hogg for details.
+#
+#  The following notes come from Jim Gunn:
+# 
+#    These files are the response functions as measured by Mamoru Jan 2001,
+#    interpolated to fill in the sharp corner near the red cutoff using model
+#    filters and then splined to a standard wavelengh set, shared by all of
+#    the files in this set of response functions for all the telescopes.
+#  
+#    The files indexed 0 are the response functions averaged over the six
+#    columns of the camera.
+#    
+#    The file sdssav.lis is a list of magnitudes (V=0) and colors for these
+#    (average) response functions at 1.3 airmasses run against the
+#    Gunn-Stryker spectrophotometric atlas stars and the AB95 standards. 
+#    These are AB magnitudes, note, not whatever system we will come up with. 
+#    To transform from USNO magnitudes to a natural SDSS AB system, the
+#    best-guess transformations as of this writing are
+#  
+#    u_AB = u' - 0.04 - 0.003*(u'-g')
+#    
+#    g_AB = g'        + 0.069*(g'-r') 
+#    
+#    r_AB = r'        + 0.038*(r'-i') 
+#    
+#    i_AB = i'        + 0.049*(r'-i')
+#    
+#    z_AB = z' - 0.01 + 0.011*(i'-z')
+#    
+#    but these are based ENTIRELY on calculations, and should be much better
+#    determined by observations shortly.
+#    
+#    jeg011218
+#
+
+typedef struct {
+  double lambda;
+  double vacuum_pass;
+  double pass_1_0;
+  double pass;
+  double pass_1_6;
+  double pass_1_9;
+} KFILTER_SDSS;
+
+KFILTER_SDSS   5230   0.0000   0.0000   0.0000   0.0000   0.0000
+KFILTER_SDSS   5280   0.0020   0.0014   0.0013   0.0013   0.0012
+KFILTER_SDSS   5330   0.0013   0.0009   0.0008   0.0008   0.0008
+KFILTER_SDSS   5380  -0.0027  -0.0019  -0.0018  -0.0017  -0.0017
+KFILTER_SDSS   5430   0.0100   0.0069   0.0066   0.0064   0.0062
+KFILTER_SDSS   5480   0.0601   0.0413   0.0399   0.0385   0.0372
+KFILTER_SDSS   5530   0.1513   0.1040   0.1005   0.0971   0.0937
+KFILTER_SDSS   5580   0.2765   0.1902   0.1838   0.1775   0.1715
+KFILTER_SDSS   5630   0.4015   0.2764   0.2671   0.2580   0.2493
+KFILTER_SDSS   5680   0.4938   0.3401   0.3286   0.3176   0.3069
+KFILTER_SDSS   5730   0.5534   0.3814   0.3686   0.3563   0.3445
+KFILTER_SDSS   5780   0.5886   0.4060   0.3926   0.3797   0.3672
+KFILTER_SDSS   5830   0.6078   0.4200   0.4064   0.3932   0.3805
+KFILTER_SDSS   5880   0.6189   0.4286   0.4150   0.4019   0.3892
+KFILTER_SDSS   5930   0.6262   0.4349   0.4217   0.4088   0.3963
+KFILTER_SDSS   5980   0.6324   0.4409   0.4280   0.4154   0.4033
+KFILTER_SDSS   6030   0.6359   0.4453   0.4330   0.4210   0.4093
+KFILTER_SDSS   6080   0.6354   0.4470   0.4354   0.4240   0.4130
+KFILTER_SDSS   6130   0.6346   0.4483   0.4372   0.4264   0.4159
+KFILTER_SDSS   6180   0.6375   0.4516   0.4409   0.4306   0.4205
+KFILTER_SDSS   6230   0.6433   0.4564   0.4461   0.4360   0.4262
+KFILTER_SDSS   6280   0.6497   0.4615   0.4514   0.4415   0.4318
+KFILTER_SDSS   6330   0.6537   0.4647   0.4548   0.4451   0.4357
+KFILTER_SDSS   6380   0.6535   0.4648   0.4552   0.4458   0.4365
+KFILTER_SDSS   6430   0.6523   0.4641   0.4548   0.4456   0.4366
+KFILTER_SDSS   6480   0.6529   0.4648   0.4557   0.4468   0.4380
+KFILTER_SDSS   6530   0.6509   0.4638   0.4550   0.4464   0.4380
+KFILTER_SDSS   6580   0.6441   0.4589   0.4504   0.4421   0.4339
+KFILTER_SDSS   6630   0.6266   0.4451   0.4367   0.4284   0.4203
+KFILTER_SDSS   6680   0.5445   0.3848   0.3771   0.3696   0.3622
+KFILTER_SDSS   6730   0.4040   0.2856   0.2800   0.2746   0.2693
+KFILTER_SDSS   6780   0.2366   0.1692   0.1666   0.1640   0.1614
+KFILTER_SDSS   6830   0.0982   0.0689   0.0675   0.0661   0.0647
+KFILTER_SDSS   6880   0.0329   0.0219   0.0211   0.0204   0.0196
+KFILTER_SDSS   6930   0.0148   0.0101   0.0098   0.0095   0.0092
+KFILTER_SDSS   6980   0.0077   0.0055   0.0054   0.0053   0.0052
+KFILTER_SDSS   7030   0.0038   0.0027   0.0026   0.0026   0.0026
+KFILTER_SDSS   7080   0.0021   0.0015   0.0015   0.0015   0.0015
+KFILTER_SDSS   7130   0.0014   0.0010   0.0010   0.0009   0.0009
+KFILTER_SDSS   7180   0.0006   0.0004   0.0004   0.0004   0.0004
+KFILTER_SDSS   7230   0.0000   0.0000   0.0000   0.0000   0.0000
