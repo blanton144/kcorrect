@@ -81,11 +81,12 @@ In order to compile the code follow these directions:
 <li> First set the environmental variables (in, for example, bash):
 <pre>
 KCORRECT_DIR=/usr/local/kcorrect
-IDL_PATH=${IDL_PATH}:+$KCORRECT_DIR/pro
+IDL_PATH=$IDL_PATH:+$KCORRECT_DIR/pro
 IDL_FLAG="-DLINKTOIDL"
 MAKE_FTNLIB="-lg2c"
 KCORRECT_LD_LIB="/usr/lib"
 PATH=$KCORRECT_DIR/bin:$PATH
+export KCORRECT_LD_LIB IDL_FLAG MAKE_FTNLIB KCORRECT_DIR 
 </pre>
 These default settings may need to be changed on your system as
 follows:
