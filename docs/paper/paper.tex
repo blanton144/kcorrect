@@ -21,6 +21,8 @@
 \newcommand{\petroratiolim}{{{\mathcal{R}}_{P,\mathrm{lim}}}}
 \newcommand{\band}[2]{\ensuremath{^{#1}\!{#2}}}
 
+\newcommand{\kversion}{{\tt v1\_10}}
+
 \setlength{\footnotesep}{9.6pt}
 
 \newcounter{thefigs}
@@ -408,7 +410,7 @@ $K$-corrections of galaxies. Each of these papers tabulates $K(z)$
 (called $k(z)$ by \citealt{frei94a}) for galaxies of various
 morphological types, based on galaxy spectrophotometry.\footnote{Note
 that the description on p. 57 of \citet{binney98a} of the meaning of
-$k(z)$ in \citet{frie94a} is incorrect; in fact, $k(z)\equiv K(z)$.}
+$k(z)$ in \citet{frei94a} is incorrect; in fact, $k(z)\equiv K(z)$.}
 
 However, galaxies do not all have the same SED, nor are they selected
 from some discrete set of SEDs. For this reason, these schemes for
@@ -449,7 +451,7 @@ users may be incorporated into the code upon request. The conditions
 of use for the code are that this paper is cited in any resulting
 refereed journal article and that the version of the code used is
 specified in any such paper. The version of the code used to make the
-figures for this paper is {\tt kcorrect v1\_9}.
+figures for this paper is {\tt kcorrect \kversion}.
 
 We refer throughout this paper to $AB$ magnitudes, meaning that the
 magnitudes are designed such that ():
@@ -615,7 +617,7 @@ $\vv{e}_i$ (for $i>0$) such that they are aligned with the principal
 axes of the ellipsoid. Furthermore, we normalize the vectors
 $\vv{e}_i$ such that the zeroth component $a_0=F_t$ is output by the
 code in units of ergs cm$^{-2}$ s$^{-1}$ (within the range
-$\ambda_{\mathrm{min}} <\lambda < \lambda_{\mathrm{max}}$).
+$\lambda_{\mathrm{min}} <\lambda < \lambda_{\mathrm{max}}$).
 
 In this way, we can reconstruct SEDs based on the broad-band
 magnitudes of galaxies. From these reconstructed SEDs one can estimate
@@ -755,7 +757,7 @@ from theory.
 
 \subsection{Public Access to the Code}
 
-The version of the $K$-correction code ({\tt v1\_9}) implementing the
+The version of the $K$-correction code (\kversion) implementing the
 calculations described here, along with eigentemplates and filter
 curves is publicly available on the World Wide Web at {\tt
 http://physics.nyu.edu/\~\ mb144/kcorrect}.  The whole of the code can

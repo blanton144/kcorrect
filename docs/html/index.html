@@ -5,7 +5,7 @@
  
 <p>
 <a href="coeff_anim.default.500.gif">
-<img src="coeff_anim.default.50.gif" width=50 height=50 border=0></a>
+<img src="coeff_anim.default.80.gif" width=80 height=80 border=0></a>
 </p>
 
 <p> Mike Blanton, Department of Physics, New York University </p>
@@ -55,6 +55,7 @@ version from this site. The tagged and released versions, from latest
 to earliest, are:
 <ul>
 <li> <a href="kcorrect.v1_8.tar.gz"> kcorrect.v1_8.tar.gz</a>
+<li> <a href="kcorrect.v1_8.tar.gz"> kcorrect.v1_10.tar.gz</a>
 </ul>
 The earlier versions are only included so that you can reproduce old
 results if you like.
@@ -214,7 +215,7 @@ set of magnitudes or maggies. It is called as follows:
 <pre>
 kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0 [, $
     kcorrectz=, /maggies, version=, vpath=, rmatrix=, ematrix=, $
-    zvals=, coeffs=, /sdssfix]
+    zvals=, coeffs=, /sdssfix, /vconstraint]
 </pre>
 If the "/maggies" flag is specified, galaxy_mag and galaxy_magerr are
 in maggies; otherwise they are in magnitudes (see explanation
@@ -222,10 +223,14 @@ above). They should be [5,n] arrays. The reconstructed magnitudes are
 returned in galaxy_mag0. If kcorrectz is set, all of the magnitudes
 are reconstructed at the specified redshift; otherwise they are
 reconstructed at the redshift of each object. Ignore version and vpath
-UNLESS you want to specify your own set of templates. Finally, the
-flag "/sdssfix" makes an attempt to analyze your magnitudes and fix
-wacky magnitudes and errors to "reasonable" values for galaxies. This
-flag is recommended for SDSS data.</p>
+UNLESS you want to specify your own set of templates. the flag
+"/sdssfix" makes an attempt to analyze your magnitudes and fix wacky
+magnitudes and errors to "reasonable" values. This flag is recommended
+for SDSS data. Finally, the "/vconstraint" flag imposes a constraint
+that the galaxy not reside too far out of the ellipsoid containing
+most of the well-measured galaxies; again, this helps when data is
+missing or noisy, and has little affect when high signal-to-noise data
+is available, so it is highly recommended..</p>
 
 <p>
 For example, one might do the following:
@@ -433,11 +438,13 @@ the routines "k_fit_coeffs" and "k_reconstruct_maggies".
 <li> <b>k_fit_coeffs</b> is called as:
 <pre>
 k_fit_coeffs(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_maggies,
-             galaxy_invvar,galaxy_z,ngalaxy);
+             galaxy_invvar,galaxy_z,constraints_amp,constraints_mean,
+             constraints_var,nconstraints,ngalaxy);
 </pre>
 where galaxy_maggies and galaxy_invvar are expressed in maggies. The 
 array coeffs should be of the size (nt*ngalaxy), and the coefficients
-are returned in it.
+are returned in it. The constraints are the direct constraints on the 
+coefficients (as described in the paper).
 <li> <b>k_reconstruct_maggies</b> is called as:
 <pre>
 k_reconstruct_maggies(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_z,
@@ -467,6 +474,7 @@ other systematic effects, which are poorly known. I usually add errors
 of [0.05,0.02,0.02,0.02,0.03] in ugriz in quadrature to the estimated
 errors from PHOTO, which makes things considerably better behaved.
 
+<!-- 
 <h3> A Note on the g/r Gap</h3>
 
 As noted in the <a href="paper.ps"> kcorrection paper</a>, there is a
@@ -500,7 +508,7 @@ when you are dealing with the LRGs, for galaxies in the range about
 0.27 < z < 0.33. The Main Sample results are not significantly
 affected at all.  Furthermore, one can still observe a galaxy at z=0.1
 and reliably infer what it would look like at z=0.3; it is only the
-reverse process which is difficult.
+reverse process which is difficult. -->
 
 <hr> 
 

@@ -106,7 +106,7 @@ ncolor= n_elements(colorname)
 
 !p.multi=[nk,1,nk]
 bands=['u','g','r','i','z']
-siglim=djsig(galaxy_reconstruct_maggies[2,*]/galaxy_maggies[2,*],sigrej=5)
+siglim=djsig(galaxy_reconstruct_maggies[2,*]/galaxy_maggies[2,*],sigrej=3)
 for k=0l, nk-1 do begin
     !X.CHARSIZE = tiny
     !Y.CHARSIZE = 1.2*axis_char_scale
@@ -116,7 +116,7 @@ for k=0l, nk-1 do begin
     if (k eq nk-1) then !X.TITLE = 'Redshift z'
     !X.RANGE=[0.,0.5]
     !Y.RANGE=1.+nsig*[-siglim,siglim]
-    sig=djsig(galaxy_reconstruct_maggies[k,*]/galaxy_maggies[k,*],sigrej=5)
+    sig=djsig(galaxy_reconstruct_maggies[k,*]/galaxy_maggies[k,*],sigrej=3)
     djs_plot,galaxy_z,galaxy_reconstruct_maggies[k,*]/galaxy_maggies[k,*], $
       psym=3,xst=1,yst=1
     xyouts,!X.RANGE[1]-0.18*(!X.RANGE[1]-!X.RANGE[0]), $
