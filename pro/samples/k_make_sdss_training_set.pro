@@ -34,8 +34,8 @@ pro k_stack_south, ra, dec, modelflux, modelflux_ivar
     runs=sdss_runlist(/science)
     southern_runs=runs[where(runs.stripe eq 82 and runs.comments eq '')]
     nsouth=n_elements(southern_runs)
-    modelflux=fltarr(5,n_elements(tostack),nsouth)
-    modelflux_ivar=fltarr(5,n_elements(tostack),nsouth)
+    modelflux=fltarr(5,n_elements(ra),nsouth)
+    modelflux_ivar=fltarr(5,n_elements(ra),nsouth)
     for i=0L, nsouth-1L do begin 
         obj=sdss_findobj(ra, dec, run=southern_runs[i].run, rerun=137, $
                          childobj=childobj) 
@@ -60,7 +60,7 @@ if(NOT keyword_set(shiftband)) then shiftband=[-0.042,0.036,0.015,0.013,-0.002]
 if(NOT keyword_set(errband)) then errband=[0.05,0.02,0.02,0.02,0.03]
 if(NOT keyword_set(errlimit)) then errlimit=fltarr(5)+1.0d
 if(NOT keyword_set(maglimit)) then maglimit=fltarr(5)+30.0d
-if(NOT keyword_set(modelzlim)) then modelzlim=0.15
+if(NOT keyword_set(modelzlim)) then modelzlim=0.0001
 if(NOT keyword_set(name)) then name='test'
 
 ; get data to search through
