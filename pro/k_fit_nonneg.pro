@@ -36,7 +36,8 @@ function k_fit_nonneg, maggies, maggies_err, vmatrix, $
                        band_shift=band_shift, version=version, vpath=vpath, $
                        filterlist=filterlist, filterpath=filterpath, $
                        maxiter=maxiter, rmatrix=rmatrix,zvals=zvals, $
-                       chi2=chi2, quiet=quiet
+                       chi2=chi2, quiet=quiet, condition_mean=condition_mean, $
+                       condition_var=condition_var
                        
 
 if(n_elements(band_shift) eq 0) then band_shift=0.
@@ -80,6 +81,7 @@ nv=long(n_elements(rmatrix)/(nz*nk))
 ; Do fit (this will later be integrated into the C-code, which will be
 ; faster and more portable)
 coeffs=dblarr(nv,ngalaxy)
+chi2=dblarr(ngalaxy)
 for i=0L, ngalaxy-1L do begin
     if(not keyword_set(quiet)) then $
       splog,i
@@ -97,13 +99,22 @@ for i=0L, ngalaxy-1L do begin
     endfor
     offset=0.5*total((maggies[*,i]/maggies_err[*,i])^2,/double)
 
+    if(keyword_set(condition_mean)) then begin
+        for j=0L,nv-1L do $
+          invcovar[j,j]=invcovar[j,j]+1./(condition_var[j,i]^2)
+        bb=bb-condition_mean[*,i]/condition_var[*,i]^2
+        offset=offset+0.5*total(condition_mean[*,i]^2/condition_var[*,i]^2, $
+                                /double)
+    endif
+
     start=replicate(1.e-3,nv)+1.e-3*randomu(seed,nv)
-    coeffs[*,i]=nonneg_mult_update_solve(start,invcovar,bb,value=chi2, $
+    coeffs[*,i]=nonneg_mult_update_solve(start,invcovar,bb,value=tmp_chi2, $
                                          offset=offset,/matrix,tol=tol, $
                                          niter=niter,maxiter=maxiter, $
                                          chi2tol=0.5,skip=100)
     if(not keyword_set(quiet)) then $
-      splog,chi2
+      splog,tmp_chi2
+    chi2[i]=tmp_chi2
 endfor
 
 return, coeffs

@@ -33,12 +33,13 @@
 ;   04-Jan-2002  Written by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_ortho_templates, vmatrix, lambda, bmatrix, bflux, sublmin=sublmin, sublmax=sublmax
+pro k_ortho_templates, vmatrix, lambda, bmatrix, bflux, sublmin=sublmin, $
+                       sublmax=sublmax, bdotv=bdotv
 
 ; Need at least 3 parameters
 if (N_params() LT 4) then begin
     klog, 'Syntax - k_ortho_templates, vmatrix, lambda, bmatrix, bflux,'
-    klog, '     [sublmin=, sublmax=]'
+    klog, '     [sublmin=, sublmax=, bdotv=]'
     return
 endif
 
@@ -73,5 +74,15 @@ for b = 0l, nb-1l do begin
 	bflux[b]=total((lambda[subindxp1]-lambda[subindx]) $
 								 *bmatrix[subindx,b],/double)
 endfor 
+
+if(arg_present(bdotv)) then begin
+    bdotv=dblarr(nb,nb)
+    for b = 0l, nb-1l do begin
+        for bp = 0l, nb-1l do begin
+            bdotv[b,bp]=total((lambda[subindxp1]-lambda[subindx])* $
+                              bmatrix[subindx,b]*vmatrix[subindx,bp],/double)
+        endfor
+    endfor
+endif
 
 end

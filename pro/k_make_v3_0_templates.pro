@@ -50,7 +50,7 @@ dust.structure=['c','c','c']
 dust.tauv=[0.,3.5,8.]
 
 ; make metallicity
-metallicity=['02','004']
+metallicity=['02','004','0008']
 
 ; make galaxy templates 
 k_mkspec_pegase, galvmatrix, lambda, metallicity, dust, $
