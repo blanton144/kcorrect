@@ -27,7 +27,7 @@ pro k_fit_nonneg_photoz, maggies, maggies_err, vmatrix, $
                          zmin=zmin,zmax=zmax, chi2=chi2
 
 if(n_elements(zmin) eq 0) then zmin=0.001
-if(n_elements(zmax) eq 0) then zmax=3.
+if(n_elements(zmax) eq 0) then zmax=1.
 if(n_elements(nz) eq 0) then nz=300
 
 k_create_r,rmatrix,vmatrix,lambda,zvals,filterlist,filterpath=filterpath, $

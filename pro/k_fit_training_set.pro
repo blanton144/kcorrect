@@ -99,7 +99,7 @@ endif else begin
     restore,savfile
 endelse
 
-indx=lindgen(n_elements(gals))
+indx=lindgen(3000)
 gals=gals[indx]
 coeffs=coeffs[*,indx]
 maggies=maggies[*,indx]
@@ -186,9 +186,8 @@ for i=0,npca do $
   eigencoeffs[i,*]=eigencoeffs[i,*]*flux_total
 
 ; Output QA 
-nuse=1
-k_reconstruct_maggies,eigencoeffs[0:nuse,*],gals[*].redshift,rec_maggies, $
-  zvals=zvals,lambda=lambda,bmatrix=bmatrix,ematrix=newematrix[*,0:nuse], $
+k_reconstruct_maggies,eigencoeffs[0:npca-1,*],gals[*].redshift,rec_maggies, $
+  zvals=zvals,lambda=lambda,bmatrix=bmatrix,ematrix=newematrix[*,0:npca-1], $
   filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
 set_print,filename='qa_k_fit_training_set_pca_coeffs.ps'
 umg_model=-2.5*alog10(rec_maggies[0,*]/rec_maggies[1,*])
@@ -309,7 +308,28 @@ for i=0L, n_elements(indx)-1L do begin & $
   photoz[i]=0.+1.*(double(iminchi2)+0.5)/100. & $
   thefit[i]=fit[iminchi2,1,i]/fit[iminchi2,0,i] & $
   endfor    
-    
+stop
+
+threevecs=[[1.,0.05,0.09,-0.045], $
+           [1.,0.18,-0.08,0.04]]
+;vmatrix_nn=vmatrix_tweaked#threevecs
+vmatrix_nn=bmatrix#(newematrix#threevecs)
+coeffs_nn=k_fit_nonneg(maggies[*,0:100],maggies_err[*,0:100],vmatrix_nn, $
+                       lambda,redshift=gals[0:100].redshift, $
+                       filterlist=['sdss_u0','sdss_g0','sdss_r0', $
+                                   'sdss_i0','sdss_z0']+'.dat', $
+                       chi2=chi2,rmatrix=rmatrix,zvals=zvals,maxiter=5000)
+;k_tweak_templates, maggies[*,0:300], maggies_ivar[*,0:300], $
+  ;gals[0:300].redshift, coeffs, vmatrix_nn, lambda, filterlist=filterlist, $
+  ;maggies_factor=maggies_factor, vmatrix_tweaked=vmatrix_tweaked_nn
+;for i=0L, 4L do $
+  ;maggies[i,*]=maggies[i,*]*maggies_factor[i]
+k_fit_nonneg_photoz,maggies[*,0:100],maggies_err[*,0:100],vmatrix_tweaked_nn, $
+  lambda,redshift=redshift, chi2=chi2, maxiter=2000, $
+  filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
+!P.MULTI=0
+plot,gals[0:100].redshift,redshift[0:100]-gals[0:100].redshift,psym=4,xra=[0.,0.5],yra=[0.,0.5]
+
 stop
 
 end
