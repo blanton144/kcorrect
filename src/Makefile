@@ -43,6 +43,8 @@ OBJECTS = \
 	k_cholsl.o \
 	k_locate.o \
 	k_brent.o \
+	k_evolve.o \
+	k_zbrent.o \
 	k_polint.o \
 	idl_lf_calc_vmax.o \
 	idl_ztoV.o \
