@@ -12,6 +12,8 @@
 ; COMMENTS:
 ;   ToDo -- track units better
 ;           map coefficients BACK to SFH. 
+;           check fit to SDSS ugriz of CNOC2 (right now CNOC2 doesn't
+;           get g band right)
 ; EXAMPLES:
 ; BUGS:
 ; PROCEDURES CALLED:
@@ -26,7 +28,7 @@ if(NOT keyword_set(npca)) then npca=5
 if(NOT keyword_set(sublmin)) then sublmin=2000.
 if(NOT keyword_set(sublmax)) then sublmax=12000.
 
-savfile='testdata_k_fit_sdss_training_set.sav'
+savfile='test3data_k_fit_sdss_training_set.sav'
 
 if(not file_test(savfile)) then begin
 ;   read in sdss stuff
@@ -38,13 +40,13 @@ if(not file_test(savfile)) then begin
 ;   read in CNOC2 data 
     cnoc2=yanny_readone(getenv('KCORRECT_DIR')+ $
                         '/data/redshifts/cnoc2/cnoc2.par')
-    indx=where(cnoc2.z lt 0.8 and $
+    cnoc2_indx=where(cnoc2.z lt 0.8 and $
                cnoc2.UBVRI[0] lt 29. and $
                cnoc2.UBVRI[1] lt 29. and $
                cnoc2.UBVRI[2] lt 29. and $
                cnoc2.UBVRI[3] lt 29. and $
                cnoc2.UBVRI[4] lt 29.)
-    cnoc2=cnoc2[indx]
+    cnoc2=cnoc2[cnoc2_indx]
     vega2ab_UBVRI=k_vega2ab(filterlist=['bessell_U.par', $
                                         'bessell_B.par', $
                                         'bessell_V.par', $
@@ -52,6 +54,10 @@ if(not file_test(savfile)) then begin
                                         'bessell_I.par'],/kurucz)
     for i=0, 4 do $
       cnoc2.UBVRI[i]=cnoc2.UBVRI[i]+vega2ab_UBVRI[i]
+    restore,'cnoc2_sdssmatch2.sav'
+    b=b[cnoc2_indx]
+    childobj=childobj[cnoc2_indx]
+    obj=obj[cnoc2_indx]
 
 ;   HACK to improve precision
     ;err_band=[0.034,0.017,0.017,0.017,0.027]
@@ -97,10 +103,14 @@ if(not file_test(savfile)) then begin
       1./(0.4*alog(10.)*maggies[7,isdss[indx]]* $
           table_xsc_matched[indx].k_msig_k20fe)^2
 
+    maggies[0:4,n_elements(gals):n_elements(redshift)-1L]= $
+      childobj.modelflux*1.e-9
     maggies[8:12,n_elements(gals):n_elements(redshift)-1L]= $
       10.^(-0.4*(cnoc2.UBVRI))
+    maggies_ivar[0:4,n_elements(gals):n_elements(redshift)-1L]= $
+      childobj.modelflux_ivar*1.e+18
     maggies_ivar[8:12,n_elements(gals):n_elements(redshift)-1L]= $
-      cnoc2.UBVRI_ivar/ $
+      0.*cnoc2.UBVRI_ivar/ $
       (maggies[8:12,n_elements(gals):n_elements(redshift)-1L]*0.4*alog(10.))^2
     
     k_read_ascii_table,vmatrix,'vmatrix.'+name+'.dat'
@@ -119,9 +129,11 @@ if(not file_test(savfile)) then begin
     plate=long(gals.sdss_spectro_tag/ulong64(10000000000))
     tmp_indx=where(plate ge 669 and plate le 672)
     useit[tmp_indx]=1
+    useit[*]=0
     useit[n_elements(gals):n_elements(redshift)-1L]=1
     use_indx=where(useit gt 0)
-    stop
+    tmp_indx=shuffle_indx(n_elements(redshift),num_sub=10)
+    use_indx=use_indx[tmp_indx]
     coeffs=k_fit_nonneg(maggies[*,use_indx],maggies_ivar[*,use_indx],vmatrix, $
                         lambda,redshift=redshift[use_indx], $
                         filterlist=['sdss_u0.par','sdss_g0.par', $

@@ -167,22 +167,77 @@ for i=0L, n_elements(shiftband)-1L do $
 for i=0L, n_elements(errband)-1L do $
   mag_err[i,*]=sqrt(mag_err[i,*]^2+errband[i]^2)
 
+; match with 2MASS
+twomass=k_read_tbl(getenv('DATA')+'/2mass/fp_2mass.fp_xsc18662.tbl')
+indx=where(twomass.j_m_k20fe gt 0. and $
+           twomass.h_m_k20fe gt 0. and $
+           twomass.k_m_k20fe gt 0.)
+twomass=twomass[indx]
+spherematch,im.ra,im.dec,twomass.ra,twomass.dec,2./3600., $
+  sdss_indx,twomass_indx,distance12
+twomass=twomass[twomass_indx]
+newtwomass1=create_struct(twomass[0],'sdss_indx',0L)
+newtwomass=replicate(newtwomass1,n_elements(twomass))
+struct_assign,twomass,newtwomass
+newtwomass.sdss_indx=sdss_indx
+twomass=newtwomass
+newtwomass=0
+
+; add CNOC2 data
+cnoc2=mrdfits(getenv('KCORRECT_DIR')+'/data/redshifts/cnoc2.fits');
+cnoc2_obj=mrdfits(getenv('KCORRECT_DIR')+'/data/redshifts/cnoc2-obj.fits');
+cnoc2_childobj=mrdfits(getenv('KCORRECT_DIR')+ $
+                       '/data/redshifts/cnoc2-childobj.fits') ;
+cnoc2_indx=where(cnoc2_obj.matchdist*3600. lt 10.)
+cnoc2=cnoc2[cnoc2_indx]
+cnoc2_obj=cnoc2_obj[cnoc2_indx]
+cnoc2_childobj=cnoc2_childobj[cnoc2_indx]
+
 ; now output 
+; make into maggies here ....
 outfile='sdss_training_set.'+name+'.fits'
 hdr=strarr(1)
 sxaddpar,hdr,'DATE',systime(),'date of creation'
 sxaddpar,hdr,'KVERSION',k_version(),'version of kcorrect'
-outstr1={mag:fltarr(5), mag_ivar:fltarr(5), redshift:0.D, ra:0.D, dec:0.D, $ 
-         objc_rowc:0.D, objc_colc:0.D, sdss_imaging_tag:long64(0L), $
+outstr1={maggies:fltarr(8), maggies_ivar:fltarr(8), redshift:0.D, ra:0.D, $
+         dec:0.D, objc_rowc:0.D, objc_colc:0.D, sdss_imaging_tag:long64(0L), $
          sdss_spectro_tag:long64(0L)}
-outstr=replicate(outstr1,n_elements(sp))
-outstr.ra=im.sdss_imaging_ra2000
-outstr.dec=im.sdss_imaging_dec2000
-outstr.redshift=sp.sdss_spectro_z
-outstr.mag=mag
-outstr.mag_ivar=1./mag_err^2
-outstr.sdss_imaging_tag=im.sdss_imaging_tag
-outstr.sdss_spectro_tag=sp.sdss_spectro_tag
+outstr=replicate(outstr1,n_elements(sp)+n_elements(cnoc2))
+isdss=0L+lindgen(n_elements(sp))
+icnoc2=n_elements(sp)+lindgen(n_elements(cnoc2))
+outstr[isdss].ra=im.sdss_imaging_ra2000
+outstr[isdss].dec=im.sdss_imaging_dec2000
+outstr[isdss].redshift=sp.sdss_spectro_z
+outstr[isdss].maggies[0:4]=10.^(-0.4*mag[0:4])
+outstr[isdss].maggies_ivar[0:4]=1./ $
+  (mag_err[0:4]*outstr[isdss].maggies[0:4]*0.4*alog(10.))^2
+outstr[isdss[twomass.sdss_indx]].maggies[5]= $
+  10.^(-0.4*(twomass.j_m_k20fe+ $
+             (k_vega2ab(filterlist='twomass_J.par',/kurucz))[0]))
+outstr[isdss[twomass.sdss_indx]].maggies_ivar[5]= $
+  1./(0.4*alog(10.)*outstr[isdss[twomass.sdss_indx]].maggies[5]* $
+      twomass.j_msig_k20fe)^2
+outstr[isdss[twomass.sdss_indx]].maggies[6]= $
+  10.^(-0.4*(twomass.h_m_k20fe+ $
+             (k_vega2ab(filterlist='twomass_H.par',/kurucz))[0]))
+outstr[isdss[twomass.sdss_indx]].maggies_ivar[6]= $
+  1./(0.4*alog(10.)*outstr[isdss[twomass.sdss_indx]].maggies[6]* $
+      twomass.h_msig_k20fe)^2
+outstr[isdss[twomass.sdss_indx]].maggies[7]= $
+  10.^(-0.4*(twomass.k_m_k20fe+ $
+             (k_vega2ab(filterlist='twomass_Ks.par',/kurucz))[0]))
+outstr[isdss[twomass.sdss_indx]].maggies_ivar[7]= $
+  1./(0.4*alog(10.)*outstr[isdss[twomass.sdss_indx]].maggies[7]* $
+      twomass.k_msig_k20fe)^2
+outstr[isdss].sdss_imaging_tag=im.sdss_imaging_tag
+outstr[isdss].sdss_spectro_tag=sp.sdss_spectro_tag
+outstr[icnoc2].ra=cnoc2_childobj.ra
+outstr[icnoc2].dec=cnoc2_childobj.dec
+outstr[icnoc2].redshift=cnoc2.z
+outstr[icnoc2].maggies[0:4]=cnoc2_childobj.modelflux
+outstr[icnoc2].maggies_ivar[0:4]=cnoc2_childobj.modelflux_ivar
+outstr[icnoc2].sdss_imaging_tag=-1
+outstr[icnoc2].sdss_spectro_tag=-1
 mwrfits,dummy,outfile,hdr,/create
 mwrfits,outstr,outfile
 

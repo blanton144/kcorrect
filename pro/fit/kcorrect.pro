@@ -8,7 +8,7 @@
 ;   z=0.
 ; CALLING SEQUENCE:
 ;   kcorrect, maggies, maggies_ivar, redshift, kcorrect [ , $
-;        band_shift=, /magnitude, /stddev, lambdafile=, $
+;        band_shift=, /magnitude, /stddev, lfile=, $
 ;        vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $
 ;        zvals=, lambda=, vmatrix=, /sdssfix, coeffs=, chi2=, $
 ;        maxiter=, zmin=, zmax=, nz=, /verbose ]
@@ -25,7 +25,7 @@
 ;                   type bands) [default 0]
 ;   magnitude     - set if input and output in -2.5 log_10(maggies)
 ;   stddev        - maggies_ivar actual contains standard dev.
-;   lambdafile    - wavelength file for vmatrix [default lambda.default.dat]
+;   lfile         - wavelength file for vmatrix [default lambda.default.dat]
 ;   vfile         - vmatrix file [default vmatrix.default.dat]
 ;   vpath         - path to templates [default $KCORRECT_DIR/data/templates]
 ;   filterlist    - list of filters [default
@@ -82,7 +82,7 @@
 ;------------------------------------------------------------------------------
 pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               band_shift=band_shift, magnitude=magnitude, stddev=stddev, $
-              lambdafile=lambdafile, vfile=vfile, vpath=vpath, $
+              lfile=lfile, vfile=vfile, vpath=vpath, $
               filterlist=filterlist, filterpath=filterpath, $
               rmatrix=rmatrix, zvals=zvals, lambda=lambda, $
               vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
@@ -91,7 +91,7 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
     print, 'Syntax - kcorrect, maggies, maggies_ivar, redshift, kcorrect [ , $'
-    print, '             band_shift=, /magnitude, /stddev, lambdafile=, $'
+    print, '             band_shift=, /magnitude, /stddev, lfile=, $'
     print, '             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $'
     print, '             zvals=, lambda=, vmatrix=, coeffs=, /verbose /sdssfix ]'
     return
@@ -127,7 +127,7 @@ endelse
 
 ; Calculate coeffs
 if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then $
-  k_load_vmatrix, vmatrix, lambda, vfile=vfile, lambdafile=lambdafile, $
+  k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
   vpath=vpath
 coeffs=k_fit_nonneg(use_maggies,use_maggies_ivar,vmatrix,lambda, $
                     redshift=redshift,filterlist=filterlist,chi2=chi2, $

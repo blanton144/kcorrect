@@ -1,0 +1,10 @@
+switch to v5_4
+move stuff into k_make_training_set
+automate making of training set
+automate template determination for 2..10 templates
+fix constrainting for tweaks
+test IMFs
+back out stellar masses?
+add python
+stand alone c code
+documentation

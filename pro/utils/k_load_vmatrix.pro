@@ -4,12 +4,12 @@
 ; PURPOSE:
 ;   Load the template information 
 ; CALLING SEQUENCE:
-;   k_load_vmatrix, vmatrix, lambda [, vfile=, vpath=, lambdafile= ]
+;   k_load_vmatrix, vmatrix, lambda [, vfile=, vpath=, lfile= ]
 ; INPUTS:
 ; OPTIONAL INPUTS:
 ;   vfile      - ascii format file with vmatrix in it [default
 ;                vmatrix.default.dat]
-;   lambdafile - ascii format file with wavelengths in it (in Angstroms)
+;   lfile - ascii format file with wavelengths in it (in Angstroms)
 ;   vpath      - path to use for vfile if it does not exist 
 ;                (if this has more than one element they are checked in order)
 ;                [default $KCORRECT_DIR/data/templates]
@@ -40,23 +40,23 @@ endif
 return, curr_path
 end
 ;
-pro k_load_vmatrix, vmatrix, lambda, lambdafile=lambdafile, vfile=vfile, $
+pro k_load_vmatrix, vmatrix, lambda, lfile=lfile, vfile=vfile, $
                     vpath=vpath
 
 ; Need at least 4 parameters
 if (N_params() LT 2) then begin
-    print, 'Syntax - k_load_vmatrix, vmatrix, lambda [, vfile=, vpath=, lambdafile= ]'
+    print, 'Syntax - k_load_vmatrix, vmatrix, lambda [, vfile=, vpath=, lfile= ]'
     return
 endif
 
 if(NOT keyword_set(vfile)) then $
   vfile='vmatrix.default.dat'
-if(NOT keyword_set(lambdafile)) then $
-  lambdafile='lambda.default.dat'
+if(NOT keyword_set(lfile)) then $
+  lfile='lambda.default.dat'
 
 curr_path=k_load_vmatrix_path(vfile,vpath=vpath)
 k_read_ascii_table,vmatrix,curr_path+'/'+vfile
-curr_path=k_load_vmatrix_path(lambdafile,vpath=vpath)
-k_read_ascii_table,lambda,curr_path+'/'+lambdafile
+curr_path=k_load_vmatrix_path(lfile,vpath=vpath)
+k_read_ascii_table,lambda,curr_path+'/'+lfile
 
 end

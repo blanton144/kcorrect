@@ -5,7 +5,7 @@
 ;   Given AB maggies estimate the redshift of a galaxy
 ; CALLING SEQUENCE:
 ;   kphotoz, maggies, maggies_ivar, redshift, photoz [ , $
-;        /magnitude, /stddev, lambdafile=, $
+;        /magnitude, /stddev, lfile=, $
 ;        vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $
 ;        zvals=, lambda=, vmatrix=, /sdssfix, coeffs=, chi2=, $
 ;        maxiter=, zmin=, zmax=, nz=, /verbose ]
@@ -18,7 +18,7 @@
 ; OPTIONAL INPUTS:
 ;   magnitude     - set if input and output in -2.5 log_10(maggies)
 ;   stddev        - maggies_ivar actual contains standard dev.
-;   lambdafile    - wavelength file for vmatrix [default lambda.default.dat]
+;   lfile    - wavelength file for vmatrix [default lambda.default.dat]
 ;   vfile         - vmatrix file [default vmatrix.default.dat]
 ;   vpath         - path to templates [default $KCORRECT_DIR/data/templates]
 ;   filterlist    - list of filters [default
@@ -52,7 +52,7 @@
 ;------------------------------------------------------------------------------
 pro kphotoz, maggies, maggies_ivar, photoz, $
              magnitude=magnitude, stddev=stddev, $
-             lambdafile=lambdafile, vfile=vfile, vpath=vpath, $
+             lfile=lfile, vfile=vfile, vpath=vpath, $
              filterlist=filterlist, filterpath=filterpath, $
              rmatrix=rmatrix, zvals=zvals, lambda=lambda, $
              vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
@@ -61,7 +61,7 @@ pro kphotoz, maggies, maggies_ivar, photoz, $
 ; Need at least 6 parameters
 if (N_params() LT 3) then begin
     print, 'Syntax - kphotoz, maggies, maggies_ivar, photoz [ , $'
-    print, '             /magnitude, /stddev, lambdafile=, $'
+    print, '             /magnitude, /stddev, lfile=, $'
     print, '             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $'
     print, '             zvals=, lambda=, vmatrix=, coeffs=, /verbose /sdssfix ]'
     return
@@ -101,7 +101,7 @@ endelse
 
 ; Calculate coeffs
 if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then $
-  k_load_vmatrix, vmatrix, lambda, vfile=vfile, lambdafile=lambdafile, $
+  k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
   vpath=vpath
 photoz=k_fit_photoz(use_maggies,use_maggies_ivar,vmatrix,lambda, $
                     filterlist=filterlist,chi2=chi2, $
