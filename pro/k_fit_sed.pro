@@ -57,7 +57,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_sed, galaxy_flux, galaxy_invvar, galaxy_z, templatelist, filterlist, coeff, ematrix, bmatrix, bflux, lambda, smoothtemplate=smoothtemplate, sublmin=sublmin, sublmax=sublmax, vmatrix=vmatrix, preset_ematrix=preset_ematrix, maxiter=maxiter, nt=nt, model_flux=model_flux, plotfluxes=plotfluxes, cutlmin=cutlmin, cutlmax=cutlmax
+pro k_fit_sed, galaxy_flux, galaxy_invvar, galaxy_z, templatelist, filterlist, coeff, ematrix, bmatrix, bflux, lambda, smoothtemplate=smoothtemplate, sublmin=sublmin, sublmax=sublmax, vmatrix=vmatrix, preset_ematrix=preset_ematrix, maxiter=maxiter, nt=nt, model_flux=model_flux, plotfluxes=plotfluxes, cutlmin=cutlmin, cutlmax=cutlmax, subsmoothtemplate=subsmoothtemplate, subsmoothlimits=subsmoothlimits
 
 ; Need at least 10 parameters
 if (N_params() LT 10) then begin
@@ -73,7 +73,7 @@ if (NOT keyword_set(maxiter)) then maxiter=100l
 if (NOT keyword_set(sublmin)) then sublmin=3500.d
 if (NOT keyword_set(sublmax)) then sublmax=7500.d
 if (NOT keyword_set(cutlmin)) then cutlmin=2000.d
-if (NOT keyword_set(cutlmax)) then cutlmax=10500.d
+if (NOT keyword_set(cutlmax)) then cutlmax=11500.d
 
 ; Find vmatrix and bmatrix
 k_load_templates,getenv('KCORRECT_DIR')+'/data/seds/'+templatelist,vmatrix, $
@@ -81,14 +81,44 @@ k_load_templates,getenv('KCORRECT_DIR')+'/data/seds/'+templatelist,vmatrix, $
 nl=long(n_elements(lambda))-1l
 nb=long(n_elements(vmatrix))/nl
 if(keyword_set(smoothtemplate)) then begin
-  sl=(lambda[nl]-lambda[0])/double(nl)
-	ng=long(8*smoothtemplate/sl)
-	help,ng
-  gaussian=exp(-0.5*((dindgen(ng)-0.5*double(ng))/(double(ng)/8))^2)
-  gaussian=gaussian/total(gaussian,/double)
-  for b=0l, nb-1l do begin
-      vmatrix[*,b]=convol(vmatrix[*,b],gaussian,/edge_truncate)
-  endfor
+    sl=(lambda[nl]-lambda[0])/double(nl)
+    if(keyword_set(subsmoothtemplate)) then begin 
+        ng=long(8*subsmoothtemplate/sl)
+        gaussian=exp(-0.5*((dindgen(ng)-0.5*double(ng))/(double(ng)/8))^2)
+        gaussian=gaussian/total(gaussian,/double)
+        subvmatrix=dblarr(nl,nb)
+        for b=0l, nb-1l do begin
+            subvmatrix[*,b]=convol(vmatrix[*,b],gaussian,/edge_truncate)
+        endfor
+    endif
+    ng=long(8*smoothtemplate/sl)
+    gaussian=exp(-0.5*((dindgen(ng)-0.5*double(ng))/(double(ng)/8))^2)
+    gaussian=gaussian/total(gaussian,/double)
+    for b=0l, nb-1l do begin
+        vmatrix[*,b]=convol(vmatrix[*,b],gaussian,/edge_truncate)
+    endfor
+    if(keyword_set(subvmatrix)) then begin
+        subvmatrix=subvmatrix-vmatrix
+        addsub=dblarr(nl,nb)
+        for b=0, nb-1 do begin
+            indx=where(lambda[0:nl-1] gt subsmoothlimits[0] and $
+                       lambda[0:nl-1] lt subsmoothlimits[1])
+            addsub[indx,b]=1.d
+            indx=where(lambda[0:nl-1] gt subsmoothlimits[0] and $
+                       lambda[0:nl-1] lt subsmoothlimits[0]+ $
+                       2.*smoothtemplate)
+            addsub[indx,b]= $
+              0.5*(1.-cos(3.14159*(lambda[indx]-subsmoothlimits[0]) $
+                          /(2.*smoothtemplate)))
+            indx=where(lambda[0:nl-1] lt subsmoothlimits[1] and $
+                       lambda[0:nl-1] gt subsmoothlimits[1]- $
+                       2.*smoothtemplate)
+            addsub[indx,b]= $
+              0.5*(1.-cos(3.14159*(lambda[indx]-subsmoothlimits[1]) $
+                          /(2.*smoothtemplate)))
+        endfor
+        vmatrix=vmatrix+subvmatrix*addsub
+    endif
 endif
 k_ortho_templates,vmatrix,lambda,bmatrix,bflux,sublmin=sublmin,sublmax=sublmax
 
