@@ -20,7 +20,7 @@
 ;-
 ;------------------------------------------------------------------------------
 pro k_spec_pegase,peg,spec,lambda,nl=nl,lmin=lmin,lmax=lmax, $
-                  linewidth=linewidth,nolines=nolines
+                  linewidth=linewidth,nolines=nolines,nocontinuum=nocontinuum
 
 if(n_elements(nl) eq 0) then nl=5000L
 if(n_elements(lmin) eq 0) then lmin=double(min(peg.cont))
@@ -31,8 +31,12 @@ lambda=lmin+(lmax-lmin)*dindgen(nl+1)/double(nl)
 dl=lambda[1]-lambda[0]
 interp_lambda=0.5*(lambda[0:nl-1]+lambda[1:nl])
 
-spec=interpol(peg.contlum,double(peg.cont),interp_lambda)
-
+if(NOT keyword_set(nocontinuum)) then begin
+    spec=interpol(peg.contlum,double(peg.cont),interp_lambda)
+endif else begin
+    spec=dblarr(n_elements(interp_lambda))
+endelse
+    
 if(NOT keyword_set(nolines)) then begin
     for i=0L, n_elements(peg.lines)-1L do begin
         indx=where(interp_lambda gt peg.lines[i]-3.*linewidth and $

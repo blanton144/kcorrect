@@ -6,13 +6,13 @@
 ;   them which explain a given set of maggies and uncertainties,
 ;   with nonegative coefficients
 ; CALLING SEQUENCE:
-;   coeffs = k_fit_nonneg(maggies, maggies_err, model_spec, $
-;   model_lambda
+;   coeffs = k_fit_nonneg(maggies, maggies_err, vmatrix, $
+;   lambda
 ; INPUTS:
 ;   maggies - maggies to fit to
 ;   maggies_err - uncertainties in maggies
-;   model_spec - model spectra to use
-;   model_lambda - model wavelength scale to use
+;   vmatrix - model spectra to use
+;   lambda - model wavelength scale to use
 ; OPTIONAL INPUTS:
 ;   filterlist - bands in the kcorrect product to use
 ;   redshift - observed at higher redshift
@@ -31,8 +31,8 @@
 ;   18-Jan-2003  Written MRB (NYU) -- based on lumden/pro/fit_sfh_maggies.pro
 ;-
 ;------------------------------------------------------------------------------
-function k_fit_nonneg, maggies, maggies_err, model_spec, $
-                       model_lambda,redshift=redshift, $
+function k_fit_nonneg, maggies, maggies_err, vmatrix, $
+                       lambda,redshift=redshift, $
                        band_shift=band_shift, version=version, vpath=vpath, $
                        filterlist=filterlist, filterpath=filterpath, $
                        maxiter=maxiter, rmatrix=rmatrix,zvals=zvals,chi2=chi2

@@ -21,7 +21,8 @@
 ;   25-Jul-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-function k_interp_pegase,peg,time,nl=nl,lmin=lmin,lmax=lmax,nolines=nolines
+function k_interp_pegase,peg,time,nl=nl,lmin=lmin,lmax=lmax,nolines=nolines, $
+                         nocontinuum=nocontinuum
 
 ; find bounds
 ii=lindgen(n_elements(peg)-1L)
@@ -35,9 +36,9 @@ klog,'itime= '+string(itime)
 
 ; make spectra
 k_spec_pegase,peg[itime+0],spec0,lambda,nl=nl,lmin=lmin,lmax=lmax, $
-  nolines=nolines
+  nolines=nolines,nocontinuum=nocontinuum
 k_spec_pegase,peg[itime+1],spec1,lambda,nl=nl,lmin=lmin,lmax=lmax, $
-  nolines=nolines
+  nolines=nolines,nocontinuum=nocontinuum
 
 ; interpolate
 stime=(use_time-peg[itime].arr1[0])/(peg[itime+1].arr1[0]-peg[itime].arr1[0])
