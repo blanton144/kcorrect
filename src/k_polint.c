@@ -5,12 +5,12 @@
 #include <kcorrect.h>
 #define NRANSI
 
-void k_polint(double xa[], double ya[], IDL_LONG n, double x, double *y, 
-							double *dy)
+void k_polint(float xa[], float ya[], IDL_LONG n, float x, float *y, 
+							float *dy)
 {
 	IDL_LONG i,m,ns=1;
-	double den,dif,dift,ho,hp,w;
-	double *c,*d;
+	float den,dif,dift,ho,hp,w;
+	float *c,*d;
 
 	dif=fabs(x-xa[1]);
 	c=k_vector(1,n);

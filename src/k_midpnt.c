@@ -4,10 +4,10 @@
 #include <kcorrect.h>
 #define FUNC(x) ((*func)(x))
 
-double k_midpnt(double (*func)(double), double a, double b, IDL_LONG n)
+float k_midpnt(float (*func)(float), float a, float b, IDL_LONG n)
 {
-	double x,tnm,sum,del,ddel;
-	static double s;
+	float x,tnm,sum,del,ddel;
+	static float s;
 	IDL_LONG it,j;
 
 	if (n == 1) {
@@ -15,7 +15,7 @@ double k_midpnt(double (*func)(double), double a, double b, IDL_LONG n)
 	} else {
 		for(it=1,j=1;j<n-1;j++) it *= 3;
 		tnm=it;
-		del=(b-a)/(3.0*(double)tnm);
+		del=(b-a)/(3.0*(float)tnm);
 		ddel=del+del;
 		x=a+0.5*del;
 		sum=0.0;
@@ -25,7 +25,7 @@ double k_midpnt(double (*func)(double), double a, double b, IDL_LONG n)
 			sum += FUNC(x);
 			x += del;
 		}
-		s=(s+(b-a)*sum/(double)tnm)/3.0;
+		s=(s+(b-a)*sum/(float)tnm)/3.0;
 		return s;
 	}
 }

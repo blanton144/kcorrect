@@ -2,7 +2,7 @@
  * I have altered this routine to be compatible with zero-offset
  * arrays
  */
-void k_locate(double xx[], unsigned long n, double x, unsigned long *j)
+void k_locate(float xx[], unsigned long n, float x, unsigned long *j)
 {
 	unsigned long ju,jm,jl;
 	int ascnd;

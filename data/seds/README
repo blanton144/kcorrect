@@ -1,7 +1,0 @@
-ssp_salp_z*.flux.*.dat
-ssp_salp_z*.tsteps.dat
-
-These SEDs are Bruzual-Charlot GISSEL99 results, in a range of ages 
-(as listed in tsteps) and metallicities. See that distribution for 
-details on these models. In the context of the kcorrect product, they
-are to be taken only as good models to use from an empirical standpoint.

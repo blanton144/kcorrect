@@ -8,11 +8,11 @@
 #define JMAXP (JMAX+1)
 #define K 5
 
-double k_qromo(double (*func)(double), double a, double b,
-							 double (*choose)(double(*)(double), double, double, IDL_LONG))
+float k_qromo(float (*func)(float), float a, float b,
+							 float (*choose)(float(*)(float), float, float, IDL_LONG))
 {
 	IDL_LONG j;
-	double ss,dss,h[JMAXP+1],s[JMAXP+1];
+	float ss,dss,h[JMAXP+1],s[JMAXP+1];
 
 	h[1]=1.0;
 	for (j=1;j<=JMAX;j++) {

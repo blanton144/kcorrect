@@ -1,3 +1,0 @@
-default: The best 4-parameter templates
-defaultpz: 2-parameter for photoz (e0=e0-0.08*e2-0.07*e3, e1=e1)
-defaultpzlrg: 1-parameter for LRG photoz (e0=e0-0.08*e2-0.07*e3-0.22*e1)
