@@ -36,7 +36,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter
+pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim
 
 if(NOT keyword_set(nophotozplates)) then mustdo=[669,670,671,672] 
 
@@ -46,16 +46,23 @@ if(NOT keyword_set(chunksize)) then chunksize=10000l
 if(NOT keyword_set(zlimits)) then zlimits=[0.,0.5]
 if(NOT keyword_set(nz)) then nz=8l
 if(NOT keyword_set(templatelist)) then $
-  templatelist=['ssp_salp_z02.flux.0220.dat', $
-                'ssp_salp_z02.flux.0180.dat', $
-                'ssp_salp_z02.flux.0150.dat', $
-                'ssp_salp_z02.flux.0120.dat', $
-                'ssp_salp_z004.flux.0220.dat', $
-                'ssp_salp_z004.flux.0180.dat', $
-                'ssp_salp_z004.flux.0150.dat', $
-                'ssp_salp_z004.flux.0120.dat', $
-                'flat.flux.dat', $
-                'cos1.flux.dat']
+  templatelist=[ $
+                 'ssp_salp_z02.flux.0220.dat', $
+                 'ssp_salp_z02.flux.0180.dat', $
+                 'ssp_salp_z02.flux.0150.dat', $
+                 'ssp_salp_z02.flux.0120.dat', $
+                 'ssp_salp_z004.flux.0220.dat', $
+                 'ssp_salp_z004.flux.0180.dat', $
+                 'ssp_salp_z004.flux.0150.dat', $
+                 'ssp_salp_z004.flux.0120.dat', $
+                 'cos1.flux.dat', $
+                 'flat.flux.dat' $
+                ]
+                 ;'ssp_salp_z004.flux.0220.dat', $
+                 ;'ssp_salp_z004.flux.0180.dat', $
+                 ;'ssp_salp_z004.flux.0150.dat', $
+                 ;'ssp_salp_z004.flux.0120.dat', $
+                 ;'cos1.flux.dat', $
 if(NOT keyword_set(nk)) then nk=5L
 if(NOT keyword_set(nl)) then nl=500L
 if(NOT keyword_set(lambdalim)) then lambdalim=[1000.,12000.]
@@ -66,11 +73,12 @@ if(NOT keyword_set(nt)) then nt=4L
 if(NOT keyword_set(fraction)) then fraction=1.
 if(NOT keyword_set(spfile)) then spfile='/data/sdss/spectro/spAll.fits'
 if(NOT keyword_set(shiftband)) then shiftband=dblarr(nk)
-if(NOT keyword_set(errband)) then errband=dblarr(nk)
+if(NOT keyword_set(errband)) then errband=[0.05,0.02,0.02,0.02,0.03]
 if(NOT keyword_set(errlimit)) then errlimit=dblarr(nk)+0.8d
 if(NOT keyword_set(maglimit)) then maglimit=dblarr(nk)+22.5d
 if(NOT keyword_set(scale)) then scale=1.d
-if(NOT keyword_set(nozlim)) then nozlim=[60.,61.]
+if(NOT keyword_set(modelzlim)) then modelzlim=0.25
+if(NOT keyword_set(nozlim)) then nozlim=[0.28,0.32]
 
 if(NOT keyword_set(filtfile)) then begin
     filtfile=getenv('KCORRECT_DIR')+'/data/etemplates/filterlist.'+outname $
@@ -85,8 +93,8 @@ if(NOT keyword_set(filtfile)) then begin
     free_lun,unit
 endif
 
-columns=['z','petrocounts','petrocountserr','reddening','class', $
-         'ra', 'dec', 'plate']
+columns=['z','petrocounts','petrocountserr','counts_model','counts_modelerr', $
+         'reddening','class', 'ra', 'dec', 'plate']
 
 lambda=lambdalim[0]+dindgen(nl+1l)*(lambdalim[1]-lambdalim[0])/double(nl)
 
@@ -161,6 +169,13 @@ indx=where(sp.z lt nozlim[0] or sp.z gt nozlim[1],count)
 if(count gt 0) then $
   sp=sp[indx]
 
+indx=where(sp.z ge modelzlim)
+if(count gt 0) then begin
+    klog,'using model'
+    sp[indx].petrocounts=sp[indx].counts_model
+    sp[indx].petrocountserr=sp[indx].counts_modelerr
+endif
+
 ; Trim off *anything* with bad errors, magnitudes
 goodindx=where(abs(sp.petrocountserr[0]) lt errlimit[0] and $
                abs(sp.petrocountserr[1]) lt errlimit[1] and $
@@ -190,8 +205,8 @@ for k=0l,nk-1l do begin
     galaxy_flux[k,*]=10.d^(-0.4d*(sp.petrocounts[k]-sp.reddening[k]-17.d $
                                   +shiftband[k]))
     galaxy_invvar[k,*]=galaxy_flux[k,*]*0.4d*alog(10.d)* $
-      sp.petrocountserr[k]
-    galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2+errband[k]^2)
+      sqrt(sp.petrocountserr[k]^2+errband[k]^2)
+    galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
 endfor
 
 k_fit_sed,galaxy_flux,galaxy_invvar,sp.z,templatelist, $

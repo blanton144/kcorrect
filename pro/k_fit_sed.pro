@@ -145,12 +145,15 @@ for i=0l, maxiter-1l do begin
   k_model_fluxes,coeff,galaxy_z,model_flux,ematrix=ematrix,zvals=zvals, $
     rmatrix=rmatrix
   for k=0l, nk-1 do $
-    print,string(k)+' : '+string(djsig(model_flux[k,*]/galaxy_flux[k,*]))
+    print,string(k)+' : '+string(djsig(model_flux[k,*]/galaxy_flux[k,*], $
+                                       sigrej=5))
+  chi2=total((model_flux-galaxy_flux)^2*galaxy_invvar,/double)
+  help,chi2
   if(keyword_set(plotfluxes)) then begin
       !p.multi=[0,1,nk]
       for k=0l, nk-1 do begin
           result=moment(model_flux[k,*]/galaxy_flux[k,*])
-          plot,galaxy_z,model_flux[k,*]/galaxy_flux[k,*],yra=[1.-3.*sqrt(result[1]), 1.+3.*sqrt(result[1])],psym=3,xst=1,yst=1
+          plot,galaxy_z,model_flux[k,*]/galaxy_flux[k,*],yra=[1.-3.*sqrt(result[1]), 1.+3.*sqrt(result[1])],psym=3,xst=1,yst=1,xra=[0.,0.5]
       endfor
   endif
 endfor
