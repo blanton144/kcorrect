@@ -1,4 +1,7 @@
+#ifndef IDL_LONG_DEFINED
 typedef int IDL_LONG;
+#define IDL_LONG_DEFINED
+#endif
 
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 

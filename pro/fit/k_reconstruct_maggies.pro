@@ -25,7 +25,8 @@
 ;   band_shift    - shift to apply to bandpasses (default 0.)
 ; COMMENTS:
 ;   Reconstruct AB galaxy maggies given an observed redshift and a
-;   shift to apply to the bandpasses (band_shift). To reconstruct the
+;   shift to apply to the bandpasses (band_shift) under the assumption
+;   that the bolometric flux is conserved. To reconstruct the
 ;   observed galaxy maggies:
 ; 
 ;      k_reconstruct_maggies,coeffs,redshift,reconstruct_maggies

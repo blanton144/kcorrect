@@ -43,10 +43,12 @@
 ;   kcorrect   - [nk, ngals] K-corrections satisfying
 ;                   m = M + DM(z) + K(z)
 ;                based on the best fit sum of templates
-;   coeffs     - coefficients fit to each template
 ;   chi2       - chi^2 of fit
 ;
 ; OPTIONAL INPUT/OUTPUTS:
+;   coeffs        - coefficients fit to each template (if maggies
+;                   input are nonexistent, just use these input
+;                   coeffs)
 ;   lambda        - [nl+1] wavelengths for templates (to use)/(which were used)
 ;                   (pixel edges)
 ;   vmatrix       - [nl, nv] templates (to use)/(which were used)
@@ -82,7 +84,7 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               filterlist=filterlist, filterpath=filterpath, $
               rmatrix=rmatrix, zvals=zvals, lambda=lambda, $
               vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
-              chi2=chi2, maxiter=maxiter, verbose=verbose
+              chi2=chi2, maxiter=maxiter, verbose=verbose, nz=nz
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
@@ -94,42 +96,55 @@ if (N_params() LT 4) then begin
 endif
 
 ngalaxy=long(n_elements(redshift))
-nk=long(n_elements(maggies))/ngalaxy
 if(NOT keyword_set(filterlist)) then $
   filterlist=['sdss_u0.par','sdss_g0.par','sdss_r0.par','sdss_i0.par', $
               'sdss_z0.par']
 if(NOT keyword_set(band_shift)) then band_shift=0.
 if(NOT keyword_set(maxiter)) then maxiter=3000L
 
+; calculate the preliminaries
+if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
+    k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
+      vpath=vpath
+    k_projection_table,rmatrix,vmatrix,lambda,zvals,filterlist, $ 
+      zmin=zmin,zmax=zmax,nz=nz,band_shift=band_shift,filterpath=filterpath
+endif
+
+; Calculate the coefficients if needed
+if(n_elements(maggies) gt 0) then begin 
 ; Fix SDSS mags if desired
-use_maggies=maggies
-use_maggies_ivar=maggies_ivar
-if(keyword_set(sdssfix)) then begin
-    magnitude=1
-    stddev=1
-    tmp_mag=maggies
-    tmp_magerr=maggies_ivar
-    k_sdssfix,tmp_mag,tmp_magerr,use_maggies,use_maggies_ivar
-endif else begin
-    if(keyword_set(magnitude)) then begin
-        use_maggies=10.^(-0.4*use_maggies)
-        if(keyword_set(stddev)) then $
-          use_maggies_ivar=1./(use_maggies*0.4*alog(10.)*use_maggies_ivar)^2
+    use_maggies=maggies
+    use_maggies_ivar=maggies_ivar
+    if(keyword_set(sdssfix)) then begin
+        magnitude=1
+        stddev=1
+        tmp_mag=maggies
+        tmp_magerr=maggies_ivar
+        k_sdssfix,tmp_mag,tmp_magerr,use_maggies,use_maggies_ivar
     endif else begin
-        if(keyword_set(stddev)) then $
-          use_maggies_ivar=1./use_maggies_ivar^2
-    endelse
-endelse 
-
+        if(keyword_set(magnitude)) then begin
+            use_maggies=10.^(-0.4*use_maggies)
+            if(keyword_set(stddev)) then $
+              use_maggies_ivar= $
+              1./(use_maggies*0.4*alog(10.)*use_maggies_ivar)^2
+        endif else begin
+            if(keyword_set(stddev)) then $
+              use_maggies_ivar=1./use_maggies_ivar^2
+        endelse
+    endelse 
+    
 ; Calculate coeffs
-if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then $
-  k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
-  vpath=vpath
-coeffs=k_fit_nonneg(use_maggies,use_maggies_ivar,vmatrix,lambda, $
-                    redshift=redshift,filterlist=filterlist,chi2=chi2, $
-                    rmatrix=rmatrix,zvals=zvals,maxiter=maxiter, zmin=zmin, $
-                    zmax=zmax, nz=nz, verbose=verbose)
-
+    coeffs=k_fit_nonneg(use_maggies,use_maggies_ivar,redshift=redshift, $
+                        chi2=chi2,rmatrix=rmatrix,zvals=zvals, $
+                        maxiter=maxiter,zmin=zmin,zmax=zmax,nz=nz, $
+                        verbose=verbose)
+endif else begin
+    if(n_elements(coeffs) eq 0) then begin
+        splog,'Must set either maggies or coeffs'
+        return
+    endif
+endelse
+    
 ; Reconstruct the magnitudes as observed and in the rest frame
 k_reconstruct_maggies,coeffs,replicate(band_shift,n_elements(redshift)), $
   reconstruct_maggies,rmatrix=rmatrix,zvals=zvals

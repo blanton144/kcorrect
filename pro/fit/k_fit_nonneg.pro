@@ -41,9 +41,9 @@ function k_fit_nonneg, maggies, maggies_ivar, vmatrix, lambda, $
                        band_shift=band_shift, tolerance=tolerance, $
                        verbose=verbose, niter=niter
                   
-if(n_params() ne 4) then begin
-    print,'Syntax - coeffs= k_fit_nonneg(maggies, maggies_ivar, vmatrix, lambda, $'
-    print,'          redshift=, filterlist= [, chi2=, rmatrix=, zvals=, maxiter=, filterpath=, ]'
+if(n_params() lt 2) then begin
+    print,'Syntax - coeffs= k_fit_nonneg(maggies, maggies_ivar [, vmatrix, lambda, $'
+    print,'          redshift=, filterlist=, chi2=, rmatrix=, zvals=, maxiter=, filterpath=, ]'
     print,'          zmin=, zmax=, nz=, band_shift=, /verbose ])'
     return,-1
 endif 
@@ -51,9 +51,6 @@ endif
 if(NOT keyword_set(verbose)) then verbose=0L
 if(NOT keyword_set(maxiter)) then maxiter=50000
 if(NOT keyword_set(tolerance)) then tolerance=1.e-6
-
-k_load_filters,filterlist,filter_n,filter_lambda,filter_pass, $
-  filterpath=filterpath
 
 ; Set source object name
 soname=filepath('libkcorrect.so', $
@@ -64,6 +61,8 @@ ngalaxy=long(n_elements(redshift))
 nk=long(n_elements(maggies)/ngalaxy)
 if (keyword_set(vmatrix) AND keyword_set(filterlist) AND keyword_set(lambda)) $
   then begin
+    k_load_filters,filterlist,filter_n,filter_lambda,filter_pass, $
+      filterpath=filterpath
     k_projection_table,rmatrix,vmatrix,lambda,zvals,filterlist, $ 
       zmin=zmin,zmax=zmax,nz=nz,band_shift=band_shift,filterpath=filterpath
 endif else begin

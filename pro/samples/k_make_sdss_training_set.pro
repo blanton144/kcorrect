@@ -35,7 +35,7 @@ pro k_make_sdss_training_set,modelzlim=modelzlim,zlimits=zlimits, $
                              maglimit=maglimit, name=name
 
 if(NOT keyword_set(nophotozplates)) then mustdoplates=[669,670,671,672] 
-if(NOT keyword_set(zlimits)) then zlimits=[1.e-3,0.5]
+if(NOT keyword_set(zlimits)) then zlimits=[1.e-3,0.8]
 if(NOT keyword_set(nzchunks)) then nzchunks=8
 if(NOT keyword_set(shiftband)) then shiftband=[-0.042,0.036,0.015,0.013,-0.002]
 if(NOT keyword_set(errband)) then errband=[0.05,0.02,0.02,0.02,0.03]
@@ -49,73 +49,55 @@ savfile='sdss_training_set.'+name+'.sav'
 if(NOT file_test(savfile)) then begin
     
 ;   get redshifts for all spectra
-    sp=get_catalog('sdss/sdss_spectro', $
-                   columns=['z', 'plate', 'zerr','zwarning', $
-                            'class','sdss_spectro_tag', $
-                            'sdss_spectro_tag_primary'], nrowchunk=40000)
-    
-;   find imaging for all spectra objects
-    im_matches=find_matches('sdss_spectro','sdss_imaging')
-    twomass_matches=find_matches('sdss_spectro','twomass')
-
-;   now select all the possible spectra we want
-    sp_indx=where(sp.sdss_spectro_tag eq sp.sdss_spectro_tag_primary and $
+    sp=hogg_mrdfits(getenv('SPECTRO_DATA')+'/spAll.fits', 1, $
+                    columns=['specprimary','plug_ra','plug_dec','z','plate', $
+                             'mjd','fiberid','zerr','zwarning','class', $
+                             'modelflux', 'modelflux_ivar','extinction'], $
+                    nrowchunk=40000)
+    sp_indx=where(sp.specprimary gt 0 and $
                   sp.class eq 'GALAXY' and $
                   sp.z gt zlimits[0] and $
                   sp.z le zlimits[1] and $
                   sp.zwarning eq 0, sp_count) 
     
-; get photometry
-    im=get_catalog('sdss/sdss_imaging', $
-                   columns=['sdss_imaging_tag', $
-                            'ra', $
-                            'dec', $
-                            'petrocounts', $
-                            'petrocountserr', $
-                            'counts_model', $
-                            'counts_modelerr', $
-                            'psfcounts', $
-                            'psfcountserr', $
-                            'fibercounts', $
-                            'fibercountserr', $
-                            'reddening'], nrowchunk=40000)
-
 ; get twomass photometry
-    twomass=get_catalog('twomass/twomass', $
-                        columns=['twomass_tag', $
-                                 'k_m_k20fe', $
-                                 'k_msig_k20fe', $
-                                 'h_m_k20fe', $
-                                 'h_msig_k20fe', $
-                                 'j_m_k20fe', $
-                                 'j_msig_k20fe'],nrowchunk=40000)
-    
-    help,im,sp,twomass
-    matched_indx=where(im_matches[sp_indx] ge 0, matched_count)
-    if(matched_count gt 0) then begin
-        sp_indx=sp_indx[matched_indx]
+    columns=['ra','decl', $
+             'k_m_k20fe','k_msig_k20fe', $
+             'h_m_k20fe','h_msig_k20fe', $
+             'j_m_k20fe','j_msig_k20fe', $
+             'k_m_ext',  'k_msig_ext', $
+             'h_m_ext',  'h_msig_ext', $
+             'j_m_ext',  'j_msig_ext']
+    oldtwomass_a= $
+      hogg_mrdfits(getenv('TWOMASS_XSC_DIR')+'/data/xsc_aaa.fits',1, $
+                   nrowchunk=5000,columns=columns)
+    oldtwomass_b= $
+      hogg_mrdfits(getenv('TWOMASS_XSC_DIR')+'/data/xsc_baa.fits',1, $
+                   nrowchunk=5000,columns=columns)
+    twomass=[oldtwomass_a,oldtwomass_b]
+    oldtwomass_a=0
+    oldtwomass_b=0
 
-        twomass=twomass[twomass_matches[sp_indx]]
-        im=im[im_matches[sp_indx]]
-        sp=sp[sp_indx]
-        
-        help,im,sp,twomass
-        save,im,sp,twomass,filename=savfile 
-    endif else begin
-        klog,'no matches to imaging.'
-        return
-    endelse
+; match em
+    spherematch, sp.plug_ra, sp.plug_dec, twomass.ra, twomass.decl, $
+      2./3600., m1, m2, d12, chunksize=0.05
+    tm=replicate(twomass[0],n_elements(sp))
+    struct_assign,{junk:0},tm
+    tm[m1]=twomass[m2]
+    help,tm,sp
+    save,sp,tm,filename=savfile 
+    stop
 endif else begin
     restore,savfile
 endelse
 
 ; now equalize the redshift bins (but include all mustdo plates)
-mustdo=lonarr(n_elements(im))
+mustdo=lonarr(n_elements(sp))
 for i=0, n_elements(mustdoplates)-1L do begin
     inplate_indx=where(sp.plate eq mustdoplates[i],inplate_count)
     if(inplate_count gt 0) then mustdo[inplate_indx]=1
 endfor
-includegal=lonarr(n_elements(im))
+includegal=lonarr(n_elements(sp))
 ninchunk=fltarr(nzchunks)
 for i=nzchunks-1L,0,-1 do begin
     zchunk_lo=zlimits[0]+(zlimits[1]-zlimits[0])*float(i)/float(nzchunks)
@@ -138,10 +120,9 @@ if(include_count eq 0) then begin
     klog,'no remaining galaxies after equalizing redshifts.'
     return
 endif
-im=im[include_indx]
-twomass=twomass[include_indx]
+tm=tm[include_indx]
 sp=sp[include_indx]
-help,im
+help,sp,tm
 
 ; set up which magnitudes are used
 klog,'use model past z='+string(modelzlim)
