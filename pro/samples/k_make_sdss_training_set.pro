@@ -4,11 +4,10 @@
 ; PURPOSE:
 ;   Extract training set from VAGC and create a save file
 ; CALLING SEQUENCE:
-;   k_make_sdss_training_set [, modelzlim=, zlimits=, nzchunks=, $
+;   k_make_sdss_training_set [, zlimits=, nzchunks=, $
 ;       shiftband=, errband=, errlimit=, maglimit=, /nophotozplates ]
 ; INPUTS:
 ; OPTIONAL INPUTS:
-;   modelzlim - at greater than this redshift, use model mags (default 0.15)
 ;   zlimits - redshift limits to impose on sample (default 1.e-3, 0.5)
 ;   nzchunks - number of chunks used to equalize redshift dist (default 8)
 ;   shiftband - mag=mag+shiftband (to get to ABy system)
@@ -48,7 +47,7 @@ pro k_stack_south, ra, dec, modelflux, modelflux_ivar
     endfor
 end
 ;
-pro k_make_sdss_training_set,modelzlim=modelzlim,zlimits=zlimits, $
+pro k_make_sdss_training_set,zlimits=zlimits, $
                              nzchunks=nzchunks, shiftband=shiftband, $
                              errband=errband, errlimit=errlimit, $
                              maglimit=maglimit, name=name
@@ -60,7 +59,6 @@ if(NOT keyword_set(shiftband)) then shiftband=[-0.042,0.036,0.015,0.013,-0.002]
 if(NOT keyword_set(errband)) then errband=[0.05,0.02,0.02,0.02,0.03]
 if(NOT keyword_set(errlimit)) then errlimit=fltarr(5)+1.0d
 if(NOT keyword_set(maglimit)) then maglimit=fltarr(5)+30.0d
-if(NOT keyword_set(modelzlim)) then modelzlim=0.0001
 if(NOT keyword_set(name)) then name='test'
 
 ; get data to search through
@@ -133,6 +131,7 @@ endif else begin
     restore,savfile
 endelse
 
+stop
 ; now equalize the redshift bins (but include all mustdo plates)
 sp[tostack].modelflux=stacked
 sp[tostack].modelflux_ivar=stacked_ivar
@@ -178,19 +177,6 @@ sp=sp[include_indx]
 help,sp,tm
 stop
 
-; set up which magnitudes are used
-klog,'use model past z='+string(modelzlim)
-mag=im.petrocounts
-mag_err=im.petrocountserr
-model_indx=where(sp.z ge modelzlim,model_count)
-help,model_count
-if(model_count gt 0) then begin
-    mag[*,model_indx]=im[model_indx].counts_model
-    mag_err[*,model_indx]=im[model_indx].counts_modelerr
-endif
-
-; cut out bad errors
-klog,'cutting bad errors'
 goodindx=where(abs(mag_err[0,*]) lt errlimit[0] and $
                abs(mag_err[1,*]) lt errlimit[1] and $
                abs(mag_err[2,*]) lt errlimit[2] and $
