@@ -192,7 +192,21 @@ umg=-2.5*alog10(sp.modelflux[0]/sp.modelflux[1])
 gmr=-2.5*alog10(sp.modelflux[1]/sp.modelflux[2])
 indx=where(umg lt 1.6 and gmr gt 1.4,count)
 if(count gt 0) then sp[indx].modelflux_ivar[0]=0.
-stop
+
+; only use cnoc which have all positive fluxes
+goodindx=where(cnoc_stacked[0,*] gt 0 and $
+               cnoc_stacked[1,*] gt 0 and $
+               cnoc_stacked[2,*] gt 0 and $
+               cnoc_stacked[3,*] gt 0 and $
+               cnoc_stacked[4,*] gt 0 and $
+               cnoc_stacked_ivar[0,*] gt 0 and $
+               cnoc_stacked_ivar[1,*] gt 0 and $
+               cnoc_stacked_ivar[2,*] gt 0 and $
+               cnoc_stacked_ivar[3,*] gt 0 and $
+               cnoc_stacked_ivar[4,*] gt 0)
+cnoc2=cnoc2[goodindx]
+cnoc_stacked=cnoc_stacked[*,goodindx]
+cnoc_stacked_ivar=cnoc_stacked_ivar[*,goodindx]
 
 ; now output 
 outfile='sdss_training_set.'+name+'.fits'
