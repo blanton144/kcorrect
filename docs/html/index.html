@@ -20,7 +20,8 @@ spectral energy distributions and K-corrections. Standard format IDL
 <a href="kcorrect_help.html"> documentation</a> exists. There is a <a
 href="paper.ps"> paper</a> which describes the methods in
 detail. Conditions of using the code released here are to cite this
-paper and to specify the version tag (eg. v1_1) of the code used.
+paper and to specify the version tag (eg. v1_6) of the code used. (You
+can check this in the IDL code using the <b>k_version</b> command).
 </p>
 
 <p> We document in detail here how to use the SED fits provided to
@@ -53,21 +54,42 @@ The best way to obtain the code is to simply download the latest
 version from this site. The tagged and released versions, from latest
 to earliest, are:
 <ul>
-<li> <a href="kcorrect.v1_2.tar.gz"> kcorrect.v1_2.tar.gz</a>
+<li> <a href="kcorrect.v1_6.tar.gz"> kcorrect.v1_6.tar.gz</a>
 </ul>
 The earlier versions are only included so that you can reproduce old
 results if you like.
 
 It is also possible to export tagged versions from a public CVS
-repository, using the CVS "export" feature, as follows (TODO:
-describe). Please export only based on revision tag, so that we can
+repository, using the CVS "export" feature, as follows (pirated this
+description from spectro.princeton.edu):
+<ul>
+<li> Make sure your environment uses ssh to access CVS:
+<pre>
+CVS_RSH=ssh
+export CVS_RSH
+</pre>
+<li> The first time you access the repository, create the .cvspass
+file (run this in your home directory):
+<pre>
+cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot login
+</pre>
+When the above asks for a password, just hit Enter. 
+<li> After this, you can just export any version you want:
+<pre>
+cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v1_6 kcorrect
+</pre>
+where you can replace v1_6 with whatever version you want.
+</ul> 
+Please export only based on revision tag, so that we can
 track versions properly. 
 
+<p>
 It is also possible to CVS "checkout" the latest version of the
 code. This is not recommended unless you want to become involved in
 developing kcorrect (that is, if you will want to alter the code and
 check it back in). Please <a href="mailto:mb144@nyu.edu"> contact
 me</a> if you want to do this.
+</p>
 
 <h3> Compiling the Code</h3>
 
