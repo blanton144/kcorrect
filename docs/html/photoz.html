@@ -4,37 +4,34 @@
 <H1> Photometric Redshifts</H1>
  
 <p> Once one has constructed the SED templates, it is trivial to use
-them to calculate photometric redshifts. One cannot fit all four
-templates to the data plus the redshift -- there just is not enough
-information. Instead, one has to settle for fitting only two templates
--- one which estimates the flux and one which estimates the color. The
-photometric redshift templates we use ("defaultpz" in the
-$KCORRECT_DIR/data/etemplates directory) use the most principal axis
-(e_3) from the full 4D fit as the color direction. </p>
+them to calculate photometric redshifts. </p>
 
-<p> Fitting photometric redshifts just requires fitting the two
+<p> Fitting photometric redshifts just requires fitting the
 coefficients for a number of redshifts and minimizing the chi^2
-residuals for the fits. I provide routines here to do so. They are
-reasonably fast -- about 1 ms an object on a 1GHz Pentium III -- and
-reasonably accurate -- the 5-sigma clipped estimate of the redshift
-errors is about 0.05. </p>
+residuals for the fits. I provide routines here to do so. They take
+about 70 ms an object on a 1GHz Pentium III and are reasonably
+accurate -- the 5-sigma clipped estimate of the redshift errors is
+about 0.05. </p>
 
 <p> A piece of advice on the *type* of magnitudes to use for
-photometric redshifts: basically you want to use the highest
-signal-to-noise measurement which has consistently defined
-colors. This means to use <b>counts_model</b> in most cases (not
-deVaucouleurs or exponential magnitudes!), though for bright objects
-Petrosian is just as good.</p>
+photometric redshifts. For modern versions of PHOTO (v5_4 and later)
+it is best to simply use the model magnitudes for all galaxies. </p>
 
 <p> The IDL routine <b>kphotoz</b> works in a way which is extremely
 similar to the <b>kcorrect</b> routine.
 <pre>
-kphotoz, galaxy_mag, galaxy_magerr, photoz, [, coeffs=, $
-    /maggies, version=, vpath=, rmatrix=, ematrix=, zvals=, /sdssfix]
+IDL> kphotoz
+Syntax - kphotoz, maggies, maggies_ivar, photoz [ , $
+             /magnitude, /stddev, lfile=, zmin=, zmax=, nz=, $
+             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $
+             zvals=, lambda=, vmatrix=, coeffs=, /verbose, $
+             lprior=, zprior=, /noprior, /sdssfix ]
 </pre>
 For example, one might do the following:
 <pre>
-kphotoz, [0., 2., 0.7, 0.3, 0.3], [0.02,0.02,0.02,0.02,0.02], photoz 
+kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
+         [1100., 28., 7.7, 4.4, 2.5], $
+         photoz
 </pre>
 </p>
 Again, there is large overhead, so one-at-a-time is not the way to
@@ -42,16 +39,30 @@ call <b>kphotoz</b>. As for <b>kcorrect</b>, you can avoid spending
 this overhead more than once either by feeding it lists of objects or
 as follows:
 <pre>
-kphotoz, [0., 2., 0.7, 0.3, 0.3], [0.02,0.02,0.02,0.02,0.02], $
-    photoz, rmatrix=rmatrix, ematrix=ematrix, zvals=zvals
-kphotoz, [0., 1.7, 0.8, 0.2, 0.2], [0.02,0.02,0.02,0.02,0.02], $
-    photoz, rmatrix=rmatrix, ematrix=ematrix, zvals=zvals
+kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
+         [1100., 28., 7.7, 4.4, 2.5], $
+         photoz, rmatrix=rmatrix, zvals=zvals
+kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
+         [1100., 28., 7.7, 4.4, 2.5], $
+         photoz, rmatrix=rmatrix, zvals=zvals
 </pre>
 Finally, the /sdssfix option fixes SDSS magnitudes in the same way as
 for <b>kcorrect</b>.
 
+<p>By default, <b>kphotoz</b> uses a very simple prior (equal to the
+redshift z) to push the fits away from z=0. You can turn this off with
+the flag /noprior, or specify your own prior using the inputs zprior
+(which indicates the redshift grid) and lprior (which indicates the
+natural log of the prior). </p>
+
 <p> The stand-alone program <b>fit_photoz</b> works in the same way as
 <b>fit_coeffs</b>: 
+<pre>
+apeiron.[v3_1].27 % fit_photoz --help
+Usage: cat <maggies file> | fit_photoz [--vfile <vfile> --lfile <lfile>
+            --ffile <ffile> ]
+</pre>
+As in:
 <pre>
 cat maggies.dat | fit_photoz 
 </pre>
@@ -61,7 +72,7 @@ umaggies gmaggies rmaggies imaggies zmaggies uinvvar ginvvar rinvvar iinvvar zin
 </pre>
 The output is again to standard out and is of the form:
 <pre>
-coeff0 coeff1 photoz
+photoz coeff0 coeff1 coeff2
 </pre>
 The same rules apply here as to the IDL code: call the code for many
 objects at a time, or else the overhead (about 3 seconds) will kill
@@ -69,15 +80,15 @@ you.
 </p>
 
 <p> The photo-z code can also be accessed through the C library
-libkcorrect.so. Follow the directions in the <a href="index.html">
+libkcorrect.so. Follow the directions in the <a href="v3_1b-index.html">
 main page</a> for using this library. Instead of <b>k_fit_coeffs</b>,
 you will be calling <b>k_fit_photoz</b>, as in:
 <pre>
-k_fit_photoz(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_maggies,
-             galaxy_invvar,galaxy_photoz,ngalaxy);
+k_fit_photoz(photoz, coeffs, rmatrix, nk, nv, zprior, lprior, nprior, 
+             zvals, nz, maggies, maggies_ivar, ngalaxy, tolerance,
+             maxiter, niter, chi2, verbose)
 </pre>
-Remember that galaxy_maggies and galaxy_invvar are expressed in
-maggies.
+zprior, lprior, and nprior should contain the prior grid to use.
 </p>
 
 <p> Please note that the photometric redshifts resulting from this
@@ -90,8 +101,8 @@ redshifts. </p>
 
 <p> Finally, this code can be (almost) trivially adapted to any
 optical photometry results for galaxies in the redshift range 0 to
-0.5. All you need to do is to put different filters into the
-filterlist file, make sure your magnitudes are AB, and plug away!</p>
+0.5. All you need to do is to specify a different set of filters, make
+sure your magnitudes are AB, and plug away!</p>
 
 <hr> 
 
