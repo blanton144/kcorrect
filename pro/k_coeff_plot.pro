@@ -39,7 +39,7 @@ if(n_elements(nlum) eq 0) then nlum=1l
 if(n_elements(omega0) eq 0) then omega0=0.3d
 if(n_elements(omegal0) eq 0) then omegal0=0.7d
 if(n_elements(lumlimits) eq 0) then $ 
-  lumlimits=[[-5.6,-5.2]]
+  lumlimits=[[-5.2,-4.8]]
 help,nlum
 
 k_load_ascii_table,coeff,vpath+'/coeff.'+version+'.dat'
@@ -57,8 +57,9 @@ for i=0, nt-2l do begin
                    alog10(lum) lt lumlimits[1,j],count)
         rat=coeff[i+1l,indx]/coeff[0,indx]
         sig=djsig(rat)
+        meanr=mean(rat)
         if(count gt 0) then $
-          plot,z[indx],rat,psym=3,xra=[0.,0.5],yra=[-3.*sig,3.*sig
+          plot,z[indx],rat,psym=3,xra=[0.,0.5],yra=[meanr-15.*sig,meanr+15.*sig]
         isortz=indx[sort(z[indx])]
         sortz=z[isortz]
         sortc=transpose(coeff[i+1l,isortz]/coeff[0,isortz])

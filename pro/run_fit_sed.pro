@@ -38,7 +38,7 @@
 ;------------------------------------------------------------------------------
 pro run_fit_sed,outname,spfile=spfile,photozplates=photozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter
 
-if(keyword_set(photozplates)) then mustdo=[668,669,670,671] 
+if(keyword_set(photozplates)) then mustdo=[669,670,671,672] 
 
 if(NOT keyword_set(maxiter)) then maxiter=10l
 if(NOT keyword_set(outpath)) then outpath='.'
@@ -47,20 +47,19 @@ if(NOT keyword_set(zlimits)) then zlimits=[0.,0.5]
 if(NOT keyword_set(nz)) then nz=8l
 if(NOT keyword_set(templatelist)) then $
   templatelist=['ssp_salp_z02.flux.0220.dat', $
-                'ssp_salp_z02.flux.0090.dat', $
-                'ssp_salp_z02.flux.0150.dat', $
-                'ssp_salp_z004.flux.0180.dat', $
-                'ssp_salp_z02.flux.0120.dat', $
                 'ssp_salp_z02.flux.0180.dat', $
+                'ssp_salp_z02.flux.0150.dat', $
+                'ssp_salp_z02.flux.0120.dat', $
                 'ssp_salp_z004.flux.0220.dat', $
+                'ssp_salp_z004.flux.0180.dat', $
                 'ssp_salp_z004.flux.0150.dat', $
                 'ssp_salp_z004.flux.0120.dat', $
-                'ssp_salp_z004.flux.0090.dat', $
-                'flat.flux.dat']
+                'flat.flux.dat', $
+                'cos1.flux.dat']
 if(NOT keyword_set(nk)) then nk=5L
 if(NOT keyword_set(nl)) then nl=500L
 if(NOT keyword_set(lambdalim)) then lambdalim=[1000.,12000.]
-if(NOT keyword_set(smoothtemplate)) then smoothtemplate=200.d
+if(NOT keyword_set(smoothtemplate)) then smoothtemplate=300.d
 if(NOT keyword_set(nt)) then nt=4L
 if(NOT keyword_set(fraction)) then fraction=1.
 if(NOT keyword_set(spfile)) then spfile='/data/sdss/spectro/spAll.fits'
@@ -69,6 +68,7 @@ if(NOT keyword_set(errband)) then errband=dblarr(nk)
 if(NOT keyword_set(errlimit)) then errlimit=dblarr(nk)+0.8d
 if(NOT keyword_set(maglimit)) then maglimit=dblarr(nk)+22.5d
 if(NOT keyword_set(scale)) then scale=1.d
+if(NOT keyword_set(nozlim)) then nozlim=[60.,61.]
 
 if(NOT keyword_set(filtfile)) then begin
     filtfile=getenv('KCORRECT_DIR')+'/data/etemplates/filterlist.'+outname $
@@ -81,7 +81,6 @@ if(NOT keyword_set(filtfile)) then begin
     readf,unit,filterlist
     close,unit
     free_lun,unit
-    filterlist=getenv('KCORRECT_DIR')+'/data/filters/'+filterlist
 endif
 
 columns=['z','petrocounts','petrocountserr','reddening','class', $
@@ -155,6 +154,10 @@ endif
 indx=where(usesp gt 0)
 sp=sp[indx]
 help,sp
+
+indx=where(sp.z lt nozlim[0] or sp.z gt nozlim[1],count)
+if(count gt 0) then $
+  sp=sp[indx]
 
 ; Trim off *anything* with bad errors, magnitudes
 goodindx=where(abs(sp.petrocountserr[0]) lt errlimit[0] and $

@@ -57,7 +57,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_sed, galaxy_flux, galaxy_invvar, galaxy_z, templatelist, filterlist, coeff, ematrix, bmatrix, bflux, lambda, smoothtemplate=smoothtemplate, sublmin=sublmin, sublmax=sublmax, vmatrix=vmatrix, preset_ematrix=preset_ematrix, maxiter=maxiter, nt=nt, model_flux=model_flux, plotfluxes=plotfluxes
+pro k_fit_sed, galaxy_flux, galaxy_invvar, galaxy_z, templatelist, filterlist, coeff, ematrix, bmatrix, bflux, lambda, smoothtemplate=smoothtemplate, sublmin=sublmin, sublmax=sublmax, vmatrix=vmatrix, preset_ematrix=preset_ematrix, maxiter=maxiter, nt=nt, model_flux=model_flux, plotfluxes=plotfluxes, cutlmin=cutlmin, cutlmax=cutlmax
 
 ; Need at least 10 parameters
 if (N_params() LT 10) then begin
@@ -72,6 +72,8 @@ endif
 if (NOT keyword_set(maxiter)) then maxiter=100l
 if (NOT keyword_set(sublmin)) then sublmin=3500.d
 if (NOT keyword_set(sublmax)) then sublmax=7500.d
+if (NOT keyword_set(cutlmin)) then cutlmin=2000.d
+if (NOT keyword_set(cutlmax)) then cutlmax=10500.d
 
 ; Find vmatrix and bmatrix
 k_load_templates,getenv('KCORRECT_DIR')+'/data/seds/'+templatelist,vmatrix, $

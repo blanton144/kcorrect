@@ -35,7 +35,7 @@
 ;   04-Jan-2002  Written by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_load_templates, templatelist, vmatrix, lambda, lmin=lmin, lmax=lmax, nl=nl
+pro k_load_templates, templatelist, vmatrix, lambda, lmin=lmin, lmax=lmax, nl=nl, cutlmin=cutlmin, cutlmax=cutlmax
 
 ; Need at least 3 parameters
 if (N_params() LT 3) then begin
@@ -49,6 +49,8 @@ endif
 if (NOT keyword_set(nl)) then nl=500l
 if (NOT keyword_set(lmin)) then lmin=1000.d
 if (NOT keyword_set(lmax)) then lmax=12000.d
+if (NOT keyword_set(cutlmin)) then cutlmin=2000.d
+if (NOT keyword_set(cutlmax)) then cutlmax=10500.d
 lambda=lmin+(lmax-lmin)*dindgen(nl+1l)/double(nl)
 lint=0.5*(lambda[0l:nl-1l]+lambda[1l:nl])
 
@@ -69,6 +71,12 @@ for i = 0l, n_elements(templatelist)-1l do begin
         vmatrix[j,i]=vtmp[1l,llo]+(vtmp[1l,lhi]-vtmp[1l,llo])*sl/ $
           (vtmp[0l,lhi]-vtmp[0l,llo])
     endfor
+    indx=where(lint lt cutlmin, count)
+    if(count gt 1) then $
+      vmatrix[indx[0:count-2],i]=vmatrix[indx[count-1],i]
+    indx=where(lint gt cutlmax, count)
+    if(count gt 1) then $
+      vmatrix[indx[1:count-1],i]=vmatrix[indx[0],i]
 endfor 
 
 end
