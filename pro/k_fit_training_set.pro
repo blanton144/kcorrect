@@ -68,22 +68,48 @@ plot,gals[indx].redshift,imz_model-imz_obs,psym=3,yra=[-0.4,0.4]
 end_print
 
 ; get median
-k_reconstruct_maggies,coeffs,replicate(0.,n_elements(indx)),rec_maggies0, $
-  zvals=zvals,rmatrix=rmatrix,ematrix=identity(nv), $
+indx=where(total(coeffs[*,0:2000],1,/double) lt 1.D-30)
+k_reconstruct_maggies,coeffs[*,indx],replicate(0.,n_elements(indx)), $
+  rec_maggies0,zvals=zvals,rmatrix=rmatrix,ematrix=identity(nv), $
   band_shift=replicate(0.1,n_elements(indx))
-for i=0L, nv-1L do coeffs[i,*]=coeffs[i,*]/rec_maggies0[2,*]
-median_coeffs=dblarr(nv)
-for i=0L, nv-1L do median_coeffs[i]=median(coeffs[i,*])
+ranscale=(0.995+0.1*randomu(seed,n_elements(indx)))
+for i=0L, nv-1L do $
+  coeffs[i,indx]=ranscale*coeffs[i,indx]/rec_maggies0[2,*]
+;median_coeffs=dblarr(nv)
+;for i=0L, nv-1L do median_coeffs[i]=median(coeffs[i,*])
 
 ; refit?
 
 ; PCA 
-newcoeffs=pcomp(coeffs,coefficients=ematrix,/double,eigenvalues=eigenvalues)
-;for i=1, 9 do begin & window,i & plot,newcoeffs[0,*],newcoeffs[i,*],psym=4,yra=[-20.,20.] & wait,0.2 & endfor
+indx=lindgen(2000)
+coeffs=coeffs*1.D+45
+coeffs=(coeffs > 1.D-1) < 1.D+1
+num=2000 & nv=70
+indx=lindgen(num) & coeffs=double(exp(1.*randomu(seed,nv,num)) )
+center=dblarr(nv)
+for i=0L, nv-1L do $
+  center[i]=djs_avsigclip(alog10(coeffs[i,indx]),sigrej=3.)
+centered_coeffs=dblarr(nv,n_elements(indx))
+for i=0L, nv-1L do $
+  centered_coeffs[i,indx]=alog10(coeffs[i,indx])-center[i]
+;newcoeffs=pcomp(centered_coeffs,coefficients=ematrix,/double, $
+;                eigenvalues=eigenvalues, /covariance, $
+;                variances=var)
+pca,transpose(centered_coeffs),eigenvalues,ematrix,percent,newcoeffs, $
+  blah,matrix=matrix, /silent, /covariance
+scale=sqrt(total(ematrix^2,1,/double))
+for i=0,nv-1 do ematrix[*,i]=ematrix[*,i]/scale[i]
+;newcoeffs=(centered_coeffs)##invert(ematrix)
+newcenter=center##(ematrix)
+for i=0,nv-1 do newcoeffs[i,*]=newcoeffs[i,*]/scale[i]+newcenter[i]
+print,coeffs[*,0]-10.^(newcoeffs[*,0]##invert(ematrix)),minmax(coeffs)
+blah=newcoeffs##invert(ematrix)
+plot,blah[0,*],blah[1,*],psym=4
+oplot,alog10(coeffs[0,*]),alog10(coeffs[1,*]),psym=4,color=255
+for i=1, 72 do begin & plot,newcoeffs[0,*],newcoeffs[i,*],psym=4 & wait,0.2 & endfor
 nuse=nv-1
-for i=0,nv-1 do ematrix[*,i]=ematrix[*,i]/sqrt(total(ematrix[*,i]^2,/double))
 k_reconstruct_maggies,newcoeffs[0:nuse-1,*],gals[indx].redshift,rec_maggies, $
-  zvals=zvals,rmatrix=rmatrix,ematrix=(ematrix[0:nuse-1,*])
+  zvals=zvals,rmatrix=rmatrix,ematrix=(ematrix[*,0:nuse-1])
 
 umg_model=-2.5*alog10(rec_maggies[0,*]/rec_maggies[1,*])
 umg_obs=gals[indx].mag[0]-gals[indx].mag[1]
