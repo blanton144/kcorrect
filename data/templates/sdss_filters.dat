@@ -1,0 +1,6 @@
+KCORRECT_DIR
+data/filters/sdss_u0.par
+data/filters/sdss_g0.par
+data/filters/sdss_r0.par
+data/filters/sdss_i0.par
+data/filters/sdss_z0.par

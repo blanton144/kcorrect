@@ -52,3 +52,35 @@ void k_add_row_filter_struct(void ***input_struct,
 	} /* end for */
 	(*input_struct)=(void **) ptr_struct;
 }
+
+void k_copy_filter_struct(void **filter_struct,
+													int filter_n,
+													float *filter_lambda,
+													float *filter_pass)
+{
+	int i;
+	FILTER_STRUCT **ptr_struct;
+
+	ptr_struct=(FILTER_STRUCT **) filter_struct;
+	for(i=0;i<filter_n;i++) {
+		filter_lambda[i]=ptr_struct[i]->lambda;
+		filter_pass[i]=ptr_struct[i]->pass;
+	}
+}
+
+void k_free_filter_struct(void ***input_struct,
+													int nrows) 
+{
+	int i;
+	if(input_struct!=NULL) {
+		if(*input_struct!=NULL) {
+			for(i=0;i<nrows;i++) {
+				if((*input_struct)[i]!=NULL)
+					free((*input_struct)[i]);
+				(*input_struct)[i]=NULL;
+			}
+			free((*input_struct));
+		}
+		(*input_struct)=NULL;
+	}
+} 

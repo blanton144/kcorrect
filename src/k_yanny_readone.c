@@ -22,6 +22,8 @@
  * 6/2003 
  */
 
+static char **columns=NULL;
+
 IDL_LONG k_yanny_readone(char filename[255],
 												 void ***input_struct,
 												 int *nrows,
@@ -32,16 +34,20 @@ IDL_LONG k_yanny_readone(char filename[255],
 																								char **wrd,
 																								int nwrds))
 {
-	int nwrds, ncolumns, typedef_done, typedef_doing;
+	int i, nwrds, ncolumns, maxcolumns, typedef_done, typedef_doing;
 	char str[255], struct_name[255];
-	char **wrd, **columns=NULL;
+	char **wrd=NULL;
 	FILE *fp;
 
 	fp=k_fileopen(filename,"r");
 	typedef_done=0;
 	typedef_doing=0;
 	ncolumns=0;
+	columns=NULL;
+	wrd=NULL;
+	nwrds=0;
 	(*nrows)=0;
+	maxcolumns=10;
 	while(!feof(fp)) {
 		fgets(str,255,fp);
 
@@ -69,15 +75,19 @@ IDL_LONG k_yanny_readone(char filename[255],
 						/* if not, add a column */
 						ncolumns++;
 						if(columns==NULL) {
-							columns=(char **) malloc(ncolumns*sizeof(char *));
-						} else {
-							columns=(char **) realloc((void *) columns, 
-																				ncolumns*sizeof(char *));
+							columns=(char **) malloc(maxcolumns*sizeof(char *));
+							for(i=0;i<maxcolumns;i++) 
+								columns[i]=(char *) malloc(255*sizeof(char));
+						} else if (ncolumns>maxcolumns) {
+							columns=(char **) realloc((void **) columns, 
+																				2*maxcolumns*sizeof(char *));
+							for(i=maxcolumns;i<2*maxcolumns;i++) 
+								columns[i]=(char *) malloc(255*sizeof(char));
+							maxcolumns*=2;
 						}
 						/* get rid of semicolon */
 						if(wrd[1][strlen(wrd[1])-1] == ';') wrd[1][strlen(wrd[1])-1]='\0';
-						columns[ncolumns-1]=(char *) malloc(255*sizeof(char));
-						strcpy(columns[ncolumns-1],wrd[1]);
+						sprintf(columns[ncolumns-1],"%s",wrd[1]);
 					}
 				} else if(typedef_done) { 
 					/* if we have finished check structure name */
@@ -90,11 +100,13 @@ IDL_LONG k_yanny_readone(char filename[255],
 					fflush(stderr);
 					exit(1);
 				}
+				k_strfree(wrd,nwrds); wrd=NULL; nwrds=0;
 			}
 		} 
 	}
 	fclose(fp);
 	
+#if 0
 	k_strfree(columns,ncolumns);
-	k_strfree(wrd,nwrds);
+#endif
 } /* end k_yanny_readone */

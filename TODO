@@ -1,8 +1,8 @@
-template determination for 2..5 templates on full template set
-test which is best for photoz
 stand alone c code
 documentation
 recommendation for use of JHK??
+   a. check that templates are being tweaked for it right 
+   b. deal with photometry issues
   a) fix model mags ...
   b) use v5_4
 

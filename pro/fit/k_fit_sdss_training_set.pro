@@ -73,6 +73,9 @@ pro k_fit_sdss_training_set, name=name, navg=navg
 
 if(NOT keyword_set(name)) then name='test'
 if(NOT keyword_set(navg)) then navg=3
+orig_name=name
+orig_navg=navg
+
 if(NOT keyword_set(npca)) then npca=5
 if(NOT keyword_set(nkmeans)) then nkmeans=10
 if(NOT keyword_set(sublmin)) then sublmin=2000.
@@ -100,7 +103,8 @@ if(not file_test(savfile)) then begin
 
 ;   fit nonnegative model
     use_indx=shuffle_indx(n_elements(gals),num_sub=5000)
-    add_indx=where(gals.redshift gt 0.5)
+    add_indx=where(gals.redshift gt 0.5 OR $
+                   gals.sdss_spectro_tag eq -1)
     use_indx=[use_indx,add_indx]
     coeffs=k_fit_nonneg(gals[use_indx].maggies, $
                         gals[use_indx].maggies_ivar,vmatrix, $
@@ -114,6 +118,8 @@ endif else begin
     splog,'restoring'
     restore,savfile
     splog,'done'
+    name=orig_name
+    navg=orig_navg
 endelse
 
 fixindx=where(gals[use_indx].maggies_ivar[0] gt 0. or $

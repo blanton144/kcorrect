@@ -30,6 +30,8 @@ OBJECTS = \
   k_yanny_readone.o \
   k_filter_struct.o \
   k_fileopen.o \
+  k_load_filters.o \
+  k_read_ascii_table.o \
   k_nonneg_solve.o \
 	k_interpolate.o \
 	k_utils.o \
@@ -41,7 +43,7 @@ OBJECTS = \
 	k_brent.o \
 	k_polint.o 
 
-all: $(LIB)/libkcorrect.$(SO_EXT) $(BIN)/k_test_filter
+all: $(LIB)/libkcorrect.$(SO_EXT) $(BIN)/k_test_filter $(BIN)/fit_coeffs
 #
 $(LIB)/libkcorrect.$(SO_EXT): $(OBJECTS)
 	$(LD) -g $(X_LD_FLAGS) -o $(LIB)/libkcorrect.$(SO_EXT) $(OBJECTS) 
@@ -49,6 +51,10 @@ $(LIB)/libkcorrect.$(SO_EXT): $(OBJECTS)
 
 $(BIN)/k_test_filter: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) k_test_filter.c 
 	$(CC) -g $(CFLAGS) -o $(BIN)/k_test_filter k_test_filter.c -lm -L$(LIB) \
+	-lkcorrect
+
+$(BIN)/fit_coeffs: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) fit_coeffs.c 
+	$(CC) -g $(CFLAGS) -o $(BIN)/fit_coeffs fit_coeffs.c -lm -L$(LIB) \
 	-lkcorrect
 
 #

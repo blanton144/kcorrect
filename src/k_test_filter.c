@@ -23,6 +23,14 @@ int main(int argc,
 	sprintf(filename,"/home/blanton/kcorrect/data/filters/twomass_Ks.par");
 	res=k_yanny_readone(filename,&filter_struct, &nrows, 
 											(void *) k_add_row_filter_struct);
+	res=k_yanny_readone(filename,&filter_struct, &nrows, 
+											(void *) k_add_row_filter_struct);
+	res=k_yanny_readone(filename,&filter_struct, &nrows, 
+											(void *) k_add_row_filter_struct);
+	res=k_yanny_readone(filename,&filter_struct, &nrows, 
+											(void *) k_add_row_filter_struct);
+	res=k_yanny_readone(filename,&filter_struct, &nrows, 
+											(void *) k_add_row_filter_struct);
 	printf("%d\n",nrows);
 	k_print_filter_struct(filter_struct, nrows); 
 	return(0);

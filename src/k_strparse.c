@@ -9,21 +9,24 @@
 /* allocate a char matrix with subscript range m[nrl..nrh][ncl..nch] */
 char **k_cmatrix(long a, long b)
 {
-	char *block,**list;
+	char **list;
 	long i;
  
-	block=(char *) malloc((size_t) a*b*sizeof(char));
 	list=(char **) malloc((size_t) a*sizeof(char *));
-	for(i=0;i<a;i++) list[i]=&(block[i*b]);
+	for(i=0;i<a;i++) 
+		list[i]=(char *) malloc((size_t) b*sizeof(char));
 	return(list);
 }
 
 /* free a char matrix allocated by cmatrix() */
 void k_free_cmatrix(char **m, long a, long b)
 {
-	free((char *) &(m[0][0]));
-	free((char **) m);
-	m=NULL;
+	int i;
+	if(m!=NULL) {
+		for(i=0;i<a;i++) 
+			if(m[i]!=NULL) free(m[i]);
+		free(m);
+	}
 }
 
 /*
@@ -59,6 +62,8 @@ void k_strparse(char *str,
 		} /* end while */
 		(*nwrd)++;
 	} /* end while */
+
+	if((*nwrd)==0) return;
 
 	/* allocate words */
 	(*wrd)=k_cmatrix((*nwrd),STRMAX+1);
