@@ -1,28 +1,35 @@
 ###############################################################################
 # Sloan Digital Sky Survey (SDSS)
-# IDL support code for products: kcorrect
 #
-# S. Burles & D. Schlegel
+# M. Blanton
 ###############################################################################
 
+#
+# IDL support utilities for spectro2d and the fibermapper
+#
 SHELL = /bin/sh
 #
-SUBDIRS = paper
+.c.o :
+	$(CC) -c $(CCCHK) $(CFLAGS) $*.c
 #
+CFLAGS  = $(SDSS_CFLAGS) -DCHECK_LEAKS -I../include
+
+SUBDIRS = pro src 
+
 all :
-	idl mk_doc
 	@ for f in $(SUBDIRS); do \
 		(cd $$f ; echo In $$f; $(MAKE) $(MFLAGS) all ); \
 	done
-	cp -f paper/paper.ps html
-	ln -sf ../../data/filters html/filters
 
 #
 # Install things in their proper places in $(KCORRECT_DIR)
 #
 install :
+	- cp *.h $(KCORRECT_DIR)/include
+	- cp Makefile $(KCORRECT_DIR)/include
 
 clean :
-	- /bin/rm -f *~ core www/*~ www/core
-
-
+	- /bin/rm -f *~ core
+	@ for f in $(SUBDIRS); do \
+		(cd $$f ; echo In $$f; $(MAKE) $(MFLAGS) clean ); \
+	done

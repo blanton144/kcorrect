@@ -22,12 +22,12 @@ all :
 	done
 
 #
-# Install things in their proper places in $(VAGC_DIR)
+# Install things in their proper places in $(KCORRECT_DIR)
 #
 install :
-	- cp *.so $(VAGC_DIR)/lib
-	- cp *.a $(VAGC_DIR)/lib
-	- cp Makefile $(VAGC_DIR)/lib
+	- cp *.so $(KCORRECT_DIR)/lib
+	- cp *.a $(KCORRECT_DIR)/lib
+	- cp Makefile $(KCORRECT_DIR)/lib
 
 clean :
 	- /bin/rm -f *~ core
