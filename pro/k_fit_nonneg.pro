@@ -35,7 +35,9 @@ function k_fit_nonneg, maggies, maggies_err, vmatrix, $
                        lambda,redshift=redshift, $
                        band_shift=band_shift, version=version, vpath=vpath, $
                        filterlist=filterlist, filterpath=filterpath, $
-                       maxiter=maxiter, rmatrix=rmatrix,zvals=zvals,chi2=chi2
+                       maxiter=maxiter, rmatrix=rmatrix,zvals=zvals, $
+                       chi2=chi2, quiet=quiet
+                       
 
 if(n_elements(band_shift) eq 0) then band_shift=0.
 if(n_elements(redshift) eq 0) then redshift=0.
@@ -79,7 +81,8 @@ nv=long(n_elements(rmatrix)/(nz*nk))
 ; faster and more portable)
 coeffs=dblarr(nv,ngalaxy)
 for i=0L, ngalaxy-1L do begin
-    splog,i
+    if(not keyword_set(quiet)) then $
+      splog,i
     invcovar=dblarr(nv,nv)
     bb=dblarr(nv)
     for j=0L, nk-1L do begin
@@ -99,7 +102,8 @@ for i=0L, ngalaxy-1L do begin
                                          offset=offset,/matrix,tol=tol, $
                                          niter=niter,maxiter=maxiter, $
                                          chi2tol=0.5,skip=100)
-    splog,chi2
+    if(not keyword_set(quiet)) then $
+      splog,chi2
 endfor
 
 return, coeffs

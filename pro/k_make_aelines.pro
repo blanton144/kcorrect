@@ -17,7 +17,7 @@
 ;   24-jan-2002  WRitten by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_make_aelines, vmatrix, lambda
+pro k_make_aelines, vmatrix, lambda,nl=nl,lmin=lmin,lmax=lmax
 
 if(NOT keyword_set(pegasepath)) then $
   pegasepath=getenv('DATA')+'/specmodels/PEGASE.2'
