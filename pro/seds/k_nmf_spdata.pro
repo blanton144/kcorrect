@@ -46,7 +46,7 @@
 ;   23-Nov-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_nmf_data, mmatrix=mmatrix, sample=sample
+pro k_nmf_spdata, mmatrix=mmatrix, sample=sample
 
 if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
