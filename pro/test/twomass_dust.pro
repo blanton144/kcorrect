@@ -35,9 +35,16 @@ im=im[ii]
 sp=sp[ii]
 kcorrect=kcorrect[ii]
 calibobj=calibobj[ii]
-zline=zline[ii]
+zline=zline[*,ii]
 dm=lf_distmod(kcorrect.z, omega0=0.3, omegal0=0.7) 
 absmk=22.5-2.5*alog10(kcorrect.abmaggies[7])-dm-kcorrect.kcorrect[7]
+
+ii=lindgen(n_elements(absmk))
+plot,calibobj[ii].ab_exp[2],calibobj[ii].ab_dev[2],psym=4
+
+ii=where(zline[*,ii].lineew gt 5.)
+rmk=-2.5*alog10(kcorrect[ii].abmaggies[2]/kcorrect[ii].abmaggies[7])
+plot,calibobj[ii].ab_exp[2],rmk
 
 stop
 
