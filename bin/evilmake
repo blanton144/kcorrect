@@ -4,7 +4,8 @@ case `uname` in
 	"SunOS") if [  -d /proc ]; then
 			SO_EXT=so
 			X_CFLAGS="-KPIC"
-		  X_FFLAGS="-extend_source"
+		  X_FFLAGS="-e"
+		  SDSS_CFLAGS=-O
 			X_LD_FLAGS=-G
 		fi
 	;;
@@ -12,28 +13,33 @@ case `uname` in
 		SO_EXT=sl
 		X_CFLAGS="+z -Aa -D_HPUX_SOURCE"
 		X_FFLAGS="-extend_source"
+		SDSS_CFLAGS=-O
 		X_LD_FLAGS=-b;;
 	"IRIX" )
 		SO_EXT=so
 		X_CFLAGS="-32 -KPIC -DIRIX"
 		X_FFLAGS="-32 -extend_source"
 		MAKE_FTNLIB="-lftn"
+		SDSS_CFLAGS=-O
 		X_LD_FLAGS="-shared -32";;
 	"IRIX64" )
 		SO_EXT=so
 		X_CFLAGS="-32 -KPIC -DIRIX"
 		X_FFLAGS="-32 -extend_source -KPIC"
 		MAKE_FTNLIB="-lftn"
+		SDSS_CFLAGS=-O
 		X_LD_FLAGS="-shared -32";;
 	"OSF1" )
 		SO_EXT=so
 		X_FFLAGS="-extend_source"
+		SDSS_CFLAGS=-O
 		X_LD_FLAGS="-S -shared";;
 	"Linux" )
 		SO_EXT=so
 		X_CFLAGS="-fPIC -g -Wall"
 		X_FFLAGS="-ffixed-line-length-none"
 		MAKE_FTNLIB="-lg2c"
+		SDSS_CFLAGS=-O2
 		X_LD_FLAGS=-shared ;;
 	*) echo "This system is not supported" >&2
 		exit 1;;
@@ -43,7 +49,6 @@ esac
 # Our Makefile's always build with $(SDSS_CFLAGS), so we can use that
 # variable to set optimization.
 # Comment this out since it seems to fail on an SGI platform...
-SDSS_CFLAGS=-O2
 
 export SO_EXT X_CFLAGS X_FFLAGS X_LD_FLAGS SDSS_CFLAGS MAKE_FTNLIB
 
