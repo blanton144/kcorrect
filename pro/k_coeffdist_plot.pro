@@ -139,6 +139,13 @@ out=spec[*,0]/max(spec[*,0])
 djs_plot,lam,out,xst=1,yst=1,yra=[-0.1,1.1],xra=[2000.,11000.],/nodata, $
   xtitle='Wavelength (Angstroms)', ytitle='f!d!4k!3', $
   ycharsize=axis_char_scale, xcharsize=axis_char_scale
+xout=lam[n_elements(lam)/9]
+yout=0.95
+xyouts,xout,yout,'a!d1!n/a!d0!n='+ $
+      strtrim(string(speccoeffs[1,0],format='(f5.2)'),2)
+yout=0.85
+xyouts,xout,yout,'a!d2!n/a!d0!n='+ $
+      strtrim(string(speccoeffs[2,0],format='(f5.2)'),2)
 for j=0, nspecs-1 do begin
     out=spec[*,j]/max(spec[*,j])
     djs_oplot,lam,out,color=colorname[j],thick=6
