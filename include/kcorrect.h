@@ -144,6 +144,16 @@ void k_dposv__(char *uplo, IDL_LONG *n, IDL_LONG *nrhs, double *a,
 							 IDL_LONG *lda, double *b, IDL_LONG *ldb, IDL_LONG *info);
 void k_dposv_(char *uplo, IDL_LONG *n, IDL_LONG *nrhs, double *a, 
 						  IDL_LONG *lda, double *b, IDL_LONG *ldb, IDL_LONG *info);
+
+/* qld */
+void ql0001_(IDL_LONG *nconstraints, IDL_LONG *neconstraints,
+						 IDL_LONG *nconstraints_max, IDL_LONG *nvar, IDL_LONG *nvar_max,
+						 IDL_LONG *mp2n, double *cmatrix, double *dmatrix, double *amatrix,
+						 double *bmatrix, double *xl, double *xu, double *x,
+						 double *lagrange, IDL_LONG *iout, IDL_LONG *ifail,
+						 IDL_LONG *iprint, double *war, IDL_LONG *lwar, IDL_LONG *iwar,
+						 IDL_LONG *liwar);
+
 #ifdef IRIX
 #define k_dposv__ k_dposv_
 #endif

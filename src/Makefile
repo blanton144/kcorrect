@@ -44,6 +44,8 @@ OBJECTS = \
 	k_locate.o \
 	k_ilaenv.o \
 	k_lsame.o \
+	k_qld.o \
+	idl_k_qld.o \
 	k_dposv.o  \
 	k_ddot.o    k_dpotf2.o  \
 	k_dgemm.o   k_dpotrf.o  k_dtrsm.o \
