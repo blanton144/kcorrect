@@ -1,6 +1,6 @@
 pro k_distribution
 
-va=hogg_mrdfits('/global/data/sdss/sdssgalaxies/devel/object_catalog.fits',1, $
+va=hogg_mrdfits('/global/data/sdss/sdssgalaxies/va/object_catalog.fits',1, $
                 nrowchunk=10000,columns=['petrocounts','reddening', $
                                          'z_princeton'])
 
@@ -26,11 +26,32 @@ lambda=0.5*(lambda[0:n_elements(lambda)-2]+lambda[1:n_elements(lambda)-1])
 
 
 bands=-2.5*alog10(k_project_filters(lambda,spec,band_shift=0.0, $
-                                    filterlist=['Bfilter','Vfilter','bj']))
+                                    filterlist=['bessell_B','bessell_V', $
+                                                'ukschmidt_bj']))
 
-bands[0,*]=bands[0,*]-(k_vega2ab(filterlist=['Bfilter']))[0]
-bands[1,*]=bands[1,*]-(k_vega2ab(filterlist=['Vfilter']))[0]
-bands[2,*]=bands[2,*]-(k_vega2ab(filterlist=['bj']))[0]
+bands[0,*]=bands[0,*]-(k_vega2ab(filterlist=['bessell_B'],/hayes))[0]
+bands[1,*]=bands[1,*]-(k_vega2ab(filterlist=['bessell_V'],/hayes))[0]
+bands[2,*]=bands[2,*]-(k_vega2ab(filterlist=['ukschmidt_bj'],/hayes))[0]
+
+set_print,filename='bjBV.ps'
+plot,bands[0,*]-bands[1,*],bands[2,*]-bands[0,*],psym=3,xra=[0.,1.5], $
+  xtitle='B-V',ytitle='bj-B'
+xx=[-10.,10.]
+yy=-0.28*xx
+oplot,xx,yy
+xx=bands[0,*]-bands[1,*]
+yy=bands[2,*]-bands[0,*]-(-0.28*(bands[0,*]-bands[1,*]))
+plot,xx,yy,psym=3,xra=[0.,1.5], $
+  xtitle='B-V',ytitle='(bj-B)+0.28(B-V)'
+end_print
+stop
+
+sdssbands=-2.5*alog10(k_project_filters(lambda,spec,band_shift=0.1, $
+                                    filterlist=['sdss_g0','sdss_r0']))
+
+
+plot,bands[0,*]-bands[1,*],bands[0,*]-bands[1,*],psym=3,xra=[0.,1.5]
+
 
 set_print,filename='bjBV.ps'
 plot,bands[0,*]-bands[1,*],bands[2,*]-bands[0,*],psym=3,xra=[0.,1.5], $
