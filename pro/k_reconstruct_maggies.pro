@@ -7,12 +7,12 @@
 ;   and a shift to apply to the bandpasses (band_shift). To reconstruct
 ;   the observed galaxy maggies:
 ; 
-;      reconstruct_maggies,coeff,galaxy_z,reconstruct_maggies
+;      k_reconstruct_maggies,coeff,galaxy_z,reconstruct_maggies
 ; 
 ;   To construct what would be observed if the galaxy were observed 
 ;   at z=0. through a bandpass blueshifted by z=0.1:
 ; 
-;      reconstruct_maggies,coeff,replicate(0.,ngals),reconstruct_maggies, $
+;      k_reconstruct_maggies,coeff,replicate(0.,ngals),reconstruct_maggies, $
 ;         band_shift=replicate(0.1,ngals)
 ;
 ; CALLING SEQUENCE:
@@ -97,17 +97,15 @@ endif
 
 ngalaxy=long(n_elements(galaxy_z))
 nt=long(n_elements(coeffs))/ngalaxy
-nb=long(n_elements(ematrix))/nt
-if (keyword_set(bmatrix) AND keyword_set(filterlist)  $
-    AND keyword_set(lambda)) then begin
+if (keyword_set(ematrix) AND keyword_set(bmatrix) AND $
+    keyword_set(filterlist) AND keyword_set(lambda)) then begin
     nk=long(n_elements(filterlist))
     k_create_r,rmatrix,bmatrix,lambda,zvals,filterlist,filterpath=filterpath
-endif else begin
-    if (NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
-        klog, 'need to specify rmatrix or bmatrix and filterlist'
-        return
-    endif
-endelse 
+endif else if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
+    klog, 'need to specify rmatrix or bmatrix and filterlist'
+    return
+endif
+nb=long(n_elements(ematrix))/nt
 nz=long(n_elements(zvals))
 nk=long(n_elements(rmatrix))/(nb*nz)
 

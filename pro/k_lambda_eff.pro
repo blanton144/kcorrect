@@ -1,29 +1,27 @@
 ;+
 ; NAME:
 ;   k_lambda_eff
-;
 ; PURPOSE:
-;   Calculates the effective wavelength using the Schneider et al 1983
-;   defn (as quoted in Fukugita et al 1996). 
-;
+;   Get effective wavelengths of filters in Angstroms
 ; CALLING SEQUENCE:
-;
+;   efflam=k_lambda_eff([filterlist=, filterpath=, band_shift=])
 ; INPUTS:
-;
 ; OPTIONAL INPUTS:
-;
+;   filterlist - list of filter names (default ['sdss_u0','sdss_g0','sdss_r0',
+;                'sdss_i0','sdss_z0'])
+;   filterpath - path for filter files (default
+;                getenv('KCORRECT_DIR')+'/data/filters')
+;   band_shift - blueshift to apply to bandpass
 ; OUTPUTS:
-;
 ; OPTIONAL INPUT/OUTPUTS:
-;
 ; COMMENTS:
-;
+;   Calculates the effective wavelength using the Schneider et al 1983
+;   defn (as quoted in Fukugita et al 1996). Returns results in
+;   Angstroms.
 ; EXAMPLES:
-;
 ; BUGS:
-;
 ; PROCEDURES CALLED:
-;
+;   k_load_filters
 ; REVISION HISTORY:
 ;   17-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
