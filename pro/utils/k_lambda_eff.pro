@@ -47,9 +47,9 @@ for k=0, n_elements(filterlist)-1 do begin
     alog(filter_lambda[filter_n[k]-2,k])
   dloglambda[1:filter_n[k]-2]=0.5*(alog(filter_lambda[2:filter_n[k]-1,k])- $
                                    alog(filter_lambda[0:filter_n[k]-3,k]))
-  denom=total(filter_pass[0:filter_n[k]-1,k]*dloglambda,/float)
+  denom=total(filter_pass[0:filter_n[k]-1,k]*dloglambda,/double)
   numer=total(filter_pass[0:filter_n[k]-1,k]*dloglambda* $
-              alog(filter_lambda[0:filter_n[k]-1,k]),/float)
+              alog(filter_lambda[0:filter_n[k]-1,k]),/double)
   lambda_eff[k]=exp(numer/denom)
 endfor
 
