@@ -15,3 +15,4 @@ mv kcorrect.$1.tar.gz ../docs/html
 cd ../
 \rm -r tmp
 echo devel >! VERSION
+cvs ci -m "back to devel"
