@@ -75,8 +75,10 @@ if(keyword_set(version)) then begin
     k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
     filtfile=vpath+'/filterlist.'+version+'.dat'
     spawn,'cat '+filtfile+' | wc -l',nfilters
-    filterlist=strarr(nfilters[0])
+    nk=long(nfilters[0])-1l
+    filterlist=strarr(nk)
     openr,unit,vpath+'/filterlist.'+version+'.dat',/get_lun
+    readf,unit,nk
     readf,unit,filterlist
     close,unit
     free_lun,unit

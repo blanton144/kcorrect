@@ -433,7 +433,7 @@ define the dot-product in the space of galaxy spectra to be:
 \begin{equation}
 \vv{b}_i \cdot \vv{b}_j =
 \int_{\lambda_{\mathrm{min}}}^{\lambda_{\mathrm{max}}} d\lambda
-\lambda b_i(\lambda) b_j(\lambda),
+b_i(\lambda) b_j(\lambda),
 \end{equation}
 where $\lambda_{\mathrm{min}}$ and $\lambda_{\mathrm{max}}$ define the
 wavelength range used to define orthogonality. These limits are
@@ -590,11 +590,11 @@ photometry from the EDR.
 The magnitudes are calibrated $AB$, meaning that the system is
 designed such that:
 \begin{eqnarray}
-m_{AB} &=& ZZZZ - 2.5 \log_{10}\left[
+m_{AB} &=& -48.60 - 2.5 \log_{10}\left[
 \frac{\int_{0}^{\infty} d\lambda \lambda f(\lambda) R(\lambda)}
 {\int_{0}^{\infty} d\lambda \lambda^{-1} R(\lambda)}\right]
 \cr
-&=& ZZZZ - 2.5 \log_{10}\left[
+&=& -48.60 - 2.5 \log_{10}\left[
 \frac{\int_{0}^{\infty} d\nu \nu^{-1} f(\nu) R(\nu)}
 {\int_{0}^{\infty} d\nu \nu^{-1} R(\nu)}\right],
 \cr
@@ -745,7 +745,7 @@ $K$-correction to the galaxy magnitude in order to compare galaxies
 at different redshifts. One simply calculates the AB magnitude at 
 any redshift as:
 \begin{equation}
-m_{AB} = ZZZZ - 2.5 \log_{10}\left[
+m_{AB} = -48.60 - 2.5 \log_{10}\left[
 \frac{\int_{0}^{\infty} d\lambda \frac{\lambda}{1+z}
 f(\frac{\lambda}{1+z}) R(\lambda)}
 {\int_{0}^{\infty} d\lambda \lambda^{-1} R(\lambda)}\right].

@@ -58,19 +58,19 @@ bflux=dblarr(nb)
 for b = 0l, nb-1l do begin
   ; orthogonalize
   for bp = 0l, b-1l do begin
-	  dot=total(0.5*(lambda[subindxp1]^2-lambda[subindx]^2)* $
+	  dot=total((lambda[subindxp1]-lambda[subindx])* $
 							bmatrix[subindx,b]*bmatrix[subindx,bp],/double)
 		bmatrix[*,b]=bmatrix[*,b]-dot*bmatrix[*,bp]
   endfor 
 	
 	; normalize
-	dot=total(0.5*(lambda[subindxp1]^2-lambda[subindx]^2)*bmatrix[subindx,b]^2, $
+	dot=total((lambda[subindxp1]-lambda[subindx])*bmatrix[subindx,b]^2, $
 						/double)
 	dot=1./sqrt(dot)
 	bmatrix[*,b]=bmatrix[*,b]*dot
 
 	; calculate flux
-	bflux[b]=total(0.5*(lambda[subindxp1]^2-lambda[subindx]^2) $
+	bflux[b]=total((lambda[subindxp1]-lambda[subindx]) $
 								 *bmatrix[subindx,b],/double)
 endfor 
 
