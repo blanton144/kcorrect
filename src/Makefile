@@ -7,6 +7,8 @@
 
 SHELL = /bin/sh
 #
+BLAH_CFLAGS  = -I$(KCORRECT_DIR)/include \
+	-I$(KCORRECT_DIR)/src 
 CFLAGS  = -I$(KCORRECT_DIR)/include \
 	-I$(KCORRECT_DIR)/src $(X_CFLAGS) $(SDSS_CFLAGS) -DCHECK_LEAKS
 #
@@ -41,7 +43,31 @@ OBJECTS = \
 	k_cholsl.o \
 	k_locate.o \
 	k_brent.o \
-	k_polint.o 
+	k_polint.o \
+	idl_lf_calc_vmax.o \
+	idl_ztoV.o \
+	idl_Vtoz.o \
+	idl_z2dm.o \
+	idl_lf_eep.o \
+	idl_lf_select_eep.o \
+	ztransform.o \
+	iterate_lf.o \
+	philike.o \
+	phierrors_lf.o \
+	gaussj.o \
+	lf_select_eep.o \
+	lf_calc_vmax.o \
+	lf_eep.o \
+	lf_eepfit.o \
+	lf_WH_interp.o \
+	lf_set_AB.o \
+	lf_sum_AB.o \
+	lf_midpnt.o \
+	lf_locate.o \
+	lf_qromo.o \
+	lf_polint.o \
+	lf_zbrent.o \
+	lf_utils.o 
 
 all: \
   $(BIN)/k_test_filter $(BIN)/fit_coeffs \
@@ -52,16 +78,16 @@ $(LIB)/libkcorrect.$(SO_EXT): $(OBJECTS)
 	$(LD) $(X_LD_FLAGS) -o $(LIB)/libkcorrect.$(SO_EXT) $(OBJECTS) 
 
 $(BIN)/k_test_filter: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) k_test_filter.c 
-	$(CC)  $(CFLAGS) -o $(BIN)/k_test_filter k_test_filter.c -lm -lkcorrect \
+	$(CC) $(CFLAGS) -o $(BIN)/k_test_filter k_test_filter.c -lm -lkcorrect \
   -L$(LIB) 
 
 $(BIN)/fit_coeffs: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) fit_coeffs.c 
-	$(CC)  $(CFLAGS) -o $(BIN)/fit_coeffs fit_coeffs.c -lm -L$(LIB) \
+	$(CC) $(CFLAGS) -o $(BIN)/fit_coeffs fit_coeffs.c -lm -L$(LIB) \
 	-lkcorrect
 
 $(BIN)/fit_photoz: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) fit_photoz.c 
 	$(CC)  $(CFLAGS) -o $(BIN)/fit_photoz fit_photoz.c -lm -L$(LIB) \
-	-lkcorrect
+	-lkcorrect 
 
 $(BIN)/reconstruct_maggies: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) \
 	reconstruct_maggies.c 
