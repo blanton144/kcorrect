@@ -1,0 +1,17 @@
+The CFRS catalogue for matching to SDSS.
+
+The catalogue to be used is CFRS, where --
+col 1 == ra
+col 2 == dec
+col 3 == z
+
+You should cut on z = 0.0, z<9.0.
+
+I also have spaghetti IDL code to match to SDSS, but this
+is no longer necessary--- simply use sdss_findobj.
+
+Nikhil Padmanabhan
+Princeton
+May 2, 2003
+
+

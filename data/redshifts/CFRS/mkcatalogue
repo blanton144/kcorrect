@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+# Reads in the CFRS redshift catalogue
+# and extracts the RA/DEC and redshift.
+# The RA and DEC are then converted into 
+# real numbers 
+
+# Nikhil Padmanabhan
+# Princeton, April 28, 2003
+
+
+# First read in the slightly modified catalogue
+$fn = "CFRS_catalogue";
+print STDERR "Reading in file $fn\n";
+@size = stat($fn);
+open FILE, "<$fn" or die "File not found: $fn\n";
+read FILE, $buf, $size[7];
+close FILE;
+$buf =~ s/\#.*\n//g;
+$buf =~ s/\$.*\$//gs;
+
+# Some conversion factors
+$rahour = 360./24.;
+$ramin = $rahour/60.;
+$rasec = $ramin/60.;
+$decmin = 1./60.;
+$decsec = 1./3600.;
+
+$fn = "CFRS";
+open FILE, ">$fn" or die "Could not open file : $fn\n";
+# Split the data along lines
+@lines = split "\n", $buf;
+for ($i = 0; $i < @lines; $i++) {
+    @data = split " ",$lines[$i];
+    next if $data[0] eq "";
+    $ra = $data[1]*$rahour + $data[2]*$ramin + $data[3]*$rasec;
+    $decfrac = $data[5]*$decmin + $data[6]*$decsec;
+    $sign = 1.0;
+    $sign = -1.0 if ($data[4] =~ m/\-/);
+    $dec = $data[4] + $decfrac*$sign;
+    $z = $data[10];
+# Now for some formatting
+    printf FILE "%10.4f %10.4f %10.5f\n",$ra,$dec,$z
+}
+close FILE;
+
+
+
+exit;
+
