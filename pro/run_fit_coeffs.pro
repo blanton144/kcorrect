@@ -30,7 +30,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro run_fit_coeffs,version,spfile=spfile,chunksize=chunksize,zlimits=zlimits,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,vpath=vpath,savfile=savfile,nsp=nsp, evenz=evenz, primtargetmask=primtargetmask,modelzlim=modelzlim
+pro run_fit_coeffs,version,spfile=spfile,chunksize=chunksize,zlimits=zlimits,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,vpath=vpath,savfile=savfile,nsp=nsp, evenz=evenz, primtargetmask=primtargetmask,modelzlim=modelzlim, nprimtargetmask=nprimtargetmask
 
 nk=5l
 if(NOT keyword_set(version)) then version='default'
@@ -96,6 +96,12 @@ endfor
 
 if(keyword_set(primtargetmask)) then begin
     indx=where((sp.primtarget and primtargetmask) gt 0,count)
+    if(count eq 0) then return
+    sp=sp[indx]
+endif
+
+if(keyword_set(nprimtargetmask)) then begin
+    indx=where((sp.primtarget and nprimtargetmask) eq 0,count)
     if(count eq 0) then return
     sp=sp[indx]
 endif

@@ -33,7 +33,9 @@
 ;------------------------------------------------------------------------------
 pro k_colors_plot,savfile,version=version,vpath=vpath,psfile=psfile, $
                   to_z=to_z,omega0=omega0, omegal0=omegal0,lumlim=lumlim, $
-                  zrange=zrange,nsig=nsig, zsplit=zsplit
+                  zrange=zrange,nsig=nsig, zsplit=zsplit, $
+                  nprimtargetmask=nprimtargetmask, colorlimits=colorlimits, $
+                  subsample=subsample
 
 if(n_elements(vpath) eq 0) then $
   vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
@@ -50,6 +52,18 @@ if(n_elements(sp) gt 0) then galaxy_z=sp.z
 if(n_elements(z) gt 0) then galaxy_z=z
 ngalaxy=long(n_elements(galaxy_z))
 nk=long(n_elements(galaxy_maggies))/ngalaxy
+
+if(n_elements(nprimtargetmask) gt 0) then begin
+    help,sp
+    indx=where((sp.primtarget and nprimtargetmask) eq 0,count)
+    if(count eq 0) then return
+    sp=sp[indx]
+    galaxy_z=galaxy_z[indx]
+    galaxy_maggies=galaxy_maggies[*,indx]
+    coeff=coeff[*,indx]
+    help,indx
+    ngalaxy=n_elements(indx)
+endif
 
 if(n_elements(subsample) eq 0) then subsample=1l
 indx=lindgen(ngalaxy/long(subsample))*long(subsample)
@@ -123,18 +137,23 @@ ncolor= n_elements(colorname)
 
 !p.multi=[2*(nk-1),2,nk-1]
 bands=['u','g','r','i','z']
+!Y.MARGIN=0.3*axis_char_scale*[1,5]
 for k=0l, nk-2 do begin
     color=transpose(-2.5*alog10(recmaggies[k,indx]/recmaggies[k+1,indx]))
     mn=(djs_avsigclip(color,sigrej=5))[0]
     sig=djsig(color,sigrej=5)
-    !X.CHARSIZE = tiny
-    !Y.CHARSIZE = 1.2*axis_char_scale
+    !X.CHARSIZE = 1.*axis_char_scale
+    !Y.CHARSIZE = 1.*axis_char_scale
     !X.TITLE = ''
-    !Y.TITLE = 'f!d'+bands[k]+',r!n/f!d'+bands[k]+',o!n'
-    if (k eq nk-2) then !X.CHARSIZE = 1.2*axis_char_scale
+    !Y.TITLE = '!u'+strtrim(string(to_z[0],format='(d3.1)'),2)+'!n('+ $
+      bands[k]+'-'+bands[k+1]+')'
+    if (k eq nk-2) then !X.CHARSIZE = 1.*axis_char_scale
     if (k eq nk-2) then !X.TITLE = 'Redshift z'
     !X.RANGE=zrange
     !Y.RANGE=[mn,mn]+nsig*[-sig,sig]
+    if(n_elements(colorlimits) gt 0) then begin
+        !Y.RANGE=colorlimits[*,k]
+    endif
     djs_plot,galaxy_z[indx], color, psym=3,xst=1,yst=1
 ;    xyouts,!X.RANGE[1]-0.18*(!X.RANGE[1]-!X.RANGE[0]), $
 ;      !Y.RANGE[0]+0.08*(!Y.RANGE[1]-!Y.RANGE[0]), $
@@ -161,10 +180,25 @@ for k=0l, nk-2 do begin
     denom=total(colorhisthi*colorhisthi/(colorhistallerr^2),/double)
     scale=numer/denom
     colorhistlo=colorhistlo/scale
-    !X.RANGE=[mn,mn]+nsig*[-sig,sig]
+    colorhistlo=colorhistlo/max([colorhisthi,colorhistlo])
+    colorhisthi=colorhisthi/max([colorhisthi,colorhistlo])
+    !X.RANGE=!Y.RANGE
     !Y.RANGE=[0.,1.05*max([colorhistlo,colorhisthi])]
+    !Y.CHARSIZE=tiny
+    !X.CHARSIZE=1.*axis_char_scale
+    if (k eq nk-2) then !X.TITLE = 'Color'
     djs_plot,colorvals,colorhistlo,psym=10,xst=1,yst=1
-    djs_oplot,colorvals,colorhisthi,psym=10,color='red'
+    djs_oplot,colorvals,colorhisthi,psym=10,linestyle=1
+    axis,!X.RANGE[1],!Y.RANGE[0],yaxis=1,ycharsize=axis_char_scale, $
+      ytitle='N!dgal!n (Normalized)'
+    if(k eq 1) then begin
+        xyouts,!X.RANGE[0]+(!X.RANGE[1]-!X.RANGE[0])*0.07, $
+          !Y.RANGE[1]-(!Y.RANGE[1]-!Y.RANGE[0])*0.15, $
+          'Solid:   z < '+strtrim(string(zsplit,format='(d5.2)'),2)
+        xyouts,!X.RANGE[0]+(!X.RANGE[1]-!X.RANGE[0])*0.07, $
+          !Y.RANGE[1]-(!Y.RANGE[1]-!Y.RANGE[0])*0.30, $
+          'Dotted: z > '+strtrim(string(zsplit,format='(d5.2)'),2)
+    endif
 endfor
 
 if(keyword_set(psfile)) then begin

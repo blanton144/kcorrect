@@ -124,10 +124,10 @@ for i=0, n_elements(coeffindx)-1 do begin
       xtitle='a!d'+strtrim(string(basecoeff),2)+'!n/a!d0'
     if(i eq 0) then $
       axis,!X.RANGE[0],!Y.RANGE[0],yaxis=0,ycharsize=axis_char_scale, $
-      ytitle='a!d'+strtrim(string(coeffindx[i]),2)+'!n/c!d0'
+      ytitle='a!d'+strtrim(string(coeffindx[i]),2)+'!n/a!d0'
     if(i eq n_elements(coeffindx)-1) then $
       axis,!X.RANGE[1],!Y.RANGE[0],yaxis=1,ycharsize=axis_char_scale, $
-      ytitle='a!d'+strtrim(string(coeffindx[i]),2)+'!n/c!d0'
+      ytitle='a!d'+strtrim(string(coeffindx[i]),2)+'!n/a!d0'
     for j=0,nspecs-1 do begin
         djs_oplot,[speccoeffs[basecoeff,j]],[speccoeffs[coeffindx[i],j]],psym=8, $
           color=colorname[j],/fill
