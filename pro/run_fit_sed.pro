@@ -1,48 +1,54 @@
 ;+
 ; NAME:
 ;   run_fit_sed
-;
 ; PURPOSE:
-;   Fit SED to broad-band colors and redshifts using k_fit_sed.
-;
+;   Fit SED to broad-band colors and redshifts using k_fit_sed, given 
+;   data in the VAGC.
 ; CALLING SEQUENCE:
-;   k_fit_sed, outname
-;
+;   run_fit_sed, outname
 ; INPUTS:
 ;   outname  -  name to attach to output files
-;
 ; OPTIONAL INPUTS:
-;   spfile  - spectro file (defaults to '/data/sdss/spectro/spAll.fits')
-;   photozplates - include the photoz plates in the analysis
-;   chunksize -  read in the spfile in chunks of this size (default 10000l)
-;   zlimits - limits to apply to redshifts fit to
-;   nz - number of redshift chunks for picking out objects evenly in z [8]
-;
+;   nophotozplates - don't use the photoz plates
+;   maxiter - maximum number of iterations
+;   outpath - directory for results
+;   zlimits - limits for redshifts to use
+;   nz - number of redshift bins to use for redshift histogram
+;        equalization
+;   templatelist - list of templates to begin with
+;   nk - number of bands
+;   nl - number of wavelength bins
+;   lambdalim - wavelength range to consider
+;   smoothtemplate - how much to smooth the initial templates
+;   subsmoothtemplate - for a subrange, use a different smoothing
+;   subsmoothlimits - limits of that subrange
+;   nt - number of templates
+;   shiftband - addition to mags to get AB mags
+;   errband - "calibration" errors to associate with mags
+;   errlimit - largest error to consider for fitting objects
+;   maglimit - largest magnitude to consider for fitting objects
+;   scale - fraction of objects to use of maximum possible
+;   modelzlim - at what redshift to start using model mags
+;   nozlim - don't consider objects in this range
+;   etemplatepath - look here for the etemplates
 ; OUTPUTS:
-;
 ; OPTIONAL INPUT/OUTPUTS:
-;
 ; COMMENTS:
-;
 ; EXAMPLES:
-;
 ; BUGS:
-;
 ; PROCEDURES CALLED:
 ;   k_fit_sed
 ;   k_write_ascii_table
-;
 ; REVISION HISTORY:
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim,subsmoothlimits=subsmoothlimits,subsmoothtemplate=subsmoothtemplate,etemplatepath=etemplatepath,plotmaggies=plotmaggies,useconstraint=useconstraint, chi2=chi2, insavfile=insavfile, preset_ematrix=preset_ematrix
+pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim,subsmoothlimits=subsmoothlimits,subsmoothtemplate=subsmoothtemplate,etemplatepath=etemplatepath,plotmaggies=plotmaggies,useconstraint=useconstraint, chi2=chi2, insavfile=insavfile, preset_ematrix=preset_ematrix
 
 if(NOT keyword_set(nophotozplates)) then mustdo=[669,670,671,672] 
 
-if(NOT keyword_set(maxiter)) then maxiter=10l
+if(NOT keyword_set(maxiter)) then maxiter=30l
 if(NOT keyword_set(outpath)) then outpath='.'
-if(NOT keyword_set(chunksize)) then chunksize=10000l
 if(NOT keyword_set(zlimits)) then zlimits=[0.,0.5]
 if(NOT keyword_set(nz)) then nz=8l
 if(NOT keyword_set(templatelist)) then $
@@ -64,10 +70,8 @@ if(NOT keyword_set(lambdalim)) then lambdalim=[1000.,12000.]
 if(NOT keyword_set(smoothtemplate)) then smoothtemplate=300.d
 if(NOT keyword_set(subsmoothtemplate)) then subsmoothtemplate=150.d
 if(NOT keyword_set(subsmoothlimits)) then subsmoothlimits=[3000.,5000.]
-if(NOT keyword_set(nt)) then nt=3L
-if(NOT keyword_set(fraction)) then fraction=1.
-if(NOT keyword_set(spfile)) then spfile='/data/sdss/spectro/spAll.fits'
-if(NOT keyword_set(shiftband)) then shiftband=dblarr(nk)
+if(NOT keyword_set(nt)) then nt=4L
+if(NOT keyword_set(shiftband)) then shiftband=[-0.042,0.036,0.015,0.013,-0.002]
 if(NOT keyword_set(errband)) then errband=[0.05,0.02,0.02,0.02,0.03]
 if(NOT keyword_set(errlimit)) then errlimit=dblarr(nk)+2.0d
 if(NOT keyword_set(maglimit)) then maglimit=dblarr(nk)+24.0d
@@ -89,121 +93,166 @@ if(NOT keyword_set(filtfile)) then begin
     free_lun,unit
 endif
 
-columns=['z','petrocounts','petrocountserr','counts_model','counts_modelerr', $
-         'reddening','class', 'ra', 'dec', 'plate']
+; get data to search through
+savfile='data_run_fit_sed.sav'
+if(NOT file_test(savfile)) then begin
 
-lambda=lambdalim[0]+dindgen(nl+1l)*(lambdalim[1]-lambdalim[0])/double(nl)
-
-if(NOT keyword_set(insavfile)) then begin
-; Read the necessary columns from spAll.fits
-    openr,unit,spfile,/get_lun
-    mrd_hread,unit,hdrstr
-    mrd_hread,unit,hdrstr
-    close,unit
-    free_lun,unit
-    hdr=hdr2struct(hdrstr)
-    if (NOT keyword_set(nsp)) then nsp=hdr.naxis2
-    sp=hogg_mrdfits(spfile,1,range=[0,nsp-1],nrowchunk=10000,columns=columns)
-    indx=where(sp.class eq 'GALAXY' and $
-               sp.z gt zlimits[0] and $
-               sp.z lt zlimits[1] and $
-               sp.petrocounts[2] gt 0.,count)
-    if(count gt 0) then begin
-        sp=sp[indx]
-    endif else begin
-        return
-    endelse
+; get redshifts for all spectra
+    sp=hogg_mrdfits(getenv('SDSS_VAGCDIR')+'/sdss_spectro_catalog.fits',1, $
+                    columns=['sdss_spectro_z', 'sdss_spectro_zerr', $
+                             'sdss_spectro_zwarning','sdss_spectro_class'],nrowchunk=40000)
     
+; find imaging for all spectra objects
+    im_matches=find_matches('sdss_spectro','sdss_imaging')
+    
+; get photometry
+    im=hogg_mrdfits(getenv('SDSS_VAGCDIR')+'/sdss_imaging_catalog.fits',1, $
+                    columns=['sdss_imaging_petrocounts', $
+                             'sdss_imaging_petrocountserr', $
+                             'sdss_imaging_counts_model', $
+                             'sdss_imaging_counts_modelerr', $
+                             'sdss_imaging_psfcounts', $
+                             'sdss_imaging_psfcountserr', $
+                             'sdss_imaging_fibercounts', $
+                             'sdss_imaging_fibercountserr', $
+                             'sdss_imaging_reddening'], nrowchunk=40000)
+    im=im[im_matches]
+
+    help,im,sp
+    
+    save,im,sp,filename=savfile
+endif else begin
+    restore,savfile
+endelse
+
+; choose objects
+klog,'choose galaxies'
+indx=where(sp.sdss_spectro_z gt zlimits[0] and $
+           sp.sdss_spectro_z lt zlimits[1] and $
+           strtrim(sp.sdss_spectro_class,2) eq 'GALAXY' and $
+           im.sdss_imaging_petrocounts[2] gt 0.)
+sp=sp[indx]
+im=im[indx]
+help,sp
+help,im
+
 ; Cut down the sample in redshift
-    num=lonarr(nz)
-    usesp=lonarr(n_elements(sp))
-    for i = 0l, nz-1l do begin
-        zlo=zlimits[0]+double(i)*(zlimits[1]-zlimits[0])/double(nz)
-        zhi=zlimits[0]+double(i+1l)*(zlimits[1]-zlimits[0])/double(nz)
-        indx=where(sp.z gt zlo and sp.z lt zhi,count)
-        num[i]=count
-        klog,num[i]
+klog,'equalize redshift histogram'
+num=lonarr(nz)
+usesp=lonarr(n_elements(sp))
+for i = 0l, nz-1l do begin
+    zlo=zlimits[0]+double(i)*(zlimits[1]-zlimits[0])/double(nz)
+    zhi=zlimits[0]+double(i+1l)*(zlimits[1]-zlimits[0])/double(nz)
+    indx=where(sp.z gt zlo and sp.z lt zhi,count)
+    num[i]=count
+    klog,num[i]
+endfor
+nuse=long(double(num[nz-1l])*scale)
+for i = 0l, nz-1l do begin
+    zlo=zlimits[0]+double(i)*(zlimits[1]-zlimits[0])/double(nz)
+    zhi=zlimits[0]+double(i+1l)*(zlimits[1]-zlimits[0])/double(nz)
+    indx=where(sp.z gt zlo and sp.z lt zhi,count)
+    if(i lt nz-1l) then begin
+        indxuse=long(double(n_elements(indx))*randomu(seed,nuse))
+        sortindxuse=indxuse[sort(indxuse)]
+        uniqindxuse=sortindxuse[uniq(sortindxuse)]
+    endif else begin
+        uniqindxuse=lindgen(nuse)
+    endelse
+    usesp[indx[uniqindxuse]]=1
+    klog,total(usesp)
+endfor
+if(keyword_set(mustdo)) then begin
+    for i = 0l, n_elements(mustdo)-1l do begin
+        mustindx=where(sp.sdss_spectro_plate eq mustdo[i],count)
+        if(count gt 0) then usesp[mustindx]=1
     endfor
-    nuse=long(double(num[nz-1l])*scale)
-    for i = 0l, nz-1l do begin
-        zlo=zlimits[0]+double(i)*(zlimits[1]-zlimits[0])/double(nz)
-        zhi=zlimits[0]+double(i+1l)*(zlimits[1]-zlimits[0])/double(nz)
-        indx=where(sp.z gt zlo and sp.z lt zhi,count)
-        if(i lt nz-1l) then begin
-            indxuse=long(double(n_elements(indx))*randomu(seed,nuse))
-            sortindxuse=indxuse[sort(indxuse)]
-            uniqindxuse=sortindxuse[uniq(sortindxuse)]
-        endif else begin
-            uniqindxuse=lindgen(nuse)
-        endelse
-        usesp[indx[uniqindxuse]]=1
-        klog,total(usesp)
-    endfor
-    if(keyword_set(mustdo)) then begin
-        for i = 0l, n_elements(mustdo)-1l do begin
-            mustindx=where(sp.plate eq mustdo[i],count)
-            if(count gt 0) then usesp[mustindx]=1
-        endfor
-    endif
-    indx=where(usesp gt 0)
-    sp=sp[indx]
-    help,sp
-    
-    indx=where(sp.z lt nozlim[0] or sp.z gt nozlim[1],count)
-    if(count gt 0) then $
-      sp=sp[indx]
-    
-    indx=where(sp.z ge modelzlim)
-    if(count gt 0) then begin
-        klog,'using model'
-        sp[indx].petrocounts=sp[indx].counts_model
-        sp[indx].petrocountserr=sp[indx].counts_modelerr
-    endif
-    
+endif
+indx=where(usesp gt 0)
+sp=sp[indx]
+im=im[indx]
+help,sp
+help,im
+
+; trim out bad redshifts 
+klog,'trim undesired redshifts'
+indx=where(sp.sdss_spectro_z lt nozlim[0] or sp.sdss_spectro_z gt nozlim[1],count)
+if(count gt 0) then begin
+  sp=sp[indx]
+  im=im[indx]
+endif
+help,sp
+help,im
+
+; use model where desired
+klog,'use model '
+mag=im.sdss_imaging_petrocounts
+mag_err=im.sdss_imaging_petrocountserr
+indx=where(sp.sdss_spectro_z ge modelzlim)
+if(count gt 0) then begin
+    klog,'using model'
+    mag[*,indx]=im[indx].sdss_imaging_counts_model
+    mag_err[*,indx]=im[indx].sdss_imaging_counts_modelerr
+endif
+
 ; Trim off *anything* with bad errors, magnitudes
-    goodindx=where(abs(sp.petrocountserr[0]) lt errlimit[0] and $
-                   abs(sp.petrocountserr[1]) lt errlimit[1] and $
-                   abs(sp.petrocountserr[2]) lt errlimit[2] and $
-                   abs(sp.petrocountserr[3]) lt errlimit[3] and $
-                   abs(sp.petrocountserr[4]) lt errlimit[4] and $
-                   abs(sp.petrocounts[0]) lt maglimit[0] and $
-                   abs(sp.petrocounts[1]) lt maglimit[1] and $
-                   abs(sp.petrocounts[2]) lt maglimit[2] and $
-                   abs(sp.petrocounts[3]) lt maglimit[3] and $
-                   abs(sp.petrocounts[4]) lt maglimit[4])
-    sp=sp[goodindx]
-    help,sp
+klog,'cutting bad errors'
+goodindx=where(abs(mag_err[*,0]) lt errlimit[0] and $
+               abs(mag_err[*,1]) lt errlimit[1] and $
+               abs(mag_err[*,2]) lt errlimit[2] and $
+               abs(mag_err[*,3]) lt errlimit[3] and $
+               abs(mag_err[*,4]) lt errlimit[4] and $
+               abs(mag[*,0]) lt maglimit[0] and $
+               abs(mag[*,1]) lt maglimit[1] and $
+               abs(mag[*,2]) lt maglimit[2] and $
+               abs(mag[*,3]) lt maglimit[3] and $
+               abs(mag[*,4]) lt maglimit[4])
+sp=sp[goodindx]
+im=im[goodindx]
+mag=mag[*,goodindx]
+mag_err=mag_err[*,goodindx]
+help,sp
+help,im
+help,mag
+help,mag_err
+
     
 ; Cut out weird colors (any 3-sigma points from the mean colors)
-    for i = 0l, nk-2l do begin
-        color=sp.petrocounts[i]-sp.petrocounts[i+1l]
-        result=moment(color)
-        klog,result[0],sqrt(result[1])
-        goodindx=where((color-result[0])^2/result[1] lt 9.)
-        sp=sp[goodindx]
-    endfor
-endif else begin
-    restore,insavfile
-endelse
-save,sp,filename='fit_sed_data.sav'
+klog,'cutting weird colors'
+for i = 0l, nk-2l do begin
+    color=mag[i]-mag_err[i+1l]
+    result=moment(color)
+    klog,result[0],sqrt(result[1])
+    goodindx=where((color-result[0])^2/result[1] lt 9.)
+    sp=sp[goodindx]
+    im=im[goodindx]
+    mag=mag[*,goodindx]
+    mag_err=mag_err[*,goodindx]
+    help,sp
+    help,im
+    help,mag
+    help,mag_err
+endfor
 
+; now make maggies to pass in 
 galaxy_maggies=dblarr(nk,n_elements(sp))
 galaxy_invvar=dblarr(nk,n_elements(sp))
 for k=0l,nk-1l do begin
-    galaxy_maggies[k,*]=10.d^(-0.4d*(sp.petrocounts[k]-sp.reddening[k] $
+    galaxy_maggies[k,*]=10.d^(-0.4d*(mag[k]-im.sdss_imaging_reddening[k] $
                                      +shiftband[k]))
     galaxy_invvar[k,*]=galaxy_maggies[k,*]*0.4d*alog(10.d)* $
-      sqrt(sp.petrocountserr[k]^2+errband[k]^2)
+      sqrt(mag_err[k]^2+errband[k]^2)
     galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
 endfor
 
-k_fit_sed,galaxy_maggies,galaxy_invvar,sp.z,templatelist, $
+lambda=lambdalim[0]+dindgen(nl+1l)*(lambdalim[1]-lambdalim[0])/double(nl)
+k_fit_sed,galaxy_maggies,galaxy_invvar,sp.sdss_spectro_z,templatelist, $
   filterlist, coeff, ematrix, bmatrix, bflux, lambda, nt=nt, $
   reconstruct_maggies=reconstruct_maggies, plotmaggies=plotmaggies, $
   smoothtemplate=smoothtemplate, subsmoothtemplate=subsmoothtemplate, $
   subsmoothlimits=subsmoothlimits, maxiter=maxiter, chi2=chi2, $
   useconstraint=useconstraint, preset_ematrix=preset_ematrix
-z=sp.z
+z=sp.sdss_spectro_z
 
 ; get the ellipse of coeffs
 ngals=n_elements(z)
@@ -221,24 +270,6 @@ k_write_ascii_table,coeff,outpath+'/coeff.'+outname+'.dat'
 k_write_ascii_table,z,outpath+'/z.'+outname+'.dat'
 k_write_ascii_table,varscaled,outpath+'/scaledvar.'+outname+'.dat'
 k_write_ascii_table,meanscaled,outpath+'/scaledmean.'+outname+'.dat'
-
-savfile=outname+'.sav'
-save,galaxy_maggies,galaxy_invvar,z,coeff,ematrix,bmatrix,bflux,lambda,nt, $
-  sp,filename=savfile
-
-
-; output points
-outpts=outname+'.pts'
-out=fltarr(nt-1l,n_elements(sp.z))
-help,out
-for i=0, nt-2l do $
-  out[i,*]=coeff[i+1l,*]/coeff[0,*]
-openw,11,outpath+'/'+outpts
-writeu,11,out
-close,11
-out=0d
-
-;k_coeffdist_plot,'default',vpath='.',psfile='k_coeffdist_plot.ps',basecoeff=1
 
 end
 ;------------------------------------------------------------------------------

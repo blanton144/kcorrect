@@ -6,7 +6,7 @@
 ;   Return version of K-correction code
 ;
 ; CALLING SEQUENCE:
-;   k_version
+;   version=k_version()
 ;      
 ; INPUTS:
 ;
@@ -26,9 +26,9 @@
 ;   05-Mar-2002  Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_version
+function k_version
 
 spawn,'cat '+getenv('KCORRECT_DIR')+'/VERSION',version
-klog,version[0]
+return,version[0]
 
 end

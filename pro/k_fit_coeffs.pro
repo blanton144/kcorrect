@@ -115,8 +115,7 @@ nconstraints=n_elements(constraints_amp)
 if(nconstraints gt 0) then begin
   if(n_elements(constraints_mean) ne nt-1L OR $
 		 n_elements(constraints_var) ne (nt-1L)*(nt-1L)) then begin
-	   klog,'Require constraints_mean and constraints_var to be set correctly'
-	   stop
+	   message,'Require constraints_mean and constraints_var to be set correctly'
 	   return
   endif
   use_constraints_amp=reform([constraints_amp],nconstraints)

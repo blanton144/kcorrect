@@ -1,14 +1,11 @@
 ;+
 ; NAME:
 ;   run_fit_coeffs
-;
 ; PURPOSE:
-;   Fit SED to the spAll file using k_fit_coeffs, given eigentemplates as 
+;   Fit SEDs to the VAGC results using k_fit_coeffs, given eigentemplates as 
 ;   determined by k_fit_sed. 
-;
 ; CALLING SEQUENCE:
 ;   k_fit_coeffs, outname
-;
 ; INPUTS:
 ;
 ; OPTIONAL INPUTS:
@@ -28,6 +25,7 @@
 ;
 ; REVISION HISTORY:
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
+;   26-Dec-2002  Convert to using VAGC, MRB (NYU)
 ;-
 ;------------------------------------------------------------------------------
 pro run_fit_coeffs,version,spfile=spfile,chunksize=chunksize,zlimits=zlimits,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,vpath=vpath,savfile=savfile,nsp=nsp, evenz=evenz, primtargetmask=primtargetmask,modelzlim=modelzlim, nprimtargetmask=nprimtargetmask, outpts=outpts, addgrgap=addgrap, sdssfix=sdssfix, vconstraint=vconstraint
