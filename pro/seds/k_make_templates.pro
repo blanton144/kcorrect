@@ -23,7 +23,7 @@
 ;-
 ;------------------------------------------------------------------------------
 pro k_make_templates, nages=nages, sigscale=sigscale, maxage=maxage, $
-                      minage=minage, name=name
+                      minage=minage, name=name, pversion=pversion
 
 if(n_elements(name) eq 0) then name='test'
 if(n_elements(nages) eq 0) then nages=15
@@ -55,11 +55,12 @@ dust.tauv=[0.,1.,3.]
 
 ; make metallicity
 metallicity=['03','02','008','004','001']
+metallicity=['02','008','004','001']
 
 ; make galaxy templates 
 k_mkspec_pegase, galvmatrix, lambda, metallicity, dust, $
   sfhpars, minage=minage, maxage=maxage, attime=attime, $
-  lmin=lmin, lmax=lmax, nl=nl,nolines=nolines
+  lmin=lmin, lmax=lmax, nl=nl,nolines=nolines, pversion=pversion
 
 ; put together vmatrices
 ngal=n_elements(galvmatrix)/(n_elements(lambda)-1L)
@@ -69,9 +70,9 @@ vmatrix[*,0:ngal-1]=galvmatrix
 for i=0L, ngal-1L do vmatrix[*,i]=smooth(vmatrix[*,i],5)
 
 ; output the appropriate files
-k_write_ascii_table,vmatrix,'vmatrix.'+name+'.dat'
-k_write_ascii_table,lambda,'lambda.'+name+'.dat'
+k_write_ascii_table,vmatrix,'vmatrix.'+name+pversion[0]+'.dat'
+k_write_ascii_table,lambda,'lambda.'+name+pversion[0]+'.dat'
 
-save, filename='data_make_templates.sav'
+save, filename='data_make_templates'+pversion[0]+'.sav'
 
 end
