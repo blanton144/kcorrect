@@ -1,9 +1,9 @@
 ;+
 ; NAME:
-;   k_espec_plot
+;   k_model_plot
 ;
 ; PURPOSE:
-;   Make plot of eigenspectra for K-correct paper
+;   Make plot of model versus actual fluxes
 ;
 ; CALLING SEQUENCE:
 ;   k_espec_plot,version,[vpath=]
@@ -31,17 +31,14 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_espec_plot,version,vpath=vpath,lamlim=lamlim,psfile=psfile
+pro k_model_plot,galaxy_z,galaxy_flux,galaxy_flux_model,psfile=psfile, nsig=nsig
 
 if(n_elements(vpath) eq 0) then $
   vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
-if(n_elements(lamlim) eq 0) then lamlim=[2000.,10000.]
+if(n_elements(nsig) eq 0) then nsig=3.d
 
-k_load_ascii_table,ematrix,vpath+'/ematrix.'+version+'.dat'
-k_load_ascii_table,bmatrix,vpath+'/bmatrix.'+version+'.dat'
-k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
-nt=(size(ematrix))[2]
-nl=n_elements(lambda)-1l
+ngalaxy=long(n_elements(galaxy_z))
+nk=long(n_elements(galaxy_flux))/ngalaxy
 
 if(keyword_set(psfile)) then begin
     set_plot, "PS"
@@ -83,23 +80,24 @@ colorname= ['red','green','blue','magenta','cyan','dark yellow', $
             'yellow green']
 ncolor= n_elements(colorname)
 
-espec=bmatrix#ematrix
-lam=0.5*(lambda[0l:nl-1l]+lambda[1l:nl])
-indx=where(lam gt lamlim[0] and lam lt lamlim[1])
-!p.multi=[nt,1,nt]
-for i=0, nt-1l do begin
-    print,i
-    !Y.RANGE=[-0.5*max(abs(espec[indx,i])),0.5*max(abs(espec[indx,i]))]
-    if(i eq 0) then $
-      !Y.RANGE=[0.,0.7*max(espec[indx,i])]
+!p.multi=[nk,1,nk]
+bands=['u','g','r','i','z']
+for k=0l, nk-1 do begin
+    sig=djsig(galaxy_flux_model[k,*]/galaxy_flux[k,*],sigrej=5)
     !X.CHARSIZE = tiny
+    !Y.CHARSIZE = 1.2*axis_char_scale
     !X.TITLE = ''
-    if(i eq nt-1) then !X.CHARSIZE = axis_char_scale
-    if(i eq nt-1) then !X.TITLE = 'Wavelength (Angstroms)'
-    djs_plot,lam,espec[*,i],xst=1,yst=1,xra=lamlim,thick=4
-    djs_oplot,lam,0.*lam,linestyle=1
-    xyouts,lam[n_elements(lam)/2],!Y.RANGE[1]-0.2*(!Y.RANGE[1]-!Y.RANGE[0]), $
-      'Eigenspectrum #'+strtrim(string(i),2)
+    !Y.TITLE = 'f!d'+bands[k]+',r!n/f!d'+bands[k]+',o!n'
+    if (k eq nk-1) then !X.CHARSIZE = 1.2*axis_char_scale
+    if (k eq nk-1) then !X.TITLE = 'Redshift z'
+    !X.RANGE=[0.,0.5]
+    !Y.RANGE=1.+nsig*[-sig,sig]
+    djs_plot,galaxy_z,galaxy_flux_model[k,*]/galaxy_flux[k,*], $
+      psym=3,xst=1,yst=1
+    xyouts,!X.RANGE[1]-0.18*(!X.RANGE[1]-!X.RANGE[0]), $
+      !Y.RANGE[0]+0.08*(!Y.RANGE[1]-!Y.RANGE[0]), $
+      '!4r!3='+strtrim(string(sig,format='(f8.2)'),2), $
+      charsize=1.*axis_char_scale,charthick=5
 endfor
 
 if(keyword_set(psfile)) then begin

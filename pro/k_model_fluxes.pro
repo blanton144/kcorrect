@@ -53,7 +53,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_model_fluxes,coeffs,galaxy_z,model_flux,ematrix=ematrix,zvals=zvals,rmatrix=rmatrix,bmatrix=bmatrix,lambda=lambda,version=version,vpath=vpath,filterpath=filterpath
+pro k_model_fluxes,coeffs,galaxy_z,model_flux,ematrix=ematrix,zvals=zvals,rmatrix=rmatrix,bmatrix=bmatrix,lambda=lambda,version=version,vpath=vpath,filterpath=filterpath,filterlist=filterlist
 
 ; Need at least 3 parameters
 if (N_params() LT 3) then begin

@@ -148,7 +148,7 @@ endfor
 if(keyword_set(mustdo)) then begin
     for i = 0l, n_elements(mustdo)-1l do begin
         mustindx=where(sp.plate eq mustdo[i],count)
-        if(count gt 0) then usesp[mustdo]=1
+        if(count gt 0) then usesp[mustindx]=1
     endfor
 endif
 indx=where(usesp gt 0)

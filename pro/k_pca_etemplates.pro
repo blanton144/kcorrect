@@ -14,6 +14,7 @@
 ;   bflux    - flux in each SED template
 ;   
 ; OPTIONAL INPUTS:
+;   usesample - if specified, only fit PCA for this set of objects
 ;
 ; OUTPUTS:
 ;
@@ -31,7 +32,7 @@
 ;   05-Jan-2002  Written by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_pca_etemplates, coeff, ematrix, bflux, nclip=nclip, niter=niter
+pro k_pca_etemplates, coeff, ematrix, bflux, nclip=nclip, niter=niter, usesample=usesample
 
 ; Need at least 2 parameters
 if (N_params() LT 3) then begin
@@ -51,12 +52,13 @@ if(nt le 1) then begin
     return
 endif
 
-usesample=lindgen(ngalaxy)
+if (n_elements(usesample) eq 0) then usesample=lindgen(ngalaxy)
 ascale=dblarr(nt-1,ngalaxy)
 amean=dblarr(nt-1,ngalaxy)
 for j = 1,nt-1 do begin
     ascale[j-1,*]=coeff[j,*]/coeff[0l,*]
 endfor
+currusesample=usesample
 for clip=0l, niter-1l do begin
     for j = 1,nt-1 do begin
         amean[j-1,usesample]=total(ascale[j-1,usesample],/double) $
@@ -65,18 +67,19 @@ for clip=0l, niter-1l do begin
     covar=dblarr(nt-1l,nt-1l)
 		for i=0, nt-2l do $	
 		    for j=0, nt-2l do $	
-				   covar[i,j]=total((ascale[i,usesample]-amean[i])* $
-														(ascale[j,usesample]-amean[j]),/double)
-    covar=covar/n_elements(usesample)
+				   covar[i,j]=total((ascale[i,currusesample]-amean[i])* $
+														(ascale[j,currusesample]-amean[j]),/double)
+    covar=covar/n_elements(currusesample)
     i=lindgen(nt-1l)
     cliplimit=nclip^2*(total(covar(i,i),/double)/double(nt-1l))
     klog,cliplimit
-    usesample=where(total((ascale[*,usesample]-amean[*,usesample])^2,1, $
-                           /double) lt cliplimit,count)
+    icurrusesample=where(total((ascale[*,usesample]-amean[*,usesample])^2,1, $
+                              /double) lt cliplimit,count)
     if(count eq 0) then begin
         klog,'all objects clipped! resetting.'
         usesample=lindgen(ngalaxy)
     endif
+    currusesample=usesample[icurrusesample]
 endfor 
 
 ; evals returned, evecs in rows of covar
