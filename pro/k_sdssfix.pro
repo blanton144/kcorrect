@@ -152,7 +152,7 @@ for k=0, nk-1 do begin
 	if(negcount gt 0) then $
     fixmags[k,negindx]=maglimit[k]
 	if(poscount gt 0) then $
-    fixmags[k,posindx]=-2.5*alog10(reconstruct_maggies[k,*])
+    fixmags[k,posindx]=-2.5*alog10(reconstruct_maggies[k,posindx])
 endfor  
 if(n_elements(to_z) eq 1) then begin
   tmpfixmags=fixmags

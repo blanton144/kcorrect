@@ -61,11 +61,10 @@ mags0=mags0[*,indx]
 help,indx
 
 if(n_elements(lumlim) gt 0) then begin
-    k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,version=version, $
-      vpath=vpath
     galaxy_z_k=replicate(to_z,n_elements(galaxy_z))
-    k_reconstruct_maggies,coeff,galaxy_z_k,recmaggies, $
-      version=version, vpath=vpath
+    kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies,coeff=coeff, $
+      version=version, vpath=vpath, /maggies, /invvar, /addgrgap, $
+      kcorrectz=galaxy_z_k
 
     omega0=0.3
     omegal0=0.7
@@ -101,13 +100,12 @@ if(keyword_set(fitfib)) then begin
     galaxy_maggies=galaxy_maggies*(1.+0.02*randomn(n_elements(galaxy_maggies)))
 endif
 
-k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,version=version, $
-  vpath=vpath
 galaxy_z_k=replicate(to_z,n_elements(galaxy_z))
-k_reconstruct_maggies,coeff,galaxy_z_k,galaxy_reconstruct_maggies, $
-  version=version, vpath=vpath
-k_reconstruct_maggies,coeff,galaxy_z,galaxy_reconstruct_maggies0, $
-  version=version, vpath=vpath
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies, $
+  coeff=coeff,version=version,vpath=vpath,/maggies,/invvar,/addgrgap, $
+  kcorrectz=to_z
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies0, $
+  coeff=coeff,version=version,vpath=vpath,/maggies,/invvar,/addgrgap
 
 if(keyword_set(psfile)) then begin
     set_plot, "PS"

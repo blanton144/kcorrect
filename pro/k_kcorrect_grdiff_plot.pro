@@ -31,11 +31,11 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_kcorrect_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample,to_z=to_z
+pro k_kcorrect_grdiff_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample,to_z=to_z
 
 if(NOT keyword_set(version)) then version='default'
 if(NOT keyword_set(vpath)) then vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
-if(NOT keyword_set(nsig)) then nsig=3.d
+if(NOT keyword_set(nsig)) then nsig=5.d
 if(NOT keyword_set(to_z)) then to_z=0.25
 
 restore,savfile
@@ -64,10 +64,16 @@ coeff=coeff[*,indx]
 help,indx
 
 galaxy_z_k=replicate(to_z,n_elements(galaxy_z))
-kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies, $
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,reconstruct_maggies, $
+  coeff=coeff,kcorrectz=galaxy_z_k,version=version,vpath=vpath, $
+  /maggies,/invvar
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,reconstruct_maggies0, $
+  coeff=coeff,version=version,vpath=vpath, $
+  /maggies,/invvar
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,grgap_reconstruct_maggies, $
   coeff=coeff,kcorrectz=galaxy_z_k,version=version,vpath=vpath, $
   /maggies,/invvar,/addgrgap
-kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies0, $
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,grgap_reconstruct_maggies0, $
   coeff=coeff,version=version,vpath=vpath, $
   /maggies,/invvar,/addgrgap
 
@@ -122,10 +128,15 @@ for k=0l, nk-1 do begin
     if (k eq nk-1) then !X.CHARSIZE = 1.2*axis_char_scale
     if (k eq nk-1) then !X.TITLE = 'Redshift z'
     !X.RANGE=[0.,0.5]
-    nzindx=where(galaxy_reconstruct_maggies0[k,*] gt 0. and $
-                 galaxy_reconstruct_maggies[k,*] gt 0.)
-    kk=2.5*alog10(galaxy_reconstruct_maggies[k,nzindx]/ $
-                   galaxy_reconstruct_maggies0[k,nzindx])
+    nzindx=where(reconstruct_maggies0[k,*] gt 0. and $
+                 grgap_reconstruct_maggies0[k,*] gt 0. and $
+                 reconstruct_maggies[k,*] gt 0. and $
+                 grgap_reconstruct_maggies[k,*] gt 0.)
+    kk=2.5*alog10(reconstruct_maggies[k,nzindx]/ $
+                   reconstruct_maggies0[k,nzindx])
+    kkgrgap=2.5*alog10(grgap_reconstruct_maggies[k,nzindx]/ $
+                       grgap_reconstruct_maggies0[k,nzindx])
+    kk=kkgrgap-kk
     mn=djs_avsigclip(kk,sigrej=5)
     sig=djsig(kk,sigrej=5)
     !Y.RANGE=[mn,mn]+nsig*sig*[-1.,1.]

@@ -66,7 +66,7 @@ for i=0l, n_elements(sp)-1l do begin
 end
 
 galaxy_maggies=galaxy_maggies[*,indx]
-galaxy_invvar=galaxy_maggies[*,indx]
+galaxy_invvar=galaxy_invvar[*,indx]
 coeff=coeff[*,indx]
 save,galaxy_maggies,galaxy_invvar,sp,coeff,ematrix,bmatrix,lambda, $
   filterlist,filename=outsavfile,mags,mags0

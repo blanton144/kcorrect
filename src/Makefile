@@ -13,7 +13,7 @@ CFLAGS  = -I$(IDL_DIR)/external -I$(KCORRECT_DIR)/include \
 .c.o : $(KCORRECT_DIR)/include/kcorrect.h export.h
 	$(CC) -c $(CCCHK) $(CFLAGS) $(IDL_FLAG) $*.c
 .f.o :
-	f77 $(X_FFLAGS) -c -o $*.o $*.f
+	$(FC) $(X_FFLAGS) -c -o $*.o $*.f
 
 LIB = $(KCORRECT_DIR)/lib
 BIN = $(KCORRECT_DIR)/bin

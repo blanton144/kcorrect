@@ -68,13 +68,13 @@
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix
+pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, addgrgap=addgrgap, invvar=invvar
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
     print, 'Syntax - kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, $'
     print, '        [kcorrectz=, version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=,$'
-    print, '         coeff=, /sdssfix]'
+    print, '         coeff=, /sdssfix, /invvar]'
     return
 endif
 
@@ -97,11 +97,19 @@ if(keyword_set(sdssfix)) then begin
          ematrix=ematrix
    endif else begin
        k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
-	       version=version,vpath=vpath,filterpath=filterpath,rmatrix=rmatrix, $
-	       zvals=zvals,ematrix=ematrix
+	       version=version,vpath=vpath,filterpath=filterpath, $
+         rmatrix=tmprmatrix, zvals=tmpzvals,ematrix=tmpematrix
    endelse
+   if(NOT keyword_set(addgrgap)) then begin
+       rmatrix=tmprmatrix
+       zvals=tmpzvals
+       ematrix=tmpematrix
+   endif
+   tmprmatrix=0l
+   tmpzvals=0l
+   tmpematrix=0l
 endif
-
+  
 ; Calculate maggies if necessary
 if(NOT keyword_set(maggies)) then begin
     galaxy_maggies=10.^(-0.4*galaxy_mag)
@@ -113,6 +121,22 @@ endif else begin
     if(keyword_set(invvar)) then $
       galaxy_invvar=galaxy_magerr
 endelse 
+
+; Set the grgap maggie if appropriate
+if(keyword_set(addgrgap)) then begin
+    version='addgrgap'
+    tmp_galaxy_maggies=dblarr(nk+1,ngalaxy)
+    tmp_galaxy_invvar=dblarr(nk+1,ngalaxy)
+    tmp_galaxy_maggies[0:nk-1,*]=galaxy_maggies
+    tmp_galaxy_invvar[0:nk-1,*]=galaxy_invvar
+    tmp_galaxy_maggies[nk,*]=0.5*(galaxy_maggies[1,*]+galaxy_maggies[2,*])
+    tmp_galaxy_invvar[nk,*]= $
+      1.d/(0.25*tmp_galaxy_maggies[nk,*])^2
+    galaxy_maggies=tmp_galaxy_maggies
+    galaxy_invvar=tmp_galaxy_invvar
+    tmp_galaxy_maggies=0l
+    tmp_galaxy_invvar=0l
+endif
 
 ; Calculate coeffs
 if(n_elements(rmatrix) gt 0 AND n_elements(zvals) gt 0 AND $
@@ -140,6 +164,14 @@ indx=where(correct_z lt zvals[0],count)
 if(count gt 0) then correct_z[indx]=0.5*(zvals[0]+zvals[1])
 k_reconstruct_maggies,coeff,correct_z,reconstruct_maggies,rmatrix=rmatrix, $
   zvals=zvals,ematrix=ematrix
+
+; Remove the grgap maggie if appropriate
+if(keyword_set(addgrgap)) then begin
+    tmp_reconstruct_maggies=dblarr(nk,ngalaxy)
+    tmp_reconstruct_maggies=reconstruct_maggies[0:nk-1,*]
+    reconstruct_maggies=tmp_reconstruct_maggies
+    tmp_reconstruct_maggies=0l
+endif
 
 ; Calculate magnitudes if necessary
 galaxy_mag0=dblarr(nk,ngalaxy)

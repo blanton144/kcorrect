@@ -69,6 +69,7 @@ if(n_elements(subsample) eq 0) then subsample=1l
 indx=lindgen(ngalaxy/long(subsample))*long(subsample)
 galaxy_z=galaxy_z[indx]
 galaxy_maggies=galaxy_maggies[*,indx]
+galaxy_invvar=galaxy_invvar[*,indx]
 coeff=coeff[*,indx]
 
 if(keyword_set(to_z)) then begin
@@ -77,7 +78,8 @@ endif else begin
     to_z=galaxy_z
 endelse
 
-k_reconstruct_maggies,coeff,to_z,recmaggies,version=version,vpath=vpath
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies,kcorrectz=to_z, $
+  version=version,vpath=vpath,/maggies,/invvar,/addgrgap
 
 dm=2.5*alog10((2.99792e+8*lumdis(galaxy_z,omega0,omegal0))^2)
 lum=-2.5*alog10(recmaggies[2,*])-dm
