@@ -14,7 +14,7 @@ SHELL = /bin/sh
 all:
 
 install :
-	- cp *.$(SO_EXT) $(KCORRECT_DIR)/lib
+	- cp *.dylib $(KCORRECT_DIR)/lib
 	- cp *.so $(KCORRECT_DIR)/lib
 	- cp *.a $(KCORRECT_DIR)/lib
 	- cp Makefile $(KCORRECT_DIR)/lib
