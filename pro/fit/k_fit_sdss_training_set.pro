@@ -26,26 +26,83 @@ if(NOT keyword_set(npca)) then npca=5
 if(NOT keyword_set(sublmin)) then sublmin=2000.
 if(NOT keyword_set(sublmax)) then sublmax=12000.
 
-savfile='data_k_fit_sdss_training_set.sav'
+savfile='testdata_k_fit_sdss_training_set.sav'
 
 if(not file_test(savfile)) then begin
+;   read in sdss stuff
     gals=(mrdfits('sdss_training_set.'+name+'.fits',1))
 
+;   read in twomass match
+    restore,'table_xsc_matched.sav'
+
+;   read in CNOC2 data 
+    cnoc2=yanny_readone(getenv('KCORRECT_DIR')+ $
+                        '/data/redshifts/cnoc2/cnoc2.par')
+    indx=where(cnoc2.z lt 0.8 and $
+               cnoc2.UBVRI[0] lt 29. and $
+               cnoc2.UBVRI[1] lt 29. and $
+               cnoc2.UBVRI[2] lt 29. and $
+               cnoc2.UBVRI[3] lt 29. and $
+               cnoc2.UBVRI[4] lt 29.)
+    cnoc2=cnoc2[indx]
+    vega2ab_UBVRI=k_vega2ab(filterlist=['bessell_U.par', $
+                                        'bessell_B.par', $
+                                        'bessell_V.par', $
+                                        'bessell_R.par', $
+                                        'bessell_I.par'],/kurucz)
+    for i=0, 4 do $
+      cnoc2.UBVRI[i]=cnoc2.UBVRI[i]+vega2ab_UBVRI[i]
+
 ;   HACK to improve precision
-    err_band=[0.034,0.017,0.017,0.017,0.027]
-    for i=0, 4 do begin
-        newvar=1./gals.mag_ivar[i]-err_band[i]^2
-        gals.mag_ivar[i]=1./newvar
-    endfor
+    ;err_band=[0.034,0.017,0.017,0.017,0.027]
+    ;for i=0, 4 do begin
+        ;newvar=1./gals.mag_ivar[i]-err_band[i]^2
+        ;gals.mag_ivar[i]=1./newvar
+    ;endfor
 
 ;   HACK to rid of bad u-band (bad uband!)
     indx=where(gals.mag[0]-gals.mag[1] lt 1.6 and $
                gals.mag[1]-gals.mag[2] gt 1.4,count)
     if(count gt 0) then gals[indx].mag_ivar[0]=0.
 
-    maggies=10.^(-0.4*gals.mag)
-    maggies_ivar=gals.mag_ivar/(maggies*0.4*alog(10.))^2
+;   NEED TO AACCOUNT FOR LUPTITUDINALITY HERE
+    redshift=fltarr(n_elements(gals)+n_elements(cnoc2))
+    redshift[0:n_elements(gals)-1L]=gals.redshift
+    redshift[n_elements(gals):n_elements(redshift)-1L]=cnoc2.z
+    maggies=fltarr(13,n_elements(redshift))
+    maggies_ivar=fltarr(13,n_elements(redshift))
+    maggies[0:4,0:n_elements(gals)-1L]=10.^(-0.4*gals.mag)
+    maggies_ivar[0:4,0:n_elements(gals)-1L]= $
+      gals.mag_ivar/(maggies[0:4,0:n_elements(gals)-1L]*0.4*alog(10.))^2
 
+    indx=where(table_xsc_matched.j_m_k20fe gt 0., count)
+    maggies[5,isdss[indx]]= $
+      10.^(-0.4*(table_xsc_matched[indx].j_m_k20fe+ $
+                 (k_vega2ab(filterlist='twomass_J.par',/kurucz))[0]))
+    maggies_ivar[5,isdss[indx]]= $
+      1./(0.4*alog(10.)*maggies[5,isdss[indx]]* $
+          table_xsc_matched[indx].j_msig_k20fe)^2
+    indx=where(table_xsc_matched.h_m_k20fe gt 0., count)
+    maggies[6,isdss[indx]]= $
+      10.^(-0.4*(table_xsc_matched[indx].h_m_k20fe+ $
+                 (k_vega2ab(filterlist='twomass_H.par',/kurucz))[0]))
+    maggies_ivar[6,isdss[indx]]= $
+      1./(0.4*alog(10.)*maggies[6,isdss[indx]]* $
+          table_xsc_matched[indx].h_msig_k20fe)^2
+    indx=where(table_xsc_matched.k_m_k20fe gt 0., count)
+    maggies[7,isdss[indx]]= $
+      10.^(-0.4*(table_xsc_matched[indx].k_m_k20fe+ $
+                 (k_vega2ab(filterlist='twomass_Ks.par',/kurucz))[0]))
+    maggies_ivar[7,isdss[indx]]= $
+      1./(0.4*alog(10.)*maggies[7,isdss[indx]]* $
+          table_xsc_matched[indx].k_msig_k20fe)^2
+
+    maggies[8:12,n_elements(gals):n_elements(redshift)-1L]= $
+      10.^(-0.4*(cnoc2.UBVRI))
+    maggies_ivar[8:12,n_elements(gals):n_elements(redshift)-1L]= $
+      cnoc2.UBVRI_ivar/ $
+      (maggies[8:12,n_elements(gals):n_elements(redshift)-1L]*0.4*alog(10.))^2
+    
     k_read_ascii_table,vmatrix,'vmatrix.'+name+'.dat'
     k_read_ascii_table,lambda,'lambda.'+name+'.dat'
     nv=n_elements(vmatrix)/(n_elements(lambda)-1L)
@@ -56,12 +113,26 @@ if(not file_test(savfile)) then begin
     maggies_ivar=maggies_ivar/1.e+18
 
 ;   fit nonnegative model
-    coeffs=k_fit_nonneg(maggies[*,0:4999],maggies_ivar[*,0:4999],vmatrix, $
-                        lambda,redshift=gals[0:4999].redshift, $
+    useit=lonarr(n_elements(redshift))
+    tmp_indx=shuffle_indx(n_elements(redshift),num_sub=1000)
+    useit[tmp_indx]=1
+    plate=long(gals.sdss_spectro_tag/ulong64(10000000000))
+    tmp_indx=where(plate ge 669 and plate le 672)
+    useit[tmp_indx]=1
+    useit[n_elements(gals):n_elements(redshift)-1L]=1
+    use_indx=where(useit gt 0)
+    stop
+    coeffs=k_fit_nonneg(maggies[*,use_indx],maggies_ivar[*,use_indx],vmatrix, $
+                        lambda,redshift=redshift[use_indx], $
                         filterlist=['sdss_u0.par','sdss_g0.par', $
                                     'sdss_r0.par','sdss_i0.par', $
-                                    'sdss_z0.par'], $
-                        chi2=chi2,rmatrix=rmatrix,zvals=zvals,maxiter=10000)
+                                    'sdss_z0.par','twomass_J.par', $
+                                    'twomass_H.par','twomass_Ks.par', $
+                                    'bessell_U.par','bessell_B.par', $
+                                    'bessell_V.par','bessell_R.par', $
+                                    'bessell_I.par'], $
+                        chi2=chi2,rmatrix=rmatrix,zvals=zvals,maxiter=10000, $
+                        /verbose)
 
     save,filename=savfile
 endif else begin
@@ -70,37 +141,23 @@ endif else begin
     splog,'done'
 endelse
 
-if (0) then begin
-gals_orig=gals
-indx=lindgen(5000)
-gals=gals[indx]
-coeffs=coeffs[*,indx]
-maggies_orig=maggies
-maggies=maggies[*,indx]
-maggies_ivar_orig=maggies_ivar
-maggies_ivar=maggies_ivar[*,indx]
-nv=n_elements(coeffs)/n_elements(gals)
-
-;specs=vmatrix#coeffs
-;filterlist=['sdss_u0.par','sdss_g0.par','sdss_r0.par','sdss_i0.par', $
-;            'sdss_z0.par']
-;k_projection_table, rmatrix, specs, lambda, zvals, filterlist
-;
-;igal=long(5000.*randomu(seed,1))
-;chi2=dblarr(1000)
-;for i=0, 999 do begin & $
-;    k_reconstruct_maggies,1.,gals_orig[igal].redshift, $
-;      recmaggies,rmatrix=rmatrix[*,i,*],zvals=zvals & $
-;    chi2[i]=total((recmaggies-maggies_orig[*,igal])^2*maggies_ivar[*,igal]) & $
-;endfor
-;plothist,alog10(chi2),bin=0.1
-;
-;stop
+redshift=redshift[use_indx]
+maggies=maggies[*,use_indx]
+maggies_ivar=maggies_ivar[*,use_indx]
+nv=n_elements(coeffs)/n_elements(redshift)
 
 ;   for kicks, reconstruct maggies
-compare_maggies,coeffs,gals.redshift,maggies,maggies_ivar, $
+compare_maggies,coeffs,redshift,maggies,maggies_ivar, $
   rmatrix=rmatrix,zvals=zvals,recmaggies=recmaggies, $
-  filename='compare_maggies.ps'
+  filename='compare_maggies.ps', psym=3, $
+  filterlist=['sdss_u0.par','sdss_g0.par', $
+              'sdss_r0.par','sdss_i0.par', $
+              'sdss_z0.par','twomass_J.par', $
+              'twomass_H.par','twomass_Ks.par', $
+              'bessell_U.par','bessell_B.par', $
+              'bessell_V.par','bessell_R.par', $
+              'bessell_I.par']
+stop
 
 ; find flux direction, and scale
 k_ortho_templates,coeffs,vmatrix,lambda,bcoeffs,bmatrix,bflux,bdotv=bdotv, $
@@ -156,7 +213,6 @@ for i=0, 9 do $
   data[*,where(group eq i)],'eigencoeffs_scaled'+strtrim(string(i),2)+'.ps', $
   exponent=0.25,xnpix=30,ynpix=30,range=range
 
-endif
 restore,'blah.sav'
 
 l=0

@@ -1,0 +1,3 @@
+#!/usr/local/bin/perl
+
+system("wget --no-host-directories --no-parent --directory-prefix=v2catalog --cut-dirs=5 --recursive http://www.stsci.edu/ftp/science/hdf/archive/v2catalog/");
