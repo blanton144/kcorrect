@@ -55,7 +55,7 @@ lambdas = lambda*(1.+z)
 
 ; Project the templates onto the filter curves....
 
-template_maggies = k_project_filters,lambda,template_matrix, $
+template_maggies = k_project_filters,lambdas,template_matrix, $
 		   filterlist=filterlist, filterpath=filterpath
 
 ; Solve for the best fit using normal equations - Press et al
