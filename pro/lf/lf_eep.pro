@@ -5,7 +5,7 @@
 ;   calculate EEP luminosity function 
 ; USAGE:
 ;   lf_eep,zz,absmag,kcorrect,mmin,mmax,sample_absmmin,sample_absmmax,
-;       absmk, phi, phi_err, [ nbin=, qevolve=qevolve, qz0=, $
+;       absmk, phi, phi_err, [ nbin=, q0=, q1=, qz0=, $
 ;       absmagdep=, ref_absmagdep=, omega0=, omegal0=, /calc_err ]
 ; INPUTS:
 ;   zz               [N] redshifts
