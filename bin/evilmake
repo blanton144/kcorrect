@@ -17,13 +17,13 @@ case `uname` in
 		SO_EXT=so
 		X_CFLAGS="-32 -KPIC"
 		X_FFLAGS="-32 -extend_source"
+		MAKE_FTNLIB="-lftn"
 		X_LD_FLAGS="-shared -32";;
-                MAKE_FTNLIB="-lftn"
 	"IRIX64" )
 		SO_EXT=so
 		X_CFLAGS="-32 -KPIC"
 		X_FFLAGS="-32 -extend_source -KPIC"
-                MAKE_FTNLIB="-lftn"
+		MAKE_FTNLIB="-lftn"
 		X_LD_FLAGS="-shared -32";;
 	"OSF1" )
 		SO_EXT=so
@@ -33,7 +33,7 @@ case `uname` in
 		SO_EXT=so
 		X_CFLAGS="-fPIC -g -Wall"
 		X_FFLAGS="-ffixed-line-length-none"
-                MAKE_FTNLIB="-lg2c"
+		MAKE_FTNLIB="-lg2c"
 		X_LD_FLAGS=-shared ;;
 	*) echo "This system is not supported" >&2
 		exit 1;;
@@ -45,6 +45,6 @@ esac
 # Comment this out since it seems to fail on an SGI platform...
 SDSS_CFLAGS=-O2
 
-export SO_EXT X_CFLAGS X_FFLAGS X_LD_FLAGS SDSS_CFLAGS
+export SO_EXT X_CFLAGS X_FFLAGS X_LD_FLAGS SDSS_CFLAGS MAKE_FTNLIB
 
 make "$@"

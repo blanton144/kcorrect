@@ -64,7 +64,7 @@ $(BIN)/color_interp: color_interp.c $(LIB)/libkcorrect.$(SO_EXT)
 
 $(BIN)/reconstruct_maggies: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) \
 		reconstruct_maggies.c 
-	$(CC) $(CFLAGS) -o $(BIN)/reconstruct_maggies reconstruct_maggies.c -lm -L$(LIB) -lkcorrect
+	$(CC) $(CFLAGS) -o $(BIN)/reconstruct_maggies reconstruct_maggies.c -lm -L$(LIB) -lkcorrect 
 
 $(LIB)/libkcorrect.$(SO_EXT): $(OBJECTS) 
 	$(LD) -shared $(X_LD_FLAGS) -o $(LIB)/libkcorrect.$(SO_EXT) $(OBJECTS) \
