@@ -94,6 +94,7 @@ if (keyword_set(bmatrix) AND keyword_set(filterlist)  $
 endif else begin
     if (NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
         klog, 'need to specify rmatrix or bmatrix and filterlist'
+        return
     endif
 endelse 
 nz=long(n_elements(zvals))

@@ -376,19 +376,20 @@ astronomical sources) will be performed using devices which combine
 high spatial resolution and high spectral resolution. By that time,
 the phenomena of broad band filters and the quaint terminology
 surrounding their usage --- magnitudes, $K$-corrections, color terms,
-{\it etc.} --- will have long since been forgotten. However, today,
-virtually all observations of galaxies are made through such filters,
-and special care has to be taken to recover knowledge of galaxy
-spectral energy distributions (SEDs) from these observations.
-Reconstructing galaxy SEDs is nontrivial because SEDs of galaxies
-contain important information on scales considerably smaller than the
-width of typical broad band filters. Furthermore, SEDs of distant
-galaxies are redshifted such that the more distant the galaxy, the
-further the observed bandpass is blueshifted relative to the
-rest-frame spectral energy distribution of the object observed.  This
-paper focuses on a solution to these problems which (in the optical
-wavelength regime) is fast, robust, and consistent over a large range
-of redshifts.
+{\it etc.} --- will have long since been forgotten. However, until
+such time as wide field spatially-resolved spectroscopy is cheaply
+available, virtually all observations of galaxies will be made through
+broad band filters, and special care has to be taken to recover
+knowledge of galaxy spectral energy distributions (SEDs) from these
+observations.  Reconstructing galaxy SEDs is nontrivial because SEDs
+of galaxies contain important information on scales considerably
+smaller than the width of typical broad band filters. Furthermore,
+SEDs of distant galaxies are redshifted such that the more distant the
+galaxy, the further the observed bandpass is blueshifted relative to
+the rest-frame spectral energy distribution of the object observed.
+This paper focuses on a solution to these problems which (in the
+optical wavelength regime) is fast, robust, and consistent over a
+large range of redshifts.
 
 In the past, people have accounted for these effects using
 ``$K$-corrections'' applied to the observed magnitudes. In these
@@ -453,13 +454,17 @@ programs and IDL routines. We have made the source code available
 publicly, through a web page and through a public CVS
 repository. Improvements or ports to other languages implemented by
 users may be incorporated into the code upon request. The conditions
-of use for the code are that this paper is cited in any resulting
+of use for the code are that this paper be cited in any resulting
 refereed journal article and that the version of the code used is
 specified in any such paper. The version of the code used to make the
 figures for this paper is {\tt kcorrect \kversion}.
 
-We refer throughout this paper to $AB$ magnitudes, first defined 
-by \citet{oke83a} such that:
+We refer throughout this paper to $AB$ magnitudes, first defined by
+\citet{oke83a} to measure the ratio of the number of photons included
+in the signal of the detector relative to that number for a flat
+spectrum source with $g(\nu)=3.631 \times 10^{-20}$ ergs cm$^{-2}$
+s$^{-1}$ Hz$^{-1}$. For a source with a spectrum $f(\nu)$ the $AB$
+magnitude should be (for a perfectly calibrated $AB$ system)
 \begin{eqnarray}
 \label{ABdef}
 m_{AB} &=& -2.41 - 2.5 \log_{10}\left[
@@ -471,15 +476,21 @@ m_{AB} &=& -2.41 - 2.5 \log_{10}\left[
 {\int_{0}^{\infty} d\nu \nu^{-1} R(\nu)}\right],
 \end{eqnarray}
 where $R(\lambda)$ is the fraction of photons entering the Earth's
-atmosphere which are detected as a function of wavelength (a unitless
-quantity). In this equation, $f(\lambda)$ is in units of ergs
-cm$^{-2}$ s$^{-1}$ \AA$^{-1}$, and $f(\nu)$ is in units of ergs
-cm$^{-2}$ s$^{-1}$ Hz$^{-1}$. The normalizations defined here mean
-that an object with $f(\nu) = 3631\mathrm{~Jy} = 3.631 \times
-10^{-20}$ ergs cm$^{-2}$ s$^{-1}$ Hz$^{-1}$ has all its AB magnitudes
-equal to zero.  The difference in the zeropoint in the two equations
+atmosphere which are included in the signal as a function of
+wavelength (a unitless quantity). Note that $R(\lambda)$ can be
+defined even for devices which do not count photons directly (such as
+bolometers). This equation is written such that $f(\lambda)$ is in
+units of ergs cm$^{-2}$ s$^{-1}$ \AA$^{-1}$ and $f(\nu)$ is in units
+of ergs cm$^{-2}$ s$^{-1}$ Hz$^{-1}$, while $\lambda$ is expressed in
+\AA\ and $\nu$ is expressed in Hz. The normalizations defined here
+mean that an object with $f(\nu) = g(\nu) = 3631\mathrm{~Jy} = 3.631
+\times 10^{-20}$ ergs cm$^{-2}$ s$^{-1}$ Hz$^{-1}$ has all its AB
+magnitudes equal to zero.  The $\lambda^{-1}$ appears in the integrand
+of the denominator of the first equation because
+$g(\lambda)=c/\lambda^2$ for a ``flat spectrum'' source with
+$g(\nu)=1$.  The difference in the zeropoints of the two equations
 simply corresponds to the factor of the speed of light $c$ (expressed
-in \AA\ s$^{-1}$) between the frequency and wavelength scales. 
+in \AA\ s$^{-1}$) in that expression for $g(\lambda)$.
 
 Section \ref{sedfit} describes our method of fitting galaxy SEDs to
 broad band photometry and how to calculate $K$-corrections. Section
@@ -502,7 +513,7 @@ not correspond uniquely to a particular SED, and because galaxy SEDs
 are known to have significant structure over wavelength ranges small
 compared to our bandpass, the inverse problem of reconstructing SEDs
 from broad band fluxes is ill-posed. The task is made yet more
-difficult by the fact that the separation of the fiters are large
+difficult by the fact that the separation of the filters are large
 compared to their widths; the SEDs are thus not well-sampled in the
 Nyquist sense of that term. However, we are not completely ignorant
 about the forms which galaxy SEDs take, so we can attempt to use what
@@ -542,8 +553,9 @@ but in fact the spectra are all independent in the restricted, as well
 as the full, wavelength range.}  We then define the basis of the SED
 space such that the $N_b$ template SEDs, $\vv{v}_i$, are linear
 combinations of $N_b$ basis spectra $\vv{b}_i$ and that $\vv{b}_i
-\cdot \vv{b}_j = \delta_{ij}$. These conditions do not fully specify
-the $\vv{b}_i$, which naturally may be rotated arbitrarily within our
+\cdot \vv{b}_j = \delta_{ij}$ (where $\delta_{ij}$ represents the
+Kronecker delta). These conditions do not fully specify the
+$\vv{b}_i$, which naturally may be rotated arbitrarily within our
 $N_b$-dimensional subspace of spectral space.
 
 In our case the number of observed bands is less than $N_b$, so we
@@ -669,7 +681,10 @@ read, ``$b$-band at redshift $z$.'' For example, if we measure the
 flux of a galaxy at $z=0.22$ using a $g$-band filter, we have obtained
 the $\band{0.22}{g}$-band magnitude of the galaxy. The goal of
 ``$K$-correction'' is to convert the $ugriz$ bands at redshift $z$
-for each galaxy to $ugriz$ bands at some fixed redshift $z_0$.
+for each galaxy to $ugriz$ bands at some fixed redshift $z_0$. While
+traditionally $K$-corrections are performed to $z_0=0$, this is not
+always desirable, particularly for surveys like the SDSS for which
+most of the galaxies are not observed near $z=0$.
 
 Given AB galaxy magnitudes $\band{z}{m}$ and errors for a galaxy at
 redshift $z$, one can use the method of the previous subsection to
@@ -722,7 +737,7 @@ minimized when possible. For example, if one were calculating the
 evolution of clustering of red and blue galaxies separately, it would
 perhaps be wise to perform the separation not on the $K$-corrected
 colors of the galaxies but on the median color of $M_\ast$
-galaxies as a function of redshift. Similarly, in situation where
+galaxies as a function of redshift. Similarly, in situations where
 $K$-corrections cannot be ignored, such as the calculation of the
 evolution of the luminosity function, their effect should be minimized
 by, for example, correcting to the median redshift of galaxies in the
@@ -780,16 +795,16 @@ Apache Point Observatory, Sunspot, New Mexico, images the sky in five
 bands between 3000 and 10000 \AA\ ($u$, $g$, $r$, $i$, $z$;
 \citealt{fukugita96a}) using a drift-scanning, mosaic CCD camera
 (\citealt{gunn98a}), detecting objects to a flux limit of $r'\sim
-22.5$. The ultimate goal is to spectroscopically observe 900,000
-galaxies, (down to $r_{\mathrm{lim}}'\approx 17.65$), 100,000 Luminous
-Red Galaxies (LRGs; \citealt{eisenstein01a}), and
-100,000 QSOs (\citealt{fan99a}; Newberg {\it et al.}, in preparation).
-This spectroscopic follow up uses two digital spectrographs on the
-same telescope as the imaging camera. Many of the details of the
-galaxy survey are described in a description of the galaxy target
-selection paper (\citealt{strauss02a}). Other aspects of the survey
-are described in the Early Data Release (EDR;
-\citealt{stoughton02a}). 
+22.5$. The ultimate goal is to spectroscopically observe Main Sample
+galaxies 900,000 galaxies (down to $r_{\mathrm{lim}}\approx 17.77$;
+\citealt{strauss02a}), 100,000 Luminous Red Galaxies (LRGs;
+\citealt{eisenstein01a}), and 100,000 QSOs (\citealt{fan99a}; Newberg
+{\it et al.}, in preparation).  This spectroscopic follow up uses two
+digital spectrographs on the same telescope as the imaging
+camera. Many of the details of the galaxy survey are described in a
+description of the galaxy target selection paper
+(\citealt{strauss02a}). Other aspects of the survey are described in
+the Early Data Release (EDR; \citealt{stoughton02a}).
 
 The results of the photometric pipeline for all of the galaxies were
 extracted from the SDSS Operational Database. The photometry used here
@@ -809,12 +824,11 @@ have been measured using a monochrometer by Mamoru Doi.  Using a model
 for the atmospheric transmission and the reflectivity of the primary
 and secondary mirrors, one can then model the response of the entire
 system. For each bandpass in the SDSS, there are six different CCDs;
-it has been shown that the differences between these six camera
-columns are small; what differences exist are largely fit out during
-the survey calibration. The resulting set of filter curves is shown in
-Figure \ref{response_sdss}, in comparison to a model of a galaxy
-spectral energy distribution observed at $z=0$ (a 4 Gyr old
-instantaneous burst from the models of \citealt{bruzual93a}).
+it has been shown that the differences are small between these CCD and
+filter responses for each bandpass.  The resulting set of filter
+curves is shown in Figure \ref{response_sdss}, in comparison to a
+model of a galaxy spectral energy distribution observed at $z=0$ (a 4
+Gyr old instantaneous burst from the models of \citealt{bruzual93a}).
 
 The results of the spectroscopic observations are treated as follows.
 We extract one-dimensional spectra from the two-dimension images using
@@ -822,49 +836,53 @@ a pipeline ({\tt specBS v4\_8}) created specifically for the SDSS
 instrumentation (\citealt{schlegel02a}), which also fits for the
 redshift of each spectrum. The official SDSS redshifts are obtained
 from a different pipeline (\citealt{subbarao02a}). The two independent
-versions provide a consistency check on the redshift
-determination. They are consistent (for galaxies) at over the 99\%
-level.\footnote{The official pipeline currently tends to work better
-for objects with unusual spectra, such as certain types of stars and
-QSOs.}
+versions provide a consistency check on the redshift determination,
+and for galaxies they agree on more than 99\% of the
+objects.\footnote{The disagreement is more significant for objects
+with unusual spectra, such as certain types of stars and QSOs.}
 
 We use two types of magnitudes determined by the SDSS. First, the SDSS
 Petrosian magnitudes, a modified form of the magnitude described by
-\citet{petrosian76a}, as described in \citet{strauss02a}.  These
-magnitudes have a nearly constant metric aperture as a function
-redshift; in addition, all the bands use the same aperture, so the
-measured SED corresponds (to within the effects of seeing) to the SED
-of an identifiable region of the galaxy. However, for faint objects,
-the Petrosian magnitudes tend to become noisy. Thus, for galaxies with
-$z>0.25$ we instead use the higher signal-to-noise ``model
-magnitudes.'' Model magnitudes are calculated in all bands using a
-single weighted aperture; thus, the measured colors again correspond
-to an identifiable region of the galaxy, though a different one than
-would be measured by the Petrosian magnitude. The weighted aperture is
-the better fitting model (pure exponential or pure de Vaucouleurs) to
-the galaxy image in the $r$-band. In \citet{stoughton02a} we are
-explicitly warned not to mix Petrosian and model magnitudes in a
-single analysis, since they measure galaxies in very different
-ways. Nevertheless, for the purposes of contraining galaxy template
-SEDs, it is perfectly acceptable to use {\it any} well-defined part of
-any galaxy.  For our purposes, it is more important to have high
-signal-to-noise measurements of galaxy colors than to measure exactly
-the same regions of galaxies at low and high redshift.  We
-extinction-correct both types of magnitudes using the dust maps of
-\citet{schlegel98a}.
+\citet{petrosian76a}, as described in \citet{strauss02a}.  Petrosian
+magnitudes are circular aperture magnitudes with an aperture size
+which is determined by the shape of the radial profile (not its
+amplitude). The resulting apertures are empirically nearly constant in
+metric size as a function of redshift; in addition, all the bands use
+the same aperture, so the measured SED corresponds (to within the
+effects of seeing) to the SED of an identifiable region of the
+galaxy. However, for faint objects, the Petrosian magnitudes tend to
+become noisy. Thus, for galaxies with $z>0.25$ we instead use the
+higher signal-to-noise ``model magnitudes.'' Model magnitudes are
+calculated in all bands using a single weighted aperture convolved
+with the point spread function; thus, the measured colors again
+correspond to an identifiable region of the galaxy, though a different
+one than would be measured by the Petrosian magnitude. The weighted
+aperture is the better fitting model (pure exponential or pure de
+Vaucouleurs) to the galaxy image in the $r$-band. Thus, the model
+magnitudes weight the centers of galaxies more strongly than do
+Petrosian magnitudes. In \citet{stoughton02a} we are explicitly warned
+not to mix Petrosian and model magnitudes in a single analysis, since
+they measure galaxies in very different ways. Nevertheless, for the
+purposes of contraining galaxy template SEDs, it is perfectly
+acceptable to use {\it any} well-defined part of any galaxy.  For our
+purposes, it is more important to have high signal-to-noise
+measurements of galaxy colors than to measure exactly the same regions
+of galaxies at low and high redshift.  We extinction-correct both
+types of magnitudes using the dust maps of \citet{schlegel98a}.
 
 \subsection{Fitting SEDs to SDSS Data}
 
-For the purposes of applying the method described in Section
-\ref{sedfit} to SDSS data, we take a subsample of the data consisting
-of around 30,000 objects in the range $0.0<z<0.5$. The sample includes
-both the main sample and the LRGs; we sample these spectra such that
-we get an approximately even distribution within our range of
-redshifts. In addition, we add results from galaxies in several plates
+For the purposes of using the SDSS data to constrain our template set,
+we take a subsample of the data consisting of around 30,000 objects in
+the range $0.0<z<0.5$. The sample includes both the main sample and
+the LRGs, and is designed such that there is an approximately even
+distribution over redshift within our range of redshifts. In addition,
+we add results from galaxies in several spectroscopic plates
 (totalling about 1,000 objects) which were selected by a photometric
 redshift algorithm (Csabai {\it et al.}, in preparation) to be at
-around $z\sim 0.3$--$0.4$. These objects are invaluable for tying down
-the blue end of the templates. Finally, we exclude galaxies in the
+around $z\sim 0.3$--$0.4$, and subsequently observed
+spectroscopically. These objects are invaluable for tying down the
+blue end of the templates.  Finally, we exclude galaxies in the
 redshift range $0.28 <z<0.32$ from the fit for the templates, for
 reasons which we will explain more fully below (nevertheless, we still
 can and do use the resulting templates to analyze galaxies in this
@@ -875,19 +893,7 @@ example, the $u$- or $z$-band fluxes for some objects are swamped by
 the photon noise of the sky. We identify such cases as magnitude
 errors greater than 2.0 or magnitudes fainter than 24.0 in any
 band. We ignore these objects entirely when fitting for the
-templates. However, we still want to determine a best-fit SED for each
-object, once the templates are determined. Thus, after the templates
-have been determined, we constrain all the SED fits to all galaxies
-using the method described in Section \ref{direct}. As a constraint,
-we use the covariance matrix and mean value (essentially zero, by
-design) of the coefficients of the well-measured set of galaxies used
-to determine the templates; we multiply all the elements of the
-covariance matrix by a factor of four to weaken our constraint (which
-is appropriate, since the actual distribution of coefficients is not
-well described by a single gaussian).  Thus, we account for the
-missing information by simply requiring that the object SED have
-``reasonable'' properties. The constraint does not affect the results
-for galaxies which have well-measured magnitudes in all bands.
+templates. 
 
 In addition, the photometric errors for most objects in the
 spectroscopic galaxy sample of the SDSS are not dominated by the
@@ -896,21 +902,23 @@ errors are dominated by local calibration errors and other systematic
 effects, which are poorly known. To account for these errors, we add
 extra error terms in quadrature with the errors listed in the catalog
 (0.05 mags, 0.02 mags, 0.02 mags, 0.02 mags, and 0.03 mags for
-$ugriz$, respectively). Not accounting for this extra source of errors
-can cause the fits to be ill-behaved. 
+$ugriz$, respectively). The choice of these values is based on a
+qualitative sense of the photometric errors present in the data. Not
+accounting for this extra source of errors can cause the fits to be
+ill-behaved.
 
 For the SED space (our $\vv{v}_i(\lambda)$), we use the subspace
-defined by linear combinations of ten Bruzual-Charlot instantaneous
-burst models with ages ranging from $3 \times 10^7$ to $2\times
-10^{10}$ years, five with metallicity $Z=0.02$ and five with
-$Z=0.004$, all assuming a Salpeter Initial Mass Function. Since we
-cannot recover information about the SED below a certain wavelength
-scale, we smooth most of the wavelength regime of the templates using
-a Gaussian with a standard deviation of $\sigma = 300$\AA; for the
-region of the spectrum which contains the sharpest gradients, around
-4000\AA, we smooth only with $\sigma = 150$\AA. None of our results
-change dramatically if we vary our smoothing procedure or if we add
-reddened templates to our allowed SED space.
+defined by ten Bruzual-Charlot instantaneous burst models with ages
+ranging from $3 \times 10^7$ to $2\times 10^{10}$ years, five with
+metallicity $Z=0.02$ and five with $Z=0.004$, all assuming a Salpeter
+Initial Mass Function. Since we cannot recover information about the
+SED below a certain wavelength resolution, we smooth most of the
+wavelength regime of the templates using a Gaussian with a standard
+deviation of $\sigma = 300$\AA; for the region of the spectrum which
+contains the sharpest gradients, around 4000\AA, we smooth only with
+$\sigma = 150$\AA. None of our results change dramatically if we vary
+our smoothing procedure or if we add reddened templates to our allowed
+SED space.
 
 We choose to fit for $N_t = 4$ eigentemplates, the maximum one can use
 and still allow freedom to fit for the templates themselves.  Simply
@@ -920,18 +928,35 @@ redshift ({\it cf.}  Figure \ref{main_colors_plot} below). Using three
 templates does nearly as well as four templates in the sense that the
 resulting templates reproduce the $griz$ magnitudes nearly as
 well. However, the fourth template is necessary to recover the
-$u$-band flux to any better than about 15\%. In addition, since one of
-the applications of these SED determinations is the distribution of
-galaxy colors in fixed frame magnitudes, we don't want to artificially
-reduce the dimensionality of the color space to only two.
+$u$-band flux to better than about 15\%. In addition, since one of the
+applications of these SED determinations is the distribution of galaxy
+colors in fixed frame magnitudes, we don't want to artificially reduce
+the dimensionality of the color space to only two.
 
 One more choice needs to be made, the wavelength regime over which to
 orthogonalize the templates and over which to calculate the flux. We
 choose the range defined by $\lambda_{\mathrm{min}}=3500$\AA\ and
-$\lambda_{\mathrm{max}}=7500$\AA, since this range is included for
-almost all galaxies in the sample. We refer here and in other papers
-to the flux and luminosity in this range as the ``visual flux'' $f_v$
-and the ``visual luminosity'' $L_v$.
+$\lambda_{\mathrm{max}}=7500$\AA, since this rest frame range is
+observed for almost all galaxies in the sample. We refer here and in
+other papers to the flux and luminosity in this range as the ``visual
+flux'' $f_v$ and the ``visual luminosity'' $L_v$.
+
+Once we have finished fitting for the templates, we still want to
+determine a best-fit SED for each object.  Thus, after the templates
+have been determined, we fit for the coefficients $a_i$ for each
+galaxy, including those excluded from the template-fitting procedure
+because of large errors. In order to accommodate the presence of
+errors, we constrain all the SED fits to all galaxies using the method
+described in Section \ref{direct}. As a constraint, we use the
+covariance matrix and mean value (essentially zero, by design) of the
+coefficients of the well-measured set of galaxies used to determine
+the templates; we multiply all the elements of the covariance matrix
+by a factor of four to weaken our constraint (which is appropriate,
+since the actual distribution of coefficients is not well described by
+a single gaussian).  Thus, we account for any missing information by
+simply requiring that the object SED have ``reasonable''
+properties. The constraint does not affect the results for galaxies
+which have well-measured magnitudes in all bands.
 
 \subsection{The $g$/$r$ Gap}
 \label{grgap}
@@ -941,14 +966,20 @@ and $r$ bands. Linear fits to the data allow considerable freedom in
 the resulting reconstructed SEDs. As it happens, one of the directions
 in our best fit coefficient space $a_i/a_0$ corresponds to a large
 spike at around 4000 \AA; that this direction is important is not
-surprising, since one of the most variable quantities of galaxy SEDs is
-the size of the 4000 \AA\ break. However, the gap between the $g$ and
-$r$ bands corresponds to the 4000 \AA\ break at around $z=0.3$. The
-existence of this spike in one direction in our four-dimensional space
-means that galaxies at $z=0.3$ can vary along this direction in order
-to better fit $u$, $i$, and $z$, with little effect on the $g-r$ color
-of the fit. This results in unphysical SED fits to galaxies near
-$z=0.3$. 
+surprising, since one of the most variable quantities of galaxy SEDs
+is the size of the 4000 \AA\ break. However, the gap between the $g$
+and $r$ bands corresponds to the 4000 \AA\ break at around
+$z=0.3$. The existence of this spike in one direction in our
+four-dimensional space means that galaxies at $z=0.3$ can vary along
+this direction in order to better fit $u$, $i$, and $z$, with little
+effect on the $g-r$ color of the fit. This results in unphysical SED
+fits to galaxies near $z=0.3$.  One really only needs to worry about
+this effect in the SDSS when one is dealing with the LRGs, for
+galaxies in the range about $0.27 < z < 0.33$. The Main Sample results
+are not significantly affected at all (since few Main Sample galaxies
+are at $z>0.25$.  Furthermore, one can still observe a galaxy at
+$z=0.1$ and reliably infer what it would look like at $z=0.3$; it is
+only the reverse process which is difficult.
 
 To demonstrate this degeneracy, Figure \ref{spur} shows the spectrum
 corresponding to the direction represented by the vector $ \vv{e}_2 +
@@ -959,36 +990,30 @@ why, in Section \ref{data}, we exclude the regime around $z\sim 0.3$;
 otherwise the templates became distracted by the degeneracies in this
 range.
 
-We have explored using a larger set of input spectrum, by including
-reddenned versions of all our templates, to test whether a more
+We have explored using a larger set of input spectra, by including
+reddened versions of all our templates, to test whether a more
 complete space of SEDs would cause our fit to choose a more realistic
 subspace. In addition, we have tried removing the increased resolution
-of the template SEDs around the 4000 \AA\ break. Neither of these tests
-yielded better results. 
+of the template SEDs around the 4000 \AA\ break. Neither of these
+tests yielded better results.
 
-Our view is that the ideal solution to this problem would be to
-minimize $\chi^2$ under the constraint that none of the original
-Bruzual-Charlot spectra defining our SED space contribute negatively
-to the SED fit. Such a solution would almost certainly have better
-properties than our linear approach here: it would almost certainly
-avoid the degeneracies, it would yield reasonable fit SED over a
-larger wavelength range, it would associate a reasonable
-star-formation history with each object (which could be used to
-evolution-correct the magnitudes).
+Our opinion is that the ideal regularization which would solve this
+problem would be to minimize $\chi^2$ under the constraint that none
+of the original Bruzual-Charlot spectra defining our SED space
+contribute negatively to the SED fit. Such a solution would almost
+certainly have better properties than our linear approach here: it
+would almost certainly avoid the degeneracies, it would yield
+reasonable fit SED over a larger wavelength range, it would associate
+a reasonable star-formation history with each object (which could be
+used to evolution-correct the magnitudes).
 
 However, we have not tackled this approach yet. As it happens, the
 direct constraint on the coefficients described in the previous
 section is sufficient to suppress the $g$/$r$ gap problem 
-for many purposes, as long as one $K$-corrected the magnitudes to
+for many purposes, as long as one $K$-corrects the magnitudes to
 $z=0.3$. In this way, one minimizes the $K$-corrections for the
 galaxies which one is least certain of.
 
-One really only needs to worry about this effect in the SDSS when you
-are dealing with the LRGs, for galaxies in the range about $0.27 < z <
-0.33$. The Main Sample results are not significantly affected at all.
-Furthermore, one can still observe a galaxy at $z=0.1$ and reliably
-infer what it would look like at $z=0.3$; it is only the reverse
-process which is difficult.
 
 %It is clear from Figure \ref{lrg_colors_plot} that $z=0.3$ is a
 %special redshift regime where our fits become unphysical. In fact, it
@@ -1049,12 +1074,12 @@ panel, three spectra taken from a one-dimensional sequence along the
 galaxy locus are shown, showing that the spectra become progressively
 bluer along that sequence. Note that constraints on the SED become
 poor at the bluest and reddest edges of this diagram (the peak of the
-$z$-band response is at 8700~\AA restframe for a galaxy observed at
-$z=0$). Therefore, the odd behavior near the
-edges should not be taken too seriously. In addition, note the small
-spur extending from lower left to upper right through the right edge
-of the ($a_3/a_0$)-($a_2/a_0$) plane. Many of the objects in this spur are
-at around $z=0.3$, and this spur is the result of the degeracy due to
+$z$-band response is at 8700~\AA rest frame for a galaxy observed at
+$z=0$). Therefore, the odd behavior near the edges should not be taken
+too seriously. In addition, note the small spur extending from lower
+left to upper right through the right edge of the
+($a_3/a_0$)-($a_2/a_0$) plane. Many of the objects in this spur are at
+around $z=0.3$, and this spur is the result of the degeneracy due to
 the $g$/$r$ gap.
 
 These reconstructed spectra do an excellent job of reproducing the
@@ -1105,7 +1130,8 @@ redshift.
 %remarkably constant. 
 $\band{0.3}{(g-r)}$ (which is very similar to $\band{0.0}{(u-g)}$)
 experiences a blueward shift of about 0.1 magnitudes between $z=0.1$
-and $z=0.45$, which is attributable to passive evolution.
+and $z=0.45$, which is attributable to passive evolution, though it
+could also be due to the LRG selection procedure.
 
 In short, these fits to galaxy SEDs provide estimates which reproduce
 the galaxy photometry nearly to the level of the errors in the
@@ -1127,20 +1153,24 @@ An important test of our method is to synthesize broad band photometry
 from spectra, and then try to recover the $K$-corrections in a case
 where we know the spectrum completely. For this purpose, we use as
 example spectra the spectra of galaxies in the SDSS.  Since we cannot
-synthesize the observed $u$ and $z$ bands, we simply base them on the
-synthesized $g$ and $i$ band magnitudes plus the $u-g$ and $z-i$
-colors. (This procedure is unlikely to make the photometric
-estimations of the $K$-corrections {\it better}). Finally, we added
-2\% random errors to all of the measurements. Figure
-\ref{k_speck_plot.fitfib.0.1} compares the $K$-corrections from the
-synthesized photometry to that calculated from the spectrum
-itself: 
+synthesize the observed $u$ and $z$ bands from these spectra, we
+simply base them on the synthesized $g$ and $i$ band magnitudes plus
+the actual $u-g$ and $z-i$ colors. (This procedure is unlikely to make
+the photometric estimations of the $K$-corrections {\it
+better}). Finally, we added 2\% random errors to all of the
+measurements. Figure \ref{k_speck_plot.fitfib.0.1} compares the
+$K$-corrections from the synthesized photometry to that calculated
+from the spectrum itself:
 \begin{equation}
 \Delta K = K_{\mathrm{spec}} - K_{\mathrm{photo}}
 \end{equation}
-The agreement is very good, suggesting that our method can
-indeed recover the correct $K$-corrections based only on broad band
-magnitudes.
+Since all of the photometry used in this test is actually synthesized
+from the spectra, this is {\it not} a comparison of photometric and
+spectroscopic $K$-corrections; it is {\it only} a test of how well our
+method recovers $K$-corrections. The agreement in FIgure
+\ref{k_speck_plot.fitfib.0.1} is very good, suggesting that our method
+can indeed recover the correct $K$-corrections based only on broad
+band magnitudes.
 
 To test how robust these $K$-correction results are to our model
 assumptions, we compare them to other methods of calculating fixed
@@ -1181,7 +1211,7 @@ spectrum to be determined by somewhat different regions of the galaxy.
 Nevertheless, in Figure \ref{k_speck_plot.0.1}, we compare the
 $K$-corrections to $z=0.1$ of Main Sample galaxies calculated based on
 the spectra to those of Figure \ref{k_kcorrect_plot}, finding that
-they are extremely similar. There is a trend with redshift in the
+they are quite similar. There is a trend with redshift in the
 $g$-band, which is due to the fact that on average the $g-r$ color is
 about 0.1 magnitudes redder in the fiber aperture than in the
 Petrosian aperture. The implication is that the $K$-corrections are
@@ -1190,8 +1220,9 @@ the Petrosian aperture. This indicates that for work which requires
 precision, it is best to avoid using the $K$-corrections determined
 from the spectra. (Note that in the second paragraph of this section
 we used the SDSS spectra as {\it example} spectra to validate the
-method; in this paragraph we have evaluated whether to rely on such
-spectra to calculate $K$-corrections).
+method as applied to synthesized photometry; in this paragraph we have
+evaluated whether to rely on fiber spectra to calculate
+$K$-corrections for the Petrosian photometry).
 
 For completeness, Figure \ref{k_speck_plot.0.3} compares the
 spectroscopic and photometric $K$-corrections to $z=0.3$ of LRGs. The
@@ -1247,16 +1278,21 @@ example, you can calculate photometric redshifts using the method
 described here. {\tt kcorrect \kversion} has a simple (and very fast)
 photometric redshift estimator with very tight core of residuals
 ($\sigma \sim 0.05$) in a comparison to SDSS galaxies with redshifts.
-Before this code can be used as a reliable photometric redshift
-indicator, more work has to be done (which the reader is invited to do
-using the released code) to identify galaxies which are likely to be
-redshift outliers. Another use of the three-dimensional space of
-galaxy SEDs is to create mock samples of galaxies observed in any
-bandpass at any redshift. We are working on quantifying the
-correlations between these coefficients and luminosity,
-surface-brighntess and radial profile in order to create mock catalogs
-which truly reflect the correlations between galaxy properties found
-in the data. 
+However, we warn the reader that before this code can be used as a
+reliable photometric redshift indicator, more work has to be done
+(which the reader is invited to do using the released code) to
+identify galaxies which are likely to be redshift outliers and to
+handle galaxies at $z>0.5$ (which have photometric observations which
+are bluer in the rest frame than for any galaxies in our training
+set). Until this method is perfect and our templates are better
+constrained, we recommend the photometric redshift method and results
+of Csabai {\it et al.}, in preparation. Another use of the
+three-dimensional space of galaxy SEDs is to create mock samples of
+galaxies observed in any bandpass at any redshift. We are working on
+quantifying the correlations between these coefficients and
+luminosity, surface-brighntess and radial profile in order to create
+mock catalogs which truly reflect the correlations between galaxy
+properties found in the data.
 
 \acknowledgments
 
