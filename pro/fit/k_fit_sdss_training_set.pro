@@ -157,71 +157,85 @@ for i=0, 9 do $
   exponent=0.25,xnpix=30,ynpix=30,range=range
 
 endif
+restore,'blah.sav'
 
-if(0) then begin
 l=0
-chi2=dblarr(10,10,10)+1.d+30
-mean=dblarr(10,10,10)+1.d+30
-median=dblarr(10,10,10)+1.d+30
+chi2=dblarr(10,10,10,10)+1.d+30
+mean=dblarr(10,10,10,10)+1.d+30
+median=dblarr(10,10,10,10)+1.d+30
 for i=0, 9 do begin
     for j=i+1, 9 do begin
         for k=j+1, 9 do begin
-            indx0=where(group eq i)
-            indx1=where(group eq j)
-            indx2=where(group eq k)
-            avgeigencoeffs=fltarr(npca+1,3)
-            avgeigencoeffs[0,*]=1.
-            avgeigencoeffs[1:npca,0]= $
-              total(eigencoeffs[1:npca,indx0]/ $
-                    (replicate(1.,npca)#eigencoeffs[0,indx0]),2)$
-              /double(n_elements(indx0))
-            avgeigencoeffs[1:npca,1]= $
-              total(eigencoeffs[1:npca,indx1]/ $
-                    (replicate(1.,npca)#eigencoeffs[0,indx1]),2)$
-              /double(n_elements(indx1))
-            avgeigencoeffs[1:npca,2]= $
-              total(eigencoeffs[1:npca,indx2]/ $
-                    (replicate(1.,npca)#eigencoeffs[0,indx2]),2)$
-              /double(n_elements(indx2))
-            avgspec=fltarr(n_elements(lambda)-1L,3)
-            avgspec[*,0]=eigenmatrix#avgeigencoeffs[*,0]
-            avgspec[*,1]=eigenmatrix#avgeigencoeffs[*,1]
-            avgspec[*,2]=eigenmatrix#avgeigencoeffs[*,2]
-            print,i,j,k
-            set_plot,'x'
-            !P.MULTI=[3,1,3]
-            plot,lambda,avgspec[*,0],xra=[2000.,12000.]
-            plot,lambda,avgspec[*,1],xra=[2000.,12000.]
-            plot,lambda,avgspec[*,2],xra=[2000.,12000.]
-            chi2gals=0
-            rmatrix=0
-            avgcoeffs=k_fit_nonneg(maggies,maggies_ivar,avgspec, $
-                                   lambda,redshift=gals.redshift, $
-                                   filterlist=['sdss_u0.par','sdss_g0.par', $
-                                               'sdss_r0.par','sdss_i0.par', $
-                                               'sdss_z0.par'], $
-                                   chi2=chi2gals,rmatrix=rmatrix,zvals=zvals, $
-                                   maxiter=10000)
-            djs_iterstat,chi2gals,sigrej=3,mean=tmp_mean,median=tmp_median
-            chi2[i,j,k]=total(chi2gals,/double)
-            mean[i,j,k]=tmp_mean
-            median[i,j,k]=tmp_median
-            print,i,j,k,chi2[i,j,k],mean[i,j,k],median[i,j,k]
+            for l=k+1, 9 do begin
+                indx0=where(group eq i)
+                indx1=where(group eq j)
+                indx2=where(group eq k)
+                indx3=where(group eq l)
+                avgeigencoeffs=fltarr(npca+1,4)
+                avgeigencoeffs[0,*]=1.
+                avgeigencoeffs[1:npca,0]= $
+                  total(eigencoeffs[1:npca,indx0]/ $
+                        (replicate(1.,npca)#eigencoeffs[0,indx0]),2)$
+                  /double(n_elements(indx0))
+                avgeigencoeffs[1:npca,1]= $
+                  total(eigencoeffs[1:npca,indx1]/ $
+                        (replicate(1.,npca)#eigencoeffs[0,indx1]),2)$
+                  /double(n_elements(indx1))
+                avgeigencoeffs[1:npca,2]= $
+                  total(eigencoeffs[1:npca,indx2]/ $
+                        (replicate(1.,npca)#eigencoeffs[0,indx2]),2)$
+                  /double(n_elements(indx2))
+                avgeigencoeffs[1:npca,3]= $
+                  total(eigencoeffs[1:npca,indx3]/ $
+                        (replicate(1.,npca)#eigencoeffs[0,indx3]),2)$
+                  /double(n_elements(indx3))
+                avgspec=fltarr(n_elements(lambda)-1L,4)
+                avgspec[*,0]=eigenmatrix#avgeigencoeffs[*,0]
+                avgspec[*,1]=eigenmatrix#avgeigencoeffs[*,1]
+                avgspec[*,2]=eigenmatrix#avgeigencoeffs[*,2]
+                avgspec[*,3]=eigenmatrix#avgeigencoeffs[*,3]
+                print,i,j,k,l
+                set_plot,'x'
+                !P.MULTI=[4,1,4]
+                plot,lambda,avgspec[*,0],xra=[2000.,12000.]
+                plot,lambda,avgspec[*,1],xra=[2000.,12000.]
+                plot,lambda,avgspec[*,2],xra=[2000.,12000.]
+                plot,lambda,avgspec[*,3],xra=[2000.,12000.]
+                chi2gals=0
+                rmatrix=0
+                avgcoeffs=k_fit_nonneg(maggies,maggies_ivar,avgspec, $
+                                       lambda,redshift=gals.redshift, $
+                                       filterlist=['sdss_u0.par', $
+                                                   'sdss_g0.par', $
+                                                   'sdss_r0.par', $
+                                                   'sdss_i0.par', $
+                                                   'sdss_z0.par'], $
+                                       chi2=chi2gals,rmatrix=rmatrix, $
+                                       zvals=zvals, maxiter=10000)
+                djs_iterstat,chi2gals,sigrej=3,mean=tmp_mean,median=tmp_median
+                chi2[i,j,k,l]=total(chi2gals,/double)
+                mean[i,j,k,l]=tmp_mean
+                median[i,j,k,l]=tmp_median
+                print,i,j,k,l,chi2[i,j,k,l],mean[i,j,k,l],median[i,j,k,l]
+            endfor
         endfor
     endfor
 endfor
 
+stop
+
 minmean=min(mean,minl)
 
-minl=820
-k=minl / 100L
+l=minl / 1000L
+k=(minl / 100L) mod 10L
 j=(minl / 10L) mod 10L
 i=minl mod 10L
 
 indx0=where(group eq i)
 indx1=where(group eq j)
 indx2=where(group eq k)
-avgeigencoeffs=fltarr(npca+1,3)
+indx3=where(group eq l)
+avgeigencoeffs=fltarr(npca+1,4)
 avgeigencoeffs[0,*]=1.
 avgeigencoeffs[1:npca,0]= $
   total(eigencoeffs[1:npca,indx0]/ $
@@ -235,25 +249,33 @@ avgeigencoeffs[1:npca,2]= $
   total(eigencoeffs[1:npca,indx2]/ $
         (replicate(1.,npca)#eigencoeffs[0,indx2]),2)$
   /double(n_elements(indx2))
-avgspec=fltarr(n_elements(lambda)-1L,3)
+avgeigencoeffs[1:npca,3]= $
+  total(eigencoeffs[1:npca,indx3]/ $
+        (replicate(1.,npca)#eigencoeffs[0,indx3]),2)$
+  /double(n_elements(indx3))
+avgspec=fltarr(n_elements(lambda)-1L,4)
 avgspec[*,0]=eigenmatrix#avgeigencoeffs[*,0]
 avgspec[*,1]=eigenmatrix#avgeigencoeffs[*,1]
 avgspec[*,2]=eigenmatrix#avgeigencoeffs[*,2]
-print,i,j,k
+avgspec[*,3]=eigenmatrix#avgeigencoeffs[*,3]
+print,i,j,k,l
 set_plot,'x'
-!P.MULTI=[3,1,3]
+!P.MULTI=[4,1,4]
 plot,lambda,avgspec[*,0],xra=[2000.,12000.]
 plot,lambda,avgspec[*,1],xra=[2000.,12000.]
 plot,lambda,avgspec[*,2],xra=[2000.,12000.]
+plot,lambda,avgspec[*,3],xra=[2000.,12000.]
 chi2gals=0
 rmatrix=0
 avgcoeffs=k_fit_nonneg(maggies,maggies_ivar,avgspec, $
                        lambda,redshift=gals.redshift, $
-                       filterlist=['sdss_u0.par','sdss_g0.par', $
-                                   'sdss_r0.par','sdss_i0.par', $
+                       filterlist=['sdss_u0.par', $
+                                   'sdss_g0.par', $
+                                   'sdss_r0.par', $
+                                   'sdss_i0.par', $
                                    'sdss_z0.par'], $
-                       chi2=chi2gals,rmatrix=rmatrix,zvals=zvals, $
-                       maxiter=10000)
+                       chi2=chi2gals,rmatrix=rmatrix, $
+                       zvals=zvals, maxiter=10000)
 
 compare_maggies,avgcoeffs,gals.redshift,maggies,maggies_ivar, $
   lambda=lambda,vmatrix=avgspec, $
@@ -275,8 +297,6 @@ compare_maggies,avgcoeffs,gals.redshift,maggies,maggies_ivar, $
               'sdss_z0.par'], $
   recmaggies=recmaggies, filename='compare_maggies_avgspec_tweaked.ps'
 
-endif
-restore,'blah.sav'
 
 stop 
 
