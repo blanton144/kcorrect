@@ -36,7 +36,7 @@ endif
 if(NOT keyword_set(gisselpath)) then $
   gisselpath='/data/specmodels/gissel/data'
 if(NOT keyword_set(nl)) then $
-  nl=5000L
+  nl=3000L
 if(NOT keyword_set(lmin)) then $
   lmin=1250.
 if(NOT keyword_set(lmax)) then $

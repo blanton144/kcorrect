@@ -1,8 +1,8 @@
 pro test_qld,covar,x0
 
-nconstraints=0L
+nconstraints=2L
 neconstraints=0L
-nconstraints_max=1L
+nconstraints_max=3L
 nvar=2L
 nvar_max=2L
 
@@ -29,8 +29,10 @@ contour,image,xx[0,*],xx[1,*],levels=[0.5,1.,1.5,2.,2.5,3.,3.5,4.,4.5,5.]
 cmatrix=invert(covar)
 dmatrix=-x0#invert(covar)
 amatrix=dblarr(nconstraints_max,nvar)
+amatrix[0,*]=[1.,0.]
+amatrix[1,*]=[0.,1.]
 bmatrix=dblarr(nconstraints_max)
-xl=replicate(-0.d+30,nvar)
+xl=replicate(-1.d+30,nvar)
 xu=replicate(1.d+30,nvar)
 x=dblarr(nvar)
 lagrange=dblarr(nconstraints+nvar*2)

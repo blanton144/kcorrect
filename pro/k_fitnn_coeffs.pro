@@ -62,7 +62,7 @@ pro k_fitnn_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, $
                     ematrix=ematrix, bmatrix=bmatrix, lambda=lambda, $
                     zvals=zvals, filterlist=filterlist, rmatrix=rmatrix, $
                     version=version, vpath=vpath, filterpath=filterpath, $
-                    covar=covar, qarun=qarun
+                    covar=covar, qarun=qarun, qastop=qastop
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
@@ -80,7 +80,6 @@ if(keyword_set(version)) then begin
     if(NOT keyword_set(vpath)) then $
       vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
     k_load_ascii_table,ematrix,vpath+'/ematrix.'+version+'.dat'
-    ematrix=ematrix*(-1.d)
     k_load_ascii_table,bmatrix,vpath+'/bmatrix.'+version+'.dat'
     k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
     filtfile=vpath+'/filterlist.'+version+'.dat'
@@ -137,7 +136,7 @@ xl=replicate(-1.d+30,nvar)
 xu=replicate(1.d+30,nvar)
 lagrange=dblarr(nconstraints+nvar*2)
 ifail=-1L
-iprint=0L
+iprint=1L
 coeff=dblarr(nvar,ngalaxy)
 qascale=3.631*2.99792e-2
 for i=0L, ngalaxy-1L do begin
@@ -172,7 +171,8 @@ for i=0L, ngalaxy-1L do begin
         plot,lambda*(1.+galaxy_z[i]),spec/(1.+galaxy_z[i]), $
 		          xra=[2000.,10000.],/ylog
         oplot,bandctrs,bandvals,psym=4,color=255
-        ;stop
+        splog,'ifail = '+string(ifail)
+        if(keyword_set(qastop)) then stop
     endif
 endfor
 

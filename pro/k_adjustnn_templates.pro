@@ -58,10 +58,10 @@
 ;   04-Jancb2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fitnn_templates, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, $
-                       ematrix=ematrix, bmatrix=bmatrix, lambda=lambda, $
-                       zvals=zvals, filterlist=filterlist, rmatrix=rmatrix, $
-                       covar=covar, qarun=qarun, qastop=qastop
+pro k_adjustnn_templates, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, $
+                          ematrix=ematrix, bmatrix=bmatrix, lambda=lambda, $
+                          zvals=zvals,filterlist=filterlist,rmatrix=rmatrix, $
+                          covar=covar, qarun=qarun, qastop=qastop
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
@@ -104,38 +104,7 @@ endif else begin
       galaxy_invcovar[*,*,i]=invert(galaxy_invvar[*,*,i])
 endelse
 
-; for each galaxy, fit templates
-; constrain the coeffs to still give a positive SFH -- only
-; use a few coeff vals as constraints, though
-meancoeff=dblarr(nt)
-for j=0L, nt-1L do $
-  meancoeff[j]=mean(coeff[j,*])
-na=nt*2
-;constraint_coeff=dblarr(nt,na)
-;for j=0L, nt-1L do begin
-;    amin=min(coeff[j,*],imin)
-;    constraint_coeff[*,j*2+0]=coeff[*,imin]
-;    amax=max(coeff[j,*],imax)
-;    constraint_coeff[*,j*2+1]=coeff[*,imax]
-;endfor
-constraint_coeff[*,*]=coeff[*,long(randomu(seed,na)*ngalaxy)]
-nconstraints=nb*na
-neconstraints=0L
-nconstraints_max=nconstraints+neconstraints+1L
-nvar=nt*nb
-nvar_max=nt*nb
-amatrix=dblarr(nconstraints_max,nvar)
-for a=0L, na-1L do $
-  for l=0L, nb-1L do $
-  amatrix[a*nb+l,lindgen(nt)*nb+l]=constraint_coeff[*,a]
-bbmatrix=dblarr(nconstraints_max)
-xl=replicate(-1.d+30,nvar)
-xu=replicate(1.d+30,nvar)
-lagrange=dblarr(nconstraints+nvar*2)
-ifail=-1L
-iprint=0L
-cmatrix=dblarr(nt*nb,nt*nb)
-dmatrix=dblarr(nt*nb)
+; construct inner matrices
 innerc=dblarr(nb,nb,ngalaxy)
 innerd=dblarr(nb,ngalaxy)
 for i=0L, ngalaxy-1L do begin
@@ -148,6 +117,9 @@ for i=0L, ngalaxy-1L do begin
 		innerd[*,i]=rlocal##galaxy_invcovar[*,*,i]##galaxy_maggies[*,i]
 endfor
 
+; construct chi^2 matrices: x.C.x + d 
+cmatrix=dblarr(nt*nb,nt*nb)
+dmatrix=dblarr(nt*nb)
 for j=0, nt-1 do begin
     for l=0, nb-1 do begin
         for jp=0, nt-1 do begin
@@ -159,17 +131,15 @@ for j=0, nt-1 do begin
 				dmatrix[j*nb+l]=-total(coeff[j,*]*innerd[l,*],/double)
     endfor
 endfor
+
+; now get derivative of chi2
+dchi2=reform(ematrix,n_elements(ematrix))##cmatrix+dmatrix
+
+; now perturb the templates, but only a little
+dchi2_mag=sqrt(total(dchi2^2,/double))
+ematrix_mag=sqrt(total(ematrix^2,/double))
+scale=0.01*ematrix_mag/dchi2_mag
+ematrix=ematrix+scale*dchi2
     
-; fit using qld routine
-tmptemplate=dblarr(nvar)
-retval=call_external(soname, 'idl_k_qld', long(nconstraints), $
-										 long(neconstraints), long(nconstraints_max), $
-										 long(nvar), long(nvar_max), double(cmatrix), $
-										 double(dmatrix), double(amatrix), $
-										 double(bbmatrix), double(xl), double(xu), $
-										 tmptemplate, lagrange, ifail, iprint)
-ematrix[*,*]=tmptemplate
-splog,'ifail = '+string(ifail)
-            
 end
 ;------------------------------------------------------------------------------
