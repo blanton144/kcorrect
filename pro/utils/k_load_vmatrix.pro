@@ -35,7 +35,9 @@ if(NOT file_test(vfile)) then begin
           ipath=i
     endfor 
     if(ipath eq -1) then $
-      curr_path=getenv('KCORRECT_DIR')+'/data/templates'
+      curr_path=getenv('KCORRECT_DIR')+'/data/templates' $
+    else $
+      curr_path=vpath[ipath]
 endif
 return, curr_path
 end
