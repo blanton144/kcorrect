@@ -1,6 +1,6 @@
 #!/bin/csh -f 
 
-set list = "sdss twomass ukschmidt"
+set list = "sdss twomass ukschmidt bessell"
 foreach instr ($list) 
 ./process$instr
 end
