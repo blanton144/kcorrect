@@ -49,13 +49,13 @@ sel=fltarr(ngals)
 ; calculate absmag limits (without evolution, which is accounted for within)
 dm=lf_distmod(zz,omega0=omega0,omegal0=omegal0)
 ; ??? hack
-currq=qevolve*(1.+absmagdep*zz)
+currq=qevolve*(1.+absmagdep*(zz-qz0))
 dmK=dm+kcorrect-currq*(zz-qz0)
 absmmin=((mmin-dmK) > sample_absmmin) < sample_absmmax
 absmmax=((mmax-dmK) > sample_absmmin) < sample_absmmax
 
-soname=filepath('liblf.'+idlutils_so_ext(), $
-                root_dir=getenv('LF_DIR'), subdirectory='lib')
+soname=filepath('libkcorrect.'+idlutils_so_ext(), $
+                root_dir=getenv('KCORRECT_DIR'), subdirectory='lib')
 ; ??? hack
 qevolveuse=0.
 absmagdepuse=0.

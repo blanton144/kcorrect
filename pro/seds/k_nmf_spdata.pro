@@ -38,11 +38,18 @@
 ;     HDU7: [Ngals]; heliocentric redshift of each object
 ;   This file is readable by k_nmf_run.pro
 ; BUGS:
-;   add errors in quadrature
 ;   AB corrections need updated
 ;   tweak spectra to match fluxes??
 ;   what about filter curves?
 ;   smooth spectra to constant vdisp?
+; COMMENTS:
+;   assumes kcorrect files used:
+;     correction = [-0.042,  0.036,  0.015, 0.013, -0.002]
+;   and we want:
+;     correction = [-0.036,  0.012,  0.010, 0.028,  0.040] 
+;   from daniel's WDs
+;   so we apply:
+;                  [ 0.006, -0.024, -0.005, 0.015,  0.042]
 ; REVISION HISTORY:
 ;   23-Nov-2004  Michael Blanton (NYU)
 ;-
@@ -60,6 +67,9 @@ if(NOT keyword_set(seed1)) then seed1=1000L
 if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
 if(NOT keyword_set(velmodtype)) then velmodtype='sigv150'
+; min errors in FNugrizJHK
+minerrors=[0.05, 0.05, 0.05, 0.02, 0.02, 0.02, 0.03, 0.05, 0.05, 0.05]
+kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0., 0., 0.]
 seed=seed1
 
 ;; relative weights
@@ -151,18 +161,23 @@ dm=lf_distmod(zdist[isdss_photo])
 zhelio[isdss_photo]=sp.z
 iz=long(floor((nzf-1.)*(zhelio[isdss_photo]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
 for i=0L, n_elements(postcat)-1L do begin
-    igood=where(kc[i].abmaggies gt 0., ngood) 
+    igood=where(kc[i].abmaggies gt 0. and kc[i].abmaggies_ivar gt 0, ngood) 
     if(ngood gt 0) then begin
+        new_data=1.e-9*kc[i].abmaggies[igood]*10.^(0.4*dm[i])* $
+          10.^(-0.4*kc2ab[igood])
+        new_ivar=1.e+18/ $
+          (1./kc[i].abmaggies_ivar[igood]+ $
+           (0.4*alog(10.)*kc[i].abmaggies[igood]*minerrors[igood+2])^2) $
+          *10.^(-0.8*dm[i])*10.^(0.8*kc2ab[igood])*sdss_photo_weight
+        new_xx=iz[i]+(igood+2L)*nzf+nspec
         if(keyword_set(data)) then begin
-            data=[data, 1.e-9*kc[i].abmaggies[igood]*10.^(0.4*dm[i])]
-            ivar=[ivar, 1.e+18*kc[i].abmaggies_ivar[igood]*10.^(-0.8*dm[i])* $
-                  sdss_photo_weight]
-            xx=[xx, iz[i]+(igood+2L)*nzf+nspec]
+            data=[data, new_data]
+            ivar=[ivar, new_ivar]
+            xx=[xx, new_xx]
         endif else begin
-            data=1.e-9*kc[i].abmaggies[igood]*10.^(0.4*dm[i])
-            ivar=1.e+18*kc[i].abmaggies_ivar[igood]*10.^(-0.8*dm[i])* $
-              sdss_photo_weight
-            xx=iz[i]+(igood+2L)*nzf+nspec
+            data=new_data
+            ivar=new_ivar
+            xx=new_xx
         endelse
         datastr.rowstart[isdss_photo[i]]=currx
     endif
@@ -205,16 +220,19 @@ for i=0L, n_elements(galex)-1L do begin
     if(galex[i].fuv_mag ne -99.) then begin
         datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+1L
         maggies=10.^(-0.4*(galex[i].fuv_mag-galex[i].fuv_extinction- $
-                           galex_dm[i]))
-        maggies_ivar=1./(galex[i].fuv_magerr*0.4*alog(10.)*maggies)^2
+                               galex_dm[i]))
+        maggies_ivar= $
+          1./((galex[i].fuv_magerr^2+minerrors[0]^2)* $
+              (0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(0L)*nzf+nspec
         if(keyword_set(data)) then begin
             data=[data, maggies]
             ivar=[ivar, maggies_ivar*galex_weight]
-            xx=[xx, iz[i]+(0L)*nzf+nspec]
+            xx=[xx, new_xx]
         endif else begin
             data=maggies
             ivar=maggies_ivar*galex_weight
-            xx=iz[i]+(0L)*nzf+nspec
+            xx=new_xx
         endelse
         currx=currx+1L
     endif 
@@ -222,31 +240,39 @@ for i=0L, n_elements(galex)-1L do begin
     if(galex[i].nuv_mag ne -99.) then begin
         datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+1L
         maggies=10.^(-0.4*(galex[i].nuv_mag-galex[i].nuv_extinction- $
-                           galex_dm[i]))
-        maggies_ivar=1./(galex[i].nuv_magerr*0.4*alog(10.)*maggies)^2
+                               galex_dm[i]))
+        maggies_ivar= $
+          1./((galex[i].nuv_magerr^2+minerrors[1]^2)* $
+              (0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(1L)*nzf+nspec
         if(keyword_set(data)) then begin
             data=[data, maggies]
             ivar=[ivar, maggies_ivar*galex_weight]
-            xx=[xx, iz[i]+(1L)*nzf+nspec]
+            xx=[xx, new_xx]
         endif else begin
             data=maggies
             ivar=maggies_ivar*galex_weight
-            xx=iz[i]+(1L)*nzf+nspec
+            xx=new_xx
         endelse
         currx=currx+1L
     endif 
 
     igood=where(galex_kc[i].abmaggies gt 0., ngood) 
+    new_data=1.e-9*galex_kc[i].abmaggies[igood]*10.^(0.4*galex_dm[i])* $
+      10.^(-0.4*kc2ab[igood])
+    new_ivar=1.e+18/ $
+      (1./galex_kc[i].abmaggies_ivar[igood]+ $
+       (0.4*alog(10.)*galex_kc[i].abmaggies[igood]*minerrors[igood+2])^2)* $
+      galex_weight*10.^(-0.8*galex_dm[i])*10.^(0.8*kc2ab[igood])
+    new_xx=iz[i]+(igood+2L)*nzf+nspec
     if(keyword_set(data)) then begin
-        data=[data, 1.e-9*galex_kc[i].abmaggies[igood]*10.^(0.4*galex_dm[i])]
-        ivar=[ivar, 1.e+18*galex_kc[i].abmaggies_ivar[igood]*galex_weight* $
-              10.^(-0.8*galex_dm[i])]
-        xx=[xx, iz[i]+(igood+2L)*nzf+nspec]
+        data=[data, new_data]
+        ivar=[ivar, new_ivar]
+        xx=[xx, new_xx]
     endif else begin
-        data=1.e-9*galex_kc[i].abmaggies[igood]*10.^(0.4*galex_dm[i])
-        ivar=1.e+18*galex_kc[i].abmaggies_ivar[igood]*galex_weight* $
-          10.^(-0.8*galex_dm[i])
-        xx=iz[i]+(igood+2L)*nzf+nspec
+        data=new_data
+        ivar=new_ivar
+        xx=new_xx
     endelse
     datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+ngood
     currx=currx+ngood

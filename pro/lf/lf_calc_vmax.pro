@@ -95,8 +95,8 @@ for i=0L,ngals-1L do begin
 
         curr_zmin=-1.
         curr_zmax=-1.
-        soname=filepath('liblf.'+idlutils_so_ext(), $
-                        root_dir=getenv('LF_DIR'), subdirectory='lib')
+        soname=filepath('libkcorrect.'+idlutils_so_ext(), $
+                        root_dir=getenv('KCORRECT_DIR'), subdirectory='lib')
         curr_mmin=mmin[j]
         curr_mmax=mmax[j]
         retval=call_external(soname, 'idl_lf_calc_vmax', float(curr_absm), $

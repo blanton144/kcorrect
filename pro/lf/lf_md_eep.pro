@@ -14,13 +14,13 @@
 ;-
 ;
 pro lf_md_eep,marea,zz,sel,zvals,selfunc,fraclimits,n1,n1err,j3=j3, $
-              simple=simple, weight=weight
+              simple=simple, weight=weight, omega0=omega0, omegal0=omegal0
 
 ; defaults
 if(n_elements(weight) eq 0) then weight=fltarr(n_elements(zz))+1.
 if(n_elements(omega0) eq 0) then omega0=0.3
 if(n_elements(omegal0) eq 0) then omegal0=0.7
-if(n_elements(j3) eq 0) then j3=10.^6 ; ie. make it pretty irrelevant
+if(n_elements(j3) eq 0) then j3=10.^4 ; ie. make it pretty irrelevant
 
 ; settings
 pi=3.14159265358979D

@@ -3,3 +3,6 @@ linear.ps
 ajv*
 astrophv*
 aj*
+*.bbl
+*.blg
+kcorrect.ps.gz
