@@ -62,7 +62,11 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_reconstruct_maggies,coeffs,galaxy_z,reconstruct_maggies,band_shift=band_shift,ematrix=ematrix,zvals=zvals,rmatrix=rmatrix,bmatrix=bmatrix,lambda=lambda,version=version,vpath=vpath,filterpath=filterpath,filterlist=filterlist
+pro k_reconstruct_maggies,coeffs,galaxy_z,reconstruct_maggies, $
+                          band_shift=band_shift,ematrix=ematrix,zvals=zvals, $
+                          rmatrix=rmatrix,bmatrix=bmatrix,lambda=lambda, $
+                          version=version,vpath=vpath,filterpath=filterpath, $
+                          filterlist=filterlist
 
 ; Need at least 3 parameters
 if (N_params() LT 3) then begin

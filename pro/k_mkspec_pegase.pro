@@ -23,7 +23,8 @@
 ;------------------------------------------------------------------------------
 pro k_mkspec_pegase, vmatrix, lambda, metallicity, dust, sfhtype, sfhpars, $
                      pegasepath=pegasepath, attime=attime, maxage=maxage, $
-                     minage=minage, lmin=lmin, lmax=lmax, nl=nl
+                     minage=minage, lmin=lmin, lmax=lmax, nl=nl, $
+                     nolines=nolines
 
 ; Need at least 6 parameters
 if (N_params() LT 5) then begin
@@ -54,7 +55,8 @@ for m = 0, n_elements(metallicity)-1L do begin
 ;   read in the pegase file
     pegfile=pegasepath+'/mrb_spectra.0.'+metallicity[m]+'.dat'
     read_peg,pegfile,peg=peg
-    k_spec_pegase,peg[0],dumspec,lambda,nl=nl,lmin=lmin,lmax=lmax
+    k_spec_pegase,peg[0],dumspec,lambda,nl=nl,lmin=lmin,lmax=lmax, $
+      nolines=nolines
 
 ;   set up times
     if(NOT file_test('data_metspec.'+metallicity[m]+'.sav')) then begin
@@ -64,7 +66,7 @@ for m = 0, n_elements(metallicity)-1L do begin
         metspec=dblarr(nl,ntsteps)
         for i=0, ntsteps-1 do $
           metspec[*,i]=k_interp_pegase(peg,time[i]*1.D-6,nl=nl,lmin=lmin, $
-                                       lmax=lmax)
+                                       lmax=lmax,nolines=nolines)
         save,time,dt,metspec,filename='data_metspec.'+metallicity[m]+'.sav'
     endif else begin
         restore,'data_metspec.'+metallicity[m]+'.sav'

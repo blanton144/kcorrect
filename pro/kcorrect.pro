@@ -76,7 +76,15 @@
 ;   19-Jul-2002  Major bug fix (pointed out by I. Baldry) MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, addgrgap=addgrgap, invvar=invvar, vconstraint=vconstraint, constraints_amp=constraints_amp, constraints_mean=constraints_mean, constraints_var=constraints_var, returnmag=returnmag, bmatrix=bmatrix, lambda=lambda
+pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect, $
+              kcorrectz=kcorrectz, version=version, vpath=vpath, $
+              maggies=maggies, rmatrix=rmatrix, zvals=zvals, $
+              ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, $
+              addgrgap=addgrgap, invvar=invvar, vconstraint=vconstraint, $
+              constraints_amp=constraints_amp, $
+              constraints_mean=constraints_mean, $
+              constraints_var=constraints_var, returnmag=returnmag, $
+              bmatrix=bmatrix, lambda=lambda
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
