@@ -63,7 +63,6 @@ if (N_params() LT 3) then begin
     return
 endif
 
-
 if(NOT keyword_set(filterpath)) then $
   filterpath=getenv('KCORRECT_DIR')+'/data/filters'
 
