@@ -37,6 +37,10 @@ static float *maggies_ivar=NULL;
 static float *coeffs=NULL;
 static float *chi2=NULL;
 
+#define USAGE \
+		{ fprintf(stderr,"Usage: cat <galaxy file> | fit_coeffs [--vfile <vfile> --lfile <lfile>\n"); \
+		  fprintf(stderr,"            --ffile <ffile> ]\n"); }
+
 int main(int argc,
 				 char **argv)
 {
@@ -59,10 +63,11 @@ int main(int argc,
 				{"vfile", 1, 0, 0}, 
 				{"lfile", 1, 0, 0},
 				{"path", 1, 0, 0},
-				{"ffile", 1, 0, 0}
+				{"ffile", 1, 0, 0},
+				{"help", 0, 0, 0}
 			};
-		static const char short_options[]="v:l:p:f:";
-		static const char short_options_c[]="vlpf";
+		static const char short_options[]="v:l:p:f:h";
+		static const char short_options_c[]="vlpfh";
 
 		c=getopt_long(argc, argv, short_options, long_options, &option_index);
 		if(c==-1) break;
@@ -80,6 +85,10 @@ int main(int argc,
 		case 'f':
 			strcpy(ffile,optarg);
 			break; 
+		case 'h':
+      USAGE;
+      exit(1);
+			break; 
 		case '?':
 			break;
 		default: 
@@ -88,8 +97,7 @@ int main(int argc,
 		i++;
 	}
 	if(argc<0) {
-		fprintf(stderr,"Usage: cat <galaxy file> | fit_coeffs [--vfile <vfile> --lfile <lfile>\n");
-		fprintf(stderr,"            --ffile <ffile> ]\n");
+    USAGE;
 		exit(1);
 	} /* end if */
 
@@ -149,9 +157,10 @@ int main(int argc,
 								 maggies_ivar,redshift,ncurrchunk,tolerance, 
 								 maxiter,&niter,chi2,0);
 		for(i=0;i<ncurrchunk;i++) {
+			fprintf(stdout,"%e ",redshift[i]);
 			for(j=0;j<nv;j++)
 				fprintf(stdout,"%e ",coeffs[i*nv+j]);
-			fprintf(stdout,"%e\n",redshift[i]);
+			fprintf(stdout,"\n");
 		} /* end for i */
 		redshift[0]=redshift[ncurrchunk];
 	}

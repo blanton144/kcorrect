@@ -71,6 +71,7 @@ IDL_LONG k_load_filters(IDL_LONG **filter_n,
 		FREEVEC(tmp_filter_lambda);
 		FREEVEC(tmp_filter_pass);
 		k_free_filter_struct(&filter_struct,tmp_filter_n);
+    fscanf(listfp,"%s",filter);
 	} /* end for i */
 	fclose(listfp);
 	

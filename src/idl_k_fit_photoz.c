@@ -13,9 +13,9 @@ IDL_LONG idl_k_fit_photoz
   (int      argc,
    void *   argv[])
 {
-	IDL_LONG nk,nv,nz,maxiter,*niter,ngalaxy,verbose;
+	IDL_LONG nk,nv,nz,maxiter,*niter,ngalaxy,verbose,nprior;
 	float *coeffs,*photoz,*rmatrix,*zvals,*maggies,*maggies_ivar,*chi2;
-	float *lprior, tolerance;
+	float *lprior, *zprior, tolerance;
 	
 	IDL_LONG i;
 	IDL_LONG retval=1;
@@ -28,6 +28,8 @@ IDL_LONG idl_k_fit_photoz
 	nk=*((IDL_LONG *)argv[i]); i++;
 	nv=*((IDL_LONG *)argv[i]); i++;
 	lprior=(float *)argv[i]; i++;
+	zprior=(float *)argv[i]; i++;
+	nprior=*((IDL_LONG *)argv[i]); i++;
 	zvals=(float *)argv[i]; i++;
 	nz=*((IDL_LONG *)argv[i]); i++;
 	maggies=(float *)argv[i]; i++;
@@ -40,9 +42,9 @@ IDL_LONG idl_k_fit_photoz
 	verbose=*((IDL_LONG *)argv[i]); i++;
 	
 	/* 1. run the fitting routine */
-	retval=(IDL_LONG) k_fit_photoz(photoz,coeffs,rmatrix,nk,nv,lprior,zvals,nz,
-																 maggies,maggies_ivar,ngalaxy,tolerance,
-																 maxiter,niter,chi2,verbose);
+	retval=(IDL_LONG) k_fit_photoz(photoz,coeffs,rmatrix,nk,nv,lprior,zprior, 
+                                 nprior,zvals,nz,maggies,maggies_ivar,ngalaxy,
+                                 tolerance,maxiter,niter,chi2,verbose);
 	
 	/* 2. free memory and leave */
 	free_memory();

@@ -6,25 +6,22 @@
 #include <kcorrect.h>
 
 /*
- * fit_photoz.c
+ * reconstruct_maggies.c
  *
- * Given the locations of the vmatrix and lambda, the filter list,
- * and the galaxy maggies and invvar, return the best guess at the 
- * redshift.
+ * given coefficients, a redshift, a filterlist, and the templates,
+ * reconstruct the maggies at particular redshift
  *
  * Mike Blanton
  * 7/2003
  */
 
 static IDL_LONG nz=1000;
-static IDL_LONG nprior=2;
 static IDL_LONG maxiter=10000;
 static float tolerance=1.e-6;
 static float zmin=1.e-4, zmax=1.e-0;
 static float band_shift=0.;
+static float all_redshift=-1.;
 
-static float *lprior=NULL;
-static float *zprior=NULL;
 static float *lambda=NULL;
 static float *vmatrix=NULL;
 static float *rmatrix=NULL;
@@ -41,8 +38,8 @@ static float *coeffs=NULL;
 static float *chi2=NULL;
 
 #define USAGE \
-		{ fprintf(stderr,"Usage: cat <maggies file> | fit_photoz [--vfile <vfile> --lfile <lfile>\n"); \
-		  fprintf(stderr,"            --ffile <ffile> ]\n"); }
+   { fprintf(stderr,"Usage: cat <coeffs file> | reconstruct_maggies [--vfile <vfile> --lfile <lfile>\n"); \
+     fprintf(stderr,"            --ffile <ffile> --band-shift <band_shift> --redshift <redshift>]\n"); }
 
 int main(int argc,
 				 char **argv)
@@ -50,11 +47,9 @@ int main(int argc,
 	IDL_LONG i,j,k,c,ndim,niter,nchunk,ncurrchunk,*sizes=NULL;
 	char vfile[2000],lfile[2000],ffile[2000],path[2000];
 	char vmatrixfile[2000],lambdafile[2000],filterfile[2000];
-	char filters[2000],priorfile[2000];
-  FILE *fp;
+	char filters[2000];
 
 	/* read arguments */
-	strcpy(priorfile,"NULL");
 	strcpy(vfile,"vmatrix.default.dat");
 	strcpy(lfile,"lambda.default.dat");
 	strcpy(ffile,"sdss_filters.dat");
@@ -69,11 +64,12 @@ int main(int argc,
 				{"lfile", 1, 0, 0},
 				{"path", 1, 0, 0},
 				{"ffile", 1, 0, 0},
-				{"prior", 1, 0, 0},
+				{"band-shift", 1, 0, 0},
+				{"redshift", 1, 0, 0},
 				{"help", 0, 0, 0}
 			};
-		static const char short_options[]="v:l:p:f:c:h";
-		static const char short_options_c[]="vlpfch";
+		static const char short_options[]="v:l:p:f:b:r:h";
+		static const char short_options_c[]="vlpfbrh";
 
 		c=getopt_long(argc, argv, short_options, long_options, &option_index);
 		if(c==-1) break;
@@ -91,8 +87,11 @@ int main(int argc,
 		case 'f':
 			strcpy(ffile,optarg);
 			break; 
-		case 'c':
-			strcpy(priorfile,optarg);
+		case 'b':
+			band_shift=atof(optarg);
+			break; 
+		case 'r':
+			all_redshift=atof(optarg);
 			break; 
 		case 'h':
       USAGE;
@@ -101,7 +100,7 @@ int main(int argc,
 		case '?':
 			break;
 		default: 
-			printf("fit_photoz: getopt returned character code 0%o ??\n", c);
+			printf("fit_coeffs: getopt returned character code 0%o ??\n", c);
 		}
 		i++;
 	}
@@ -114,32 +113,6 @@ int main(int argc,
 	sprintf(vmatrixfile,"%s/%s",path,vfile);
 	sprintf(lambdafile,"%s/%s",path,lfile);
 	sprintf(filterfile,"%s/%s",path,ffile);
-
-  /* set up prior */
-  if(strcmp(priorfile,"NULL")) {
-    fp=k_fileopen(priorfile,"r");
-    nprior=0;
-    while(!feof(fp)) {
-      fscanf(fp,"%*e %*e");
-      nprior++;
-    } /* end while */
-    fclose(fp);
-    lprior=(float *) malloc(nprior*sizeof(float));
-    zprior=(float *) malloc(nprior*sizeof(float));
-    fp=k_fileopen(priorfile,"r");
-    nprior=0;
-    while(!feof(fp)) {
-      fscanf(fp,"%e %e", &(zprior[i]), &(lprior[i]));
-      nprior++;
-    } /* end while */
-    fclose(fp);
-  } else {
-    nprior=2;
-    lprior=(float *) malloc(nprior*sizeof(float));
-    zprior=(float *) malloc(nprior*sizeof(float));
-    zprior[0]=0.;
-    zprior[1]=1000.;
-  } /* end if..else */
 
 	/* read in templates */
 	k_read_ascii_table(&vmatrix,&ndim,&sizes,vmatrixfile);
@@ -169,35 +142,30 @@ int main(int argc,
 	k_projection_table(rmatrix,nk,nv,vmatrix,lambda,nl,zvals,nz,filter_n,
 										 filter_lambda,filter_pass,band_shift,maxn);
 
-	/* get the coefficients; sequentially calls k_fit_nonneg to get the
-     coefficients */
+	/* reconstruct the magggies */
 	nchunk=20;
 	redshift=(float *) malloc((nchunk+1)*sizeof(float));
 	maggies=(float *) malloc((nchunk+1)*nk*sizeof(float));
-	maggies_ivar=(float *) malloc((nchunk+1)*nk*sizeof(float));
 	coeffs=(float *) malloc((nchunk+1)*nv*sizeof(float));
-	chi2=(float *) malloc((nchunk+1)*sizeof(float));
-	fscanf(stdin,"%f",&(maggies[0]));
+	fscanf(stdin,"%f",&(redshift[0]));
 	while(!feof(stdin)) {
 		for(i=0;i<nchunk && !feof(stdin);i++) {
-			for(k=1;k<nk;k++)
-				fscanf(stdin,"%f",&(maggies[i*nk+k]));
-			for(k=0;k<nk;k++)
-				fscanf(stdin,"%f",&(maggies_ivar[i*nk+k]));
-			fscanf(stdin,"%f",&(maggies[(i+1)*nk+0]));
+      if(all_redshift!=-1.) redshift[i]=all_redshift;
+			for(j=0;j<nv;j++)
+				fscanf(stdin,"%f",&(coeffs[i*nv+j]));
+			fscanf(stdin,"%f",&(redshift[i+1]));
 		} /* end for i */
 		ncurrchunk=i;
 		/* no direct constraints on the coeffs are included in this fit */
-		k_fit_photoz(redshift,coeffs,rmatrix,nk,nv,zprior,lprior,nprior,zvals, 
-                 nz,maggies,maggies_ivar,ncurrchunk,tolerance,maxiter,&niter,
-                 chi2,0);
+		k_reconstruct_maggies(zvals,nz,rmatrix,nk,nv,coeffs,redshift,maggies, 
+                          ncurrchunk);
 		for(i=0;i<ncurrchunk;i++) {
 			fprintf(stdout,"%e ",redshift[i]);
-			for(j=0;j<nv;j++)
-				fprintf(stdout,"%e ",coeffs[i*nv+j]);
+			for(k=0;k<nk;k++)
+				fprintf(stdout,"%e ",maggies[i*nk+k]);
 			fprintf(stdout,"\n");
 		} /* end for i */
-		maggies[0]=maggies[ncurrchunk*nk+0];
+		redshift[0]=redshift[ncurrchunk];
 	}
 
 	return(0);

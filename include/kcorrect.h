@@ -1,12 +1,4 @@
-/*
- * If you do not need or want to link your code to IDL, unset LINKTOIDL
- * in the Makefile
- */
-#ifdef LINKTOIDL
-#include "export.h"
-#else
 typedef int IDL_LONG;
-#endif
 
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 
@@ -36,7 +28,8 @@ IDL_LONG k_nonneg_solve(float *xx, float *invcovar, float *bb,
 
 /* photo-z */
 IDL_LONG k_fit_photoz(float *photoz, float *coeffs, float *rmatrix, 
-											IDL_LONG nk, IDL_LONG nv, float *lprior, float *zvals, 
+											IDL_LONG nk, IDL_LONG nv, float *lprior, float *zprior,
+                      IDL_LONG nprior, float *zvals, 
 											IDL_LONG nz, float *maggies, float *maggies_ivar, 
 											IDL_LONG ngalaxy, float tolerance, IDL_LONG maxiter, 
 											IDL_LONG *niter, float *chi2, IDL_LONG verbose);

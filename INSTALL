@@ -1,0 +1,36 @@
+Installation instructions, kcorrect, MRB 2003-07-18
+===================================================
+
+1. Set the environmental variables. 
+
+   In bash (good to put it into .bash_profile):
+      KCORRECT_DIR=/usr/local/kcorrect
+      PATH=$KCORRECT_DIR/bin:$PATH
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KCORRECT_DIR/lib
+      export KCORRECT_DIR 
+      export LD_LIBRARY_PATH 
+      IDL_PATH=$IDL_PATH:+$KCORRECT_DIR/pro
+   
+   In tcsh (good to put it into .tcshrc):
+      setenv KCORRECT_DIR /usr/local/kcorrect
+      setenv PATH $KCORRECT_DIR/bin:$PATH
+      setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$KCORRECT_DIR/lib
+      setenv IDL_PATH ${IDL_PATH}:+$KCORRECT_DIR/pro
+
+   EvilUPS or UPS users need only type:
+      setup -r /usr/local/kcorrect kcorrect
+   or if they have put the product into the EvilUPS system:
+      setup kcorrect
+
+   Replace /usr/local/kcorrect with wherever you happen to have
+   put the kcorrect product (eg. $HOME/kcorrect). 
+   Only IDL users need set the IDL_PATH variable.
+
+2. Build the code
+
+   cd $KCORRECT_DIR
+   kevilmake -k all
+
+3. Use the code. You should have the stand-alone C programs built now
+   and you should be able to use the IDL code from IDL. 
+

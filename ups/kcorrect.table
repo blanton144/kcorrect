@@ -11,6 +11,7 @@ Common:
       proddir()
       setupenv()
       pathAppend(PATH, ${UPS_PROD_DIR}/bin)
+      pathAppend(LD_LIBRARY_PATH, ${UPS_PROD_DIR}/lib)
       envPrepend(IDL_PATH, +${UPS_PROD_DIR}/pro)
 End:
 

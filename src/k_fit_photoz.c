@@ -21,9 +21,10 @@ static float *pz_coeffs=NULL;
 static float *pz_rmatrix=NULL;
 static float *pz_zvals=NULL;
 static float *pz_lprior=NULL;
+static float *pz_zprior=NULL;
 static float *pz_maggies=NULL;
 static float *pz_maggies_ivar=NULL;
-static IDL_LONG pz_nk=0,pz_nv=0,pz_nz=0;
+static IDL_LONG pz_nk=0,pz_nv=0,pz_nz=0,pz_nprior;
 
 float pz_fit_coeffs(float z) 
 {
@@ -33,7 +34,7 @@ float pz_fit_coeffs(float z)
 	k_fit_nonneg(pz_coeffs,pz_rmatrix,pz_nk,pz_nv,pz_zvals,pz_nz, 
 							 pz_maggies,pz_maggies_ivar,&z,1,TOL,MAXITER,&niter,
 							 &chi2,0);
-	chi2-=k_interpolate_es(z, pz_lprior, pz_zvals, pz_nz);
+	chi2-=k_interpolate_es(z, pz_lprior, pz_zprior, pz_nprior);
 	
 	return(chi2);
 } /* end pz_fit_coeffs */
@@ -44,7 +45,9 @@ IDL_LONG k_fit_photoz(float *photoz,
 											float *rmatrix,
 											IDL_LONG nk,
 											IDL_LONG nv,
+                      float *zprior, 
 											float *lprior,
+                      IDL_LONG nprior,
 											float *zvals,
 											IDL_LONG nz,
 											float *maggies,
@@ -62,6 +65,7 @@ IDL_LONG k_fit_photoz(float *photoz,
 	pz_nk=nk;
 	pz_nv=nv;
 	pz_nz=nz;
+	pz_nprior=nprior;
 	nzsteps=(IDL_LONG) floor((zvals[nz-1]-zvals[0])/ZRES);
 	chi2grid=(float *) malloc(nzsteps*sizeof(float));
 	pz_maggies=(float *) malloc(nk*sizeof(float));
@@ -73,9 +77,12 @@ IDL_LONG k_fit_photoz(float *photoz,
 	pz_zvals=(float *) malloc(pz_nz*sizeof(float));
 	for(i=0;i<pz_nz;i++)
 		pz_zvals[i]=zvals[i];
-	pz_lprior=(float *) malloc(pz_nz*sizeof(float));
-	for(i=0;i<pz_nz;i++)
+	pz_lprior=(float *) malloc(pz_nprior*sizeof(float));
+	for(i=0;i<pz_nprior;i++)
 		pz_lprior[i]=lprior[i];
+	pz_zprior=(float *) malloc(pz_nprior*sizeof(float));
+	for(i=0;i<pz_nprior;i++)
+		pz_zprior[i]=zprior[i];
 	zgrid=(float *) malloc(nzsteps*sizeof(float));
 	for(j=0;j<nzsteps;j++) 
 		zgrid[j]=zvals[0]+(zvals[nz-1]-zvals[0])*(float)j/(float)(nzsteps-1);
@@ -126,6 +133,8 @@ IDL_LONG k_fit_photoz(float *photoz,
 	FREEVEC(pz_maggies);
 	FREEVEC(pz_maggies_ivar);
 	FREEVEC(pz_coeffs);
+	FREEVEC(pz_lprior);
+	FREEVEC(pz_zprior);
 	FREEVEC(zgrid);
 	FREEVEC(chi2grid);
 	return(1);

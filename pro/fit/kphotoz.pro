@@ -29,6 +29,10 @@
 ;                   standard deviations (treats as if /magnitude and
 ;                   /stddev are also set)
 ;   /verbose      - call k_fit_nonneg verbosely
+;   /noprior      - don't use any prior (by default uses a prior which
+;                   slightly discourages low redshifts). overridden by
+;                   lprior and zprior
+;   zprior/lprior - grid of redshift and -2ln(prior) values to apply
 ;   maxiter       - maximum number of iterations for fit [default
 ;                   3000]
 ; OUTPUTS:
@@ -55,14 +59,16 @@ pro kphotoz, maggies, maggies_ivar, photoz, $
              filterlist=filterlist, filterpath=filterpath, $
              rmatrix=rmatrix, zmin=zmin, zmax=zmax, nz=nz, zvals=zvals, $
              lambda=lambda, vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
-             chi2=chi2, maxiter=maxiter, verbose=verbose, lprior=lprior
+             chi2=chi2, maxiter=maxiter, verbose=verbose, lprior=lprior, $
+             zprior=zprior, noprior=noprior
 
 ; Need at least 6 parameters
 if (N_params() LT 3) then begin
     print, 'Syntax - kphotoz, maggies, maggies_ivar, photoz [ , $'
     print, '             /magnitude, /stddev, lfile=, zmin=, zmax=, nz=, $'
     print, '             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $'
-    print, '             zvals=, lambda=, vmatrix=, coeffs=, /verbose /sdssfix ]'
+    print, '             zvals=, lambda=, vmatrix=, coeffs=, /verbose, $'
+    print, '             lprior=, zprior=, /noprior, /sdssfix ]'
     return
 endif
 
@@ -98,6 +104,18 @@ endif else begin
     endelse
 endelse 
 
+; set weak prior preferring highish redshifts
+if(n_elements(zprior) eq 0 AND not keyword_set(noprior)) then begin
+    nprior=100
+    prior_zmin=0.
+    prior_zmax=1.
+    if(n_elements(zmin) gt 0) then prior_zmin=zmin
+    if(n_elements(zmax) gt 0) then prior_zmax=zmax
+    zprior=prior_zmin+(prior_zmax-prior_zmin)* $
+      (findgen(nprior)+0.5)/double(nprior)
+    lprior=alog(zprior)
+endif
+
 ; Calculate coeffs
 if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then $
   k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
@@ -105,6 +123,7 @@ if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then $
 photoz=k_fit_photoz(use_maggies,use_maggies_ivar,vmatrix,lambda, $
                     filterlist=filterlist,chi2=chi2, $
                     rmatrix=rmatrix,zvals=zvals,maxiter=maxiter, zmin=zmin, $
-                    zmax=zmax, nz=nz, verbose=verbose, lprior=lprior)
+                    zmax=zmax, nz=nz, verbose=verbose, lprior=lprior, $
+                    zprior=zprior)
 
 end

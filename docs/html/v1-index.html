@@ -10,18 +10,25 @@ Photometry</h1>
 
 <h3> General Description</h3>
 
+<p>
+<b> This is still a beta version, on which I would appreciate
+comments/complaints/etc. Use at your own risk for the time being
+though. </b>
+</p>
+
 <p> This web page documents a code written in C and IDL to calculate
 spectral energy distributions and K-corrections. This version is a
 significant improvement of <a href="v1-index.html"> an older
-version</a> still available. </p>
+version</a> still available. Of particular note are that the problem
+with galaxies at z=0.3 is solved and that the photometric redshift
+estimates from this version should be more robust.</p>
 
 <p> Standard format IDL <a href="kcorrect_help.html">
-documentation</a> exists.  There is a <a href="paper.ps"> paper</a>
-which describes the methods in detail. Please read this paper before
-using the code, it will help you understand what the code
-does. Conditions of using the code released here are to send your
-email address to <a href="mb144@nyu.edu"> mb144@nyu.edu</a>, to cite
-this paper, and to specify the version tag (eg. v1_6) of the code
+documentation</a> exists. Conditions of using the code released here
+are to send your email address to <a href="mb144@nyu.edu">
+mb144@nyu.edu</a>, to cite <a
+href="http://cosmo.nyu.edu/blanton/pubs.html#blanton03b"> Blanton et
+al. 2003</a>, and to specify the version tag (eg. v3_1b) of the code
 used. (You can check this in the IDL code using the <b>k_version</b>
 command).  </p>
 
@@ -63,12 +70,12 @@ The best way to obtain the code is to simply download the latest
 version from this site. The tagged and released versions, from latest
 to earliest, are:
 <ul>
-<li> <a href="kcorrect.v3_1.tar.gz"> kcorrect.v3_1.tar.gz</a> 
+<li> <a href="kcorrect.v3_1b.tar.gz"> kcorrect.v3_1b.tar.gz</a> 
 <li> <a href="kcorrect.v1_16.tar.gz"> kcorrect.v1_16.tar.gz</a>
 (latest recommended old version)
 </ul>
 The earlier version is only included so that you can reproduce old
-results if you like.
+results if you like. Note that there have been some usage changes.
 
 It is also possible to export tagged versions from a public CVS
 repository, using the CVS "export" feature, as follows (pirated this
@@ -87,9 +94,9 @@ cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot login
 When the above asks for a password, just hit Enter. 
 <li> After this, you can just export any version you want:
 <pre>
-cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v3_1 kcorrect
+cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v3_1b kcorrect
 </pre>
-where you can replace v3_1 with whatever version you want.
+where you can replace v3_1b with whatever version you want.
 </ul> 
 Please export only based on revision tag, so that we can
 track versions properly. 
@@ -114,15 +121,18 @@ In order to compile the code follow these directions:
 <li> First set the environmental variables. For example, in bash:
 <pre>
 KCORRECT_DIR=/usr/local/kcorrect
-IDL_PATH=$IDL_PATH:+$KCORRECT_DIR/pro
 PATH=$KCORRECT_DIR/bin:$PATH
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KCORRECT_DIR/lib
 export KCORRECT_DIR 
+export LD_LIBRARY_PATH 
+IDL_PATH=$IDL_PATH:+$KCORRECT_DIR/pro
 </pre>
 or in tcsh:
 <pre>
 setenv KCORRECT_DIR /usr/local/kcorrect
-setenv IDL_PATH $IDL_PATH:+$KCORRECT_DIR/pro
 setenv PATH $KCORRECT_DIR/bin:$PATH
+setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$KCORRECT_DIR/lib
+setenv IDL_PATH ${IDL_PATH}:+$KCORRECT_DIR/pro
 </pre>
 These default settings may need to be changed on your system as
 follows:
@@ -131,18 +141,22 @@ follows:
 <b>KCORRECT_DIR</b>: Simply substitute whatever directory you have
 downloaded this product into. 
 <li>
-<b>IDL_PATH</b>: Set only if you are using IDL
-<li>
 <b>PATH</b>: Obviously needed to run the binaries created
+<li>
+<b>LD_LIBRARY_PATH</b>: Required for the stand-alone code, so that the
+operating system can find libkcorrect.so at runtime.
+<li>
+<b>IDL_PATH</b>: Set only if you are using IDL
 </ul>
 You probably want to put these settings in your .bashrc or .tcshrc
-file. Then
-<li> Type "kevilmake -k". 
-Then everything should compile, and IDL documentation should be
-created. If you do not have IDL, the compile should complete what it
-needs to complete and then give an error message that it can't make
-the IDL docs. At this point, you should be able to open IDL and
-start using the utilities described below. 
+file. EvilUPS or UPS users can just say:
+<pre>
+setup -r /usr/local/kcorrect kcorrect
+</pre>
+Then 
+<li> Type "kevilmake -k" while in $KCORRECT_DIR.  Then everything
+should compile At this point, you should be able to open IDL and start
+using the utilities described below, or run the stand-alone C code.
 </ul>
 
 <p>
@@ -162,31 +176,34 @@ which is a nonnegative linear combination of some templates. The
 templates have been optimized to minimize the residuals between the
 actual galaxy magnitudes and the galaxy magnitudes reconstructed from
 the galaxy SED fit.  The units of the fit spectra created are in ergs
-cm^{-2} s^{-1} A^{-1}. <b>need to guarantee this</b>
+cm^{-2} s^{-1} A^{-1}. 
+
+<p>
+<a href="demo.gif">
+<img src="demo.gif" width=530 height=533 border=0></a>
+</p>
 
 <p> From the SED fit, one can reconstruct magnitudes corresponding to
 observing the galaxy at any redshift within a large range (like 0 to
-1) plus any shift of the bandpass.  When you reconstruct magnitudes
-this way, it is best to ignore those cases for which you are
-extrapolating the magnitude into a region of the spectrum not directly
-observed (ie. for SDSS observations you shouldn't trust a
-reconstruction of the u-band shifted by z=0.2 based on z=0
-observations).</p>
+1) with any bandpass.  When you reconstruct magnitudes this way, it is
+best to ignore those cases for which you are extrapolating the
+magnitude into a region of the spectrum not directly observed (ie. for
+SDSS observations you shouldn't trust a reconstruction of how the
+u-band observation should look at z=0.2 based on observations of the
+galaxy at z=0.</p>
 
 <p> If you want to convert apparent magnitudes in band R to absolute
-magnitudes in band Q, you need to calculate the K-correction, which is defined
-by the equation: 
-<pre> 
-m_R = M_Q + DM(z) + K_QR(z) 
-</pre> 
-where m_R is the apparent magnitude, M_Q is the absolute magnitude, DM(z)
-is the distance modulus, accounting for the angular diameter distance
-and cosmological surface-brightness dimming, and K_QR(z) is the
-K-correction. By absolute magnitude we mean: the apparent magnitude
-in band Q the object would have if it were observed at rest, 10 pc
-away, using an aperture that contains its total flux. See <a
-href="http://arxiv.org/astro-ph/00000000> Hogg et al. (2002)</a> for
-a full description of what the K correction is. </p>
+magnitudes in band Q, you need to calculate the K-correction, which is
+defined by the equation: <pre> m_R = M_Q + DM(z) + K_QR(z) </pre>
+where m_R is the apparent magnitude, M_Q is the absolute magnitude,
+DM(z) is the distance modulus, accounting for the angular diameter
+distance and cosmological surface-brightness dimming, and K_QR(z) is
+the K-correction. By absolute magnitude we mean: the apparent
+magnitude in band Q the object would have if it were observed at rest,
+10 pc away, using an aperture that contains its total flux. See <a
+href="http://cosmo.nyu.edu/blanton/pubs.html#hogg02c"> Hogg et
+al. (2002)</a> for a full description of what the K correction
+is. </p>
 
 <p> Our code is designed to calculate K-corrections between the
 observed AB bands ugriz and those same bands shifted by an arbitrary
@@ -201,7 +218,7 @@ for a galaxy at z_0 to the observed bandpass shifted by z_0 is -2.5
 log_10 (1+z_0), independent of galaxy SED. (Note that the K-correction
 is not zero in this case; very early versions of code, v1_10 and
 previous, incorrectly did not apply this overall offset --- see the <a
-href="#note1"> note</a> at bottom. </p>
+href="#note1"> note</a> at bottom). </p>
 
 <p> 
 You can use the reconstructions two ways:
@@ -243,9 +260,10 @@ between making precise measurements and making interpretable ones.</p>
 
 The easiest interface to the code, if it is available to you, is the
 IDL code. The detailed <a href="kcorrect_help.html"> documentation</a>
-is available for all of the routines, but there is basically only
-one you would usually use, which is <b>kcorrect</b>. The IDL code
-depends on the <a href="0000000"> idlutils</a> package.
+is available for all of the routines, but there is basically only one
+you would usually use, which is <b>kcorrect</b>. The IDL code depends
+on the <a href="http://spectro.princeton.edu/idlutils_doc.html">
+idlutils</a> package.
 
 This routine performs the K-corrections on a 
 set of magnitudes or maggies. It is called as follows:
@@ -539,9 +557,9 @@ sdss_z0.par
 The other SDSS files refer to the responses for each camcol.</p>
 
 <p> The files are in a special SDSS format called FTCL described at <a
-href="http://www.sdss.org/dr1</a>. IDL code (in particular,
-yanny_readone()) exists in <a href="0000000"> idlutils</a> to read in
-such files. </p>
+href="http://www.sdss.org/dr1/data/parfiles.html"> the SDSS DR1
+site</a>. IDL code (in particular, yanny_readone()) exists in <a
+href="http://spectro.princeton.edu"> idlutils</a> to read in such files. </p>
 
 <h3> A Note on the Absolute Calibration of SDSS Magnitudes</h3>
 
