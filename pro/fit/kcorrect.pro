@@ -66,6 +66,7 @@
 ; EXAMPLES:
 ;
 ; BUGS:
+;   Many inputs NOT commented, including zmin and zmax.
 ;
 ; PROCEDURES CALLED:
 ;
