@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "kcorrect.h"
+#include <kcorrect.h>
 
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 static void free_memory()

@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include "kcorrect.h"
+#include <kcorrect.h>
 #define EPS 1.0e-4
 #define JMAX 14
 #define JMAXP (JMAX+1)

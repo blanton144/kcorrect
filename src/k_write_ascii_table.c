@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "kcorrect.h"
+#include <kcorrect.h>
 
 /*
  * k_write_ascii_table.c

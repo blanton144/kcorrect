@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include "kcorrect.h"
+#include <kcorrect.h>
 #define FUNC(x) ((*func)(x))
 
 double k_midpnt(double (*func)(double), double a, double b, IDL_LONG n)

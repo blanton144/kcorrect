@@ -84,10 +84,11 @@ if(NOT keyword_set(filtfile)) then begin
     filtfile=getenv('KCORRECT_DIR')+'/data/etemplates/filterlist.'+outname $
       +'.dat'
     spawn,'cat '+filtfile+' | wc -l',nfilters
-    nk=nfilters[0]
+    nk=nfilters[0]-1
     filterlist=strarr(nk)
     openr,unit,getenv('KCORRECT_DIR')+'/data/etemplates/filterlist.'+outname+ $
       '.dat',/get_lun
+    readf,unit,nk
     readf,unit,filterlist
     close,unit
     free_lun,unit

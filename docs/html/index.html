@@ -26,12 +26,13 @@ web site.
 <p> We document in detail here how to use the SED fits provided to
 calculate K-corrections and SEDs for particular objects with
 broad-band magnitude measurements. We do not document in detail how to
-optimize the templates; the interested user can peruse the comments in
-the code and/or contact the authors.  Note that although this code has been
-written with SDSS in mind as its first application, it has been
-written generally enough to be applied to nearly any set of
-observations. To use observations outside the optical range, it is
-probably necessary to fit the templates again. </p>
+use the code to optimize the templates; the interested user can peruse
+the comments in the code and/or contact the authors.  Note that
+although this code has been written with SDSS in mind as its first
+application, it has been written generally enough to be applied to
+nearly any set of observations. To use observations outside the
+optical range, it is probably necessary to fit the templates
+again. </p>
 
 <p> The code compiles into a shared object library callable by C, so
 that people can incorporate the K-correction routines directly into
@@ -39,11 +40,14 @@ their code.  We also provide an interface to the identical library
 through IDL. Users of Fortran might want to communicate with me about
 how to accommodate their needs.  </p>
 
-<p>
-One can imagine using this code to calculate the evolution of the
-luminosity function, the distribution of galaxy colors, as well as to
-develop galaxy classification algorithms. 
-</p>
+<p> One can imagine using the results of this code to calculate the
+evolution of the luminosity function, the distribution of galaxy
+colors, as well as to develop galaxy classification algorithms. Or, to
+estimate <a href="photoz.html"> photometric redshifts</a>.</p>
+
+<h3> Obtaining the Code</h3>
+
+TODO
 
 <h3> Compiling the Code</h3>
 
@@ -144,7 +148,7 @@ equivalent to AB magnitudes. "Maggies" are simply the linearized
 version of AB magnitudes; that is, they are 10^{-0.4*mag} (the
 conversion from luptitudes to maggies is a bit more complicated). </P>
 
-<p> But you may still be wondering what I mean by an "AB"
+<p> TODO But you may still be wondering what I mean by an "AB"
 magnitude. The AB system simply has the zeropoints of all the
 magnitudes set such that an object with f(nu)=1 (or
 f(lambda)=1/lambda^2) ... EXPLAIN </P>
@@ -198,15 +202,14 @@ You will find that the second call takes far less time than the first,
 because the temporary data stored in rmatrix, ematrix, and zvals will
 not have to be regenerated.</p>
 
-<h3> Using the C Code</h3>
+<h3> Using the Stand-Alone C Code</h3>
 
-<p>
-The C code requires a bit more attention to use. If people say they
-would use it if it were easier, I will improve it. First, I will
-describe the stand-alone C programs which fit for the coefficients and
-which calculate the model fluxes. Second, I will briefly describe how
-to use the libraries within your own C code.
-</p>
+<p> The C code requires a bit more attention to use. If people say
+they would use it if it were easier, I will improve it. In this
+section, I will describe the stand-alone C programs which fit for the
+coefficients and which calculate the model fluxes. In the next
+section, I will briefly describe how to use the libraries within your
+own C code.  </p>
 
 <p>
 There are two stand-alone programs, <b>fit_coeffs</b> and
@@ -219,10 +222,10 @@ magnitudes.
 <p>
 <b>fit_coeffs</b> is called in the following way:
 <pre>
-cat maggies.dat | fit_coeffs $KCORRECT_DIR/data/ematrix.default.dat \
-   $KCORRECT_DIR/data/bmatrix.default.dat \
-   $KCORRECT_DIR/data/lambda.default.dat \
-   $KCORRECT_DIR/data/filterlist.default.dat 
+cat maggies.dat | fit_coeffs $KCORRECT_DIR/data/etemplates/ematrix.default.dat \
+   $KCORRECT_DIR/data/etemplates/bmatrix.default.dat \
+   $KCORRECT_DIR/data/etemplates/lambda.default.dat \
+   $KCORRECT_DIR/data/etemplates/filterlist.default.dat 
 </pre>
 where each line of "maggies.dat" has the form:
 <pre>
@@ -235,22 +238,187 @@ you have into maggies before calling this. (Note that the conversion
 to the inverse variances from the maggies and the magnitude errors is
 (maggies*0.4*ln(10)*magerr)^{-2}. </p>
 
-<p>
-From the set of maggies and errors, the code calculates a set of four
-coefficients which correspond to its guess about the nature of the
-galaxy SED. The first coefficient measures the visual flux, as
+<p> From the set of maggies and errors, the code calculates a set of
+four coefficients which correspond to its guess about the nature of
+the galaxy SED. The first coefficient measures the visual flux, as
 described in the <a href="paper.ps"> paper</a>. The other coefficients
-are measures of the shape. In the case of the IDL code, the fluxes are
-passed in as arrays and the coefficients are passed back in an array;
-in the case of the C code, the fluxes and variances are standard
-input, and the coefficients are standard output.
+are measures of the shape of the SED. The coefficients are output to
+standard out in the form:
+<pre>
+coeff0 coeff1 coeff2 coeff3 z
+</pre>
+where the redshift z is included for reasons which will be clear
+soon. </p>
+
+<p> Once you have the coefficients, you can calculate the
+reconstructed maggies at any redshift, using
+<b>model_fluxes</b>. The call to <b>model_fluxes</b> is similar to
+that of <b>fit_coeffs</b>:
+<pre>
+cat coeffs.dat | model_fluxes $KCORRECT_DIR/data/etemplates/ematrix.default.dat \
+   $KCORRECT_DIR/data/etemplates/bmatrix.default.dat \
+   $KCORRECT_DIR/data/etemplates/lambda.default.dat \
+   $KCORRECT_DIR/data/etemplates/filterlist.default.dat [to_z]
+</pre>
+where coeffs.dat is in the same format as the output to
+<b>fit_coeffs</b>:
+<pre>
+coeff0 coeff1 coeff2 coeff3 z
+</pre>
+If the optional parameter "to_z" is not specified, the maggies are
+reconstructed at the redshift z of each object. If "to_z" is
+specified, the maggies are all reconstructed to the specified
+redshift. The output is in the form:
+<pre>
+u_rec g_rec r_rec i_rec z_rec 
+</pre>
+in the original maggy units.
 </p>
 
-<p>
-Once you have the coefficients, you can calculate the reconstructed
-maggies at any redshift. Again, the coefficients are input as an array
-in IDL or as standard input in C. 
-</p>
+<p> To summarize with an example, if you wanted to reconstruct a set
+of maggies, all at redshift 0.1, you could call the code as follows:
+<pre>
+kargs="$KCORRECT_DIR/data/etemplates/ematrix.default.dat $KCORRECT_DIR/data/etemplates/bmatrix.default.dat $KCORRECT_DIR/data/etemplates/lambda.default.dat $KCORRECT_DIR/data/etemplates/filterlist.default.dat"
+cat maggies.dat | fit_coeffs $kargs | model_fluxes $kargs 0.1 > recmaggies.dat
+</pre>
+The results would be put into recmaggies.dat. </p>
+
+<p> As I noted above, I have not worked very hard to make the
+stand-alone C code or the C library *very* usable, as generally
+speaking that would have meant replicating features in IDL and C, and
+I wasn't sure how many people would use the pure C versions. If there
+is a need to do this, I might be convinced to -- or if YOU do it, we
+could include your stuff in the library. </p>
+
+<h3> Using the C Libraries</h3>
+
+<p> Why would you bother incorporating the K-correction code into your
+code at all, rather than just calculating the K-corrections once and
+reading in the results? Well, perhaps you have to calculate 1/Vmax, in
+which for each object you have to check its K-correction at (nearly)
+arbitrary redshifts. It is best to calculate the K-corrections on
+the fly in these cases, so we provide ways of doing this through a
+shared object libary.</p>
+
+<p> For example, the stand-alone C code uses the "libkcorrect.so"
+library (in fact, this is *exactly* the same library which is linked
+into IDL). If you have this library in your LD_LIBRARY_PATH and you
+include the header file "kcorrect.h" (in $KCORRECT_DIR/include), your
+own code can call it. The best way to figure out how to use it is to
+read the examples in fit_coeffs.c and model_fluxes.c, but I'll try to
+explain the essentials here.  </p>
+
+<ul>
+<li>
+First, the code has to have the basic information about the
+templates. You will usually be using the "default" templates in
+$KCORRECT_DIR/data/etemplates, so you will have to load in the files:
+<pre>
+$KCORRECT_DIR/data/etemplates/ematrix.default.dat
+$KCORRECT_DIR/data/etemplates/bmatrix.default.dat
+$KCORRECT_DIR/data/etemplates/lambda.default.dat
+</pre>
+These files are in a <a href="ascii.html"> special ASCII format</a>
+which can be read into a "double*" variable in C using the routine
+k_load_ascii_table. For example:
+<pre>
+k_load_ascii_table(&bmatrix,&ndim,&sizes,bmatrixfile);
+</pre>
+loads in a set of data from bmatrixfile. The pointer to the data is
+returned in "bmatrix".  The number of dimensions in the data is
+returned in "ndim". "sizes" is an array of size ndim giving the size
+of each dimension. The information in each of these files is the following:
+<ul>
+<li> lambda.default.dat: The wavelength scale covered by the templates
+(the *edges*, not centers, of all pixels) [NLAMBDA+1]
+<li> bmatrix.default.dat: The orthogonal basis spectra spanning the
+SED space [NB,NLAMBDA]
+<li> ematrix.default.dat: The eigentemplates, expressed in the basis
+defined by the bmatrix [NT, NB]
+</ul>
+
+<li> Second, it is necessary to read in the filters. The list of filters is
+in the directory:
+<pre>
+$KCORRECT_DIR/data/etemplates/filterlist.default.dat
+</pre>
+This list is read by the routine "k_load_filters", which assumes all the
+filters are in the directory $KCORRECT_DIR/data/filters (or if
+KCORRECT_DIR is not set, in the current directory). This routine is
+called as:
+<pre>
+k_load_filters(&filter_n,&filter_lambda,&filter_pass,&maxn,&nk,filterlist);
+</pre>
+"nk" is the number of filters. "filter_n" is the number of points in
+each filter curve, "filter_lambda" is the wavelength scale of each
+filter, and "filter_pass" is the response curve of each filter. "maxn"
+is the maximum of "filter_n". This sets the indexing of
+"filter_lambda" and "filter_pass", so that to get the ith wavelength
+of the kth filter you access "filter_lambda[k*maxn+i]".
+
+<li> Third, you have to define the redshift range over which you are
+going to define a look-up table. I usually use 0. to 1., to be safe,
+with 1000 steps, using the code:
+<pre>
+zvals=(double *) malloc(nz*sizeof(double));
+for(i=0;i<<blah>nz;i++)
+  zvals[i]=zmin+(zmax-zmin)*((double)i+0.5)/(double)nz;
+</pre>
+where nz=1000, zmin=0., and zmax=1. 
+
+<li> Finally, you have to define the look-up table which tabulates the
+projection of each basis element in the bmatrix onto each filter, at
+each redshift in zvals:
+<pre>
+rmatrix=(double *) malloc(nz*nb*nk*sizeof(double));
+k_create_r(rmatrix,nk,nb,bmatrix,lambda,nl,zvals,nz,filter_n,
+           filter_lambda,filter_pass,maxn);
+</pre>
+One defines "nb" and "nl" based on the "sizes" returned by the
+k_load_ascii_table calls described above. 
+</ul>
+
+Once this overhead has been taken care of (and it is a significant
+amount of time --- a few seconds --- so only do it once!) you can use
+the routines "k_fit_coeffs" and "k_model_fluxes". 
+
+<ul>
+<li> <b>k_fit_coeffs</b> is called as:
+<pre>
+k_fit_coeffs(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_flux,
+             galaxy_invvar,galaxy_z,ngalaxy);
+</pre>
+where galaxy_flux and galaxy_invvar are expressed in maggies. The 
+array coeffs should be of the size (nt*ngalaxy), and the coefficients
+are returned in it.
+<li> <b>k_model_fluxes</b> is called as:
+<pre>
+k_model_fluxes(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_z,
+               model_fluxes,ngalaxy);
+</pre>
+where model_fluxes are expressed in maggies.
+</ul>
+
+<p> Clever people will realize that a photometric redshift estimation
+code can easily be constructed from the parts assembled here. Cleverer
+people will deduce that in fact this has already been implemented and
+<a href="photoz.html"> documented</a> in the distribution here.</P>
+
+<p> As I noted above, I have not worked very hard to make the
+stand-alone C code or the C library *very* usable, as generally
+speaking that would have meant replicating features in IDL and C, and
+I wasn't sure how many people would use the pure C versions. If there
+is a need to do this, I might be convinced to -- or if YOU do it, we
+could include your stuff in the library. </p>
+
+<h3> A Note on Photometric Errors</h3>
+
+The photometric errors in the SDSS are not dominated by Poisson noise,
+which is what is estimated in the parameters "petroCountsErr",
+etc. Instead, the errors are dominated by local calibration errors and
+other systematic effects, which are poorly known. I usually add errors
+of [0.05,0.02,0.02,0.02,0.03] in ugriz in quadrature to the estimated
+errors from PHOTO, which makes things considerably better behaved.
 
 <hr> 
 

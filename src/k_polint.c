@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include "kcorrect.h"
+#include <kcorrect.h>
 #define NRANSI
 
 void k_polint(double xa[], double ya[], IDL_LONG n, double x, double *y, 

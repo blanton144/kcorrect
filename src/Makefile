@@ -7,7 +7,8 @@
 
 SHELL = /bin/sh
 #
-CFLAGS  = -I$(IDL_DIR)/external $(SDSS_CFLAGS) -DCHECK_LEAKS
+CFLAGS  = -I$(IDL_DIR)/external -I$(KCORRECT_DIR)/include \
+	$(SDSS_CFLAGS) -DCHECK_LEAKS
 #
 .c.o : kcorrect.h export.h
 	$(CC) -g -c $(CCCHK) $(CFLAGS) $(X_CFLAGS) $(IDL_FLAG) $*.c
@@ -49,16 +50,17 @@ OBJECTS = \
 	k_dgemv.o   k_dpotrs.o  k_dsyrk.o \
 	k_dscal.o   k_xerbla.o 
 
-all : $(LIB)/libkcorrect.$(SO_EXT) $(BIN)/fit_coeffs $(BIN)/fit_photoz
+all : $(LIB)/libkcorrect.$(SO_EXT) $(BIN)/fit_coeffs $(BIN)/fit_photoz \
+	$(BIN)/model_fluxes
 
 $(BIN)/fit_coeffs: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) fit_coeffs.c 
-	$(CC) -g -o $(BIN)/fit_coeffs fit_coeffs.c -lm -L$(LIB) -lkcorrect
+	$(CC) -g $(CFLAGS) -o $(BIN)/fit_coeffs fit_coeffs.c -lm -L$(LIB) -lkcorrect
 
 $(BIN)/fit_photoz: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) fit_photoz.c 
-	$(CC) -g -o $(BIN)/fit_photoz fit_photoz.c -lm -L$(LIB) -lkcorrect
+	$(CC) -g $(CFLAGS) -o $(BIN)/fit_photoz fit_photoz.c -lm -L$(LIB) -lkcorrect
 
 $(BIN)/model_fluxes: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) model_fluxes.c 
-	$(CC) -g -o $(BIN)/model_fluxes model_fluxes.c -lm -L$(LIB) -lkcorrect
+	$(CC) -g $(CFLAGS) -o $(BIN)/model_fluxes model_fluxes.c -lm -L$(LIB) -lkcorrect
 
 $(LIB)/libkcorrect.$(SO_EXT): $(OBJECTS) 
 	$(LD) -g -shared $(X_LD_FLAGS) -o $(LIB)/libkcorrect.$(SO_EXT) $(OBJECTS) \

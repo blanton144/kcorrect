@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "kcorrect.h"
+#include <kcorrect.h>
 
 /*
  * model_fluxes.c
@@ -19,7 +19,7 @@ static double *model_fluxes=NULL;
 static double *bmatrix=NULL;
 static double *lambda=NULL;
 static double *rmatrix=NULL;
-static double *ematrix=NULL;
+static double *ematrix=NULL;  
 static double *zvals=NULL;
 static IDL_LONG nk,nb,nl,nt;
 static double *filter_lambda=NULL;
@@ -96,9 +96,9 @@ int main(int argc,
 	model_fluxes=(double *) malloc(nk*nchunk*sizeof(double));
 	galaxy_z=(double *) malloc(nchunk*sizeof(double));
 	coeffs=(double *) malloc(nchunk*nt*sizeof(double));
-	fscanf(stdin,"%lf",&(galaxy_z[0]));
+	fscanf(stdin,"%lf",&(coeffs[0]));
 	while(!feof(stdin)) {
-		for(j=0;j<nt;j++)
+		for(j=1;j<nt;j++)
 			fscanf(stdin,"%lf",&(coeffs[j]));
 		fscanf(stdin,"%lf",&(galaxy_z[0]));
 		if(to_z!=-1.) galaxy_z[0]=to_z;
@@ -107,6 +107,7 @@ int main(int argc,
 		for(k=0;k<nk;k++)
 			fprintf(stdout,"%e ",model_fluxes[k]);
 		fprintf(stdout,"\n");
+		fscanf(stdin,"%lf",&(coeffs[0]));
 	}
 	
 	FREEVEC(zvals);

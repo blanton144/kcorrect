@@ -46,14 +46,33 @@
 ;   13-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_photoz, galaxy_flux, galaxy_invvar, galaxy_photoz, coeff, ematrix, zvals, filterlist=filterlist, bmatrix=bmatrix, lambda=lambda, rmatrix=rmatrix
+pro k_fit_photoz, galaxy_flux, galaxy_invvar, galaxy_photoz, coeff, ematrix=ematrix, zvals=zvals, filterlist=filterlist, bmatrix=bmatrix, lambda=lambda, rmatrix=rmatrix, version=version, vpath=vpath, filterpath=filterpath
 
-; Need at least 6 parameters
-if (N_params() LT 6) then begin
-    klog, 'Syntax - k_fit_photoz, galaxy_flux, galaxy_invvar, galaxy_photoz, coeff, ' 
-    klog, 'ematrix, zvals, [filterlist=filterlist, bmatrix=bmatrix, lambda=lambda'
-    klog, '                 | rmatrix=rmatrix]'
+; Need at least 4 parameters
+if (N_params() LT 4) then begin
+    klog, 'Syntax - k_fit_photoz, galaxy_flux, galaxy_invvar, galaxy_photoz, coeff, $'  
+    klog, '         [ematrix=, zvals=, filterlist=, bmatrix=, lambda=, rmatrix=, $'
+    klog, '          version=, vpath=, filterpath=]'
     return
+endif
+
+if(NOT keyword_set(filterpath)) then $j
+  filterpath=getenv('KCORRECT_DIR')+'/data/filters'
+
+; Get bmatrix and stuff from files if necessary
+if(keyword_set(version)) then begin 
+    if(NOT keyword_set(vpath)) then $
+      vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
+    k_load_ascii_table,ematrix,vpath+'/ematrix.'+version+'.dat'
+    k_load_ascii_table,bmatrix,vpath+'/bmatrix.'+version+'.dat'
+    k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
+    filtfile=vpath+'/filterlist.'+version+'.dat'
+    spawn,'cat '+filtfile+' | wc -l',nfilters
+    filterlist=strarr(nfilters[0])
+    openr,unit,vpath+'/filterlist.'+version+'.dat',/get_lun
+    readf,unit,filterlist
+    close,unit
+    free_lun,unit
 endif
 
 ; Set source object name

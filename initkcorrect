@@ -1,5 +1,6 @@
 setenv KCORRECT_DIR `pwd`
 setenv IDL_PATH ${IDL_PATH}:+$KCORRECT_DIR/pro
+setenv LD_LIBRARY_PATH $KCORRECT_DIR/lib:
 set path = ($KCORRECT_DIR/bin $path)
 
 # C and Fortran flags

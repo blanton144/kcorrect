@@ -1,7 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "kcorrect.h"
+#include <kcorrect.h>
 
 /*
  * k_load_filters.c
@@ -22,11 +23,17 @@ IDL_LONG k_load_filters(IDL_LONG **filter_n,
 {
 	IDL_LONG i,j;
 	FILE *listfp,*fp;
-	char filename[2000];
+	char filename[2000],fullfilename[2000],filterdir[1000];
 
 	FREEVEC((*filter_n));
 	FREEVEC((*filter_lambda));
 	FREEVEC((*filter_pass));
+	
+	if(getenv("KCORRECT_DIR")!=NULL) {
+		sprintf(filterdir,"%s/data/filters",getenv("KCORRECT_DIR"));
+	} else {
+		strcpy(filterdir,".");
+	} /* end if */
 
 	listfp=k_fileopen(filterlist,"r");
 	fscanf(listfp,"%d",nk);
@@ -34,7 +41,8 @@ IDL_LONG k_load_filters(IDL_LONG **filter_n,
 	(*maxn)=0;
 	for(i=0;i<(*nk);i++) {
 		fscanf(listfp,"%s",filename);
-		fp=k_fileopen(filename,"r");
+		sprintf(fullfilename,"%s/%s",filterdir,filename);
+		fp=k_fileopen(fullfilename,"r");
 		fscanf(fp,"%d",&((*filter_n)[i]));
 		fclose(fp);
 		if((*filter_n)[i]>(*maxn)) (*maxn)=(*filter_n)[i];
@@ -47,7 +55,8 @@ IDL_LONG k_load_filters(IDL_LONG **filter_n,
 	fscanf(listfp,"%d",nk);
 	for(i=0;i<(*nk);i++) {
 		fscanf(listfp,"%s",filename);
-		fp=k_fileopen(filename,"r");
+		sprintf(fullfilename,"%s/%s",filterdir,filename);
+		fp=k_fileopen(fullfilename,"r");
 		fscanf(fp,"%d",&((*filter_n)[i]));
 		for(j=0;j<(*filter_n)[i];j++)
 			fscanf(fp,"%lf %lf",&((*filter_lambda)[i*(*maxn)+j]),
@@ -56,4 +65,5 @@ IDL_LONG k_load_filters(IDL_LONG **filter_n,
 	} /* end for i */
 	fclose(listfp);
 	
+	return(1);
 } /* end k_load_ascii_table */
