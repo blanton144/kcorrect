@@ -1,0 +1,3 @@
+#!/bin/csh -f 
+
+curl http://deep.berkeley.edu/DR1/zcat.dr1.uniq.fits.gz >! $KCORRECT_DIR/data/redshifts/deep/zcat.dr1.uniq.fits.gz

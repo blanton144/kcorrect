@@ -11,18 +11,7 @@ run on full
 
 clean up TODO:
 
-move k_run_nmf to "fit" subdir
-move k_nmf_spdata to "sample" subdir
-cvs remove lups2maggies from vagc  (and maggies2lups)
-cvs add k_lups2maggies to kcorrect  (and maggies2lups)
-move k_sdssfix into utils
-cvs remove lf_test_root
 check in lf changes from NYU?
-cvs remove k_make_sdss_training_set
-cvs remove k_make_vmatrix
-cvs remove k_nmf_data
-cvs remove k_bc03_grid
-move k_run_nmf to pro/fit
 
 new docs:
   which calib for eisenstein k_sdssfix
