@@ -21,7 +21,7 @@
 \newcommand{\petroratiolim}{{{\mathcal{R}}_{P,\mathrm{lim}}}}
 \newcommand{\band}[2]{\ensuremath{^{{#1}}\!{#2}}}
 
-\newcommand{\kversion}{{\tt v1\_10}}
+\newcommand{\kversion}{{\tt v1\_11}}
 
 \setlength{\footnotesep}{9.6pt}
 
@@ -395,29 +395,34 @@ In the past, people have accounted for these effects using
 ``$K$-corrections'' applied to the observed magnitudes. In these
 analyses, a function $K(z)$ is added to the standard cosmological
 bolometric distance modulus $\mathrm{DM}(z)$ to obtain the
-relationship between the apparent magnitude $m$ and the absolute
-magnitude $M$: 
+relationship between the apparent magnitude $m_R$ of band $R$ and the
+absolute magnitude $M$ of (in general different) band $Q$:
 \begin{equation}
 \label{kcorrecteqn}
-m = M + \mathrm{DM}(z) + K(z)
+m_R = M_Q + \mathrm{DM}(z) + K_{QR}(z)
 \end{equation}
-Sometimes a single function has been applied regardless of the galaxy
-type, though more recently it has become standard to use a discrete
-set of $K(z)$ functions depending on galaxy type (based either on
-morphology or spectral features). As described in \cite{oke68a} and
-later papers, the function is based on the projection of an assumed
-galaxy SED redshifted to $z$ onto the measured instrument response as
-a function of wavelength (including the effects of the atmosphere, the
-reflectivity of the mirrors, the filter transmission, and the response
-of the CCD device or photographic emulsion). For example, for the
-Sloan Digital Sky Survey (SDSS) filter system, \citet{frei94a} and
-\citet{fukugita95a} have both presented results for the
-$K$-corrections of galaxies. Each of these papers tabulates $K(z)$
-(called $k(z)$ by \citealt{frei94a}) for galaxies of various
-morphological types, based on galaxy spectrophotometry.\footnote{Note
-that the description on p. 57 of \citet{binney98a} of the meaning of
-$k(z)$ in \citet{frei94a} is incorrect; in fact, their $k(z)$ is
-exactly equivalent to our $K(z)$.}
+The traditional definition of the $K$-correction takes $Q=R$; however,
+we note that in practice many surveys do perform $K$-corrections from
+one bandpass to another when comparing high redshift and low redshift
+observations. 
+
+Sometimes a single function $K(z)$ has been applied regardless of the
+galaxy type, though more recently it has become standard to use a
+discrete set of $K(z)$ functions depending on galaxy type (based
+either on morphology or spectral features). As described in
+\cite{oke68a} and later papers, the function is based on the
+projection of an assumed galaxy SED redshifted to $z$ onto the
+measured instrument response as a function of wavelength (including
+the effects of the atmosphere, the reflectivity of the mirrors, the
+filter transmission, and the response of the CCD device or
+photographic emulsion). For example, for the Sloan Digital Sky Survey
+(SDSS) filter system, \citet{frei94a} and \citet{fukugita95a} have
+both presented results for the $K$-corrections of galaxies. Each of
+these papers tabulates $K(z)$ (called $k(z)$ by \citealt{frei94a}) for
+galaxies of various morphological types, based on galaxy
+spectrophotometry.\footnote{Note that the description on p. 57 of
+\citet{binney98a} of the meaning of $k(z)$ in \citet{frei94a} is
+incorrect; in fact, their $k(z)$ is exactly equivalent to our $K(z)$.}
 
 However, galaxies do not all have the same SED, nor are they selected
 from some discrete set of SEDs. For this reason, these schemes for
@@ -674,9 +679,7 @@ two bands measured, and still obtain sensible results.
 \subsection{Calculating $K$-corrections}
 
 To characterize $K$-corrections, consider again Equation
-(\ref{kcorrecteqn}), which we here generalize to the case of relating
-an apparent magnitude observed in band $R$ to an absolute magnitude
-observed in band $Q$:
+(\ref{kcorrecteqn}): 
 \begin{equation}
 m_R = M_Q + \mathrm{DM}(z) + K_{QR}(z).
 \end{equation}
@@ -695,8 +698,7 @@ K_{QR}(z) = -2.5 \log_{10} \left[
 \right]
 \end{equation}
 A more general expression holds for other magnitude systems (such as
-the Vega-relative magnitude system) and for the case of
-$K$-corrections when $Q$ and $R$ are in different magnitude systems. 
+the Vega-relative magnitude system). 
 
 In practice, we will be concerned here primarily with transforming the
 apparent magnitudes in band $R$ to a band $Q$ which is just the $R$
@@ -726,7 +728,12 @@ independent of $f(\nu)$ (which is natural, since both magnitudes
 sample the same region of $f(\nu)$). The fact that one's uncertainties
 in $f(\nu)$ do not matter makes the use of the fixed frame magnitudes
 shifted to the redshift of the object in question useful, when it is
-possible.
+possible. We note in passing that \citet{oke68a} state that the
+$K$-correction ``would disappear if intensity measurements of
+redshifted galaxies were made with a detector whose spectral
+acceptance band was shifted by $1+z$ at all wavelengths;'' here we
+have just shown this statement to be untrue for an AB system (though
+one could define a magnitude system in which this were true). 
 
 %Given AB galaxy magnitudes $\band{z}{m}$ and errors for a galaxy at
 %redshift $z$, one can use the method of the previous subsection to
@@ -812,15 +819,16 @@ known and considered in most analyses of observational data.
 
 The reader may ask why, if we are basing our $K$-corrections on a full
 model of the galaxy SED, we do not correct to bandpasses with simpler
-shapes (for example, top hats). The reason is that we want the effective
-bandpasses to actually have been observed for some galaxies in the
-sample, so that the $K$-correction for those galaxies are formally and
-actually zero. This property is desirable because, as noted above,
-there are inherent uncertainties in the $K$-corrections. Nevertheless,
-we note that synthesizing top hat magnitudes may be appropriate in
-certain situations, as they have the virtue (similarly to the $AB$
-magnitude system) that they are very easy to comprehend and synthesize
-from theory.
+shapes (for example, top hats). The reason is that we want the
+effective bandpasses to actually have been observed for some galaxies
+in the sample, so that the $K$-correction for those galaxies are
+independent of the galaxy SED.  This property is desirable because, as
+noted above, there are inherent uncertainties in the $K$-corrections
+due to our lack of knowledge of the SEDs. Nevertheless, we note that
+synthesizing top hat magnitudes may be appropriate in certain
+situations, as they have the virtue (similarly to the $AB$ magnitude
+system) that they are very easy to comprehend and synthesize from
+theory.
 %For example, if we wanted to convert our results into a
 %form easily comprehended by the hypothetical future astronomers
 %discussed in the first paragraph of the introduction, it would be best
@@ -1353,12 +1361,13 @@ properties found in the data.
 \acknowledgments
 
 Special thanks to Ivan Baldry for pointing out an error in this
-manuscript and in the distributed code.  MB and DWH acknowledge NASA
-NAG5-11669 for partial support.  MB was supported at the beginning of
-this work by the DOE and NASA grant NAG 5-7092 at Fermilab. He is also
-grateful for the hospitality of the Department of Physics and
-Astronomy at the State University of New York at Stony Brook, who
-kindly provided computing facilities on his frequent visits there.
+manuscript and in the distributed code for versions {\tt v1\_10} and
+previous.  MB and DWH acknowledge NASA NAG5-11669 for partial support.
+MB was supported at the beginning of this work by the DOE and NASA
+grant NAG 5-7092 at Fermilab. He is also grateful for the hospitality
+of the Department of Physics and Astronomy at the State University of
+New York at Stony Brook, who kindly provided computing facilities on
+his frequent visits there.
 
 Funding for the creation and distribution of the SDSS Archive has been
 provided by the Alfred P. Sloan Foundation, the Participating
