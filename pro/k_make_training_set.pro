@@ -99,6 +99,7 @@ for i=nzchunks-1L,0,-1 do begin
     if(i ne nzchunks-1L) then begin
         dice=randomu(seed,ninchunk[i])
         subsample=double(ninchunk[nzchunks-1L])/double(ninchunk[i])
+        help,i,subsample[0]
         include_indx=where(dice lt subsample[0], include_count)
         if(include_count gt 0) then includegal[chunk_indx[include_indx]]=1
     endif else begin
@@ -122,7 +123,7 @@ model_indx=where(sp.sdss_spectro_z ge modelzlim,model_count)
 help,model_count
 if(model_count gt 0) then begin
     mag[*,model_indx]=im[model_indx].sdss_imaging_counts_model- $
-      im.sdss_imaging_reddening
+      im[model_indx].sdss_imaging_reddening
     mag_err[*,model_indx]=im[model_indx].sdss_imaging_counts_modelerr
 endif
 

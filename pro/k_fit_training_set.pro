@@ -21,7 +21,7 @@ pro k_fit_training_set
 
 flux_lmin=3500.
 flux_lmax=7500.
-savfile='data_k_fit_training_set.sav'
+savfile='newdata_k_fit_training_set.sav'
 
 if(not file_test(savfile)) then begin
     gals=(mrdfits('training_set.test.fits',1))
@@ -54,6 +54,7 @@ if(not file_test(savfile)) then begin
                         chi2=chi2,rmatrix=rmatrix,zvals=zvals,maxiter=5000)
 
 ; rescale coeffs and vmatrix based on fit
+    if(0) then begin
     for i=0L,nv-1L do begin
         sigma=djsig(coeffs[i,*],sigrej=1.e+12)
         coeffs[i,*]=coeffs[i,*]/sigma
@@ -91,13 +92,14 @@ if(not file_test(savfile)) then begin
                         chi2=chi2,rmatrix=rmatrix,zvals=zvals,maxiter=5000, $
                         condition_mean=condition_mean, $
                         condition_var=condition_var)
+endif
 
     save,filename=savfile
 endif else begin
     restore,savfile
 endelse
 
-indx=lindgen(3000)
+indx=lindgen(n_elements(gals))
 gals=gals[indx]
 coeffs=coeffs[*,indx]
 maggies=maggies[*,indx]
@@ -131,7 +133,7 @@ end_print
 ;median_coeffs=median(coeffs)
 ;coeffs=coeffs/median_coeffs
 
-order=[0,5,10,1+lindgen(4),6+lindgen(4),11+lindgen(62)]
+order=[0,5,10,1+lindgen(4),6+lindgen(4),11+lindgen(109-11)]
 vmatrix=vmatrix[*,order]
 coeffs=coeffs[order,*]
 k_ortho_templates,vmatrix,lambda,bmatrix,bflux,bdotv=bdotv, $
@@ -174,22 +176,20 @@ em_pca,centered_coeffs[*,use_indx],npca,tmp_eigenvec,eigencoeffs_indx, $
 eigenvec=dblarr(nv,npca+1L)
 eigenvec[1:nv-1,1:npca]=tmp_eigenvec
 eigenvec[0,0]=1.
-newematrix=dblarr(nv,npca+2L)
-newematrix[*,1L:npca+1L]=ematrix#eigenvec
-newematrix[*,0]=ematrix#[0.,center]
-eigencoeffs=dblarr(npca+2L,n_elements(indx))
+newematrix=dblarr(nv,npca+1L)
+newematrix[*,*]=ematrix#eigenvec
+newematrix[*,0]=newematrix[*,0]+ematrix#[0.,center]
+eigencoeffs=dblarr(npca+1L,n_elements(indx))
 eigencoeffs[0,*]=1.
-eigencoeffs[1,*]=1.
-eigencoeffs[2:npca+1,*]=transpose(tmp_eigenvec)#centered_coeffs
-for i=0,npca+1 do $
+eigencoeffs[1:npca,*]=transpose(tmp_eigenvec)#centered_coeffs
+for i=0,npca do $
   eigencoeffs[i,*]=eigencoeffs[i,*]*flux_total
 
 ; Output QA 
-nuse=npca-2L
-k_reconstruct_maggies,eigencoeffs[0:nuse+1,*],gals[*].redshift,rec_maggies, $
-  zvals=zvals,lambda=lambda,bmatrix=bmatrix,ematrix=newematrix[*,0:nuse+1], $
+nuse=1
+k_reconstruct_maggies,eigencoeffs[0:nuse,*],gals[*].redshift,rec_maggies, $
+  zvals=zvals,lambda=lambda,bmatrix=bmatrix,ematrix=newematrix[*,0:nuse], $
   filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
-plot,maggies[2,*],maggies[2,*]/rec_maggies[2,*],psym=3
 set_print,filename='qa_k_fit_training_set_pca_coeffs.ps'
 umg_model=-2.5*alog10(rec_maggies[0,*]/rec_maggies[1,*])
 umg_obs=gals[*].mag[0]-gals[*].mag[1]
@@ -212,31 +212,34 @@ plot,gals[*].redshift,imz_model-imz_obs,psym=3,yra=[-0.8,0.8]
 !P.MULTI=[0,2,2]
 !X.MARGIN=2.
 !Y.MARGIN=2.
-plot,eigencoeffs[2,*],eigencoeffs[3,*],psym=3,xtitle='e2',ytitle='e3'
-plot,eigencoeffs[2,*],eigencoeffs[4,*],psym=3,xtitle='e2',ytitle='e4'
-plot,eigencoeffs[3,*],eigencoeffs[4,*],psym=3,xtitle='e3',ytitle='e4'
-ecoeff=[1.,1.,-0.5,0.,0.]
+plot,eigencoeffs[1,*]/eigencoeffs[0,*],eigencoeffs[2,*]/eigencoeffs[0,*], $
+  psym=3,xtitle='e2',ytitle='e3'
+plot,eigencoeffs[1,*]/eigencoeffs[0,*],eigencoeffs[3,*]/eigencoeffs[0,*], $
+  psym=3,xtitle='e2',ytitle='e4'
+plot,eigencoeffs[2,*]/eigencoeffs[0,*],eigencoeffs[3,*]/eigencoeffs[0,*], $
+  psym=3,xtitle='e3',ytitle='e4'
+ecoeff=[1.,-0.5,0.,0.]
 spec=bmatrix#(newematrix#ecoeff)
 plot,lambda,spec,xra=[1000.,13000.],yra=max(spec)*[-0.1,1.1], $
   color=djs_icolor('black')
 for i=0, 9 do begin & $
     cc=-0.5+0.64*(i+1.)/10. & $
-    ecoeff=[1.,1.,cc,0.,0.] & $
+    ecoeff=[1.,cc,0.,0.] & $
     spec=bmatrix#(newematrix#ecoeff) & $
     oplot,lambda,spec,color=i & $
 endfor
 !P.MULTI=[1,1,1]
 end_print
 
-vmatrix=bmatrix#newematrix[*,0:2]
-coeffs=eigencoeffs[0:2,*]
+vmatrix=bmatrix#newematrix[*,0:1]
+coeffs=eigencoeffs[0:1,*]
 maggies_ivar=1./maggies_err^2
 k_tweak_templates, maggies, maggies_ivar, gals.redshift, $
   coeffs, vmatrix, lambda, filterlist=filterlist, $
   maggies_factor=maggies_factor, vmatrix_tweaked=vmatrix_tweaked
 
 k_reconstruct_maggies,coeffs,gals[*].redshift,rec_maggies, $
-  zvals=zvals,lambda=lambda,bmatrix=vmatrix_tweaked,ematrix=identity(3), $
+  zvals=zvals,lambda=lambda,bmatrix=vmatrix_tweaked,ematrix=identity(2), $
   filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
 for i=0L, 4L do $
   rec_maggies[i,*]=rec_maggies[i,*]/maggies_factor[i]
@@ -261,45 +264,50 @@ plot,gals[*].redshift,rmi_model-rmi_obs,psym=3,yra=[-0.8,0.8]
 plot,gals[*].redshift,imz_model-imz_obs,psym=3,yra=[-0.8,0.8]
 
 !P.MULTI=[0,1,2]
-ecoeff=[1.,1.,-0.5]
+ecoeff=[1.,-0.5]
 spec=vmatrix#ecoeff
 plot,lambda,spec,xra=[1000.,13000.],yra=max(spec)*[-0.1,1.1], $
   color=djs_icolor('black')
 for i=0, 9 do begin & $
     cc=-0.5+0.64*(i+1.)/10. & $
-    ecoeff=[1.,1.,cc] & $
+    ecoeff=[1.,cc] & $
     spec=vmatrix#ecoeff & $
     oplot,lambda,spec,color=i & $
 endfor
 
-ecoeff=[1.,1.,-0.5]
+ecoeff=[1.,-0.5]
 spec=vmatrix_tweaked#ecoeff
 plot,lambda,spec,xra=[1000.,13000.],yra=max(spec)*[-0.1,1.1], $
   color=djs_icolor('black')
 for i=0, 9 do begin & $
   cc=-0.5+0.64*(i+1.)/10. & $
-  ecoeff=[1.,1.,cc] & $
+  ecoeff=[1.,cc] & $
   spec=vmatrix_tweaked#ecoeff & $
   oplot,lambda,spec,color=i & $
   endfor
 
 plot,lambda,vmatrix_tweaked[*,0]/vmatrix[*,0],xra=[2000.,12000.],/xlog,/ylog
 end_print
-stop
 
+for i=0L, 4L do $
+  maggies[i,*]=maggies[i,*]*maggies_factor[i]
 chi2=dblarr(100,n_elements(indx))
+fit=dblarr(100,2,n_elements(indx))
 for i=0L, 99L do begin & $
     redshift=0.+1.*(double(i)+0.5)/100. & $
     k_photoz2, maggies, 1./maggies_err^2, redshift, lambda, vmatrix_tweaked, $
       tmp_fit, tmp_chi2 & $
+    fit[i,*,*]=tmp_fit & $
     chi2[i,*]=tmp_chi2 & $
   endfor
 
 photoz=dblarr(n_elements(indx))
+thefit=dblarr(n_elements(indx))
 minchi2=dblarr(n_elements(indx))
 for i=0L, n_elements(indx)-1L do begin & $
   minchi2[i]=min(chi2[*,i],iminchi2) & $
   photoz[i]=0.+1.*(double(iminchi2)+0.5)/100. & $
+  thefit[i]=fit[iminchi2,1,i]/fit[iminchi2,0,i] & $
   endfor    
     
 stop
