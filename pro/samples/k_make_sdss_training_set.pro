@@ -145,13 +145,12 @@ help,im
 
 ; set up which magnitudes are used
 klog,'use model past z='+string(modelzlim)
-mag=im.petrocounts-im.reddening
+mag=im.petrocounts
 mag_err=im.petrocountserr
 model_indx=where(sp.z ge modelzlim,model_count)
 help,model_count
 if(model_count gt 0) then begin
-    mag[*,model_indx]=im[model_indx].counts_model- $
-      im[model_indx].reddening
+    mag[*,model_indx]=im[model_indx].counts_model
     mag_err[*,model_indx]=im[model_indx].counts_modelerr
 endif
 
@@ -180,20 +179,24 @@ for i=0L, n_elements(shiftband)-1L do $
 for i=0L, n_elements(errband)-1L do $
   mag_err[i,*]=sqrt(mag_err[i,*]^2+errband[i]^2)
 
-; add CNOC2 data (NEED TO APPLY REDDENING AND AB SHIFTS -- and to
-;                                                          2MASS)
+;   HACK to rid of bad u-band (bad uband!)
+indx=where(mag[0,*]-mag[1,*] lt 1.6 and $
+           mag[1,*]-mag[2,*] gt 1.4,count)
+if(count gt 0) then mag_err[0,indx]=-9999.
+
+; add CNOC2 data 
 cnoc2=mrdfits(getenv('KCORRECT_DIR')+'/data/redshifts/cnoc2/cnoc2.fits',1);
 cnoc2_obj=mrdfits(getenv('KCORRECT_DIR')+ $
                   '/data/redshifts/cnoc2/cnoc2-obj.fits',1)
 cnoc2_childobj=mrdfits(getenv('KCORRECT_DIR')+ $
                        '/data/redshifts/cnoc2/cnoc2-childobj.fits',1)
-cnoc2_indx=where(cnoc2_obj.matchdist*3600. lt 10.)
+cnoc2_indx=where(cnoc2_obj.matchdist*3600. lt 10. and $
+                 cnoc2_childobj.modelflux_ivar[2] gt 0.)
 cnoc2=cnoc2[cnoc2_indx]
 cnoc2_obj=cnoc2_obj[cnoc2_indx]
 cnoc2_childobj=cnoc2_childobj[cnoc2_indx]
 
 ; now output 
-; make into maggies here ....
 outfile='sdss_training_set.'+name+'.fits'
 hdr=strarr(1)
 sxaddpar,hdr,'DATE',systime(),'date of creation'
@@ -207,9 +210,10 @@ icnoc2=n_elements(sp)+lindgen(n_elements(cnoc2))
 outstr[isdss].ra=im.ra
 outstr[isdss].dec=im.dec
 outstr[isdss].redshift=sp.z
-outstr[isdss].maggies[0:4]=10.^(-0.4*mag[0:4])
-outstr[isdss].maggies_ivar[0:4]=1./ $
-  (mag_err[0:4]*outstr[isdss].maggies[0:4]*0.4*alog(10.))^2
+outstr[isdss].maggies[0:4]=lups2maggies(mag[0:4,*])
+outstr[isdss].maggies_ivar[0:4]= $
+  reform(sdss_err2ivar(mag_err[0:4,*]),5,n_elements(isdss))/ $
+  (outstr[isdss].maggies[0:4]*0.4*alog(10.))^2
 twomass_indx=where(twomass.j_m_k20fe gt 0. and $
                    twomass.h_m_k20fe gt 0. and $
                    twomass.k_m_k20fe gt 0., twomass_count)
@@ -238,10 +242,24 @@ outstr[isdss].sdss_spectro_tag=sp.sdss_spectro_tag
 outstr[icnoc2].ra=cnoc2_childobj.ra
 outstr[icnoc2].dec=cnoc2_childobj.dec
 outstr[icnoc2].redshift=cnoc2.z
-outstr[icnoc2].maggies[0:4]=cnoc2_childobj.modelflux
-outstr[icnoc2].maggies_ivar[0:4]=cnoc2_childobj.modelflux_ivar
+; AB shifts
+for i=0, 4 do begin
+    outstr[icnoc2].maggies[i]=cnoc2_childobj.modelflux[i]*1.e-9* $
+      10.^(-0.4*shiftband[i])
+    outstr[icnoc2].maggies_ivar[i]=cnoc2_childobj.modelflux_ivar[i]*1.e+18* $
+      10.^(0.8*shiftband[i])
+endfor
 outstr[icnoc2].sdss_imaging_tag=-1
 outstr[icnoc2].sdss_spectro_tag=-1
+
+; now reddening correct all
+euler,outstr.ra,outstr.dec,ll,bb,1
+red_fac = [5.155, 3.793, 2.751, 2.086, 1.479, 0.902, 0.576, 0.367]
+extinction= $
+  red_fac # dust_getval(ll, bb, /interp, /noloop)
+outstr.maggies=outstr.maggies*10.^(0.4*extinction)
+outstr.maggies_ivar=outstr.maggies_ivar*10.^(-0.8*extinction)
+
 mwrfits,dummy,outfile,hdr,/create
 mwrfits,outstr,outfile
 

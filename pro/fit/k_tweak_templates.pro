@@ -59,9 +59,9 @@ maggies_factor=dblarr(nk)+1.D
 nmaggies=0L
 if(keyword_set(k_tt_tweak_maggies)) then begin
     maggies_factor[0:1]=exp(params[0:1])
-    maggies_factor[3:4]=exp(params[2:3])
+    maggies_factor[3:7]=exp(params[2:6])
     maggies_factor[2]=exp(0.)
-    nmaggies=4L
+    nmaggies=7L
 endif
 ntweak=(n_elements(params)-(nmaggies))/nv
 tweakpars=dblarr(ntweak,nv)
@@ -98,16 +98,12 @@ endfor
 
 ; add tweakpars constraints
 ntweak=n_elements(tweakpars)/nv
-devpars=tweakpars/0.05
-devpars=reform(devpars,n_elements(devpars))
-if(0) then begin
-    devpars=dblarr(nv*(ntweak-1L+1L))
-    for i=0, nv-1L do begin
-        devpars[i*ntweak+0]=1.*tweakpars[ntweak/2L,i]
-        devpars[i*ntweak+lindgen(ntweak-1L)+1L]= $
-          1.0*(tweakpars[1:ntweak-1L,i]-tweakpars[0:ntweak-2,i])
-    endfor
-endif
+devpars=dblarr(nv*ntweak)
+for i=0, nv-1L do begin
+    devpars[i*ntweak+0]=tweakpars[ntweak/2L,i]/0.03
+    devpars[i*ntweak+lindgen(ntweak-1L)+1L]= $
+      (tweakpars[1:ntweak-1L,i]-tweakpars[0:ntweak-2,i])/0.03
+endfor
 
 dev=(maggies_obs-maggies_model)*sqrt(maggies_obs_ivar)
 dev=reform(dev,n_elements(dev))
@@ -172,7 +168,7 @@ if(keyword_set(k_tt_tweak_maggies)) then $
   nmaggies=n_elements(filterlist)-1L $
 else $
   nmaggies=0L
-ntweak=20
+ntweak=30
 
 nv=n_elements(k_tt_vmatrix)/(n_elements(k_tt_lambda)-1L)
 start=0.0*randomn(seed,nmaggies+ntweak*nv,/double)
