@@ -1,17 +1,54 @@
 ; make demos for web page
+pro kc2vl, spec, vmatrix, lambda
+vmatrix=spec.flux
+lambda=fltarr(n_elements(vmatrix)+1L)
+dlambda=spec[1].wavelength-spec[0].wavelength
+lambda[0:n_elements(vmatrix)-1]=spec.wavelength-0.5*dlambda
+lambda[n_elements(vmatrix)]=spec[n_elements(vmatrix)-1L].wavelength+0.5*dlambda
+end
+;
 pro mk_demo_kcorrect
 
-plates=455+lindgen(10)
-fiberids=lindgen(640)
+templates=['elliptical_template.fits', $
+           's0_template.fits', $
+           'sa_template.fits', $
+           'sb_template.fits', $
+           'starb3_template.fits'] 
+
+filterlist=['sdss_u0.par','sdss_g0.par','sdss_r0.par','sdss_i0.par']
+for i=0L, n_elements(templates)-1L do begin
+    spec=mrdfits(getenv('KCORRECT_DIR')+'/data/seds/kc96/'+templates[i],1)
+    kc2vl,spec,vmatrix,lambda
+    zz=0.25*(findgen(100)+0.5)/100.
+    coeffs=replicate(1.,100)
+    k_reconstruct_maggies, coeffs, zz, recmaggies, $
+      vmatrix=vmatrix, lambda=lambda,filterlist=filterlist
+
+    kcorrect,dum1,dum2,zz,coeffs=coeffs,vmatrix=vmatrix,lambda=lambda, $
+      tmpkcorrect1,filterlist=filterlist, band_shift=0.1
+    
+    kcorrect,recmaggies,recmaggies*0.1,zz,tmpkcorrect2,coeffs=coeffs, $
+      /stddev,filterlist=filterlist,vmatrix=vv, lambda=ll, band_shift=0.1, $
+      vfile='vmatrix.smooth3.dat', lfile='lambda.smooth3.dat', chi2=chi2
+    k_reconstruct_maggies, coeffs, zz, recmaggies2, $
+      vmatrix=vv, lambda=ll,filterlist=filterlist
+    stop
+    
+endfor
+
+stop
+
+plates=455+lindgen(1)
+fiberids=lindgen(640)+1L
 gals1={plate:0L, fiberid:0L}
 for i=0L, n_elements(plates)-1L do begin
-    readspec,plates[i],fiberids,zans=zans,tsobj=tsobj
-    ii=where((tsobj.primtarget and 64) gt 0 and (zans.zwarning eq 0) and $
+    readspec,plates[i],fiberids,zans=zans
+    ii=where(zans.z gt 0.005 and zans.z lt 0.7 and zans.zwarning eq 0 and $
              zans.class eq 'GALAXY', iicount) 
     if(iicount gt 0) then begin
         tmpgals=replicate(gals1,iicount)
         tmpgals.plate=plates[i]
-        tmpgals.fiberid=fiberids
+        tmpgals.fiberid=fiberids[ii]
         if(n_tags(gals) eq 0) then $
           gals=tmpgals $
         else $
@@ -19,45 +56,34 @@ for i=0L, n_elements(plates)-1L do begin
     endif
 endfor
 
-stop
-
-k_print,filename='demo.ps',axis_char_scale=axis_char_scale
-!P.MULTI=[0,2,2]
-xcharsize=[0.0001,0.0001,0.7*axis_char_scale,0.7*axis_char_scale]
-ycharsize=[0.7*axis_char_scale,0.0001,0.7*axis_char_scale,0.0001]
-for ifiberid=0, n_elements(fiberids)-1L do begin
-    istr=strtrim(string(ifiberid),2)
-    fiberid=fiberids[ifiberid]
+kcorrect=fltarr(3,n_elements(gals))
+kcorrect_real=fltarr(3,n_elements(gals))
+for ifiberid=0, n_elements(gals)-1L do begin
+    plate=gals[ifiberid].plate
+    fiberid=gals[ifiberid].fiberid
     readspec,plate,fiberid,zans=zans,flux=flux,wave=wave
     flux=smooth(flux,20)
     kcorrect,zans.counts_spectro[1:3],zans.counts_spectro[1:3]*0.1,zans.z, $
-      kcorrect,coeffs=coeffs,/stddev,vmatrix=vmatrix,lambda=lambda, $
-      filterlist=['sdss_g0.par','sdss_r0.par','sdss_i0.par']
-    k_load_filters,['sdss_g0.par','sdss_r0.par','sdss_i0.par'], filter_n, $
-      filter_lambda, filter_pass
-    spec=vmatrix#coeffs*1.e+17
-    flimits=[-0.05,1.15]*max(flux)
-    wlimits=[0.92*min(wave),0.95*max(wave)]
-    !X.CHARSIZE=xcharsize[ifiberid]
-    !Y.CHARSIZE=ycharsize[ifiberid]
-    djs_plot,wave,flux,thick=2,xra=wlimits,yra=flimits, $
-      xtitle='\lambda (\AA)', ytitle='f(\lambda) (10^{-17} ergs/cm^2/s/\AA)'
-    djs_oplot,lambda*(1.+zans.z),spec/(1.+zans.z),color=djs_icolor('red')
-    colors=['blue','green','red']
-    band=['g','r','i']
-    for i=0L, n_elements(colors)-1L do $
-      djs_oplot,filter_lambda[0:filter_n[i]-1,i], $
-      filter_pass[0:filter_n[i]-1,i]*max(flux)*0.8, color=colors[i], thick=5
-    for i=0L, n_elements(colors)-1L do $
-      xyouts,filter_lambda[filter_n[i]/2L,i], $
-      filter_pass[filter_n[i]/2L,i]*max(flux)*0.4, $
-      band[i],color=djs_icolor(colors[i]),charsize=2.,align=0.5
-    xyouts,!X.CRANGE[0]+0.05*(!X.CRANGE[1]-!X.CRANGE[0]), $
-      !Y.CRANGE[0]+0.9*(!Y.CRANGE[1]-!Y.CRANGE[0]), $
-      'z='+strtrim(string(zans.z,format='(f40.2)'),2), $
-      charsize=1.7
+      tmpkcorrect,coeffs=coeffs,/stddev, $
+      filterlist=['sdss_g0.par','sdss_r0.par','sdss_i0.par'],rmatrix=rmatrix, $
+      zvals=zvals, band_shift=0.1
+    kcorrect[*,ifiberid]=tmpkcorrect
+    lambda=fltarr(n_elements(wave)+1L)
+    dwave=alog(wave[1])-alog(wave[0])
+    lambda[0:n_elements(wave)-1L]=exp(alog(wave)-0.5*dwave)
+    lambda[n_elements(wave)]=exp(alog(wave[n_elements(wave)-1L])+0.5*dwave)
+    lambda=lambda/(1.+zans.z)
+    vmatrix=flux
+    kcorrect,dum1,dum2,zans.z, coeffs=[1.],vmatrix=vmatrix,lambda=lambda, $
+      tmpkcorrect,filterlist=['sdss_g0.par','sdss_r0.par','sdss_i0.par'], $
+      band_shift=0.1
+    kcorrect_real[*,ifiberid]=tmpkcorrect
+    print,zans.z
+    print,minmax(wave)
+    print,kcorrect[*,ifiberid]
+    print,kcorrect_real[*,ifiberid]
 endfor
-k_end_print
-spawn,'psgif -r 90 demo.ps > demo.gif'
+
+stop
 
 end
