@@ -4,7 +4,7 @@
 ; PURPOSE:
 ;   Given AB maggies estimate the redshift of a galaxy
 ; CALLING SEQUENCE:
-;   kphotoz, maggies, maggies_ivar, redshift, photoz [ , $
+;   kphotoz, maggies, maggies_ivar, photoz [ , $
 ;        /magnitude, /stddev, lfile=, $
 ;        vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $
 ;        zvals=, lambda=, vmatrix=, /sdssfix, coeffs=, chi2=, $
@@ -14,7 +14,6 @@
 ;                /magnitude set)
 ;   maggies_ivar - inverse variance in maggies (magnitudes if
 ;                  /magnitude set, std. dev. if /stddev set)
-;   redshift      - redshifts of galaxies [N_gal]
 ; OPTIONAL INPUTS:
 ;   magnitude     - set if input and output in -2.5 log_10(maggies)
 ;   stddev        - maggies_ivar actual contains standard dev.
