@@ -1,0 +1,149 @@
+<Title> converting pipeline mags to AB mags </Title>
+<H1>Subject: converting pipeline mags to AB mags </H1>
+<H2>From: David Hogg</H2>
+<H2>Submitted: Tue, 13 Aug 2002 18:02:35 -0400</H2>
+<H2>Message number: 845
+(previous: <a href="./msg.844.html">844</a>,
+next: <a href="./msg.846.html">846</a>
+up: <a href="./INDEX.html">Index</a>)
+</H2><p>
+
+
+<pre>
+Conversion from SDSS natural 2.5m "pipeline" magnitudes to an AB system
+-----------------------------------------------------------------------
+  David W. Hogg (NYU)
+  2002 August 13
+
+Summary: to get from the 2.5m natural magnitudes output by the SDSS
+pipelines--denoted, eg, r(2.5m)--to our best guess at a "true" AB
+system--denoted, eg, r(AB,2.5m)--use the following transformations:
+
+  u(AB,2.5m) = u(2.5m) - 0.042
+  g(AB,2.5m) = g(2.5m) + 0.036
+  r(AB,2.5m) = r(2.5m) + 0.015
+  i(AB,2.5m) = i(2.5m) + 0.013
+  z(AB,2.5m) = z(2.5m) - 0.002
+
+where the uncertainties in these corrections are probably at the
+few-percent level at least, but also positively covariant.  Note that
+current DR1 (u-g) colors are off the AB system by about 8 percent.
+
+-----
+Details:
+
+The following from Smith, Tucker et al, 2002, AJ, 123, 2121
+
+  Here is the (nearly) AB photometry for BD+17 in the USNO system
+  (denoted by, eg, "r'")
+
+  BD+17
+  r': 9.350 +/- 0.001
+  (u'-g'): 0.920 +/- 0.001
+  (g'-r'): 0.290 +/- 0.001
+  (r'-i'): 0.100 +/- 0.001
+  (i'-z'): 0.020 +/- 0.001
+
+From the above I compute that BD+17 has, in the USNO system:
+
+  u' = 9.350+0.290+0.920 = 10.560
+  g' = 9.350+0.290       =  9.640
+  r' = 9.350             =  9.350
+  i' = 9.350-0.100       =  9.250
+  z' = 9.350-0.100-0.020 =  9.230
+
+The following from http://www-sdss.fnal.gov:8000/edoc/jeg_photometric_eq.html
+
+  Here is how to convert USNO magnitudes (denoted by, eg, "r'") into
+  the natural 2.5m magnitudes output by the SDSS survey pipelines
+  (denoted by, eg, "r(2.5m)").
+
+  To convert from u'g'r'i'z' to 2.5m ugriz:
+    u(2.5m) = u' - b25(u)*( (u'-g')-(u'-g')_zp ) + zpOffset25(u)
+    g(2.5m) = g' - b25(g)*( (g'-r')-(g'-r')_zp ) + zpOffset25(g)
+    r(2.5m) = r' - b25(r)*( (r'-i')-(r'-i')_zp ) + zpOffset25(r)
+    i(2.5m) = i' - b25(i)*( (r'-i')-(r'-i')_zp ) + zpOffset25(i)
+    z(2.5m) = z' - b25(z)*( (i'-z')-(i'-z')_zp ) + zpOffset25(z)
+  where
+    b25(u) =  0.000
+    b25(g) = -0.060
+    b25(r) = -0.035
+    b25(i) = -0.041
+    b25(z) =  0.030
+    (u'-g')_zp = 1.39
+    (g'-r')_zp = 0.53
+    (r'-i')_zp = 0.21
+    (i'-z')_zp = 0.09
+    zpOffset25(u) = 0.000
+    zpOffset25(g) = 0.000
+    zpOffset25(r) = 0.000
+    zpOffset25(i) = 0.000
+    zpOffset25(z) = 0.000
+
+Plugging in, I get, for BD+17, the SDSS pipeline magnitudes:
+
+  u(2.5m) = 10.560 - 0.000*( 0.920 - 1.390 ) + 0.000 = 10.560
+  g(2.5m) =  9.640 + 0.060*( 0.290 - 0.530 ) + 0.000 =  9.626
+  r(2.5m) =  9.350 + 0.035*( 0.100 - 0.210 ) + 0.000 =  9.346
+  i(2.5m) =  9.250 + 0.041*( 0.100 - 0.210 ) + 0.000 =  9.245
+  z(2.5m) =  9.230 - 0.030*( 0.020 - 0.090 ) + 0.000 =  9.232
+
+  These are the magnitudes BD+17 WOULD BE GIVEN BY THE SDSS PIPELINES
+  if it could be observed by the 2.5m without saturating the detector.
+
+Daniel Eisenstein computes, for BD+17, plus 2.5m sensitivities, plus
+  1.2 atmospheres of typical extinction:
+
+  u(AB,2.5m) = 10.518
+  g(AB,2.5m) =  9.662
+  r(AB,2.5m) =  9.361
+  i(AB,2.5m) =  9.258
+  z(AB,2.5m) =  9.230
+
+  I.e., our best bet to estimate "true" AB magnitudes is to take the
+  SDSS pipeline outputs and make the following adjustments:
+
+  u(AB,2.5m) = u(2.5m) - 0.042 +/- 0.050
+  g(AB,2.5m) = g(2.5m) + 0.036 +/- 0.030
+  r(AB,2.5m) = r(2.5m) + 0.015 +/- 0.030
+  i(AB,2.5m) = i(2.5m) + 0.013 +/- 0.030
+  z(AB,2.5m) = z(2.5m) - 0.002 +/- 0.030
+
+  where the uncertainties are optimistic, educated guesses about the
+  quality of the spectrophotometry.  On the other hand, if the
+  spectrophotometry errors are correlated over wavelengths, there will
+  be positive covariances among neighboring bandpasses, and maybe
+  overall.  This means that although the u- and g-band adjustments are
+  only about one sigma individually, the (u-g) adjustment might be
+  many sigma.
+
+  Douglas Tucker points out that there is a definite contribution to
+  the uncertainties in the AB offsets from the uncertainties in the
+  correct values of the "b" coefficients:
+    (0.000 +/- 0.003)
+    (0.060 +/- 0.001)
+    (0.035 +/- 0.003)
+    (0.041 +/- 0.001)
+    (0.030 +/- 0.005)
+  but this is sub-dominant at present
+
+Please email me with comments or questions.
+--
+David W. Hogg        *  assistant professor
+Center for Cosmology and Particle Physics
+Department of Physics, New York University
+4 Washington Pl, New York, NY 10003
+212-992-8781 (tel)   *  212-995-4016 (fax)
+david.hogg@nyu.edu   *  http://physics.nyu.edu/hogg/
+
+DSS DSS DSS DSS DSS  Digital Sky Survey DSS DSS DSS DSS DSS DSS
+DSS
+DSS  This is message 845 in the sdss-calib archive, URL
+DSS         http://www.astro.princeton.edu:81/sdss-calib/msg.845.html
+DSS  The index is at http://www.astro.princeton.edu:81/sdss-calib/INDEX.html
+DSS  To join/leave the list, go to
+DSS         http://www.astro.princeton.edu:81/cgi-bin/mailinglists.pl/show_subscription?list=sdss-calib
+DSS  To post a message, mail it to sdss-calib@astro.princeton.edu
+DSS
+DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS
+</pre>

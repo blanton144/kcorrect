@@ -1,4 +1,11 @@
-sdss_??.dat
+This directory contains a number of filter responses 
+from different astronomical instruments. Most of them include 
+atmosphere. They are fully explained in their header documentation,
+as is the format of the files. 
 
-SDSS filters at 1.3 airmass as compiled by JEG in January 2002. "0" indicates
-the average over the columns. "1-6" refer to individual camera columns.
+At this time, 2MASS, SDSS, and UK Schmidt filter curves are included.
+
+Remember, the absolute values of the responses are arbitrary. 
+
+Michael Blanton
+Written 2002-08-19

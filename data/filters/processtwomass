@@ -1,0 +1,45 @@
+#!/usr/bin/perl 
+
+#
+# Give the directory with the JEG results, and it 
+# extracts the 1.3 airmass results, putting them
+# into the filter format used.
+#
+
+@bands=("J","H","Ks");
+$twomassdir="twomass";
+foreach $band (@bands) {
+	print "$twomassdir/${band}total.html\n";
+	
+	open(ifp,"$twomassdir/${band}total.html");
+	$nlines=0;
+	while(<ifp>) {
+		chop;
+		split;
+		if($_[0]>0) {
+			$nlines++;	
+		}
+	}
+	
+	open(ofp,">./twomass_$band.dat");
+	open(ifp,"twomassheader");
+	while(<ifp>) {
+		s/\[SPECIFY\]/$band/g;	
+		print ofp;
+	}
+	close(ifp);
+	printf ofp "%d 2 2\n",$nlines;
+	open(ifp,"$twomassdir/${band}total.html");
+	while(<ifp>) {
+		$line=$_;
+		chop;
+		split;
+		if($_[0]>0) {
+			print ofp "$line";
+		} else {
+			print ofp "# $line";
+		}
+	}
+	close(ifp);
+	close(ofp);
+}

@@ -1,48 +1,120 @@
-47
-2.980000e+03 0.000000e+00
-3.005000e+03 1.000000e-04
-3.030000e+03 5.000000e-04
-3.055000e+03 1.200000e-03
-3.080000e+03 2.500000e-03
-3.105000e+03 4.900000e-03
-3.130000e+03 8.800000e-03
-3.155000e+03 1.550000e-02
-3.180000e+03 2.330000e-02
-3.205000e+03 3.130000e-02
-3.230000e+03 3.890000e-02
-3.255000e+03 4.640000e-02
-3.280000e+03 5.360000e-02
-3.305000e+03 6.070000e-02
-3.330000e+03 6.720000e-02
-3.355000e+03 7.280000e-02
-3.380000e+03 7.730000e-02
-3.405000e+03 8.160000e-02
-3.430000e+03 8.490000e-02
-3.455000e+03 8.810000e-02
-3.480000e+03 9.230000e-02
-3.505000e+03 9.650000e-02
-3.530000e+03 9.950000e-02
-3.555000e+03 1.013000e-01
-3.580000e+03 1.024000e-01
-3.605000e+03 1.039000e-01
-3.630000e+03 1.057000e-01
-3.655000e+03 1.074000e-01
-3.680000e+03 1.082000e-01
-3.705000e+03 1.073000e-01
-3.730000e+03 1.046000e-01
-3.755000e+03 1.000000e-01
-3.780000e+03 9.310000e-02
-3.805000e+03 8.340000e-02
-3.830000e+03 7.210000e-02
-3.855000e+03 6.000000e-02
-3.880000e+03 4.640000e-02
-3.905000e+03 3.110000e-02
-3.930000e+03 1.760000e-02
-3.955000e+03 9.700000e-03
-3.980000e+03 5.600000e-03
-4.005000e+03 3.000000e-03
-4.030000e+03 1.400000e-03
-4.055000e+03 7.000000e-04
-4.080000e+03 5.000000e-04
-4.105000e+03 2.000000e-04
-4.130000e+03 0.000000e+00
+# Format:
+#  <nlines> <ncolumns> <default column (1-indexed)>
+#  <lambda_0> <response0_0> <response1_0> ...
+#  ...
+#  <lambda_(nlines-1)> <response0_(nlines-1)> <response1_(nlines-1)> ...
+#
+# Units:
+#  lambda is in Angstroms
+#  response is the contribution to the detector signal per photon
+#    entering the atmosphere of Earth
+#
+# Bandpass Name(s): u
+#
+# Instrument: SDSS telescope at APO Column 4
+# 
+# Determined by: Jim Gunn, Mamoru Doi, Daniel Eisenstein
+#
+# Date of determination: 2001-12-18
+#
+# Meaning of/Reason for default column: 1.3 airmass; SDSS magnitudes are
+#   calibrated to this airmass
+#
+# Notes:
+#
+#  Keep in mind that SDSS pipelines are output in the MAYBE magnitude 
+#  system, which is currently (2002-08-19) thought to be related to
+#  the AB magnitude system by the offsets:
+#
+#    u(AB,2.5m) = u(MAYBE,2.5m) - 0.042
+#    g(AB,2.5m) = g(MAYBE,2.5m) + 0.036
+#    r(AB,2.5m) = r(MAYBE,2.5m) + 0.015
+#    i(AB,2.5m) = i(MAYBE,2.5m) + 0.013
+#    z(AB,2.5m) = z(MAYBE,2.5m) - 0.002
+#
+#  See sdss-general/2486 or contact David W. Hogg for details.
+#
+#  The following notes come from Jim Gunn:
+# 
+#    These files are the response functions as measured by Mamoru Jan 2001,
+#    interpolated to fill in the sharp corner near the red cutoff using model
+#    filters and then splined to a standard wavelengh set, shared by all of
+#    the files in this set of response functions for all the telescopes.
+#  
+#    The files indexed 0 are the response functions averaged over the six
+#    columns of the camera.
+#    
+#    The file sdssav.lis is a list of magnitudes (V=0) and colors for these
+#    (average) response functions at 1.3 airmasses run against the
+#    Gunn-Stryker spectrophotometric atlas stars and the AB95 standards. 
+#    These are AB magnitudes, note, not whatever system we will come up with. 
+#    To transform from USNO magnitudes to a natural SDSS AB system, the
+#    best-guess transformations as of this writing are
+#  
+#    u_AB = u' - 0.04 - 0.003*(u'-g')
+#    
+#    g_AB = g'        + 0.069*(g'-r') 
+#    
+#    r_AB = r'        + 0.038*(r'-i') 
+#    
+#    i_AB = i'        + 0.049*(r'-i')
+#    
+#    z_AB = z' - 0.01 + 0.011*(i'-z')
+#    
+#    but these are based ENTIRELY on calculations, and should be much better
+#    determined by observations shortly.
+#    
+#    jeg011218
+#
+47 6 3
+# res fun for sdss u4     created Sun Dec 02 16:59:19 2001
+# lam      vac    air1.0   air1.3   air1.6   air1.9
+  2980   0.0000   0.0000   0.0000   0.0000   0.0000
+  3005   0.0019   0.0001   0.0001   0.0000   0.0000
+  3030   0.0098   0.0009   0.0005   0.0003   0.0002
+  3055   0.0173   0.0021   0.0012   0.0007   0.0004
+  3080   0.0262   0.0040   0.0025   0.0016   0.0010
+  3105   0.0409   0.0074   0.0049   0.0032   0.0021
+  3130   0.0607   0.0128   0.0088   0.0060   0.0042
+  3155   0.0837   0.0213   0.0155   0.0112   0.0082
+  3180   0.1066   0.0309   0.0233   0.0176   0.0133
+  3205   0.1267   0.0404   0.0313   0.0243   0.0189
+  3230   0.1446   0.0492   0.0389   0.0308   0.0244
+  3255   0.1614   0.0578   0.0464   0.0373   0.0300
+  3280   0.1771   0.0660   0.0536   0.0435   0.0354
+  3305   0.1911   0.0739   0.0607   0.0499   0.0409
+  3330   0.2030   0.0811   0.0672   0.0557   0.0462
+  3355   0.2125   0.0872   0.0728   0.0608   0.0508
+  3380   0.2204   0.0921   0.0773   0.0649   0.0545
+  3405   0.2276   0.0967   0.0816   0.0688   0.0580
+  3430   0.2336   0.1004   0.0849   0.0718   0.0608
+  3455   0.2377   0.1037   0.0881   0.0749   0.0636
+  3480   0.2406   0.1078   0.0923   0.0790   0.0676
+  3505   0.2431   0.1119   0.0965   0.0833   0.0718
+  3530   0.2446   0.1147   0.0995   0.0863   0.0749
+  3555   0.2448   0.1163   0.1013   0.0881   0.0767
+  3580   0.2446   0.1174   0.1024   0.0894   0.0780
+  3605   0.2448   0.1187   0.1039   0.0909   0.0795
+  3630   0.2453   0.1204   0.1057   0.0927   0.0814
+  3655   0.2452   0.1219   0.1074   0.0946   0.0833
+  3680   0.2430   0.1224   0.1082   0.0956   0.0846
+  3705   0.2375   0.1210   0.1073   0.0952   0.0844
+  3730   0.2286   0.1176   0.1046   0.0930   0.0827
+  3755   0.2162   0.1122   0.1000   0.0891   0.0794
+  3780   0.1992   0.1042   0.0931   0.0831   0.0742
+  3805   0.1767   0.0932   0.0834   0.0747   0.0668
+  3830   0.1510   0.0803   0.0721   0.0647   0.0580
+  3855   0.1242   0.0667   0.0600   0.0539   0.0485
+  3880   0.0948   0.0514   0.0464   0.0418   0.0377
+  3905   0.0626   0.0343   0.0311   0.0281   0.0254
+  3930   0.0350   0.0194   0.0176   0.0160   0.0145
+  3955   0.0189   0.0106   0.0097   0.0088   0.0080
+  3980   0.0108   0.0062   0.0056   0.0051   0.0047
+  4005   0.0058   0.0033   0.0030   0.0028   0.0025
+  4030   0.0027   0.0015   0.0014   0.0013   0.0012
+  4055   0.0013   0.0008   0.0007   0.0007   0.0006
+  4080   0.0009   0.0005   0.0005   0.0004   0.0004
+  4105   0.0004   0.0002   0.0002   0.0002   0.0002
+  4130   0.0000   0.0000   0.0000   0.0000   0.0000
+# qtdl   0.0444   0.0197   0.0170   0.0146   0.0126
+# leff     3515     3550     3559     3567     3574

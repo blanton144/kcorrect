@@ -1,0 +1,38 @@
+#!/usr/bin/perl 
+
+print "ukschmidt/bjresponse.dat\n";
+	
+open(ifp,"ukschmidt/bjresponse.dat");
+$nlines=0;
+while(<ifp>) {
+	chop;
+	split;
+	if($_[0]>0) {
+		$nlines++;	
+	}
+}
+
+open(ofp,">./ukschmidt_bj.dat");
+open(ifp,"ukschmidtheader");
+while(<ifp>) {
+	print ofp;
+}
+close(ifp);
+printf ofp "%d 2 2\n",$nlines;
+open(ifp,"ukschmidt/bjresponse.dat");
+while(<ifp>) {
+	$line=$_;
+	split;
+	if($_[0]>0) {
+		chop;
+		split;
+		$lambda=$_[0];
+		$scale=$lambda/4500.;
+		$response=$_[1]/$scale;
+		printf ofp "%e %e\n",$lambda,$response;
+		} else {
+			print ofp "# $line";
+		}
+}
+close(ifp);
+close(ofp);

@@ -1,0 +1,85 @@
+calibrate 1     # calibrate filter curve
+                # filter trace is $1
+                setup 1
+		xlabel wavelength  (\gA)
+		ylabel \gnf\d\gn intensity  (nW m\u-\u2)
+                #       read in Hayes data and manipulate it
+                data "../hayes/hayes.txt"
+                read {lamH 1 mag 2}
+                #       add -8.333 for normalization at 5000 Angstroms
+                #       add -3 for conversion from ergs cm^-2 to Joules m^-2
+                set lglamflamH= lg(lamH)-0.4*mag-8.333-3.0
+                set lamflamH= 10.0**lglamflamH
+		#	extend Hayes data into the near-infrared
+		define lamend $(lamH[$(dimen(lamH)-1)])
+		define lamflamend $(lamflamH[$(dimen(lamH)-1)])
+		set lamHext= $lamend+10.0,13000,10.0
+		set lamflamHext= $lamflamend*(lamHext/$lamend)**(-2.0)
+		set lamH= lamH CONCAT lamHext
+		set lamflamH= lamflamH CONCAT lamflamHext
+                #       read in filter curve
+                data $1
+                read {lam 1 trace 2}
+                limits lam trace limits lam 0.0 $fy2
+		#	cut off at 3300 A
+		set trace= (lam < 3300.0) ? 0.0 : trace 
+		connect lam trace
+                #       compute dlambdas
+                set dlam= lam
+                define i 0
+                while {$i < (dimen(lam)-1)}{
+                  set dlam[$i]= lam[$i+1]-lam[$i]
+                  define i $($i+1)
+                }
+                set dlam[$i]= 0.0
+		#	plot Hayes plus extension
+                limits lam lamflamH
+		define lim1 (0.0) define lim2 $fy2
+		limits lam $($lim1*1.0e9) $($lim2*1.0e9) box
+		limits lam $lim1 $lim2
+                lweight 4 connect lamH lamflamH lweight 2
+                #       compute mean wavelength
+                set tmp1= cumulate(lam*trace*dlam)
+                set tmp2= cumulate(trace*dlam)
+                define lameff $(tmp1[$(dimen(tmp1)-1)]/tmp2[$(dimen(tmp1)-1)])
+                echo $lameff
+                relocate $lameff $fy1 draw $lameff $fy2
+                #       interpolate Hayes spectrum onto filter lambdas
+                interp2 lamH lamflamH lam lamflam
+		connect lam lamflam
+                #       compute power in band from Vega
+                set tmp1= cumulate(lamflam*trace*dlam/lam)
+                #       compute power in band from powerlaw
+                define index (0.0)
+                set powerlaw= 1.0*(lam/$lameff)**$index
+                set powerlawH= 1.0*(lamH/$lameff)**$index
+                set tmp2= cumulate(powerlaw*trace*dlam/lam)
+                #       compute relative powers and scale powerlaw
+                define amplitude $(tmp1[$(dimen(tmp1)-1)]/tmp2[$(dimen(tmp1)-1)])
+                echo $(lg($amplitude))
+                echo $($amplitude*$lameff/2.998e18*1.0e26)
+                set powerlawH= $amplitude*powerlawH
+                set powerlaw= $amplitude*powerlaw
+                limits lam $lim1 $lim2
+                connect lam powerlaw
+
+setup	1	#	general setup, $1=1 for date label
+		window 1 1 1 1
+		ticksize 0 0 0 0
+		ltype 0
+		angle 0
+		ptype 0 0
+		relocate (0 32767)
+		expand 0.8
+		lweight 1
+		if($1) {putlabel 3 $date}
+		expand 1.3
+		lweight 2
+		lines 1 100001
+		limits 0 1 0 1
+
+snap	1	#	make hardcopy
+		device postencap $1.eps
+		$1
+		hardcopy
+		device x11
