@@ -23,8 +23,8 @@ case `uname` in
 		SO_EXT=so
 		X_CFLAGS="-32 -KPIC"
 		X_FFLAGS="-32 -extend_source -KPIC"
-		X_LD_FLAGS="-shared -32";;
                 MAKE_FTNLIB="-lftn"
+		X_LD_FLAGS="-shared -32";;
 	"OSF1" )
 		SO_EXT=so
 		X_FFLAGS="-extend_source"
@@ -33,8 +33,8 @@ case `uname` in
 		SO_EXT=so
 		X_CFLAGS="-fPIC -g -Wall"
 		X_FFLAGS="-ffixed-line-length-none"
-		X_LD_FLAGS=-shared ;;
                 MAKE_FTNLIB="-lg2c"
+		X_LD_FLAGS=-shared ;;
 	*) echo "This system is not supported" >&2
 		exit 1;;
 esac
