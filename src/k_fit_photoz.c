@@ -12,8 +12,8 @@
  * Mike Blanton
  * 5/2003 */
 
-#define ZRES 0.005
-#define TOL 0.00005
+#define ZRES 0.1
+#define TOL 0.001
 #define MAXITER 3000
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 
@@ -24,17 +24,22 @@ static float *pz_lprior=NULL;
 static float *pz_zprior=NULL;
 static float *pz_maggies=NULL;
 static float *pz_maggies_ivar=NULL;
-static IDL_LONG pz_nk=0,pz_nv=0,pz_nz=0,pz_nprior;
+static IDL_LONG pz_nk=0,pz_nv=0,pz_nz=0,pz_nprior,pz_ncheck;
 
 float pz_fit_coeffs(float z) 
 {
-	IDL_LONG niter;
+	IDL_LONG niter,dontinit;
 	float chi2;
 	
-	k_fit_nonneg(pz_coeffs,pz_rmatrix,pz_nk,pz_nv,pz_zvals,pz_nz, 
-							 pz_maggies,pz_maggies_ivar,&z,1,TOL,MAXITER,&niter,
-							 &chi2,0);
+  if(pz_ncheck==0) 
+    dontinit=0;
+  else 
+    dontinit=0;
+  k_fit_nonneg(pz_coeffs,pz_rmatrix,pz_nk,pz_nv,pz_zvals,pz_nz, 
+               pz_maggies,pz_maggies_ivar,&z,1,TOL,MAXITER,&niter,
+               &chi2,0,dontinit);
 	chi2-=k_interpolate_es(z, pz_lprior, pz_zprior, pz_nprior);
+  pz_ncheck++;
 	
 	return(chi2);
 } /* end pz_fit_coeffs */
@@ -87,6 +92,8 @@ IDL_LONG k_fit_photoz(float *photoz,
 	for(j=0;j<nzsteps;j++) 
 		zgrid[j]=zvals[0]+(zvals[nz-1]-zvals[0])*(float)j/(float)(nzsteps-1);
 	for(i=0;i<ngalaxy;i++) {
+
+    pz_ncheck=0;
 		
 		for(k=0;k<nk;k++) {
 			pz_maggies[k]=maggies[i*nk+k];
@@ -126,6 +133,10 @@ IDL_LONG k_fit_photoz(float *photoz,
 		chi2[i]=pz_fit_coeffs(photoz[i]);
 		for(j=0;j<nv;j++)
 			coeffs[i*nv+j]=pz_coeffs[j];
+
+    if(verbose) {
+      printf("nredshifts=%d\n", pz_ncheck);
+    } 
 	} /* end for i */
 
 	FREEVEC(pz_rmatrix);

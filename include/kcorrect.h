@@ -23,7 +23,7 @@ IDL_LONG k_fit_nonneg(float *coeffs, float *rmatrix, IDL_LONG nk,
 											IDL_LONG nv, float *zvals, IDL_LONG nz, float *maggies,
 											float *maggies_ivar, float *redshift, IDL_LONG ngalaxy,
 											float tolerance, IDL_LONG maxiter, IDL_LONG *niter, 
-											float *chi2, IDL_LONG verbose);
+											float *chi2, IDL_LONG verbose, IDL_LONG dontinit);
 IDL_LONG k_nonneg_solve(float *xx, float *invcovar, float *bb,
 												float offset, IDL_LONG nn, float tolerance, 
 												IDL_LONG maxiter, IDL_LONG *niter, float *chi2, 

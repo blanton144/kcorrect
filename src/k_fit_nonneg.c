@@ -29,7 +29,8 @@ IDL_LONG k_fit_nonneg(float *coeffs,
 											IDL_LONG maxiter,
 											IDL_LONG *niter,
 											float *chi2,
-											IDL_LONG verbose)
+											IDL_LONG verbose, 
+                      IDL_LONG dontinit)
 {
 	int i,j,k,jp,ngood,allpos;
 	float *local_rmatrix=NULL,*invcovar=NULL,*bb=NULL,*pp=NULL,*xx=NULL,offset;
@@ -97,23 +98,28 @@ IDL_LONG k_fit_nonneg(float *coeffs,
 					printf("ch: %d %d %e\n",j,jp,cholesky[j*ngood+jp]);
 		fflush(stdout);
 #endif
-		if(ngood<=nv) {
-			ngood=1;
-			k_choldc(cholesky,ngood,pp);
-			k_cholsl(cholesky,ngood,pp,bb,xx);
-			for(j=0;j<ngood;j++) xx[j]=fabs(xx[j]);
-			for(j=ngood;j<nv;j++) xx[j]=xx[0]/(float)nv;
-			xx[0]/=(float)nv;
-			allpos=0;
-		} else {
-      k_choldc(cholesky,nv,pp);
-      k_cholsl(cholesky,nv,pp,bblin,xx);
-      allpos=1;
-			for(j=0;j<nv;j++) 
-				if(xx[j]<0.) allpos=0;
-			chi2[i]=k_nonneg_chi2(xx,invcovar,bb,offset,nv);
-		}
-
+    if(!dontinit) {
+      if(ngood<=nv) {
+        ngood=1;
+        k_choldc(cholesky,ngood,pp);
+        k_cholsl(cholesky,ngood,pp,bb,xx);
+        for(j=0;j<ngood;j++) xx[j]=fabs(xx[j]);
+        for(j=ngood;j<nv;j++) xx[j]=xx[0]/(float)nv;
+        xx[0]/=(float)nv;
+        allpos=0;
+      } else {
+        k_choldc(cholesky,nv,pp);
+        k_cholsl(cholesky,nv,pp,bblin,xx);
+        allpos=1;
+        for(j=0;j<nv;j++) 
+          if(xx[j]<0.) allpos=0;
+        chi2[i]=k_nonneg_chi2(xx,invcovar,bb,offset,nv);
+      }
+    } else {
+      for(j=0;j<nv;j++) xx[j]=coeffs[i*nv+j];
+      allpos=0;
+    }
+      
 		/* 3. run the iteration */
     if(!allpos) {
       for(j=0;j<nv;j++) if(xx[j]<0.) xx[j]=1.e-3*fabs(xx[j]);

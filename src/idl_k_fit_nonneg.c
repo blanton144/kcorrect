@@ -41,7 +41,7 @@ IDL_LONG idl_k_fit_nonneg
 	/* 1. run the fitting routine */
 	retval=(IDL_LONG) k_fit_nonneg(coeffs,rmatrix,nk,nv,zvals,nz,maggies,
 																 maggies_ivar,redshift,ngalaxy,tolerance,
-																 maxiter,niter,chi2,verbose);
+																 maxiter,niter,chi2,verbose,0);
 	
 	/* 2. free memory and leave */
 	free_memory();

@@ -1,7 +1,27 @@
 pro test_photoz
 
 data=mrdfits('sdss_training_set.test.fits',1)
-indx=shuffle_indx(n_elements(data),num_sub=2000)
+print,systime()
+kphotoz,data.maggies[0:4],data.maggies_ivar[0:4],photoz, $
+  vfile='vmatrix.smooth3.dat', lfile='lambda.smooth3.dat', chi2=chi2, $
+  /verbose
+print,systime()
+splot,data.redshift,photoz,psym=4
+
+i=1000
+i=ii[420]
+kphotoz,data[i].maggies[0:4],data[i].maggies_ivar[0:4],photoz, $
+  vfile='vmatrix.smooth3.dat', lfile='lambda.smooth3.dat', chi2=chi2, $
+  /verbose
+test_redshift=0.001*(dindgen(1000)+0.5) 
+test_maggies=data[i].maggies[0:4]#replicate(1.,1000) 
+test_maggies_ivar=data[i].maggies_ivar[0:4]#replicate(1.,1000) 
+kcorrect,test_maggies,test_maggies_ivar,test_redshift,kcorrect, $ 
+  chi2=chi2v, vfile='vmatrix.smooth3.dat', lfile='lambda.smooth3.dat' 
+splot,test_redshift,chi2v
+
+data=mrdfits('sdss_training_set.test.fits',1)
+indx=shuffle_indx(n_elements(data),num_sub=1)
 indx=lindgen(n_elements(data))
 kphotoz, data[indx].maggies[0:4], data[indx].maggies_ivar[0:4], photoz_3, $
   vfile='vmatrix.test3.dat', lfile='lambda.test3.dat',chi2=chi2

@@ -155,7 +155,7 @@ int main(int argc,
 		/* no direct constraints on the coeffs are included in this fit */
 		k_fit_nonneg(coeffs,rmatrix,nk,nv,zvals,nz,maggies,
 								 maggies_ivar,redshift,ncurrchunk,tolerance, 
-								 maxiter,&niter,chi2,0);
+								 maxiter,&niter,chi2,0,0);
 		for(i=0;i<ncurrchunk;i++) {
 			fprintf(stdout,"%e ",redshift[i]);
 			for(j=0;j<nv;j++)

@@ -27,10 +27,17 @@
 ;------------------------------------------------------------------------------
 pro compare_johnson_sdss, in_maggies, in_maggies_ivar, extinction, redshift, $
                           johnson, sdss, sdss_model, kcorrect=kcorrect, $
-                          sdss_band_shift=sdss_band_shift, chi2=chi2
+                          sdss_band_shift=sdss_band_shift, chi2=chi2, $
+                          ab=ab
 
-maggies=sdssflux2ab(in_maggies)
-maggies_ivar=sdssflux2ab(in_maggies_ivar, /ivar)
+if(NOT keyword_set(ab)) then $
+  maggies=sdssflux2ab(in_maggies) $
+else $
+  maggies=in_maggies
+if(NOT keyword_set(ab)) then $
+  maggies_ivar=sdssflux2ab(in_maggies_ivar, /ivar) $
+else $
+  maggies_ivar=in_maggies_ivar
 maggies=maggies*10.^(0.4*extinction)
 maggies_ivar=maggies_ivar*10.^(-0.8*extinction)
 ngalaxy=long(n_elements(redshift))
@@ -47,10 +54,10 @@ k_reconstruct_maggies, coeffs, fltarr(ngalaxy), jmaggies, vmatrix=vmatrix, $
               'bessell_R.par', 'bessell_I.par'], lambda=lambda
 johnson=22.5-2.5*alog10(jmaggies)
 sdss_model=22.5-2.5*alog10(smaggies)
-;jab2vega=-k_vega2ab(filterlist=['bessell_U.par', 'bessell_B.par', $
-                                ;'bessell_V.par', 'bessell_R.par', $
-                                ;'bessell_I.par'], /hayes)
-;for i=0, 4 do $
-  ;johnson[i,*]=johnson[i,*]+jab2vega[i]
+jab2vega=-k_vega2ab(filterlist=['bessell_U.par', 'bessell_B.par', $
+                                'bessell_V.par', 'bessell_R.par', $
+                                'bessell_I.par'], /hayes)
+for i=0, 4 do $
+  johnson[i,*]=johnson[i,*]+jab2vega[i]
 
 end

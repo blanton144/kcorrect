@@ -100,11 +100,11 @@ if(not file_test(savfile)) then begin
     vmatrix=vmatrix/1.e+38
 
 ;   fit nonnegative model
-    use_indx=shuffle_indx(n_elements(gals),num_sub=2500)
+    ;use_indx=shuffle_indx(n_elements(gals),num_sub=1000)
     ;add_indx=where(gals.redshift gt 0.5 OR $
                    ;gals.sdss_spectro_tag eq -1)
     ;use_indx=[use_indx,add_indx]
-    ;use_indx=lindgen(n_elements(gals))
+    use_indx=lindgen(n_elements(gals))
     coeffs=k_fit_nonneg(gals[use_indx].maggies, $
                         gals[use_indx].maggies_ivar,vmatrix, $
                         lambda,redshift=gals[use_indx].redshift, $
@@ -116,24 +116,25 @@ if(not file_test(savfile)) then begin
     dontsave_name=0
     save,filename=savfile
 endif else begin
+    preserve_name=name
+    preserve_navg=navg
     splog,'restoring'
     restore,savfile
     splog,'done'
-    if(keyword_set(dontsave_name)) then name=dontsave_name
-    if(keyword_set(dontsave_navg)) then navg=dontsave_navg
+    name=preserve_name
+    navg=preserve_navg
 endelse
 
 orig_chi2=chi2
 
-fixindx=where(chi2 eq chi2 and $
-              (gals[use_indx].maggies_ivar[0] gt 0. or $
-               gals[use_indx].maggies_ivar[1] gt 0. or $
-               gals[use_indx].maggies_ivar[2] gt 0. or $
-               gals[use_indx].maggies_ivar[3] gt 0. or $
-               gals[use_indx].maggies_ivar[4] gt 0. or $
-               gals[use_indx].maggies_ivar[5] gt 0. or $
-               gals[use_indx].maggies_ivar[6] gt 0. or $
-               gals[use_indx].maggies_ivar[7] gt 0.))
+fixindx=where(gals[use_indx].maggies_ivar[0] gt 0. or $
+              gals[use_indx].maggies_ivar[1] gt 0. or $
+              gals[use_indx].maggies_ivar[2] gt 0. or $
+              gals[use_indx].maggies_ivar[3] gt 0. or $
+              gals[use_indx].maggies_ivar[4] gt 0. or $
+              gals[use_indx].maggies_ivar[5] gt 0. or $
+              gals[use_indx].maggies_ivar[6] gt 0. or $
+              gals[use_indx].maggies_ivar[7] gt 0.)
 use_indx=use_indx[fixindx]
 coeffs=coeffs[*,fixindx]
 orig_chi2=orig_chi2[fixindx]
