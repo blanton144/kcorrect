@@ -1,0 +1,90 @@
+7/30/96	
+
+This directory contains the HDF source catalog from
+Williams et al. 1996 (AJ in press) in 3 different formats.
+
+catalog.ps
+	Postscript file of the catalog in Table 7 of the paper.
+
+chip*.txt
+	ASCII files listing the same quantities.
+
+hdfv2catalog_*.fits
+	FITS tables of the complete set of parameters for each galaxy.
+ 	These files can be read using the STSDAS using the STRFITS package
+	and manipulated using the STSDAS TTOOLS utilities.
+
+	The entry for each galaxy contains parameters measured from
+	the summed F606W+F814W image, and the same parameters measured
+	in the four separate bandpasses (F300W, F450W, F606W, and F814W).
+	Note that source detection was done on the summed F606W+F814W
+	image, and the galaxy centers and apertures were fixed for the
+	measurements in the other bands. 
+
+	See Williams et al. for more details. A point to note
+	in comparing the raw catalog to the published version is
+	that when lower limits on the F606W isophotal and total
+	magnitudes are presented there, they are both computed from
+	the S/N within the isophotal aperture.
+	
+
+The catalog parameters are listed below, along with the STSDAS
+table specifications of datatype, print format, units, and description.
+
+ra      d       h15.3   "hours"  "Right Ascension"
+dec     d       h15.2   "degrees" "Declination"
+chipno	i	i1	""	 "CCD number"
+entnum	i	i5	""	 "detection number"
+subent	ch*15	""	""	 "split number"
+eflgs	ch*8	""	""	 "object flags"
+sbr	r	f10.3	mag	 "sky brightness"
+nsbr	r	f10.3	pixels	 "number of sky pixels"
+ssbr	r	f10.3	counts	 "sky sigma"
+area	r	f10.3	pixels	 "isophotal area"
+tarea	r	f10.3	pixels	 "total area"
+ispht	r	f10.3	counts	 "isophote brightness"
+xavg	r	f10.3	pixels	 "average x width"
+yavg	r	f10.3	pixels	 "average y width"
+xc	r	f10.3	pixels	 "x position"
+yc	r	f10.3	pixels	 "y position"
+Li	r	f10.3	counts	 "isophotal luminosity"
+sLi	r	f10.3	counts	 "sigma of isophotal luminosity"
+Lc	r	f10.3	counts	 "core luminosity"
+Lfca	r	f10.3	counts	 "aperture luminosity"
+Ltotal	r	f10.3	counts	 "total luminosity"
+icx	r	f10.3	pixels	 "x intensity weighted centroid"
+icy	r	f10.3	pixels	 "y intensity weighted centroid"
+ixx	r	f10.3	pixels	 "xx intensity weighted second moment"
+iyy	r	f10.3	pixels	 "yy intensity weighted second moment"
+ixy	r	f10.3	pixels	 "xy intensity weighted second moment"
+ir1	r	f10.3	pixels	 "intensity weighted first moment radius"
+ir3	r	f10.3	pixels	 "intensity weighted third moment radius"
+ir4	r	f10.3	pixels	 "intensity weighted fourth moment radius"
+cx	r	f10.3	pixels	 "x unweighted centroid"
+cy	r	f10.3	pixels	 "y unweighted centroid"
+xx	r	f10.3	pixels	 "xx unweighted second moment"
+yy	r	f10.3	pixels	 "yy unweighted second moment"
+xy	r	f10.3	pixels	 "xy unweighted second moment"
+r1	r	f10.3	pixels	 "unweighted first moment radius"
+ir2	r	f10.3	pixels	 "intensity weighted second moment radius"
+r2	r	f10.3	pixels	 " unweighted second moment radius"
+mc	r	f10.3	mag	 "core magnitude"
+ma	r	f10.3	mag	 "aperture magnitude"
+mi	r	f10.3	mag	 "isophotal magnitude"
+mt	r	f10.3	mag	 "total magnitude"
+s2ni	r	f10.3	""	 "S/N for isophotal mag"
+s2na	r	f10.3	""	 "S/N for aperture mag"
+s2nt	r	f10.3	""	 "S/N for total mag"
+pa	r	f10.3	degrees	 "Raw Position Angle (vertical = 0, increases clockwise)"
+celpa	r	f10.3	Degrees	 "Celestial Position Angle (increase E from N)"
+eps	r	f10.3	""	 "axial ratio (isophotal b/a)"
+
+The parameters for the individual bandpasses are identical to 
+the above, with the exception that chipno, ra, and dec are not
+repeated. The parameters have the filtername appended as shown
+in the example below.
+
+entnum_f300w	i	i5	""	 "detection number"
+subent_f300w	ch*15	""	""	 "split number"
+...
+

@@ -1,0 +1,26 @@
+
+User-agent: *
+Disallow: /ftp/cdbs/
+Disallow: /ftp/observing/phase2_finder_charts/
+Disallow: /cgi-bin/spike-patch-request
+Disallow: /dbsa/doc/address-change-request.html
+Disallow: /dbsa/doc/new-acct-requests.html
+Disallow: /dbsa/doc/sqr-requests.html
+Disallow: /dbsa/doc/admin/travel-request.html
+Disallow: /support/Status/bb
+Disallow: /security
+Disallow: /stsearch
+Disallow: /support/Status/CISDevents
+Disallow: /support/Status/ARSystem
+Disallow: /cgi-bin/texis
+Disallow: /instruments/observatory/dq/0527_97/
+
+#
+# In support of CNSHD198215
+Disallow: /science/goods/co-i.html
+
+# User-agent: Webinator
+# Disallow: /astroweb/
+# Disallow: /ftp/cdbs/
+# Disallow: /ftp/observing/phase2_finder_charts/
+
