@@ -1,0 +1,11 @@
+#!/bin/csh -f
+
+set files = "table2_dusty.txt table3_shell.txt table4_cloudy.txt"
+set dusts = "MW SMC"
+
+foreach file ($files)
+	foreach dust ($dusts)
+		./extract_witt $file $dust
+  end
+end
+

@@ -1,0 +1,162 @@
+#!/usr/local/bin/perl
+
+$infile=shift;
+$type=shift;
+
+$infile=~/table\d*_(\w*)\.txt/;
+$modelname="${1}_$type";
+die "not a model\n" if($modelname eq ""); 
+print "$modelname\n";
+
+$nlambda=25;
+
+open(ifp,"<$infile");
+$itauv=-1;
+$ilambda=0;
+$isgoing=0;
+while(<ifp>) {
+	if($isgoing) {
+		if(/^-*$/) {
+			$isgoing=0;
+		} else {
+			chop;
+			split;
+			$lambda[$ilambda]=$_[0];
+			$tau[$itauv*$nlambda+$ilambda]=$_[1];
+			$tau_att_h[$itauv*$nlambda+$ilambda]=$_[3];
+			$fsca_h[$itauv*$nlambda+$ilambda]=$_[4];
+			$fdir_h[$itauv*$nlambda+$ilambda]=$_[5];
+			$fesc_h[$itauv*$nlambda+$ilambda]=$_[6];
+			$tau_att_c[$itauv*$nlambda+$ilambda]=$_[8];
+			$fsca_c[$itauv*$nlambda+$ilambda]=$_[9];
+			$fdir_c[$itauv*$nlambda+$ilambda]=$_[10];
+			$fesc_c[$itauv*$nlambda+$ilambda]=$_[11];
+			$ilambda++;
+		}
+	}
+	if(/$type\s*tau_V\s*=\s*([\d|\.]*)\s*/) {
+		$itauv++;
+		$tauv[$itauv]=$1;
+		<ifp>;
+		$isgoing=1;
+		$ilambda=0;
+	}
+}
+close(ifp);
+$ntauv=$itauv;
+print "$ntauv\n";
+
+open(ofp,">witt.${modelname}_h.lambda.dat");
+printf ofp "1 $nlambda\n";
+for($j=0;$j<$nlambda;$j++) {
+	printf ofp "%e\n", $lambda[$j];
+}
+close(ofp);
+
+open(ofp,">witt.${modelname}_h.tauv.dat");
+printf ofp "1 $ntauv\n";
+for($i=0;$i<$ntauv;$i++) {
+	printf ofp "%e\n", $tauv[$i];
+}
+close(ofp);
+
+open(ofp,">witt.${modelname}_c.lambda.dat");
+printf ofp "1 $nlambda\n";
+for($j=0;$j<$nlambda;$j++) {
+	printf ofp "%e\n", $lambda[$j];
+}
+close(ofp);
+
+open(ofp,">witt.${modelname}_c.tauv.dat");
+printf ofp "1 $ntauv\n";
+for($i=0;$i<$ntauv;$i++) {
+	printf ofp "%e\n", $tauv[$i];
+}
+close(ofp);
+
+open(ofp,">witt.${modelname}_h.tau.dat");
+printf ofp "2 $ntauv $nlambda\n";
+for($i=0;$i<$ntauv;$i++) {
+	for($j=0;$j<$nlambda;$j++) {
+		printf ofp "%e\n", $tau[$i*$nlambda+$j];
+	}
+}
+close(ofp);
+
+open(ofp,">witt.${modelname}_c.tau.dat");
+printf ofp "2 $ntauv $nlambda\n";
+for($i=0;$i<$ntauv;$i++) {
+	for($j=0;$j<$nlambda;$j++) {
+		printf ofp "%e\n", $tau[$i*$nlambda+$j];
+	}
+}
+close(ofp);
+
+open(ofp,">witt.${modelname}_h.tau_att.dat");
+printf ofp "2 $ntauv $nlambda\n";
+for($i=0;$i<$ntauv;$i++) {
+	for($j=0;$j<$nlambda;$j++) {
+		printf ofp "%e\n", $tau_att_h[$i*$nlambda+$j];
+	}
+}
+close(ofp);
+
+open(ofp,">witt.${modelname}_c.tau_att.dat");
+printf ofp "2 $ntauv $nlambda\n";
+for($i=0;$i<$ntauv;$i++) {
+	for($j=0;$j<$nlambda;$j++) {
+		printf ofp "%e\n", $tau_att_c[$i*$nlambda+$j];
+	}
+}
+
+open(ofp,">witt.${modelname}_h.fsca.dat");
+printf ofp "2 $ntauv $nlambda\n";
+for($i=0;$i<$ntauv;$i++) {
+	for($j=0;$j<$nlambda;$j++) {
+		printf ofp "%e\n", $fsca_h[$i*$nlambda+$j];
+	}
+}
+close(ofp);
+
+open(ofp,">witt.${modelname}_c.fsca.dat");
+printf ofp "2 $ntauv $nlambda\n";
+for($i=0;$i<$ntauv;$i++) {
+	for($j=0;$j<$nlambda;$j++) {
+		printf ofp "%e\n", $fsca_c[$i*$nlambda+$j];
+	}
+}
+
+open(ofp,">witt.${modelname}_h.fdir.dat");
+printf ofp "2 $ntauv $nlambda\n";
+for($i=0;$i<$ntauv;$i++) {
+	for($j=0;$j<$nlambda;$j++) {
+		printf ofp "%e\n", $fdir_h[$i*$nlambda+$j];
+	}
+}
+close(ofp);
+
+open(ofp,">witt.${modelname}_c.fdir.dat");
+printf ofp "2 $ntauv $nlambda\n";
+for($i=0;$i<$ntauv;$i++) {
+	for($j=0;$j<$nlambda;$j++) {
+		printf ofp "%e\n", $fdir_c[$i*$nlambda+$j];
+	}
+}
+
+open(ofp,">witt.${modelname}_h.fesc.dat");
+printf ofp "2 $ntauv $nlambda\n";
+for($i=0;$i<$ntauv;$i++) {
+	for($j=0;$j<$nlambda;$j++) {
+		printf ofp "%e\n", $fesc_h[$i*$nlambda+$j];
+	}
+}
+close(ofp);
+
+open(ofp,">witt.${modelname}_c.fesc.dat");
+printf ofp "2 $ntauv $nlambda\n";
+for($i=0;$i<$ntauv;$i++) {
+	for($j=0;$j<$nlambda;$j++) {
+		printf ofp "%e\n", $fesc_c[$i*$nlambda+$j];
+	}
+}
+close(ofp);

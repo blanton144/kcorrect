@@ -46,6 +46,10 @@ for m = 0, n_elements(metallicity)-1L do begin
     openr,unit,gisselpath+'/ssp_salp_z'+metallicity[m]+'.tsteps.dat',/get_lun
     readf,unit,tsteps
     free_lun,unit
+    dt=dblarr(n_elements(tsteps))
+    dt[0]=0.
+    dt[1:n_elements(dt)-1]=tsteps[1:n_elements(dt)-1]- $
+      tsteps[0:n_elements(dt)-2]
     metspec=dblarr(nl,n_elements(tsteps))
     help,tsteps
     for i=0, n_elements(tsteps)-1 do begin
@@ -58,9 +62,9 @@ for m = 0, n_elements(metallicity)-1L do begin
     endfor
     if(sfhtype eq 'gaussian') then begin
         for a = 0, n_elements(sfhpars)-1L do begin
-            contrib=exp(-0.5*((sfhpars[a].age-tsteps)/ $
-                              sfhpars[a].agesigma)^2)
-            contrib=contrib/total(contrib,/double)
+            contrib=dt*exp(-0.5*((sfhpars[a].age-tsteps)/ $
+                                 sfhpars[a].agesigma)^2)/ $
+              sqrt(2.*pi*sfhpars[a].agesigma^2)
             indx=where(contrib gt 1.d-5, count)
             if(count gt 0) then begin
                 spec=dblarr(nl)
@@ -69,8 +73,7 @@ for m = 0, n_elements(metallicity)-1L do begin
                 for d = 0, n_elements(dust)-1L do begin
                     vindx=m*n_elements(sfhpars)*n_elements(dust)+ $
                       a*n_elements(dust)+d
-                    vmatrix[*,vindx]=spec*10.^(-0.4*dust[d]* $
-                                               ext_ccm(lambda[0:nl-1],3.5))
+                    vmatrix[*,vindx]=spec*exp(-witt_ext(dust[d],dust[d].tauv,lambda[0:nl-1]))
                 endfor
             endif
         endfor
