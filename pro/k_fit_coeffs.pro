@@ -62,11 +62,11 @@ pro k_fit_coeffs, galaxy_flux, galaxy_invvar, galaxy_z, coeff, ematrix=ematrix, 
 if (N_params() LT 4) then begin
     klog, 'Syntax - k_fit_coeffs, galaxy_flux, galaxy_invvar, galaxy_z, coeff, $'  
     klog, '         [ematrix=, zvals=, filterlist=, bmatrix=, lambda=, rmatrix=, $'
-    klog, '          version=, vpath=, filterpath=]
+    klog, '          version=, vpath=, filterpath=]'
     return
 endif
 
-if(NOT keyword_set(filterpath)) then $
+if(NOT keyword_set(filterpath)) then $j
   filterpath=getenv('KCORRECT_DIR')+'/data/filters'
 
 ; Get bmatrix and stuff from files if necessary

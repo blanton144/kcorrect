@@ -31,7 +31,7 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_coeffdist_plot,version,vpath=vpath,basecoeff=basecoeff
+pro k_coeffdist_plot,version,vpath=vpath,basecoeff=basecoeff,subsample=subsample
 
 if(n_elements(vpath) eq 0) then $
   vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
@@ -42,8 +42,20 @@ k_load_ascii_table,coeff,vpath+'/coeff.'+version+'.dat'
 k_load_ascii_table,ematrix,vpath+'/ematrix.'+version+'.dat'
 k_load_ascii_table,bmatrix,vpath+'/bmatrix.'+version+'.dat'
 k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
-nt=(size(ematrix))[2]
+nt=long((size(ematrix))[2])
+ngalaxy=long(n_elements(coeff))/nt
 nl=n_elements(lambda)-1l
+
+speccoeffs=[ $
+             [1.,-0.11,-0.14,-0.003], $
+             [1.,-0.11,0.04,-0.003], $
+             [1.,-0.11,0.20,-0.003] $
+           ]
+nspecs=(size(speccoeffs))[2]
+
+if(n_elements(subsample) eq 0) then subsample=1l
+indx=lindgen(ngalaxy/long(subsample))*long(subsample)
+coeff=coeff[*,indx]
 
 espec=bmatrix#ematrix
 lam=0.5*(lambda[0l:nl-1l]+lambda[1l:nl])
@@ -58,11 +70,21 @@ for i=0, n_elements(indx)-1 do begin
     ymean=mean(yrat)
     plot,xrat,yrat,psym=3,xst=1,yst=1,xra=xmean+[-2.*xsig,4.*xsig], $
       yra=ymean+3.*[-xsig,xsig]
+    for j=0,nspecs-1 do begin
+        oplot,[speccoeffs[basecoeff,j]],[speccoeffs[indx[i],j]],psym=4, $
+          color=255 
+    endfor
 endfor
 
-!p.multi=[2,1,2]
-plot,xrat,yrat,psym=3,xst=1,yst=1,xra=xmean+[-2.*xsig,4.*xsig], $
-  yra=ymean+3.*[-xsig,xsig]
+
+!p.multi=[1,1,2]
+spec=espec#speccoeffs
+out=spec[*,0]/max(spec[*,0])
+plot,lam,out,xst=1,yst=1,xra=[2000.,11000.],/nodata
+for j=0, nspecs-1 do begin
+    out=spec[*,j]/max(spec[*,j])
+    oplot,lam,out
+endfor
     
 end
 ;------------------------------------------------------------------------------

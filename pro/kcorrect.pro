@@ -10,12 +10,13 @@
 ;
 ; CALLING SEQUENCE:
 ;   kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, 
-;      [kcorrectz=, version=, vpath=, /maggies] 
+;      [kcorrectz=, version=, vpath=, /maggies, rmatrix=, zvals=,
+;       ematrix=] 
 ;      
 ; INPUTS:
-;   galaxy_mag    - AB magnitudes of galaxies
-;   galaxy_magerr - errors in magnitudes 
-;   galaxy_z      - redshifts of galaxies
+;   galaxy_mag    - AB magnitudes of galaxies [N_band, N_gal]
+;   galaxy_magerr - errors in magnitudes  [N_band, N_gal]
+;   galaxy_z      - redshifts of galaxies [N_gal]
 ;
 ; OPTIONAL INPUTS:
 ;   kcorrectz     - redshift (or redshifts) to K-correct magnitudes to
@@ -27,6 +28,10 @@
 ;   galaxy_mag0   - K-corrected AB magnitudes
 ;
 ; OPTIONAL INPUT/OUTPUTS:
+;   ematrix       - eigentemplates [N_dim, N_template]
+;   rmatrix       - look up table for bmatrix and filter information 
+;                   [N_z, N_dim, N_band]
+;   zvals         - look up table for rmatrix [N_z]
 ;
 ; COMMENTS:
 ;   This program has a large amount of overhead. So use it on long
@@ -53,12 +58,12 @@
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies
+pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
     print, 'Syntax - kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, $'
-    print, '        [kcorrectz=, version=, vpath=, maggies=]'
+    print, '        [kcorrectz=, version=, vpath=, maggies=, rmatrix=, zvals=, ematrix=]'
     return
 endif
 
@@ -82,9 +87,16 @@ endif else begin
 endelse 
 
 ; Calculate coeffs
-k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z,coeff,version=version, $
-  vpath=vpath,filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
-  ematrix=ematrix
+if(n_elements(rmatrix) gt 0 AND n_elements(zvals) gt 0 AND $
+   n_elements(ematrix) gt 0) then begin
+    k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z,coeff, $
+      filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
+      ematrix=ematrix
+endif else begin
+    k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z,coeff,version=version, $
+      vpath=vpath,filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
+      ematrix=ematrix
+endelse
 
 ; Calculate model fluxes
 if(n_elements(kcorrectz) eq 0) then begin 

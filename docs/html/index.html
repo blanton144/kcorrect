@@ -23,13 +23,21 @@ detail. Please cite this paper if you use the code or results on this
 web site.
 </p>
 
-<p>
-We document in detail here how to use the SED fits provided to
+<p> We document in detail here how to use the SED fits provided to
 calculate K-corrections and SEDs for particular objects with
-broad-band magnitude measurements. We do not document in detail how
-to optimize the templates; the interested user can peruse the comments
-in the code and/or contact the authors.
-</p>
+broad-band magnitude measurements. We do not document in detail how to
+optimize the templates; the interested user can peruse the comments in
+the code and/or contact the authors.  Note that although this code has been
+written with SDSS in mind as its first application, it has been
+written generally enough to be applied to nearly any set of
+observations. To use observations outside the optical range, it is
+probably necessary to fit the templates again. </p>
+
+<p> The code compiles into a shared object library callable by C, so
+that people can incorporate the K-correction routines directly into
+their code.  We also provide an interface to the identical library
+through IDL. Users of Fortran might want to communicate with me about
+how to accommodate their needs.  </p>
 
 <p>
 One can imagine using this code to calculate the evolution of the
@@ -43,44 +51,54 @@ develop galaxy classification algorithms.
 The code has been tested, and compiles and runs on a Red Hat 7.1
 OS. Little experimentation with other operating systems has been
 performed. Other Linux versions should port very easily, at least. 
-In order to compile the code, first set the environmental variables
-(in, for example, bash):
+In order to compile the code follow these directions:
+
+<ul>
+<li> First set the environmental variables (in, for example, bash):
 <pre>
 KCORRECT_DIR=/usr/local/kcorrect
 IDL_PATH=${IDL_PATH}:+$KCORRECT_DIR/pro
-PATH=$KCORRECT_DIR/bin:$PATH
-MAKE_FTNLIB="-lg2c"
 IDL_FLAG="-DLINKTOIDL"
+MAKE_FTNLIB="-lg2c"
 KCORRECT_LD_LIB="/usr/lib"
+PATH=$KCORRECT_DIR/bin:$PATH
 </pre>
-For "KCORRECT_DIR", simply substitute whatever directory you have
-downloaded the data into. For "MAKE_FTNLIB", specify the library one
-needs to include in the C compiler in order to include Fortran (some
-library stuff included here depends on it, sorry). As implied above,
-the "-lg2c" choice is appropriate for Red Hat Linux.
-If you do not have IDL on your system, set IDL_FLAG="" instead of
-IDL_FLAG="-DLINKTOIDL". 
-</p>
-
-<p>
-If you are going to use the C library in your own C code,
-$KCORRECT_LD_LIB should be a location which is in your
-LD_LIBRARY_PATH. It is where the shared object library libkcorrect.so
-will live; since this is a dynamically linked library, your
-environment needs to know how to find it. If you have permission to
-put it in /usr/lib or /usr/local/lib, do so; if not, put it somewhere
-that you do have permission, and set
-"LD_LIBRARY_PATH=$KCORRECT_LD_LIB:$LD_LIBARARY_PATH".  </p>
-
-<p>
-Then, in $KCORRECT_DIR, type "evilmake -k". Then everything should
-compile, and IDL documentation should be created. If you do not have
-IDL, the compile should complete what it needs to complete.  At this
-point, you should be able to open IDL and start using the utilities
-described below. Users of the C interface will need a further call to
-"evilmake -k install", which just copies libkcorrect.so to the
-directory specified by KCORRECT_LD_LIB.
-</p>
+These default settings may need to be changed on your system as
+follows:
+<ul>
+<li>
+<b>KCORRECT_DIR</b>: Simply substitute whatever directory you have
+downloaded this product into. 
+<li>
+<b>MAKE_FTNLIB</b>: The library C needs to load in order to include
+Fortran objects. As implied above, "-lg2c" is appropriate for Red Hat
+Linux. 
+<li>
+<b>IDL_PATH</b>: Set only if you are using IDL
+<li>
+<b>IDL_FLAG</b>: Set to "-DLINKTOIDL" only if you are using IDL;
+otherwise set it to ""
+<li>
+<b>KCORRECT_LD_LIB</b>: Should be a location which is in your
+LD_LIBRARY_PATH, in which we will put the shared object library when
+it is compiled. If you are trying to link this code in as a C library,
+KCORRECT_LD_LIB has to be in LD_LIBRARY_PATH at run time. If you
+don't have permission to write into /usr/lib, set
+"LD_LIBRARY_PATH=$KCORRECT_LD_LIB:$LD_LIBARARY_PATH", so your code
+knows where to find the kcorrect stuff.
+</ul>
+You probably want to put these settings in your .bashrc or .tcshrc
+file.
+<li> Type "evilmake -k". 
+Then everything should compile, and IDL documentation should be
+created. If you do not have IDL, the compile should complete what it
+needs to complete and then give an error message that it can't make
+the IDL docs. At this point, you should be able to open IDL and
+start using the utilities described below. 
+<li> Type "evilmake -k install". This will just copy libkcorrect.so to
+the directory specified by KCORRECT_LD_LIB, so that writers of C code
+can use it.  
+</ul>
 
 <p>
 Note that the C codes "fit_coeffs.c" and "model_fluxes.c" only depend
@@ -91,24 +109,131 @@ put something like "fit_coeffs.c" into your code but include the
 k_model_fluxes() call directly inside to get the K-corrections.
 </p>
 
-<p>
-TODO: fix paper directory to be stand-alone; work out units of visual
-flux
-</p>
-
 <h3> The Basics</h3>
 
 <p> We'll describe the basic idea before getting into exactly how to
-use the code. The input to the code consists, first, of a set of
-templates (provided with the distribution), and second, of a list of
-galaxy maggies and errors. Maggies are defined in terms of magnitudes
-as "f=10^{-0.4*(m)}", where "m" is a magnitude. The normalization is
-arbitrary as far as the code is concerned (*you* presumably care,
-though). The errors are expressed as the inverse variance of the
-maggies, or in other words "(f*0.4*ln(10)*merr)^{-2}", where "merr" is
-the magnitude standard deviation. So you have to calculate these
-maggies from petroCounts or modelCounts, or whatever magnitudes you
-are using.  </p>
+use the code. To each set of five-band galaxy magnitudes I fit an SED
+which is a linear combination of four templates. The four templates
+have been optimized to minimize the residuals between the actual
+galaxy magnitudes and the galaxy magnitudes reconstructed from the
+galaxy SED fit.</p>
+
+<p> From the SED fit, one can reconstruct magnitudes corresponding to
+observing the galaxy at an redshift within a large range (like 0 to
+1). When you reconstruct magnitudes this way, it is best to ignore
+those cases for which you are extrapolating the magnitude into a
+region of the spectrum not directly observed (ie. for SDSS
+observations you shouldn't trust
+a reconstruction of the z=0.2 u-band based on z=0 observations). You
+can use the reconstructions two ways: 
+<ul>
+<li> Use the reconstruction as the best estimate of that magnitude at
+that redshift
+<li> Estimate a K-correction to the actual magnitude as the ratio of the
+reconstruction at the redshift desired to the
+reconstruction at the actual redshift 
+</ul>
+This distinction matters very little if your reconstructions are
+really good.
+</p>
+
+<p>
+The code is generally based on AB magnitudes or AB maggies. SDSS
+luptitudes are AB quantities and for reasonably bright objects are
+equivalent to AB magnitudes. "Maggies" are simply the linearized
+version of AB magnitudes; that is, they are 10^{-0.4*mag} (the
+conversion from luptitudes to maggies is a bit more complicated). </P>
+
+<p> But you may still be wondering what I mean by an "AB"
+magnitude. The AB system simply has the zeropoints of all the
+magnitudes set such that an object with f(nu)=1 (or
+f(lambda)=1/lambda^2) ... EXPLAIN </P>
+
+<h3> Using the IDL Code</h3>
+
+The easiest interface to the code, if it is available to you, is the
+IDL code. The detailed <a href="kcorrect_help.html"> documentation</a>
+is available for all of the routines, but there is basically only
+one you would usually use, which is <b>kcorrect</b>.
+
+This routine performs the K-corrections on a 
+set of magnitudes or maggies. It is called as follows:
+<pre>
+kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0 [, $
+    kcorrectz=, maggies=, version=, vpath=, rmatrix=, ematrix=, $
+    zvals=]
+</pre>
+If the "/maggies" flag is specified, galaxy_mag and galaxy_magerr
+are in maggies; otherwise they are in magnitudes (see explanation
+above). They should be [5,n] arrays. The reconstructed magnitudes 
+are returned in galaxy_mag0. If kcorrectz is set, all of the magnitudes are
+reconstructed at the specified redshift. Ignore version and vpath
+UNLESS you want to specify your own set of templates. </p>
+
+<p>
+For example, one might do the following:
+<pre>
+kcorrect, [0., 2., 0.7, 0.3, 0.3], [0.02,0.02,0.02,0.02,0.02], $
+    0.03, galaxy_mag0, kcorrectz=0.
+</pre>
+which would take the set of magnitudes in the first argument, observed
+for a galaxy at redshift 0.03, and reconstruct the magnitudes at z=0.1,
+putting the result in galaxy_mag0.  </p>
+
+<p> Please note that "kcorrect" uses a lot of overhead, so if you can,
+use it on several thousand galaxies simultaneously at least. If you
+use it on each object individually (as in the example given above),
+you will be in trouble. If you truly cannot avoid it, then specify the
+extra arguments rmatrix, ematrix, and zvals. For example, if you run
+the following:
+<pre>
+kcorrect, [0., 2., 0.7, 0.3, 0.3], [0.02,0.02,0.02,0.02,0.02], $
+    0.03, galaxy_mag0, kcorrectz=0.1, rmatrix=rmatrix, ematrix=ematrix, $
+    zvals=zvals
+kcorrect, [0., 1.7, 0.8, 0.2, 0.2], [0.02,0.02,0.02,0.02,0.02], $
+    0.07, galaxy_mag0, kcorrectz=0.1, rmatrix=rmatrix, ematrix=ematrix, $
+    zvals=zvals
+</pre>
+You will find that the second call takes far less time than the first,
+because the temporary data stored in rmatrix, ematrix, and zvals will
+not have to be regenerated.</p>
+
+<h3> Using the C Code</h3>
+
+<p>
+The C code requires a bit more attention to use. If people say they
+would use it if it were easier, I will improve it. First, I will
+describe the stand-alone C programs which fit for the coefficients and
+which calculate the model fluxes. Second, I will briefly describe how
+to use the libraries within your own C code.
+</p>
+
+<p>
+There are two stand-alone programs, <b>fit_coeffs</b> and
+<b>model_fluxes</b>. <b>fit_coeffs</b> uses the maggies in each band
+to calculate the coefficients. <b>model_fluxes</b> uses the list of
+coefficients (as output by <b>fit_coeffs</b> to reconstruct the
+magnitudes.
+</p>
+
+<p>
+<b>fit_coeffs</b> is called in the following way:
+<pre>
+cat maggies.dat | fit_coeffs $KCORRECT_DIR/data/ematrix.default.dat \
+   $KCORRECT_DIR/data/bmatrix.default.dat \
+   $KCORRECT_DIR/data/lambda.default.dat \
+   $KCORRECT_DIR/data/filterlist.default.dat 
+</pre>
+where each line of "maggies.dat" has the form:
+<pre>
+z umaggies gmaggies rmaggies imaggies zmaggies uinvvar ginvvar rinvvar iinvvar zinvvar
+</pre>
+The "z" in the first column refers to redshift. All of the quantities
+in this file are in maggies, as described above. So you have to
+convert the luptitudes or magnitudes --- and the inverse variances ---
+you have into maggies before calling this. (Note that the conversion
+to the inverse variances from the maggies and the magnitude errors is
+(maggies*0.4*ln(10)*magerr)^{-2}. </p>
 
 <p>
 From the set of maggies and errors, the code calculates a set of four
