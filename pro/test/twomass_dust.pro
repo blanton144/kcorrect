@@ -39,12 +39,34 @@ zline=zline[*,ii]
 dm=lf_distmod(kcorrect.z, omega0=0.3, omegal0=0.7) 
 absmk=22.5-2.5*alog10(kcorrect.abmaggies[7])-dm-kcorrect.kcorrect[7]
 
+ndata=n_elements(absmk)
+ndims=5
+data=fltarr(ndims,ndata)
+data[0,*]=calibobj.ab_exp[2]
+data[1,*]=calibobj.fracpsf[2]
+data[2,*]=absmk
+data[3,*]=zline[17,*].lineew
+data[4,*]=rmk
+rmk=-2.5*alog10(kcorrect.abmaggies[2]/kcorrect.abmaggies[7])
+range=[[0.,1.], $
+       [0.,1.], $
+       [-23.,-17.], $
+       [-2.,10.], $
+       [0.5,2.]]
+hogg_manyd_scatterplot, fltarr(ndata)+1., data, 'color.ps', range=range
+hogg_manyd_meanplot, fltarr(ndata)+1., data, ndims-1L, 'color_vs_ba.ps', $
+  xdims=lonarr(ndims-1),ydims=lindgen(ndims-1), levels=0.1*findgen(20), $
+  dbin=[0.2,0.1,1.0,1.,0.1], range=range
+
+stop
+
 ii=lindgen(n_elements(absmk))
 plot,calibobj[ii].ab_exp[2],calibobj[ii].ab_dev[2],psym=4
 
-ii=where(zline[*,ii].lineew gt 5.)
+ii=where(zline[17,*].lineew gt 5.)
+ii=where(calibobj.fracpsf[2] lt 0.5)
 rmk=-2.5*alog10(kcorrect[ii].abmaggies[2]/kcorrect[ii].abmaggies[7])
-plot,calibobj[ii].ab_exp[2],rmk
+plot,calibobj[ii].ab_exp[2],rmk,psym=3
 
 stop
 
