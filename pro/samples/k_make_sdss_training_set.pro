@@ -125,18 +125,23 @@ if(NOT file_test(savfile)) then begin
     struct_assign,{junk:0},tm
     tm[m1]=twomass[m2]
     help,tm,sp
+    k_add_stack, CNOC2_STACK_MF, CNOC2_STACK_MF_ivar, cnoc_stacked, $
+      cnoc_stacked_ivar
+    k_add_stack, STACK_MF, STACK_MF_ivar, stacked, stacked_ivar
     save,filename=savfile 
-    stop
 endif else begin
     restore,savfile
 endelse
 
 ; now equalize the redshift bins (but include all mustdo plates)
+sp=sp[tostack]
+tm=tm[tostack]
 mustdo=lonarr(n_elements(sp))
 for i=0, n_elements(mustdoplates)-1L do begin
     inplate_indx=where(sp.plate eq mustdoplates[i],inplate_count)
     if(inplate_count gt 0) then mustdo[inplate_indx]=1
 endfor
+mustdo[tostack]=1
 includegal=lonarr(n_elements(sp))
 ninchunk=fltarr(nzchunks)
 for i=nzchunks-1L,0,-1 do begin
@@ -163,6 +168,7 @@ endif
 tm=tm[include_indx]
 sp=sp[include_indx]
 help,sp,tm
+stop
 
 ; set up which magnitudes are used
 klog,'use model past z='+string(modelzlim)
