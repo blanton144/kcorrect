@@ -1,0 +1,14 @@
+setenv KCORRECT_DIR `pwd`
+setenv IDL_PATH ${IDL_PATH}:+$KCORRECT_DIR/pro
+set path = ($KCORRECT_DIR/bin $path)
+
+# C and Fortran flags
+set hosttype = `uname -a | awk '{print $1 }'`
+if($hosttype == 'IRIX') then
+setenv MAKE_CFLAGS '-n32 -woff 1174'
+setenv MAKE_FTNLIB '-lftn'
+endif
+if($hosttype == 'Linux') then
+setenv MAKE_CFLAGS ' '
+setenv MAKE_FTNLIB '-lg2c'
+endif

@@ -1,0 +1,95 @@
+#!/usr/bin/perl
+
+#
+# Make points animation of coeffs; depends on having "points",
+# "tiff2pnm" and "gifmerge"
+#
+
+$pi=3.14159265358979;
+$d2g=$pi/180.;
+
+$args{'windowsize'}=500;
+$args{'nper'}=50;
+$args{'acolor'}=1.;
+$args{'version'}="default";
+
+foreach $arg (@ARGV) {
+	@argw=split('=',$arg);
+	print "$argw[0] $argw[1]\n";
+	if ($argw[1] eq "") {
+		$argw[1]=1;
+	} 
+	$args{$argw[0]}="$argw[1]";
+}
+
+if($args{'outfile'} eq "") {
+	$args{'outfile'}="$ENV{'KCORRECT_DIR'}/docs/html/coeff_anim.$args{'version'}.$args{'windowsize'}.gif";
+} 
+
+if($args{'acolor'}<1.) {
+	$doBlend=1;
+	if($args{'pnmdepth'} eq "") {$args{'pnmdepth'}=6;}
+} else {
+	$doBlend=0;
+	if($args{'pnmdepth'} eq "") {$args{'pnmdepth'}=4;}
+}
+
+sub move {
+	$base=shift;
+	$num=shift;
+	$yangle0=shift;
+	$yangle1=shift;
+	$xangle0=shift;
+	$xangle1=shift;
+	$distance0=shift;
+	$distance1=shift;
+	for($i=0;$i<$num;$i++) {
+		$number=sprintf("%4.4d",$i+$base);
+		$giffile="tmpanim.$number.gif";
+		$xangle=$pi*($xangle0+($xangle1-$xangle0)*$i/($num-1))/180.;
+		$yangle=$pi*($yangle0+($yangle1-$yangle0)*$i/($num-1))/180.;
+		$distance=$distance0+($distance1-$distance0)*$i/($num-1);
+		$fvec[0]=-sin($yangle);
+		$fvec[1]=-sin($xangle);
+		$fvec[2]=-cos($yangle)*cos($xangle);
+		$uvec[0]=0.;
+		$uvec[1]=cos($xangle);
+		$uvec[2]=-sin($xangle);
+		$pos[0]=$distance*sin($yangle);
+		$pos[1]=$distance*sin($xangle);
+		$pos[2]=$distance*cos($yangle)*cos($xangle);
+		open(infile,">tmpanim.in");
+		print infile "outfile tmpanim.$number.tiff\n";
+		print infile "pointfile $ENV{'KCORRECT_DIR'}/data/etemplates/$args{'version'}.pts\n";
+		print infile "pointcolor 1. 1. 1. $args{'acolor'}\n";
+		print infile "windowsize $args{'windowsize'}\n";
+		print infile "zclip 0.003\n";
+		print infile "doBlend $doBlend\n";
+		print infile "boundarysize 0.\n";
+		print infile "pos $pos[0] $pos[1] $pos[2]\n";
+		print infile "fvec $fvec[0] $fvec[1] $fvec[2]\n";
+		print infile "uvec $uvec[0] $uvec[1] $uvec[2]\n";
+		print infile "axis0 0.006 0. 0. 0. 0.8 0. 0. 1. 0. 0. 1.\n";
+		print infile "axis1 0.006 0. 0. 0. 0. 0.8 0. 0. 1. 0. 1.\n";
+		print infile "axis2 0.006 0. 0. 0. 0. 0. 0.8 0. 0. 1. 1.\n";
+		close(infile);
+		system("points tmpanim.in -geometry +100+100");
+		system("tifftopnm tmpanim.$number.tiff | pnmdepth $args{'pnmdepth'} | ppmtogif > $giffile");
+	}
+}
+
+# ROTATE
+@npers=($args{'nper'},$args{'nper'});
+@yangles=  (0., 360., 360.);
+@xangles=  (0., 0., 360.);
+@distances=(2.,2.,2.);
+$total=0;
+for($k=0;$k<@npers;$k++) {
+	move($total,$npers[$k],$yangles[$k],$yangles[$k+1],$xangles[$k],
+			 $xangles[$k+1],$distances[$k],$distances[$k+1]); 
+	$total+=$npers[$k];
+}
+  
+system("gifmerge -l0 -10 tmpanim.????.gif > $args{'outfile'}");
+system("rm -f tmpanim*");
+exit;

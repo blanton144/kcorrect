@@ -1,0 +1,155 @@
+\clearpage
+
+\setcounter{thefigs}{0}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{radec.sample8b.ps}
+\caption{\label{radec.sample8b} Angular distribution, in an Aitoff
+projection of equatorial coordinates, of the SDSS sample used in the
+current analysis. This spectroscopic sample covers around 1,169 square
+degrees and contains about 100,000 galaxy spectra.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{response_sdss.ps}
+\caption{\label{response_sdss} Estimated filter response for all five
+bands in the SDSS, as a function of rest frame wavelength for galaxies
+at different redshifts. A 4 gigayear old instantaneous burst using the
+models of \citet{bruzual93a} is shown for reference. {\it Top panel:}
+The system consisting of \band{0.0}{u}, \band{0.0}{g}, \band{0.0}{r},
+\band{0.0}{i}, and \band{0.0}{z}.  {\it Bottom panel:} The system
+consisting of \band{0.0}{u}, \band{0.1}{g}, \band{0.1}{r},
+\band{0.1}{i}, and \band{0.2}{z}. We use this second system rather
+than the first because it requires less interpolation to determine
+\band{0.1}{g}, \band{0.1}{r}, and \band{0.1}{i}, and no extrapolation to
+determine \band{0.0}{u} and \band{0.1}{z}. }
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{plotaij.sample8b15.ps}
+\caption{\label{plotaij.sample8b15} {\it Top panel}: Distribution of
+the components of the three-parameter fit to the five-band SDSS
+photometry for a random subsample consisting of 16,000 of the SDSS
+galaxies. $a_0$ is linearly proportional to the flux between $3500\AA$
+and $7000\AA$, while $a_1$ and $a_2$ contribute no flux in this
+range. Thus, the ratios $a_1/a_0$ and $a_2/a_0$ describe the spectral
+type of the galaxy. $a_2/a_0$ is the more variable parameter and thus
+is the better separator of galaxy type. {\it Bottom panel}: At fixed
+$a_1/a_0=-0.2$, the inferred spectra corresponding to various values
+of $a_2/a_0$. Near $a_2/a_0=0.5$, the spectrum is similar to that of
+an elliptical galaxy. For higher values, the spectrum becomes bluer. }
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{model.ps}
+\caption{\label{model} Galaxy fluxes determined from the inferred
+galaxy spectra (see Figure \ref{plotaij.sample8b15}) relative to the
+observed galaxy fluxes, for all five SDSS bands, shown for a random
+subsample consisting of 16,000 of the SDSS galaxies. The
+residuals are shown against redshift and absolute magnitude, the two
+most important systematic variables in the analysis of this paper. The
+solid lines show the median values. The dashed lines show the 10\% and
+90\% levels (corresponding to $1.3\sigma$ if the distribution were
+Gaussian). The systematics are very small in $g$, $r$, $i$ and $z$,
+but more significant in $u$. The scatter is largest in $u$ and
+$z$. Nevertheless, the inferred fluxes are a good representation of
+the observed fluxes.  }
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{colors.sample8b15.ps}
+\caption{\label{colors.sample8b15} For galaxies in the absolute
+magnitude range $-21.5<M_r<-21$, the color distribution calculated
+from the inferred SEDs as a function of redshift. The left column
+shows the four colors relative to \band{0.1}{r} for each galaxy versus
+redshift. The right column shows the distribution of colors for
+galaxies in the range $0.04<z<0.12$ {\it (dotted)} compared to the
+distribution of colors of galaxies in the range $0.12<z<0.19$ {\it
+(solid)}. The resulting color distribution is clearly fairly constant
+with redshift.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{kcorrect.sample8b15.ps}
+\caption{\label{kcorrect.sample8b15} $K$-corrections as a function of
+redshift in all five bands for a random subsample consisting of 8,000
+of the SDSS galaxies. The $K$-corrections are largest, and therefore
+the most uncertain, for the \band{0.0}{u} and \band{0.1}{g} bands. The
+range of $K$-corrections at each redshift reflects the range of galaxy
+types at each redshift.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{ciCompare.sample8b15.ps}
+\caption{\label{ciCompare.sample8b15} Difference in the
+$K$-corrections in each band between the method used in Figure
+\ref{kcorrect.sample8b15} and the method of simply interpolating
+between adjacent bands fitting a power-law SED. The differences are
+small in \band{0.1}{r}, \band{0.1}{i}, and \band{0.2}{z}, where galaxy
+SEDs have simple shapes. There are large differences in \band{0.0}{u}
+and \band{0.1}{g}, for which the 4000 \AA\ break is important. Note
+particularly the systematic differences in \band{0.1}{g} with
+redshift.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{cibreakCompare.sample8b15.ps}
+\caption{\label{cibreakCompare.sample8b15} Same as Figure
+\ref{ciCompare.sample8b15}, now comparing the $K$-corrections of Figure
+\ref{kcorrect.sample8b15} with the ``interpolation with a break''
+method. This method fits a power law between adjacent bands, except at
+4000 \AA, where we fit for the size of the 4000\AA\ break (assuming
+that $f(\lambda)\propto \lambda^2$ for $\lambda<4000$ \AA). This
+greatly improves the agreement in \band{0.1}{g} while making the
+disagreement in \band{0.0}{u} only slightly worse. These results
+indicate that it important to account for the structure in the blue
+region of the spectrum when performing $K$-corrections.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{specK.ps}
+\caption{\label{specK} Similar to Figure \ref{ciCompare.sample8b15},
+now comparing the $K$-corrections of Figure \ref{kcorrect.sample8b15}
+with $K$-corrections determined from the spectra (which can only be
+calculated for the \band{0.1}{g}, \band{0.1}{r}, and \band{0.1}{i}
+bands). In all bands, the $K$-corrections are very similar, giving us
+confidence in our results. This result is actually remarkable more for
+what it says about the high quality of the spectrophotometry in the
+SDSS survey.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{aperturevsz.M.sample8b15.ps}
+\caption{\label{aperturevsz.M.sample8b15} }
+\end{figure}
+

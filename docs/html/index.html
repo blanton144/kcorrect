@@ -1,0 +1,140 @@
+<HTML>
+<BODY>
+
+<H1> Fitting Galaxy Spectral Energy Distributions </h1>
+ 
+<p>
+<a href="coeff_anim.default.500.gif">
+<img src="coeff_anim.default.50.gif" width=50 height=50 border=0></a>
+</p>
+
+<p> Mike Blanton, Department of Physics, New York University </p>
+
+<HR>
+
+<h3> General Description</h3>
+
+<p>
+This web page documents a code written in C and IDL to calculate
+spectral energy distributions and K-corrections. Standard format IDL
+<a href="kcorrect_help.html"> documentation</a> exists. There is a <a
+href="paper.ps"> paper</a> which describes the methods in
+detail. Please cite this paper if you use the code or results on this
+web site.
+</p>
+
+<p>
+We document in detail here how to use the SED fits provided to
+calculate K-corrections and SEDs for particular objects with
+broad-band magnitude measurements. We do not document in detail how
+to optimize the templates; the interested user can peruse the comments
+in the code and/or contact the authors.
+</p>
+
+<p>
+One can imagine using this code to calculate the evolution of the
+luminosity function, the distribution of galaxy colors, as well as to
+develop galaxy classification algorithms. 
+</p>
+
+<h3> Compiling the Code</h3>
+
+<p>
+The code has been tested, and compiles and runs on a Red Hat 7.1
+OS. Little experimentation with other operating systems has been
+performed. Other Linux versions should port very easily, at least. 
+In order to compile the code, first set the environmental variables
+(in, for example, bash):
+<pre>
+KCORRECT_DIR=/usr/local/kcorrect
+IDL_PATH=${IDL_PATH}:+$KCORRECT_DIR/pro
+PATH=$KCORRECT_DIR/bin:$PATH
+MAKE_FTNLIB="-lg2c"
+IDL_FLAG="-DLINKTOIDL"
+KCORRECT_LD_LIB="/usr/lib"
+</pre>
+For "KCORRECT_DIR", simply substitute whatever directory you have
+downloaded the data into. For "MAKE_FTNLIB", specify the library one
+needs to include in the C compiler in order to include Fortran (some
+library stuff included here depends on it, sorry). As implied above,
+the "-lg2c" choice is appropriate for Red Hat Linux.
+If you do not have IDL on your system, set IDL_FLAG="" instead of
+IDL_FLAG="-DLINKTOIDL". 
+</p>
+
+<p>
+If you are going to use the C library in your own C code,
+$KCORRECT_LD_LIB should be a location which is in your
+LD_LIBRARY_PATH. It is where the shared object library libkcorrect.so
+will live; since this is a dynamically linked library, your
+environment needs to know how to find it. If you have permission to
+put it in /usr/lib or /usr/local/lib, do so; if not, put it somewhere
+that you do have permission, and set
+"LD_LIBRARY_PATH=$KCORRECT_LD_LIB:$LD_LIBARARY_PATH".  </p>
+
+<p>
+Then, in $KCORRECT_DIR, type "evilmake -k". Then everything should
+compile, and IDL documentation should be created. If you do not have
+IDL, the compile should complete what it needs to complete.  At this
+point, you should be able to open IDL and start using the utilities
+described below. Users of the C interface will need a further call to
+"evilmake -k install", which just copies libkcorrect.so to the
+directory specified by KCORRECT_LD_LIB.
+</p>
+
+<p>
+Note that the C codes "fit_coeffs.c" and "model_fluxes.c" only depend
+in the K-correction library; thus, you can use them as templates for
+incorporating the K-correction code directly into your C code, as long
+as you include the K-correction library. In fact, you would probably
+put something like "fit_coeffs.c" into your code but include the
+k_model_fluxes() call directly inside to get the K-corrections.
+</p>
+
+<p>
+TODO: fix paper directory to be stand-alone; work out units of visual
+flux
+</p>
+
+<h3> The Basics</h3>
+
+<p> We'll describe the basic idea before getting into exactly how to
+use the code. The input to the code consists, first, of a set of
+templates (provided with the distribution), and second, of a list of
+galaxy maggies and errors. Maggies are defined in terms of magnitudes
+as "f=10^{-0.4*(m)}", where "m" is a magnitude. The normalization is
+arbitrary as far as the code is concerned (*you* presumably care,
+though). The errors are expressed as the inverse variance of the
+maggies, or in other words "(f*0.4*ln(10)*merr)^{-2}", where "merr" is
+the magnitude standard deviation. So you have to calculate these
+maggies from petroCounts or modelCounts, or whatever magnitudes you
+are using.  </p>
+
+<p>
+From the set of maggies and errors, the code calculates a set of four
+coefficients which correspond to its guess about the nature of the
+galaxy SED. The first coefficient measures the visual flux, as
+described in the <a href="paper.ps"> paper</a>. The other coefficients
+are measures of the shape. In the case of the IDL code, the fluxes are
+passed in as arrays and the coefficients are passed back in an array;
+in the case of the C code, the fluxes and variances are standard
+input, and the coefficients are standard output.
+</p>
+
+<p>
+Once you have the coefficients, you can calculate the reconstructed
+maggies at any redshift. Again, the coefficients are input as an array
+in IDL or as standard input in C. 
+</p>
+
+<hr> 
+
+<address>
+Snail Mail: <a href="../address.html"
+>
+Michael Blanton</a>;
+Email: <a href="mailto:mb144@nyu.edu"> mb144@nyu.edu</a> 
+</address>
+
+</BODY>
+</HTML>

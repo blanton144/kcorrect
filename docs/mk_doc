@@ -1,0 +1,7 @@
+; IDL commands for building HTML documentation
+
+cd, '..'
+make_html_help, getenv('KCORRECT_DIR')+'/pro/', $
+  'docs/html/kcorrect_help.html', $
+  /strict, title='IDL Help for KCORRECT', /verbose
+exit

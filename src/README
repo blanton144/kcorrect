@@ -1,0 +1,14 @@
+This directory contains routines which calculate K-corrections. 
+
+A number of C routines are provided which can be easily incorporated
+into your C code. Simply remove -DIDL_ROUTINE from the Makefile in
+order to build the C shared object library independently of IDL.
+
+Wrappers are also included which make the code callable from IDL. 
+
+There are routines included from exterior libraries, in particular
+from LAPACK, BLAS, and Numerical Recipes. These routines are all given
+the "k_" prefix in order to avoid overloading the routine names, which
+you might be using in your own code. 
+
+Mike Blanton

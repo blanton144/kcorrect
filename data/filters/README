@@ -1,0 +1,4 @@
+sdss_??.dat
+
+SDSS filters at 1.3 airmass as compiled by JEG in January 2002. "0" indicates
+the average over the columns. "1-6" refer to individual camera columns.
