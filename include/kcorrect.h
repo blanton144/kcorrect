@@ -137,3 +137,8 @@ double k_brent(double ax, double bx, double cx, double (*f)(double),
 /* lapack stuff to call from C */
 void k_dposv__(char *uplo, IDL_LONG *n, IDL_LONG *nrhs, double *a, 
 							 IDL_LONG *lda, double *b, IDL_LONG *ldb, IDL_LONG *info);
+void k_dposv_(char *uplo, IDL_LONG *n, IDL_LONG *nrhs, double *a, 
+						  IDL_LONG *lda, double *b, IDL_LONG *ldb, IDL_LONG *info);
+#ifdef IRIX
+#define k_dposv__ k_dposv_
+#endif

@@ -15,13 +15,13 @@ case `uname` in
 		X_LD_FLAGS=-b;;
 	"IRIX" )
 		SO_EXT=so
-		X_CFLAGS="-32 -KPIC"
+		X_CFLAGS="-32 -KPIC -DIRIX"
 		X_FFLAGS="-32 -extend_source"
 		MAKE_FTNLIB="-lftn"
 		X_LD_FLAGS="-shared -32";;
 	"IRIX64" )
 		SO_EXT=so
-		X_CFLAGS="-32 -KPIC"
+		X_CFLAGS="-32 -KPIC -DIRIX"
 		X_FFLAGS="-32 -extend_source -KPIC"
 		MAKE_FTNLIB="-lftn"
 		X_LD_FLAGS="-shared -32";;
