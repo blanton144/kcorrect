@@ -49,47 +49,58 @@ savfile='sdss_training_set.'+name+'.sav'
 if(NOT file_test(savfile)) then begin
     
 ;   get redshifts for all spectra
-    sp=hogg_mrdfits(getenv('SDSS_VAGCDIR')+'/sdss_spectro_catalog.fits',1, $
-                    columns=['sdss_spectro_z', 'sdss_spectro_plate', $
-                             'sdss_spectro_zerr','sdss_spectro_zwarning', $
-                             'sdss_spectro_class','sdss_spectro_tag', $
-                             'sdss_spectro_tag_primary'], nrowchunk=40000)
+    sp=get_catalog('sdss/sdss_spectro', $
+                   columns=['z', 'plate', 'zerr','zwarning', $
+                            'class','sdss_spectro_tag', $
+                            'sdss_spectro_tag_primary'], nrowchunk=40000)
     
 ;   find imaging for all spectra objects
     im_matches=find_matches('sdss_spectro','sdss_imaging')
+    twomass_matches=find_matches('sdss_spectro','twomass')
 
 ;   now select all the possible spectra we want
     sp_indx=where(sp.sdss_spectro_tag eq sp.sdss_spectro_tag_primary and $
-                  sp.sdss_spectro_class eq 'GALAXY' and $
-                  sp.sdss_spectro_z gt zlimits[0] and $
-                  sp.sdss_spectro_z le zlimits[1] and $
-                  sp.sdss_spectro_zwarning eq 0, sp_count) 
+                  sp.class eq 'GALAXY' and $
+                  sp.z gt zlimits[0] and $
+                  sp.z le zlimits[1] and $
+                  sp.zwarning eq 0, sp_count) 
     
 ; get photometry
-    im=hogg_mrdfits(getenv('SDSS_VAGCDIR')+'/sdss_imaging_catalog.fits',1, $
-                    columns=['sdss_imaging_tag', $
-                             'sdss_imaging_ra2000', $
-                             'sdss_imaging_dec2000', $
-                             'sdss_imaging_petrocounts', $
-                             'sdss_imaging_petrocountserr', $
-                             'sdss_imaging_counts_model', $
-                             'sdss_imaging_counts_modelerr', $
-                             'sdss_imaging_psfcounts', $
-                             'sdss_imaging_psfcountserr', $
-                             'sdss_imaging_fibercounts', $
-                             'sdss_imaging_fibercountserr', $
-                             'sdss_imaging_reddening'], nrowchunk=40000)
+    im=get_catalog('sdss/sdss_imaging', $
+                   columns=['sdss_imaging_tag', $
+                            'ra', $
+                            'dec', $
+                            'petrocounts', $
+                            'petrocountserr', $
+                            'counts_model', $
+                            'counts_modelerr', $
+                            'psfcounts', $
+                            'psfcountserr', $
+                            'fibercounts', $
+                            'fibercountserr', $
+                            'reddening'], nrowchunk=40000)
 
-    help,im,sp
+; get twomass photometry
+    twomass=get_catalog('twomass/twomass', $
+                        columns=['twomass_tag', $
+                                 'k_m_k20fe', $
+                                 'k_msig_k20fe', $
+                                 'h_m_k20fe', $
+                                 'h_msig_k20fe', $
+                                 'j_m_k20fe', $
+                                 'j_msig_k20fe'],nrowchunk=40000)
+    
+    help,im,sp,twomass
     matched_indx=where(im_matches[sp_indx] ge 0, matched_count)
     if(matched_count gt 0) then begin
         sp_indx=sp_indx[matched_indx]
-        
+
+        twomass=twomass[twomass_matches[sp_indx]]
         im=im[im_matches[sp_indx]]
         sp=sp[sp_indx]
         
-        help,im,sp
-        save,im,sp,filename=savfile 
+        help,im,sp,twomass
+        save,im,sp,twomass,filename=savfile 
     endif else begin
         klog,'no matches to imaging.'
         return
@@ -101,7 +112,7 @@ endelse
 ; now equalize the redshift bins (but include all mustdo plates)
 mustdo=lonarr(n_elements(im))
 for i=0, n_elements(mustdoplates)-1L do begin
-    inplate_indx=where(sp.sdss_spectro_plate eq mustdoplates[i],inplate_count)
+    inplate_indx=where(sp.plate eq mustdoplates[i],inplate_count)
     if(inplate_count gt 0) then mustdo[inplate_indx]=1
 endfor
 includegal=lonarr(n_elements(im))
@@ -109,8 +120,8 @@ ninchunk=fltarr(nzchunks)
 for i=nzchunks-1L,0,-1 do begin
     zchunk_lo=zlimits[0]+(zlimits[1]-zlimits[0])*float(i)/float(nzchunks)
     zchunk_hi=zlimits[0]+(zlimits[1]-zlimits[0])*float(i+1)/float(nzchunks)
-    chunk_indx=where(sp.sdss_spectro_z gt zchunk_lo and $
-                     sp.sdss_spectro_z lt zchunk_hi, chunk_count)
+    chunk_indx=where(sp.z gt zchunk_lo and $
+                     sp.z lt zchunk_hi, chunk_count)
     ninchunk[i]=chunk_count
     if(i ne nzchunks-1L) then begin
         dice=randomu(seed,ninchunk[i])
@@ -128,19 +139,20 @@ if(include_count eq 0) then begin
     return
 endif
 im=im[include_indx]
+twomass=twomass[include_indx]
 sp=sp[include_indx]
 help,im
 
 ; set up which magnitudes are used
 klog,'use model past z='+string(modelzlim)
-mag=im.sdss_imaging_petrocounts-im.sdss_imaging_reddening
-mag_err=im.sdss_imaging_petrocountserr
-model_indx=where(sp.sdss_spectro_z ge modelzlim,model_count)
+mag=im.petrocounts-im.reddening
+mag_err=im.petrocountserr
+model_indx=where(sp.z ge modelzlim,model_count)
 help,model_count
 if(model_count gt 0) then begin
-    mag[*,model_indx]=im[model_indx].sdss_imaging_counts_model- $
-      im[model_indx].sdss_imaging_reddening
-    mag_err[*,model_indx]=im[model_indx].sdss_imaging_counts_modelerr
+    mag[*,model_indx]=im[model_indx].counts_model- $
+      im[model_indx].reddening
+    mag_err[*,model_indx]=im[model_indx].counts_modelerr
 endif
 
 ; cut out bad errors
@@ -157,6 +169,7 @@ goodindx=where(abs(mag_err[0,*]) lt errlimit[0] and $
                abs(mag[4,*]) lt maglimit[4])
 sp=sp[goodindx]
 im=im[goodindx]
+twomass=twomass[goodindx]
 mag=mag[*,goodindx]
 mag_err=mag_err[*,goodindx]
 help,im
@@ -167,27 +180,13 @@ for i=0L, n_elements(shiftband)-1L do $
 for i=0L, n_elements(errband)-1L do $
   mag_err[i,*]=sqrt(mag_err[i,*]^2+errband[i]^2)
 
-; match with 2MASS
-twomass=k_read_tbl(getenv('DATA')+'/2mass/fp_2mass.fp_xsc18662.tbl')
-indx=where(twomass.j_m_k20fe gt 0. and $
-           twomass.h_m_k20fe gt 0. and $
-           twomass.k_m_k20fe gt 0.)
-twomass=twomass[indx]
-spherematch,im.ra,im.dec,twomass.ra,twomass.dec,2./3600., $
-  sdss_indx,twomass_indx,distance12
-twomass=twomass[twomass_indx]
-newtwomass1=create_struct(twomass[0],'sdss_indx',0L)
-newtwomass=replicate(newtwomass1,n_elements(twomass))
-struct_assign,twomass,newtwomass
-newtwomass.sdss_indx=sdss_indx
-twomass=newtwomass
-newtwomass=0
-
-; add CNOC2 data
-cnoc2=mrdfits(getenv('KCORRECT_DIR')+'/data/redshifts/cnoc2.fits');
-cnoc2_obj=mrdfits(getenv('KCORRECT_DIR')+'/data/redshifts/cnoc2-obj.fits');
+; add CNOC2 data (NEED TO APPLY REDDENING AND AB SHIFTS -- and to
+;                                                          2MASS)
+cnoc2=mrdfits(getenv('KCORRECT_DIR')+'/data/redshifts/cnoc2/cnoc2.fits',1);
+cnoc2_obj=mrdfits(getenv('KCORRECT_DIR')+ $
+                  '/data/redshifts/cnoc2/cnoc2-obj.fits',1)
 cnoc2_childobj=mrdfits(getenv('KCORRECT_DIR')+ $
-                       '/data/redshifts/cnoc2-childobj.fits') ;
+                       '/data/redshifts/cnoc2/cnoc2-childobj.fits',1)
 cnoc2_indx=where(cnoc2_obj.matchdist*3600. lt 10.)
 cnoc2=cnoc2[cnoc2_indx]
 cnoc2_obj=cnoc2_obj[cnoc2_indx]
@@ -205,30 +204,35 @@ outstr1={maggies:fltarr(8), maggies_ivar:fltarr(8), redshift:0.D, ra:0.D, $
 outstr=replicate(outstr1,n_elements(sp)+n_elements(cnoc2))
 isdss=0L+lindgen(n_elements(sp))
 icnoc2=n_elements(sp)+lindgen(n_elements(cnoc2))
-outstr[isdss].ra=im.sdss_imaging_ra2000
-outstr[isdss].dec=im.sdss_imaging_dec2000
-outstr[isdss].redshift=sp.sdss_spectro_z
+outstr[isdss].ra=im.ra
+outstr[isdss].dec=im.dec
+outstr[isdss].redshift=sp.z
 outstr[isdss].maggies[0:4]=10.^(-0.4*mag[0:4])
 outstr[isdss].maggies_ivar[0:4]=1./ $
   (mag_err[0:4]*outstr[isdss].maggies[0:4]*0.4*alog(10.))^2
-outstr[isdss[twomass.sdss_indx]].maggies[5]= $
-  10.^(-0.4*(twomass.j_m_k20fe+ $
-             (k_vega2ab(filterlist='twomass_J.par',/kurucz))[0]))
-outstr[isdss[twomass.sdss_indx]].maggies_ivar[5]= $
-  1./(0.4*alog(10.)*outstr[isdss[twomass.sdss_indx]].maggies[5]* $
-      twomass.j_msig_k20fe)^2
-outstr[isdss[twomass.sdss_indx]].maggies[6]= $
-  10.^(-0.4*(twomass.h_m_k20fe+ $
-             (k_vega2ab(filterlist='twomass_H.par',/kurucz))[0]))
-outstr[isdss[twomass.sdss_indx]].maggies_ivar[6]= $
-  1./(0.4*alog(10.)*outstr[isdss[twomass.sdss_indx]].maggies[6]* $
-      twomass.h_msig_k20fe)^2
-outstr[isdss[twomass.sdss_indx]].maggies[7]= $
-  10.^(-0.4*(twomass.k_m_k20fe+ $
-             (k_vega2ab(filterlist='twomass_Ks.par',/kurucz))[0]))
-outstr[isdss[twomass.sdss_indx]].maggies_ivar[7]= $
-  1./(0.4*alog(10.)*outstr[isdss[twomass.sdss_indx]].maggies[7]* $
-      twomass.k_msig_k20fe)^2
+twomass_indx=where(twomass.j_m_k20fe gt 0. and $
+                   twomass.h_m_k20fe gt 0. and $
+                   twomass.k_m_k20fe gt 0., twomass_count)
+if(twomass_count gt 0) then begin
+    outstr[isdss[twomass_indx]].maggies[5]= $
+      10.^(-0.4*(twomass[twomass_indx].j_m_k20fe+ $
+                 (k_vega2ab(filterlist='twomass_J.par',/kurucz))[0]))
+    outstr[isdss[twomass_indx]].maggies_ivar[5]= $
+      1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[5]* $
+          twomass[twomass_indx].j_msig_k20fe)^2
+    outstr[isdss[twomass_indx]].maggies[6]= $
+      10.^(-0.4*(twomass[twomass_indx].h_m_k20fe+ $
+                 (k_vega2ab(filterlist='twomass_H.par',/kurucz))[0]))
+    outstr[isdss[twomass_indx]].maggies_ivar[6]= $
+      1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[6]* $
+          twomass[twomass_indx].h_msig_k20fe)^2
+    outstr[isdss[twomass_indx]].maggies[7]= $
+      10.^(-0.4*(twomass[twomass_indx].k_m_k20fe+ $
+                 (k_vega2ab(filterlist='twomass_Ks.par',/kurucz))[0]))
+    outstr[isdss[twomass_indx]].maggies_ivar[7]= $
+      1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[7]* $
+          twomass[twomass_indx].k_msig_k20fe)^2
+endif
 outstr[isdss].sdss_imaging_tag=im.sdss_imaging_tag
 outstr[isdss].sdss_spectro_tag=sp.sdss_spectro_tag
 outstr[icnoc2].ra=cnoc2_childobj.ra
