@@ -8,9 +8,9 @@
 \figurenum{\fignum}
 \plotone{response_sdss.ps}
 \caption{\label{response_sdss} Estimated filter response for all five
-bands in the SDSS, as a function of observed wavelength. A 4 gigayear
-old instantaneous burst using the models of \citet{bruzual93a} (and
-observed at $z=0$) is shown for reference.}
+bands in the SDSS, as a function of observed wavelength, as measured
+by Mamoru Doi. A 4 gigayear old instantaneous burst using the models
+of \citet{bruzual93a} (and observed at $z=0$) is shown for reference.}
 %at different redshifts. A 4 gigayear old instantaneous burst using the
 %models of \citet{bruzual93a} is shown for reference. {\it Top panel:}
 %The system consisting of \band{0.0}{u}, \band{0.0}{g}, \band{0.0}{r},
@@ -20,6 +20,21 @@ observed at $z=0$) is shown for reference.}
 %than the first because it requires less interpolation to determine
 %\band{0.1}{g}, \band{0.1}{r}, and \band{0.1}{i}, and no extrapolation to
 %determine \band{0.0}{u} and \band{0.1}{z}. 
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{spur.ps}
+\caption{\label{spur} The spectrum corresponding to the direction of
+the spur in the upper right panel of Figure
+\ref{k_coeffdist_plot}. Note the strong feature near 4000
+\AA. Overplotted are the bandpasses for $\band{0.3}{g}$ and
+$\band{0.3}{r}$. The strong features fall in the gap between the
+bandpasses. Thus, in a linear fit to a galaxy at $z=0.3$, this
+component can be used to fit the observed magnitudes without being
+constrained to have reasonable behavior around 4000 \AA. }
 \end{figure}
 
 %\clearpage
@@ -76,16 +91,39 @@ photometric errors. }
 \stepcounter{thefigs}
 \begin{figure}
 \figurenum{\fignum}
+\plotone{main_colors_plot.z.ps}
+\caption{\label{main_colors_plot.z} Color distributions in the
+observed frame for SDSS Main Sample galaxies in the luminosity range
+$-21.5<M_{\band{0.1}{r}}<-21.2$. This sample is complete (that is,
+volume limited) for $0.05<z<0.17$. Left panels show the colors as a
+function of redshift. Right panel shows the distributions of each
+color at high and low redshift within the volume-limited
+subsample. The observed colors clearly depend strongly on redshift,
+even for the $\band{0.1}{u}$ band, where the low-redshift end is an
+extrapolation of the data.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
 \plotone{main_colors_plot.ps}
-\caption{\label{main_colors_plot} Color distributions $K$-corrected to
-$z=0.1$ for SDSS Main Sample galaxies in the luminosity range
-$-21.5<M_{\band{0.1}{r}}<-21.2$. This sample is complete for
-$0.05<z<0.17$. Left panels show the colors as a function of
-redshift. Right panel shows the distributions of each color at high
-and low redshift within the volume-limited subsample. There is very
-little dependence of the colors on redshift, even for the
-$\band{0.1}{u}$ band, where the low-redshift end is an extrapolation
-of the data.}
+\caption{\label{main_colors_plot} Similar to Figure
+\ref{main_colors_plot.z}, but now the colors are $K$-corrected to
+$z=0.1$.  There is very little dependence of the colors on redshift,
+even for the $\band{0.1}{u}$ band, where the low-redshift end is an
+extrapolation of the data.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{lrg_colors_plot.z.ps}
+\caption{\label{lrg_colors_plot.z} Similar to Figure
+\ref{main_colors_plot.z}, now showing LRG galaxies (Cut I) in the
+luminosity range $-22.8<M_{\band{0.3}{r}}<-22.5$. Again, there is a
+strong dependence on redshift.}
 \end{figure}
 
 \clearpage
@@ -94,30 +132,16 @@ of the data.}
 \figurenum{\fignum}
 \plotone{lrg_colors_plot.ps}
 \caption{\label{lrg_colors_plot} Same as Figure
-\ref{main_colors_plot}, now $K$-corrected to $z=0.3$ for LRG galaxies
-in the luminosity range $-22.8<M_{\band{0.3}{r}}<-22.5$. Now
-considerably more dependence on redshift is apparent. First of all, a
-degeneracy at $z\sim 0.3$ appears (described in detail in Section
-\ref{grgap}). Second of all, in $\band{0.3}{(g-r)}$ an overall trend
-is apparent; LRGs at $z=0.4$ are about 0.1 magnitudes bluer than LRGs
-at $z=0.2$. This change is attributable to galaxy evolution.}
-\end{figure}
-
-\clearpage
-\stepcounter{thefigs}
-\begin{figure}
-\figurenum{\fignum}
-\plotone{spur.ps}
-\caption{\label{spur} The spectrum corresponding to the direction of
-the spur in the upper right panel of Figure
-\ref{k_coeffdist_plot}. Note the strong feature near 4000
-\AA. Overplotted are the bandpasses for $\band{0.3}{g}$ and
-$\band{0.3}{r}$. The strong features fall in the gap between the
-bandpasses. Thus, in a linear fit to a galaxy at $z=0.3$, this
-component can be used to fit the observed magnitudes without being
-constrained to have reasonable behavior around 4000 \AA. This fact
-explains the singular behavior at $z=0.3$ in Figure
-\ref{lrg_colors_plot}.}
+\ref{lrg_colors_plot.z}, now $K$-correcting the LRG galaxies to
+$z=0.3$.  The redshift dependence is greatly reduced for the LRGs in
+comparison to Figure \ref{lrg_colors_plot.z}; on the other hand, there
+are distinct trends of restframe color with redshift.  In
+$\band{0.3}{(g-r)}$ an overall trend is apparent; LRGs at $z=0.4$ are
+about 0.1 magnitudes bluer than LRGs at $z=0.2$. A change of this
+magnitude is attributable to passive galaxy evolution, though
+considerably more work needs to be done to show that this is
+occurring. In $\band{0.3}{(r-i)}$, a blueward shift also occurs,
+though at a much smaller level.}
 \end{figure}
 
 \clearpage
@@ -135,6 +159,17 @@ we show the $K$-corrections for \band{0.3}{u} at $z<0.3$ and for
 \band{0.3}{z} at $z>0.3$, and indeed these $K$-corrections are fairly
 well-behaved, we do not recommend using these extrapolated results for
 scientific purposes. Note the degeneracy at $z=0.3$.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{k_speck_plot.fitfib.0.1.ps}
+\caption{\label{k_speck_plot.fitfib.0.1} Difference between the
+$K$-corrections to $z=0.1$ determined from the spectroscopy and those
+determined from the analysis of broad-band magnitudes {\it
+synthesized} from the same spectra.}
 \end{figure}
 
 \clearpage
@@ -173,17 +208,6 @@ considerable scatter in \band{0.1}{u}). }
 $K$-corrections to $z=0.1$ determined from the spectroscopy and those
 determined from the analysis of the broad-band Petrosian magnitudes, for
 Main Sample galaxies.}
-\end{figure}
-
-\clearpage
-\stepcounter{thefigs}
-\begin{figure}
-\figurenum{\fignum}
-\plotone{k_speck_plot.fitfib.0.1.ps}
-\caption{\label{k_speck_plot.fitfib.0.1} Difference between the
-$K$-corrections to $z=0.1$ determined from the spectroscopy and those
-determined from the analysis of broad-band magnitudes {\it
-synthesized} from the same spectra.}
 \end{figure}
 
 \clearpage

@@ -36,7 +36,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim,subsmoothlimits=subsmoothlimits,subsmoothtemplate=subsmoothtemplate,etemplatepath=etemplatepath,plotmaggies=plotmaggies,useconstraint=useconstraint
+pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim,subsmoothlimits=subsmoothlimits,subsmoothtemplate=subsmoothtemplate,etemplatepath=etemplatepath,plotmaggies=plotmaggies,useconstraint=useconstraint, chi2=chi2, insavfile=insavfile, preset_ematrix=preset_ematrix
 
 if(NOT keyword_set(nophotozplates)) then mustdo=[669,670,671,672] 
 
@@ -94,93 +94,98 @@ columns=['z','petrocounts','petrocountserr','counts_model','counts_modelerr', $
 
 lambda=lambdalim[0]+dindgen(nl+1l)*(lambdalim[1]-lambdalim[0])/double(nl)
 
+if(NOT keyword_set(insavfile)) then begin
 ; Read the necessary columns from spAll.fits
-openr,unit,spfile,/get_lun
-mrd_hread,unit,hdrstr
-mrd_hread,unit,hdrstr
-close,unit
-free_lun,unit
-hdr=hdr2struct(hdrstr)
-if (NOT keyword_set(nsp)) then nsp=hdr.naxis2
-sp=hogg_mrdfits(spfile,1,range=[0,nsp-1],nrowchunk=10000,columns=columns)
-indx=where(sp.class eq 'GALAXY' and $
-           sp.z gt zlimits[0] and $
-           sp.z lt zlimits[1] and $
-           sp.petrocounts[2] gt 0.,count)
-if(count gt 0) then begin
-    sp=sp[indx]
-endif else begin
-    return
-endelse
-
-; Cut down the sample in redshift
-num=lonarr(nz)
-usesp=lonarr(n_elements(sp))
-for i = 0l, nz-1l do begin
-    zlo=zlimits[0]+double(i)*(zlimits[1]-zlimits[0])/double(nz)
-    zhi=zlimits[0]+double(i+1l)*(zlimits[1]-zlimits[0])/double(nz)
-    indx=where(sp.z gt zlo and sp.z lt zhi,count)
-    num[i]=count
-    klog,num[i]
-endfor
-nuse=long(double(num[nz-1l])*scale)
-for i = 0l, nz-1l do begin
-    zlo=zlimits[0]+double(i)*(zlimits[1]-zlimits[0])/double(nz)
-    zhi=zlimits[0]+double(i+1l)*(zlimits[1]-zlimits[0])/double(nz)
-    indx=where(sp.z gt zlo and sp.z lt zhi,count)
-    if(i lt nz-1l) then begin
-        indxuse=long(double(n_elements(indx))*randomu(seed,nuse))
-        sortindxuse=indxuse[sort(indxuse)]
-        uniqindxuse=sortindxuse[uniq(sortindxuse)]
+    openr,unit,spfile,/get_lun
+    mrd_hread,unit,hdrstr
+    mrd_hread,unit,hdrstr
+    close,unit
+    free_lun,unit
+    hdr=hdr2struct(hdrstr)
+    if (NOT keyword_set(nsp)) then nsp=hdr.naxis2
+    sp=hogg_mrdfits(spfile,1,range=[0,nsp-1],nrowchunk=10000,columns=columns)
+    indx=where(sp.class eq 'GALAXY' and $
+               sp.z gt zlimits[0] and $
+               sp.z lt zlimits[1] and $
+               sp.petrocounts[2] gt 0.,count)
+    if(count gt 0) then begin
+        sp=sp[indx]
     endif else begin
-        uniqindxuse=lindgen(nuse)
+        return
     endelse
-    usesp[indx[uniqindxuse]]=1
-    klog,total(usesp)
-endfor
-if(keyword_set(mustdo)) then begin
-    for i = 0l, n_elements(mustdo)-1l do begin
-        mustindx=where(sp.plate eq mustdo[i],count)
-        if(count gt 0) then usesp[mustindx]=1
+    
+; Cut down the sample in redshift
+    num=lonarr(nz)
+    usesp=lonarr(n_elements(sp))
+    for i = 0l, nz-1l do begin
+        zlo=zlimits[0]+double(i)*(zlimits[1]-zlimits[0])/double(nz)
+        zhi=zlimits[0]+double(i+1l)*(zlimits[1]-zlimits[0])/double(nz)
+        indx=where(sp.z gt zlo and sp.z lt zhi,count)
+        num[i]=count
+        klog,num[i]
     endfor
-endif
-indx=where(usesp gt 0)
-sp=sp[indx]
-help,sp
-
-indx=where(sp.z lt nozlim[0] or sp.z gt nozlim[1],count)
-if(count gt 0) then $
-  sp=sp[indx]
-
-indx=where(sp.z ge modelzlim)
-if(count gt 0) then begin
-    klog,'using model'
-    sp[indx].petrocounts=sp[indx].counts_model
-    sp[indx].petrocountserr=sp[indx].counts_modelerr
-endif
-
+    nuse=long(double(num[nz-1l])*scale)
+    for i = 0l, nz-1l do begin
+        zlo=zlimits[0]+double(i)*(zlimits[1]-zlimits[0])/double(nz)
+        zhi=zlimits[0]+double(i+1l)*(zlimits[1]-zlimits[0])/double(nz)
+        indx=where(sp.z gt zlo and sp.z lt zhi,count)
+        if(i lt nz-1l) then begin
+            indxuse=long(double(n_elements(indx))*randomu(seed,nuse))
+            sortindxuse=indxuse[sort(indxuse)]
+            uniqindxuse=sortindxuse[uniq(sortindxuse)]
+        endif else begin
+            uniqindxuse=lindgen(nuse)
+        endelse
+        usesp[indx[uniqindxuse]]=1
+        klog,total(usesp)
+    endfor
+    if(keyword_set(mustdo)) then begin
+        for i = 0l, n_elements(mustdo)-1l do begin
+            mustindx=where(sp.plate eq mustdo[i],count)
+            if(count gt 0) then usesp[mustindx]=1
+        endfor
+    endif
+    indx=where(usesp gt 0)
+    sp=sp[indx]
+    help,sp
+    
+    indx=where(sp.z lt nozlim[0] or sp.z gt nozlim[1],count)
+    if(count gt 0) then $
+      sp=sp[indx]
+    
+    indx=where(sp.z ge modelzlim)
+    if(count gt 0) then begin
+        klog,'using model'
+        sp[indx].petrocounts=sp[indx].counts_model
+        sp[indx].petrocountserr=sp[indx].counts_modelerr
+    endif
+    
 ; Trim off *anything* with bad errors, magnitudes
-goodindx=where(abs(sp.petrocountserr[0]) lt errlimit[0] and $
-               abs(sp.petrocountserr[1]) lt errlimit[1] and $
-               abs(sp.petrocountserr[2]) lt errlimit[2] and $
-               abs(sp.petrocountserr[3]) lt errlimit[3] and $
-               abs(sp.petrocountserr[4]) lt errlimit[4] and $
-               abs(sp.petrocounts[0]) lt maglimit[0] and $
-               abs(sp.petrocounts[1]) lt maglimit[1] and $
-               abs(sp.petrocounts[2]) lt maglimit[2] and $
-               abs(sp.petrocounts[3]) lt maglimit[3] and $
-               abs(sp.petrocounts[4]) lt maglimit[4])
-sp=sp[goodindx]
-help,sp
-
-; Cut out weird colors (any 3-sigma points from the mean colors)
-for i = 0l, nk-2l do begin
-    color=sp.petrocounts[i]-sp.petrocounts[i+1l]
-    result=moment(color)
-    klog,result[0],sqrt(result[1])
-    goodindx=where((color-result[0])^2/result[1] lt 9.)
+    goodindx=where(abs(sp.petrocountserr[0]) lt errlimit[0] and $
+                   abs(sp.petrocountserr[1]) lt errlimit[1] and $
+                   abs(sp.petrocountserr[2]) lt errlimit[2] and $
+                   abs(sp.petrocountserr[3]) lt errlimit[3] and $
+                   abs(sp.petrocountserr[4]) lt errlimit[4] and $
+                   abs(sp.petrocounts[0]) lt maglimit[0] and $
+                   abs(sp.petrocounts[1]) lt maglimit[1] and $
+                   abs(sp.petrocounts[2]) lt maglimit[2] and $
+                   abs(sp.petrocounts[3]) lt maglimit[3] and $
+                   abs(sp.petrocounts[4]) lt maglimit[4])
     sp=sp[goodindx]
-endfor
+    help,sp
+    
+; Cut out weird colors (any 3-sigma points from the mean colors)
+    for i = 0l, nk-2l do begin
+        color=sp.petrocounts[i]-sp.petrocounts[i+1l]
+        result=moment(color)
+        klog,result[0],sqrt(result[1])
+        goodindx=where((color-result[0])^2/result[1] lt 9.)
+        sp=sp[goodindx]
+    endfor
+endif else begin
+    restore,insavfile
+endelse
+save,sp,filename='fit_sed_data.sav'
 
 galaxy_maggies=dblarr(nk,n_elements(sp))
 galaxy_invvar=dblarr(nk,n_elements(sp))
@@ -196,7 +201,8 @@ k_fit_sed,galaxy_maggies,galaxy_invvar,sp.z,templatelist, $
   filterlist, coeff, ematrix, bmatrix, bflux, lambda, nt=nt, $
   reconstruct_maggies=reconstruct_maggies, plotmaggies=plotmaggies, $
   smoothtemplate=smoothtemplate, subsmoothtemplate=subsmoothtemplate, $
-  subsmoothlimits=subsmoothlimits, maxiter=maxiter, useconstraint=useconstraint
+  subsmoothlimits=subsmoothlimits, maxiter=maxiter, chi2=chi2, $
+  useconstraint=useconstraint, preset_ematrix=preset_ematrix
 z=sp.z
 
 ; get the ellipse of coeffs

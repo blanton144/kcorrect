@@ -36,7 +36,8 @@ pro k_colors_plot,savfile,version=version,vpath=vpath,psfile=psfile, $
                   zrange=zrange,nsig=nsig, zsplit=zsplit, $
                   nprimtargetmask=nprimtargetmask, colorlimits=colorlimits, $
                   subsample=subsample, addgrgap=addgrgap, sdssfix=sdssfix, $
-                  vconstraint=vconstraint
+                  vconstraint=vconstraint, dots=dots, basecoeff=basecoeff, $
+                  zlinesrange=zlinesrange, usemeandots=usemeandots
 
 if(n_elements(vpath) eq 0) then $
   vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
@@ -83,7 +84,7 @@ endelse
 
 kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies,kcorrectz=to_z, $
   version=version,vpath=vpath,/maggies,/invvar,addgrgap=addgrgap, $
-  vconstraint=vconstraint, sdssfix=sdssfix
+  vconstraint=vconstraint, sdssfix=sdssfix, coeff=coeff
 kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies0, $
   version=version,vpath=vpath,/maggies,/invvar,addgrgap=addgrgap, $
   vconstraint=vconstraint, sdssfix=sdssfix
@@ -162,6 +163,46 @@ for k=0l, nk-2 do begin
         !Y.RANGE=colorlimits[*,k]
     endif
     djs_plot,galaxy_z[useindx], color, psym=3,xst=1,yst=1
+
+; plot lines if desired
+    for j=0, n_elements(dots)-1 do begin
+        if(to_z_str eq 'z') then begin
+            zs=zlinesrange[0]+(dindgen(100)+0.5)/100.* $
+              (zlinesrange[1]-zlinesrange[0])
+        endif else begin
+            zs=dblarr(100)+to_z[0]
+        endelse
+        tmpcoeff=dblarr(4,n_elements(zs))
+        tmpcoeff[0,*]=1.
+        tmpcoeff[basecoeff,*]=dots[j]
+        k_reconstruct_maggies,tmpcoeff,zs,tmpmaggies,version='default'
+        linecolor=transpose(-2.5*alog10(tmpmaggies[k,*]/tmpmaggies[k+1,*]))
+        djs_oplot,zs,linecolor,thick=5,color='white'
+        djs_oplot,zs,linecolor,thick=3,color='grey'
+    endfor
+    if(keyword_set(usemeandots)) then begin
+        if(to_z_str eq 'z') then begin
+            zs=zlinesrange[0]+(dindgen(100)+0.5)/100.* $
+              (zlinesrange[1]-zlinesrange[0])
+        endif else begin
+            zs=dblarr(100)+to_z[0]
+        endelse
+        tmpcoeff=dblarr(4,n_elements(zs))
+        tmpcoeff[0,*]=1.
+        zuseindx=where(galaxy_z gt 0.33 and galaxy_z lt 0.38)
+        tmpcoeff[1,*]=djs_avsigclip(coeff[1,zuseindx]/coeff[0,zuseindx], $
+                                    sigrej=4)
+        tmpcoeff[2,*]=djs_avsigclip(coeff[2,zuseindx]/coeff[0,zuseindx], $
+                                    sigrej=4)
+        tmpcoeff[3,*]=djs_avsigclip(coeff[3,zuseindx]/coeff[0,zuseindx], $
+                                    sigrej=4)
+        k_reconstruct_maggies,tmpcoeff,zs,tmpmaggies,version='default'
+        linecolor=transpose(-2.5*alog10(tmpmaggies[k,*]/tmpmaggies[k+1,*]))
+        djs_oplot,zs,linecolor,thick=5,color='white'
+        djs_oplot,zs,linecolor,thick=3,color='grey'
+    endif
+        
+
 ;    xyouts,!X.RANGE[1]-0.18*(!X.RANGE[1]-!X.RANGE[0]), $
 ;      !Y.RANGE[0]+0.08*(!Y.RANGE[1]-!Y.RANGE[0]), $
 ;      '!4r!3='+strtrim(string(sig,format='(f8.2)'),2), $

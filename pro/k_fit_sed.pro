@@ -57,7 +57,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_sed, galaxy_maggies, galaxy_invvar, galaxy_z, templatelist, filterlist, coeff, ematrix, bmatrix, bflux, lambda, smoothtemplate=smoothtemplate, sublmin=sublmin, sublmax=sublmax, vmatrix=vmatrix, preset_ematrix=preset_ematrix, maxiter=maxiter, nt=nt, reconstruct_maggies=reconstruct_maggies, plotmaggies=plotmaggies, cutlmin=cutlmin, cutlmax=cutlmax, subsmoothtemplate=subsmoothtemplate, subsmoothlimits=subsmoothlimits, useconstraint=useconstraint
+pro k_fit_sed, galaxy_maggies, galaxy_invvar, galaxy_z, templatelist, filterlist, coeff, ematrix, bmatrix, bflux, lambda, smoothtemplate=smoothtemplate, sublmin=sublmin, sublmax=sublmax, vmatrix=vmatrix, preset_ematrix=preset_ematrix, maxiter=maxiter, nt=nt, reconstruct_maggies=reconstruct_maggies, plotmaggies=plotmaggies, cutlmin=cutlmin, cutlmax=cutlmax, subsmoothtemplate=subsmoothtemplate, subsmoothlimits=subsmoothlimits, useconstraint=useconstraint, chi2=chi2
 
 ; Need at least 10 parameters
 if (N_params() LT 10) then begin
@@ -130,10 +130,12 @@ ngalaxy=long(n_elements(galaxy_z))
 nk=long(n_elements(galaxy_maggies))/ngalaxy
 if (NOT keyword_set(nt)) then nt=nk-1l
 if (NOT keyword_set(preset_ematrix)) then begin
-  ematrix=dblarr(nb,nt)
-  indx=lindgen(nt)
-	ematrix[indx,indx]=1.d
-endif
+    ematrix=dblarr(nb,nt)
+    indx=lindgen(nt)
+    ematrix[indx,indx]=1.d
+endif else begin
+    ematrix=preset_ematrix
+endelse
 klog,'start iteration'
 k_ortho_etemplates,ematrix,bflux
 k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,ematrix=ematrix, $
