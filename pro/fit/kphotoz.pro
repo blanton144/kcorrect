@@ -15,8 +15,8 @@
 ;   maggies_ivar - inverse variance in maggies (magnitudes if
 ;                  /magnitude set, std. dev. if /stddev set)
 ; OPTIONAL INPUTS:
-;   magnitude     - set if input and output in -2.5 log_10(maggies)
-;   stddev        - maggies_ivar actual contains standard dev.
+;   /magnitude     - set if input and output in -2.5 log_10(maggies)
+;   /stddev        - maggies_ivar actual contains standard dev.
 ;   lfile    - wavelength file for vmatrix [default lambda.default.dat]
 ;   vfile         - vmatrix file [default vmatrix.default.dat]
 ;   vpath         - path to templates [default $KCORRECT_DIR/data/templates]
@@ -45,10 +45,14 @@
 ;   rmatrix       - look up table for bmatrix and filter information 
 ;                   [N_z, N_dim, N_band]
 ;   zvals         - look up redshift table for rmatrix [N_z]
+;   zmin,zmax     - minimum and maximum redshifts for lookup table
+;                   (default 0., 2.)
+;   nz            - number of redshifts in lookup table (default 1000)
 ; COMMENTS:
-; EXAMPLES:
-; BUGS:
-; PROCEDURES CALLED:
+;   When /sdssfix is set, deals with SDSS database-style input,
+;   including  wacky values for magnitgude errors, adding zeropoint
+;   uncertainties, and dealing with asinh magnitudes. Uses k_sdssfix
+;   for this. 
 ; REVISION HISTORY:
 ;   04-Jun-2003  converted from kcorrect MRB, NYU
 ;-

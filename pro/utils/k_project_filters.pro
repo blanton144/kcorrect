@@ -13,8 +13,6 @@
 ;   filterlist - list of filters (default to sdss set)
 ;   filterpath - paths to look for filters in
 ;   band_shift - blueward shift of bandpasses
-; OUTPUTS:
-; OPTIONAL INPUT/OUTPUTS:
 ; COMMENTS:
 ;   More or less a wrapper on k_create_r.
 ;   Outputs are in maggies (10.^(-0.4*magnitude)). 

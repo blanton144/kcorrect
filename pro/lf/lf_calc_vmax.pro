@@ -4,7 +4,7 @@
 ; PURPOSE:
 ;   calculate vmax for an object, given the flux and redshift limits
 ; USAGE:
-;   lf_calc_vmax,absm,coeffs,filtername,marea,mmin,mmax,sample_zmin,
+;   lf_calc_vmax,appm, absm,coeffs,filtername,marea,mmin,mmax,sample_zmin,
 ;   sample_zmax, [, band_shift=, im=, omega0=, omegal0=, vmax= ]
 ; INPUTS:
 ;   absm             [N] absolute magnitudes

@@ -20,7 +20,7 @@
 ;                   [N_z, N_dim, N_band]
 ;   zvals         - look up table for rmatrix [N_z]
 ; OPTIONAL INPUT/OUTPUTS:
-;   zmin, zmax, nz  - settings for setting zvals
+;   zmin, zmax, nz  - settings for setting zvals (default 0., 2., 1000)
 ; COMMENTS:
 ;   This tabulates the projection of each basis element v onto each
 ;   filter k, as a function of redshift. You only have to perform this
@@ -30,8 +30,6 @@
 ;   mind that this only creates the r matrix for a specific redshift
 ;   range; e.g. you have to change the defaults in order to consider
 ;   redshifts greater than unity.
-; EXAMPLES:
-; BUGS:
 ; PROCEDURES CALLED:
 ;   k_load_filters
 ;   Dynamic link to idl_k_projection_table.c in libkcorrect.so
@@ -55,7 +53,7 @@ if(NOT keyword_set(silent)) then klog,'Creating rmatrix ...'
 
 ; Set defaults
 if (n_elements(zmin) eq 0) then zmin=0.0
-if (n_elements(zmax) eq 0) then zmax=1.0
+if (n_elements(zmax) eq 0) then zmax=2.0
 if (NOT keyword_set(nz)) then nz=1000l
 
 ; Set zvals 

@@ -11,17 +11,20 @@
 ;   coeffs        - [nv, ngals] coefficients 
 ;   redshift      - [ngals] redshift for each galaxy (where you want to
 ;                   calculate maggies in model) 
-; OPTIONAL INPUTS:
 ; KEYWORDS:
 ;   silent        - shut up
 ; OUTPUTS:
+;   reconstruct_maggies - [nk, ngals] maggies of each
 ; OPTIONAL INPUT/OUTPUTS:
 ;   filterlist    - [nk] list of files with filter information 
+;   filterpath    - path for filterlist (default $KCORRECT_DIR/data/filters)
 ;   vmatrix       - [nl,nk] templates spanning SED space 
 ;   lambda        - [nl+1] wavelengths for templates 
 ;   rmatrix       - [nz, nv, nk] look up table for bmatrix and filter 
 ;                   information 
 ;   zvals         - [nz] look up table for rmatrix 
+;   zmin, zmax    - redshifts limits of lookup table (default 0., 2)
+;   nz            - number of redshifts in lookup table (default 1000)
 ;   band_shift    - shift to apply to bandpasses (default 0.)
 ; COMMENTS:
 ;   Reconstruct AB galaxy maggies given an observed redshift and a
@@ -46,8 +49,6 @@
 ;
 ;   IDL> k_reconstruct_maggies, coeffs,replicate(0.1,n_elements(redshift)), $
 ;        reconstruct_maggies
-; BUGS:
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-

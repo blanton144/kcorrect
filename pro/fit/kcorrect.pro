@@ -55,22 +55,22 @@
 ;   rmatrix       - look up table for bmatrix and filter information 
 ;                   [nz, nv, nk]
 ;   zvals         - look up redshift table for rmatrix [N_z]
+;   zmin,zmax     - minimum and maximum redshifts for lookup table
+;                   (default 0., 2.)
+;   nz            - number of redshifts in lookup table (default 1000)
 ;
 ; COMMENTS:
 ;
-;   Be careful when sending SDSS tsObj outputs directly into this program.
-;   Eg. occasionally the magnitudes or the errors have crazy values,
-;   such as -9999. The normal "garbage in, garbage out" rules
+;   Be careful when sending SDSS tsObj outputs directly into this
+;   program.  Eg. occasionally the magnitudes or the errors have crazy
+;   values, such as -9999. The normal "garbage in, garbage out" rules
 ;   apply. However, I have supplied the /sdssfix flag, which does a
 ;   reasonable job in most cases of identifying problem cases and
-;   doing something OK about it. 
-;
-; EXAMPLES:
-;
-; BUGS:
-;   Many inputs NOT commented, including zmin and zmax.
-;
-; PROCEDURES CALLED:
+;   doing something OK about it. When /sdssfix is set, deals with SDSS
+;   database-style input, including wacky values for magnitude errors,
+;   adding zeropoint uncertainties, converting to our best estimate of
+;   the AB system, and dealing with asinh magnitudes. Uses k_sdssfix
+;   for this.
 ;
 ; REVISION HISTORY:
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
@@ -84,14 +84,16 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               filterlist=filterlist, filterpath=filterpath, $
               rmatrix=rmatrix, zvals=zvals, lambda=lambda, $
               vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
-              chi2=chi2, maxiter=maxiter, verbose=verbose, nz=nz
+              chi2=chi2, maxiter=maxiter, verbose=verbose, nz=nz, $
+              zmin=zmin, zmax=zmax
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
     print, 'Syntax - kcorrect, maggies, maggies_ivar, redshift, kcorrect [ , $'
     print, '             band_shift=, /magnitude, /stddev, lfile=, $'
     print, '             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $'
-    print, '             zvals=, lambda=, vmatrix=, coeffs=, /verbose /sdssfix ]'
+    print, '             zvals=, zmin=, zmax= lambda=, vmatrix=, coeffs=, $'
+    print, '             /verbose, /sdssfix ]'
     return
 endif
 

@@ -1,3 +1,24 @@
+;+
+; NAME:
+;   k_add_stack
+; PURPOSE:
+;   adds stack of observations for multiple bands/objects
+; CALLING SEQUENCE:
+;   k_add_stack, stack, stack_ivar, stacked, stacked_ivar
+; INPUTS:
+;   stack - [Nbands, Ngalaxies, Nobs] maggies in each band for each
+;           galaxy for each observation
+;   stack_ivar - [Nbands, Ngalaxies, Nobs] inverse variance for each
+;                observation
+; OUTPUTS:
+;   stacked - [Nbands, Ngalaxies] average maggies
+;   stacked_ivar - [Nbands, Ngalaxies] inverse variance of average
+; COMMENTS:
+;   Weights average by inverse variance.
+; REVISION HISTORY:
+;   18-Jan-2003  Written by Mike Blanton, NYU
+;-
+;------------------------------------------------------------------------------
 pro k_add_stack, stack, stack_ivar, stacked, stacked_ivar
 
 nk=(size(stack,/dim))[0]

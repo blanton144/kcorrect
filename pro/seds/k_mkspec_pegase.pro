@@ -13,19 +13,19 @@
 ; OPTIONAL INPUTS:
 ;   pegasepath - directory with PEGASE results (default
 ;                $DATA/specmodels/PEGASE.2)
-;   attime - observe at look back time of ...
-;   [min|max]age - minimum and maximum ages of populations
-;   l[min|max] - wavelength limits
-;   nl - number of pixels
+;   attime - observe at look back time of this (default 0.)
+;   [min|max]age - minimum and maximum ages of populations (default none)
+;   l[min|max] - wavelength limits (default 1250., 33333.)
+;   nl - number of pixels (default 5000)
+;   pversion - prefix for spectra names (default 'mrb')
 ; KEYWORDS:
 ;   /nolines - don't use the lines
 ; OUTPUTS:
 ;   vmatrix - [nl, n_spectra] output spectra
 ;   lambda - [nl+1] pixel edges
-; OPTIONAL INPUT/OUTPUTS:
 ; COMMENTS:
-; EXAMPLES:
-; BUGS:
+;   Requires you have created PEGASE.2 models in the files:
+;     $DATA/specmodels/PEGASE.2/[pversion]_spectra.0.[metallicity].dat
 ; PROCEDURES CALLED:
 ;   k_load_ascii_table
 ;   k_read_peg 
@@ -53,7 +53,7 @@ if(NOT keyword_set(ntsteps)) then ntsteps=20000L
 if(NOT keyword_set(nl)) then nl=5000L
 if(NOT keyword_set(lmin)) then lmin=1250.
 if(NOT keyword_set(lmax)) then lmax=33333.
-if(NOT keyword_set(pversion)) then pversion=''
+if(NOT keyword_set(pversion)) then pversion='mrb'
 
 nv=n_elements(metallicity)*n_elements(sfhpars)*n_elements(dust)* $
   n_elements(pversion)
@@ -61,7 +61,7 @@ vmatrix=fltarr(nl,nv)
 for p = 0, n_elements(pversion)-1L do begin
     for m = 0, n_elements(metallicity)-1L do begin
 ;   read in the pegase file
-        pegfile=pegasepath+'/mrb'+pversion[p]+'_spectra.0.'+metallicity[m]+ $
+        pegfile=pegasepath+'/'+pversion[p]+'_spectra.0.'+metallicity[m]+ $
           '.dat'
         k_read_peg,pegfile,peg=peg
         k_spec_pegase,peg[0],dumspec,lambda,nl=nl,lmin=lmin,lmax=lmax, $

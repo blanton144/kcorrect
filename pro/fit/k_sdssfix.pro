@@ -2,32 +2,50 @@
 ; NAME:
 ;   k_sdssfix
 ; PURPOSE:
-;   Take a set of SDSS pipeline magnitudes and errors and "fixes" them, in the
-;   sense that for "bad" measurements or errors you assign values
-;   which are not absurd. Not necessary for Princeton-style input
-;   (which sets ivar to zero as appropriate). Also applies
-;   sdss-calib/845 tweaks to the AB system
+;   Take SDSS database asinh magnitudes and errors and "fixes" them
 ; CALLING SEQUENCE:
-;   k_sdssfix, mags, mags_stddev, maggies, maggies_ivar 
+;   k_sdssfix, mags, mags_err, maggies, maggies_ivar [, /standard, aboff=]
 ; INPUTS:
-;   mags - input magnitudes
-;   mags_stddev - input uncertainties in magnitude
-; OPTIONAL INPUTS:
+;   mags - input asinh magnitudes (luptitudes)
+;   mags_err - input uncertainties in mags
 ; OUTPUTS:
-;   maggies - best maggies to use
+;   maggies - best AB maggies to use 
 ;   maggies_ivar - best inverse variance to use
-; OPTIONAL INPUT/OUTPUTS:
+; OPTIONAL INPUTS:
+;   aboff - [5] AB offsets (defaults to list below)
+; KEYWORDS:
+;   /standard - assume standard magnitudes, not luptitudes
 ; COMMENTS:
-;   Uses the conversions posted by D.Hogg (sdss-calib/845)
-;     u(AB,2.5m) = u(2.5m) - 0.042
-;     g(AB,2.5m) = g(2.5m) + 0.036
-;     r(AB,2.5m) = r(2.5m) + 0.015
-;     i(AB,2.5m) = i(2.5m) + 0.013
-;     z(AB,2.5m) = z(2.5m) - 0.002
-; EXAMPLES:
-; BUGS:
-;   Doesn't use lups2maggies
-; PROCEDURES CALLED:
+;   This converts from SDSS database asinh magnitudes to AB maggies. 
+;
+;   It "fixes" errors in the sense that for "bad" measurements or
+;   errors you assign values which are not absurd. Not necessary for
+;   Princeton-style input (which sets ivar to zero as
+;   appropriate). 
+;  
+;   Also adds errors in quadrature:
+;     sigma(ugriz) = [0.05, 0.02, 0.02, 0.02, 0.03]
+;   to account for calibration uncertainties.
+;
+;   Uses the AB conversions posted by D. Eisenstein (sdss-calib/???)
+;     u(AB,2.5m) = u(database, 2.5m) - 0.036
+;     g(AB,2.5m) = g(database, 2.5m) + 0.012
+;     r(AB,2.5m) = r(database, 2.5m) + 0.010
+;     i(AB,2.5m) = i(database, 2.5m) + 0.028
+;     z(AB,2.5m) = z(database, 2.5m) - 0.040
+;   You can specify your own with the "aboff" input.
+;
+;   Note that older versions (v3_2 and previous) used a different set
+;   of corrections: 
+;     u(AB,2.5m) = u(database, 2.5m) - 0.042   (NOT WHAT WE DO HERE)
+;     g(AB,2.5m) = g(database, 2.5m) + 0.036   (NOT WHAT WE DO HERE)
+;     r(AB,2.5m) = r(database, 2.5m) + 0.015   (NOT WHAT WE DO HERE)
+;     i(AB,2.5m) = i(database, 2.5m) + 0.013   (NOT WHAT WE DO HERE)
+;     z(AB,2.5m) = z(database, 2.5m) - 0.002   (NOT WHAT WE DO HERE)
+;
+;   If for whatever reason you have regular magnitudes (rather than
+;   asinh), use /standard. 
+;
 ; REVISION HISTORY:
 ;   07-Feb-2002  Written by Mike Blanton, NYU
 ;   03-Jun-2003  Updated to v3_0 by Mike Blanton, NYU
@@ -67,11 +85,15 @@ return, ivar
 
 end
 ;
-pro k_sdssfix, mags, mags_stddev, maggies, maggies_ivar
+pro k_sdssfix, mags, mags_err, maggies, maggies_ivar, standard=standard, $
+               aboff=aboff
+
+bvalues=[1.4D-10, 0.9D-10, 1.2D-10, 1.8D-10, 7.4D-10]
+if(NOT keyword_set(aboff)) then aboff=[-0.036, 0.012, 0.010, 0.028, -0.040]
 
 if((size(mags))[0] eq 1) then begin
-    nk=1
-    ngalaxy=n_elements(mags)
+    nk=5
+    ngalaxy=1
 endif else begin
     nk=(size(mags,/dimens))[0]
     ngalaxy=(size(mags,/dimens))[01]
@@ -82,7 +104,7 @@ if(nk ne 5) then begin
   return 
 endif
 
-mags_ivar=reform(k_sdss_err2ivar(mags_stddev),nk,ngalaxy)
+mags_ivar=reform(k_sdss_err2ivar(mags_err),nk,ngalaxy)
 
 indx=where(mags eq -9999 and mags_ivar ne 0.,count)
 if(count gt 0) then begin
@@ -90,18 +112,25 @@ if(count gt 0) then begin
     mags_ivar[indx]=0.
 endif
 
-aboff=[-0.042, 0.036, 0.015, 0.013, -0.002]
-abmags=fltarr(nk,ngalaxy)
-for k=0, nk-1 do $
-  abmags[k,*]=mags[k,*]+aboff[k]
-
 maggies=dblarr(nk,ngalaxy)
 maggies_ivar=dblarr(nk,ngalaxy)
-indx=where(mags_ivar ne 0.,count)
-if(count gt 0) then begin
-   maggies[indx]=(10.D)^(-(0.4D)*abmags[indx])
-   maggies_ivar[indx]=mags_ivar[indx]/(0.4*alog(10.)*maggies[indx])^2.
-endif
+for k=0L, nk-1L do begin
+    indx=where(mags_ivar[k,*] ne 0.,count)
+    if(count gt 0) then begin
+        if(NOT keyword_set(standard)) then begin
+            err=1./sqrt(mags_ivar[k,indx])
+            maggies[k,indx]=k_lups2maggies(mags[k, indx], err, $
+                                           maggies_err=merr, $
+                                           bvalues=bvalues[k])* $
+              10.^(-0.4*aboff[k])
+            maggies_ivar[k,indx]=1./(merr*10.^(-0.4*aboff[k]))^2
+        endif else begin
+            maggies[k,indx]=(10.D)^(-(0.4D)*(mags[k,indx]+aboff[k]))
+            maggies_ivar[k,indx]= $
+              mags_ivar[k,indx]/(0.4*alog(10.)*maggies[k,indx])^2.
+        endelse
+    endif
+endfor
 indx=where(mags_ivar eq 0.,count)
 if(count gt 0) then begin
    maggies[indx]=0.

@@ -4,7 +4,23 @@
 ; PURPOSE:
 ;   make grid of BC03 model spectra for fitting
 ; CALLING SEQUENCE:
-;   k_nmf_mmatrix [, outfile= ]
+;   k_nmf_mmatrix [, prefix=, back=, lmin=, lmax= ]
+; OPTIONAL INPUTS:
+;   prefix - prefix to use for output files (default 'k_nmf')
+;   back - # of Gyrs in the past to use for 'early' file
+;   lmin, lmax - limits of spectrum output (Angstroms; default 600, 30000)
+;   navloglam - number of wavelengths in final output
+;   nagesmax - maximum number of instantantaneous burst ages to use
+;   vdisp - smooth models to this velocity dispersion, in km/s (default 300)
+;   minzf, maxzf - minimum and maximum redshifts of observation
+;                  (default 0., 1.)
+;   nzf - number of redshifts of observations
+;   dusts - dust models (Witt & Gordon) to use for
+;           extinction. Structure with elements:
+;              .GEOMETRY - geometry from WG (default 'dusty', 'dusty', 'dusty')
+;              .DUST - type of dust from WG (default 'MW', 'MW', 'MW')
+;              .STRUCTURE - structure of dust from WG (default 'c', 'c', 'c')
+;              .TAUV - optical depth at V (default 0., 1., 3.)
 ; COMMENTS:
 ;   makes [Nobs, Nsfh] matrix where 
 ;        Nobs = nlambda + nz*nfilters
@@ -12,32 +28,42 @@
 ; BUGS:
 ;   needs to output *unsmoothed* spectra 
 ;   should have better constrained emission lines
+;   include Draine & Li templates
 ; REVISION HISTORY:
 ;   29-Jul-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_nmf_mmatrix, outfile=outfile
+pro k_nmf_mmatrix, prefix=prefix, back=back, lmin=lmin, lmax=lmax, $
+                   dusts=dusts
 
-if(NOT keyword_set(outfile)) then outfile='k_nmf_mmatrix.fits'
-if(NOT keyword_set(earlyfile)) then earlyfile='k_nmf_early.fits'
-if(NOT keyword_set(rawfile)) then rawfile='k_nmf_rawspec.fits'
+if(NOT keyword_set(back)) then back=0.5  ;; how many Gyrs earlier?
+if(NOT keyword_set(lmin)) then lmin=600.
+if(NOT keyword_set(lmax)) then lmax=30000.
+if(NOT keyword_set(prefix)) then prefix='k_nmf'
+if(NOT keyword_set(navloglam)) then navloglam=8000L
+if(NOT keyword_set(nagesmax)) then nagesmax=30
+if(NOT keyword_set(vdisp)) then vdisp=300.
+if(NOT keyword_set(minzf)) then minzf=0.
+if(NOT keyword_set(maxzf)) then maxzf=1.
+if(NOT keyword_set(nzf)) then nzf=500
+if(n_tags(dusts) eq 0) then begin
+    dusts1={geometry:'', dust:'', structure:'', tauv:0.}
+    dusts=replicate(dusts1,3)
+    dusts.geometry=['dusty', 'dusty','dusty']
+    dusts.dust=['MW','MW','MW']
+    dusts.structure=['c','c','c']
+    dusts.tauv=[0.,1.,3.]
+endif 
+ndusts=n_elements(dusts)
 
-norm_lmin=1500.
+norm_lmin=1500. ;; limits when testing whether two BC03 models are similar
 norm_lmax=23000.
-back=0.5  ;; how many Gyrs earlier?
-lmin=600.
-lmax=30000.
-navloglam=8000L
-nagesmax=30
-vdisp=300.
-minzf=0.
-maxzf=1.
-nzf=500
-nmets=6
+nmets=6   ;; metallicities to use
 mets=[0,1,2,3,4,5]
-;;nmets=2
-;;mets=[3,4]
-sigma=vdisp/(2.99792e+5*alog(10.))
+sigma=vdisp/(2.99792e+5*alog(10.))  ;; smoothing sigma in log lambda
+outfile=prefix+'_mmatrix.fits'  ;; output files
+earlyfile=prefix+'_early.fits'
+rawfile=prefix+'_rawspec.fits'
 
 ;; 1. make stellar pops
 
@@ -141,16 +167,6 @@ for im= 0L, nmets-1L do begin
 endfor
 
 ;; 2. make the dusty grid
-ndusts=3L
-dusts1={geometry:'', dust:'', structure:'', tauv:0.}
-dusts=replicate(dusts1,3)
-dusts.geometry=['dusty', $
-               'dusty','dusty']
-dusts.dust=['MW', $
-           'MW','MW']
-dusts.structure=['c', $
-                'c','c']
-dusts.tauv=[0.,1.,3.]
 dustygrid=fltarr(navloglam, nages*nmets, ndusts)
 earlydustygrid=fltarr(navloglam, nages*nmets, ndusts)
 rawdustygrid=fltarr(navloglam, nages*nmets, ndusts)
@@ -225,7 +241,7 @@ rmatrix=rmatrix > 0.
 earlypgrid=earlyspgrid
 for i=0L, nages*ndusts*nmets+nel-1L do $
   earlypgrid[*,i]=earlypgrid[*,i]*absrc
-k_projection_table, earlyrmatrix, earlypgrid, lambda, zf, filterlist, $
+
   zmin=minzf, zmax=maxzf, nz=nzf
 earlyrmatrix=earlyrmatrix > 0.
   
