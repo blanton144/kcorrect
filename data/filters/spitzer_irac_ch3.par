@@ -1,4 +1,16 @@
-# built automatically by processspitzer
+# Units:
+#   "lambda" is in Angstroms
+#   "pass"   is *probably* the contribution to the detector signal
+#            per photon
+# Bandpass Name:
+#   ch3
+# Instrument:
+#   Spitzer IRAC
+# Notes:
+#   - Original data from
+#     "http://ssc.spitzer.caltech.edu/irac/spectral_response.html"
+#   - ".par" file built automatically by processspitzer.
+
 typedef struct {
   double lambda;
   double pass;

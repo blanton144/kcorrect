@@ -9,7 +9,20 @@ foreach $band (@bands) {
     $outfilename="./spitzer_irac_ch$band.par";
     print "$filename -> $outfilename\n";
     open(ofp,">$outfilename");
-    print ofp "# built automatically by processspitzer";
+
+    print ofp "# Units:\n";
+    print ofp "#   \"lambda\" is in Angstroms\n";
+    print ofp "#   \"pass\"   is *probably* the contribution to the detector signal\n";
+    print ofp "#            per photon\n";
+    print ofp "# Bandpass Name:\n";
+    print ofp "#   ch$band\n";
+    print ofp "# Instrument:\n";
+    print ofp "#   Spitzer IRAC\n";
+    print ofp "# Notes:\n";
+    print ofp "#   - Original data from\n";
+    print ofp "#     \"http://ssc.spitzer.caltech.edu/irac/spectral_response.html\"\n";
+    print ofp "#   - \".par\" file built automatically by processspitzer.\n";
+
     print ofp "\ntypedef struct {\n";
     print ofp "  double lambda;\n";
     print ofp "  double pass;\n";
