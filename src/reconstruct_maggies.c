@@ -4,9 +4,9 @@
 #include <kcorrect.h>
 
 /*
- * model_fluxes.c
+ * reconstruct_maggies.c
  *
- * Calculates the model flux, given the coefficients and the template
+ * Calculates the reconstructed flux, given the coefficients and the template
  * information
  *
  * Mike Blanton
@@ -15,7 +15,7 @@
 static IDL_LONG nz=1000;
 static double zmin=1.e-4, zmax=1.e-0;
 
-static double *model_fluxes=NULL;
+static double *reconstruct_maggies=NULL;
 static double *bmatrix=NULL;
 static double *lambda=NULL;
 static double *rmatrix=NULL;
@@ -37,7 +37,7 @@ int main(int argc,
 	char ematrixfile[2000],bmatrixfile[2000],filterlist[2000],lambdafile[2000];
 
 	if(argc<5) {
-		fprintf(stderr,"Usage: cat <coeff file> | model_fluxes <ematrix file> <bmatrix file> <lambdafile> <filterlist> [to_z] [zmin] [zmax] [nz]\n");
+		fprintf(stderr,"Usage: cat <coeff file> | reconstruct_maggies <ematrix file> <bmatrix file> <lambdafile> <filterlist> [to_z] [zmin] [zmax] [nz]\n");
 		exit(1);
 	} /* end if */
 	i=1;
@@ -88,12 +88,12 @@ int main(int argc,
 	k_create_r(rmatrix,nk,nb,bmatrix,lambda,nl,zvals,nz,filter_n,
 						 filter_lambda,filter_pass,maxn);
 
-	/* get the model fluxes given the coefficients; if you wanted, you
-     could put the call to k_model_fluxes directly after k_fit_coeffs
+	/* get the reconstructed fluxes given the coefficients; if you wanted, you
+     could put the call to k_reconstruct_maggies directly after k_fit_coeffs
      in fit_coeffs.c; this is what you would do if you wanted to
      calculate K-corrections within a C code of your own */
 	nchunk=1;
-	model_fluxes=(double *) malloc(nk*nchunk*sizeof(double));
+	reconstruct_maggies=(double *) malloc(nk*nchunk*sizeof(double));
 	galaxy_z=(double *) malloc(nchunk*sizeof(double));
 	coeffs=(double *) malloc(nchunk*nt*sizeof(double));
 	fscanf(stdin,"%lf",&(coeffs[0]));
@@ -102,10 +102,10 @@ int main(int argc,
 			fscanf(stdin,"%lf",&(coeffs[j]));
 		fscanf(stdin,"%lf",&(galaxy_z[0]));
 		if(to_z!=-1.) galaxy_z[0]=to_z;
-		k_model_fluxes(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_z,
-									 model_fluxes,nchunk);
+		k_reconstruct_maggies(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_z,
+												 reconstruct_maggies,nchunk);
 		for(k=0;k<nk;k++)
-			fprintf(stdout,"%e ",model_fluxes[k]);
+			fprintf(stdout,"%e ",reconstruct_maggies[k]);
 		fprintf(stdout,"\n");
 		fscanf(stdin,"%lf",&(coeffs[0]));
 	}
@@ -119,6 +119,6 @@ int main(int argc,
 	FREEVEC(filter_lambda);
 	FREEVEC(filter_pass);
 	FREEVEC(galaxy_z);
-	FREEVEC(model_fluxes);
+	FREEVEC(reconstruct_maggies);
 	FREEVEC(coeffs);
 } /* end main */

@@ -105,12 +105,12 @@ can use it.
 </ul>
 
 <p>
-Note that the C codes "fit_coeffs.c" and "model_fluxes.c" only depend
+Note that the C codes "fit_coeffs.c" and "reconstruct_maggies.c" only depend
 in the K-correction library; thus, you can use them as templates for
 incorporating the K-correction code directly into your C code, as long
 as you include the K-correction library. In fact, you would probably
 put something like "fit_coeffs.c" into your code but include the
-k_model_fluxes() call directly inside to get the K-corrections.
+k_reconstruct_maggies() call directly inside to get the K-corrections.
 </p>
 
 <h3> The Basics</h3>
@@ -219,14 +219,14 @@ not have to be regenerated.</p>
 <p> The C code requires a bit more attention to use. If people say
 they would use it if it were easier, I will improve it. In this
 section, I will describe the stand-alone C programs which fit for the
-coefficients and which calculate the model fluxes. In the next
+coefficients and which calculate the reconstructed maggies. In the next
 section, I will briefly describe how to use the libraries within your
 own C code.  </p>
 
 <p>
 There are two stand-alone programs, <b>fit_coeffs</b> and
-<b>model_fluxes</b>. <b>fit_coeffs</b> uses the maggies in each band
-to calculate the coefficients. <b>model_fluxes</b> uses the list of
+<b>reconstruct_maggies</b>. <b>fit_coeffs</b> uses the maggies in each band
+to calculate the coefficients. <b>reconstruct_maggies</b> uses the list of
 coefficients (as output by <b>fit_coeffs</b> to reconstruct the
 magnitudes.
 </p>
@@ -253,21 +253,19 @@ to the inverse variances from the maggies and the magnitude errors is
 <p> From the set of maggies and errors, the code calculates a set of
 four coefficients which correspond to its guess about the nature of
 the galaxy SED. The first coefficient measures the visual flux, as
-described in the <a href="paper.ps"> paper</a>. The other coefficients
-are measures of the shape of the SED. The coefficients are output to
-standard out in the form:
-<pre>
-coeff0 coeff1 coeff2 coeff3 z
-</pre>
-where the redshift z is included for reasons which will be clear
-soon. </p>
+described in the <a href="paper.ps"> paper</a>. This number is the
+ergs/cm^2/s in the wavelength range 3500 to 7500 Angstroms. The other
+coefficients are measures of the shape of the SED. The coefficients
+are output to standard out in the form: <pre> coeff0 coeff1 coeff2
+coeff3 z </pre> where the redshift z is included for reasons which
+will be clear soon. </p>
 
 <p> Once you have the coefficients, you can calculate the
 reconstructed maggies at any redshift, using
-<b>model_fluxes</b>. The call to <b>model_fluxes</b> is similar to
+<b>reconstruct_maggies</b>. The call to <b>reconstruct_maggies</b> is similar to
 that of <b>fit_coeffs</b>:
 <pre>
-cat coeffs.dat | model_fluxes $KCORRECT_DIR/data/etemplates/ematrix.default.dat \
+cat coeffs.dat | reconstruct_maggies $KCORRECT_DIR/data/etemplates/ematrix.default.dat \
    $KCORRECT_DIR/data/etemplates/bmatrix.default.dat \
    $KCORRECT_DIR/data/etemplates/lambda.default.dat \
    $KCORRECT_DIR/data/etemplates/filterlist.default.dat [to_z]
@@ -291,7 +289,7 @@ in the original maggy units.
 of maggies, all at redshift 0.1, you could call the code as follows:
 <pre>
 kargs="$KCORRECT_DIR/data/etemplates/ematrix.default.dat $KCORRECT_DIR/data/etemplates/bmatrix.default.dat $KCORRECT_DIR/data/etemplates/lambda.default.dat $KCORRECT_DIR/data/etemplates/filterlist.default.dat"
-cat maggies.dat | fit_coeffs $kargs | model_fluxes $kargs 0.1 > recmaggies.dat
+cat maggies.dat | fit_coeffs $kargs | reconstruct_maggies $kargs 0.1 > recmaggies.dat
 </pre>
 The results would be put into recmaggies.dat. </p>
 
@@ -317,7 +315,7 @@ library (in fact, this is *exactly* the same library which is linked
 into IDL). If you have this library in your LD_LIBRARY_PATH and you
 include the header file "kcorrect.h" (in $KCORRECT_DIR/include), your
 own code can call it. The best way to figure out how to use it is to
-read the examples in fit_coeffs.c and model_fluxes.c, but I'll try to
+read the examples in fit_coeffs.c and reconstruct_maggies.c, but I'll try to
 explain the essentials here.  </p>
 
 <ul>
@@ -392,23 +390,23 @@ k_load_ascii_table calls described above.
 
 Once this overhead has been taken care of (and it is a significant
 amount of time --- a few seconds --- so only do it once!) you can use
-the routines "k_fit_coeffs" and "k_model_fluxes". 
+the routines "k_fit_coeffs" and "k_reconstruct_maggies". 
 
 <ul>
 <li> <b>k_fit_coeffs</b> is called as:
 <pre>
-k_fit_coeffs(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_flux,
+k_fit_coeffs(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_maggies,
              galaxy_invvar,galaxy_z,ngalaxy);
 </pre>
-where galaxy_flux and galaxy_invvar are expressed in maggies. The 
+where galaxy_maggies and galaxy_invvar are expressed in maggies. The 
 array coeffs should be of the size (nt*ngalaxy), and the coefficients
 are returned in it.
-<li> <b>k_model_fluxes</b> is called as:
+<li> <b>k_reconstruct_maggies</b> is called as:
 <pre>
-k_model_fluxes(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_z,
-               model_fluxes,ngalaxy);
+k_reconstruct_maggies(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_z,
+                      reconstruct_maggies,ngalaxy);
 </pre>
-where model_fluxes are expressed in maggies.
+where reconstruct_maggies are expressed in maggies.
 </ul>
 
 <p> Clever people will realize that a photometric redshift estimation

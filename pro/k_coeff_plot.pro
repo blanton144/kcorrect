@@ -46,10 +46,10 @@ help,nlum
 k_load_ascii_table,coeff,vpath+'/coeff.'+version+'.dat'
 nt=(size(coeff))[1]
 k_load_ascii_table,z,vpath+'/z.'+version+'.dat'
-k_model_fluxes,coeff,replicate(0.2,n_elements(z)),model_fluxes, $
+k_reconstruct_maggies,coeff,replicate(0.2,n_elements(z)),reconstruct_maggies, $
   version=version
 dm=2.5*alog10((2.99792e+8*lumdis(z,omega0,omegal0))^2)
-lum=17.-2.5*alog10(model_fluxes[2,*])-dm
+lum=-2.5*alog10(reconstruct_maggies[2,*])-dm
 
 if(keyword_set(psfile)) then begin
     set_plot, "PS"

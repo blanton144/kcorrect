@@ -46,17 +46,17 @@ IDL_LONG k_fit_templates(double *ematrix,    /* eigentemplates */
 												 IDL_LONG initialized_dmatrix);
 
 /* calculate the reconstructed fluxes, given the coeffs of the model */
-IDL_LONG k_reconstructed_fluxes(double *ematrix,    /* eigentemplates */
-																IDL_LONG nt, /* number of eigentemplates */
-																double *zvals,      /* z interpolation */
-																IDL_LONG nz,
-																double *rmatrix,    /* r matrix */
-																IDL_LONG nk,      /* number of bandpasses */
-																IDL_LONG nb,      /* number of templates */
-																double *coeffs, /* coefficients */
-																double *galaxy_z,
-																double *rec_flux,
-																IDL_LONG ngalaxy);
+IDL_LONG k_reconstruct_maggies(double *ematrix,    /* eigentemplates */
+															IDL_LONG nt, /* number of eigentemplates */
+															double *zvals,      /* z interpolation */
+															IDL_LONG nz,
+															double *rmatrix,    /* r matrix */
+															IDL_LONG nk,      /* number of bandpasses */
+															IDL_LONG nb,      /* number of templates */
+															double *coeffs, /* coefficients */
+															double *galaxy_z,
+															double *rec_flux,
+															IDL_LONG ngalaxy);
 
 /* fit redshift and coefficients, given information about the templates and 
  * the filters (in ematrix and rmatrix) and a set of galaxies */

@@ -50,7 +50,7 @@ nl=n_elements(lambda)-1l
 coeffmean1=djs_avsigclip(coeff[1,*]/coeff[0,*])
 coeffmean2=djs_avsigclip(coeff[2,*]/coeff[0,*])
 speccoeffs=[ $
-             [1.,coeffmean1,coeffmean2,-0.16], $
+             [1.,coeffmean1,coeffmean2,-0.19], $
              [1.,coeffmean1,coeffmean2,-0.06],$
              [1.,coeffmean1,coeffmean2,0.10] $
            ]
@@ -146,8 +146,13 @@ xyouts,xout,yout,'a!d1!n/a!d0!n='+ $
 yout=0.85
 xyouts,xout,yout,'a!d2!n/a!d0!n='+ $
       strtrim(string(speccoeffs[2,0],format='(f5.2)'),2)
+scalespec=[1.,2.,1.5]
 for j=0, nspecs-1 do begin
-    out=spec[*,j]/max(spec[*,j])
+    out=scalespec[j]*spec[*,j]/max(spec[*,0])* $
+       interpolate(spec[*,0], $
+									 double(nl)*(3000.-lambda[0])/(lambda[nl]-lambda[0]))/ $
+       interpolate(spec[*,j], $
+									 double(nl)*(3000.-lambda[0])/(lambda[nl]-lambda[0]))
     djs_oplot,lam,out,color=colorname[j],thick=6
     xout=lam[n_elements(lam)/2]
     yout=out[n_elements(lam)/2]+0.02

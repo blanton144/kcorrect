@@ -9,12 +9,12 @@ static void free_memory()
 }
 
 /********************************************************************/
-IDL_LONG idl_k_model_fluxes
+IDL_LONG idl_k_reconstruct_maggies
   (int      argc,
    void *   argv[])
 {
    IDL_LONG nt,nz,nk,nb,ngalaxy,*galaxy_clip,initialized_dmatrix;
-   double *ematrix,*zvals,*rmatrix,*amatrix,*model_flux;
+   double *ematrix,*zvals,*rmatrix,*amatrix,*reconstruct_maggies;
 	 double *galaxy_z;
 
 	 IDL_LONG i;
@@ -31,12 +31,13 @@ IDL_LONG idl_k_model_fluxes
    nb=*((IDL_LONG *)argv[i]); i++;
 	 amatrix=(double *)argv[i]; i++;
 	 galaxy_z=(double *)argv[i]; i++;
-	 model_flux=(double *)argv[i]; i++;
+	 reconstruct_maggies=(double *)argv[i]; i++;
    ngalaxy=*((IDL_LONG *)argv[i]); i++;
 
 	 /* 1. run the fitting routine */
-	 retval=(IDL_LONG) k_model_fluxes(ematrix,nt,zvals,nz,rmatrix,nk,nb,
-																		amatrix,galaxy_z,model_flux,ngalaxy);
+	 retval=(IDL_LONG) k_reconstruct_maggies(ematrix,nt,zvals,nz,rmatrix,nk,nb,
+																					amatrix,galaxy_z,reconstruct_maggies,
+																					ngalaxy);
 
 	 /* 2. free memory and leave */
 	 free_memory();

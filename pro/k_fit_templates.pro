@@ -7,12 +7,12 @@
 ;   well as their coefficients given a previous set of eigentemplates
 ;
 ; CALLING SEQUENCE:
-;   k_fit_templates, galaxy_flux, galaxy_invvar, galaxy_z, coeff, $
+;   k_fit_templates, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, $
 ;      ematrix, zvals, [filterlist=, bmatrix=, lambda= $
 ;      rmatrix=, dmatrix=, galaxy_clip=]
 ;
 ; INPUTS:
-;   galaxy_flux   - flux in each band for each galaxy [N_band, N_gal]
+;   galaxy_maggies   - maggies in each band for each galaxy [N_band, N_gal]
 ;   galaxy_invvar - errors in each band for each galaxy [N_band, N_gal]
 ;   galaxy_z      - redshift for each galaxy [N_gal]
 ;   galaxy_clip   - 1 to exclude galaxy from fit, 0 to include
@@ -53,11 +53,11 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_templates, galaxy_flux, galaxy_invvar, galaxy_z, coeff, ematrix, zvals, filterlist=filterlist, bmatrix=bmatrix, lambda=lambda, rmatrix=rmatrix, dmatrix=dmatrix, galaxy_clip=galaxy_clip
+pro k_fit_templates, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, ematrix, zvals, filterlist=filterlist, bmatrix=bmatrix, lambda=lambda, rmatrix=rmatrix, dmatrix=dmatrix, galaxy_clip=galaxy_clip
 
 ; Need at least 6 parameters
 if (N_params() LT 6) then begin
-    klog, 'Syntax - k_fit_templates, galaxy_flux, galaxy_invvar, galaxy_z, coeff, $'
+    klog, 'Syntax - k_fit_templates, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, $'
     klog, '   ematrix, zvals, [filterlist=, bmatrix=, lambda=, rmatrix=, dmatrix=, $'
     klog, '   galaxy_clip=]'
     return
@@ -69,7 +69,7 @@ soname=filepath('libkcorrect.so', $
 
 ; Determine dimensions
 ngalaxy=long(n_elements(galaxy_z))
-nk=long(n_elements(galaxy_flux)/ngalaxy)
+nk=long(n_elements(galaxy_maggies)/ngalaxy)
 nz=long(n_elements(zvals))
 if (keyword_set(bmatrix) AND keyword_set(filterlist)) then begin
     k_create_r,rmatrix,bmatrix,lambda,zvals,filterlist
@@ -101,7 +101,7 @@ ematrix=dblarr(nb,nt)
 retval=call_external(soname, 'idl_k_fit_templates', double(ematrix), $
                      long(nt), double(zvals), long(nz), double(rmatrix), $
                      long(nk), long(nb), double(coeff), $
-                     double(galaxy_flux), double(galaxy_invvar), $
+                     double(galaxy_maggies), double(galaxy_invvar), $
                      double(galaxy_z), long(galaxy_clip), long(ngalaxy), $
                      double(dmatrix), long(initialized_dmatrix))
 

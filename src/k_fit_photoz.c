@@ -21,7 +21,7 @@ static double *pz_ematrix=NULL;
 static double *pz_rmatrix=NULL;
 static double *pz_zvals=NULL;
 static double *pz_coeffs=NULL;
-static double *pz_model_flux=NULL;
+static double *pz_reconstruct_maggies=NULL;
 static double *pz_galaxy_maggies=NULL;
 static double *pz_galaxy_invvar=NULL;
 static double *pz_coeffspnorm=NULL;
@@ -30,15 +30,15 @@ static IDL_LONG pz_nt,pz_nz,pz_nk,pz_nb,pz_puse,pz_np,pz_p;
 
 double pz_calc_chi2(double z) 
 {
-	double *model_flux,chi2;
+	double *reconstruct_maggies,chi2;
 	IDL_LONG k;
 	
-	k_model_fluxes(pz_ematrix,pz_nt,pz_zvals,pz_nz,pz_rmatrix,
-								 pz_nk,pz_nb,pz_coeffs,&z,pz_model_flux,1);
+	k_reconstruct_maggies(pz_ematrix,pz_nt,pz_zvals,pz_nz,pz_rmatrix,
+											 pz_nk,pz_nb,pz_coeffs,&z,pz_reconstruct_maggies,1);
 	chi2=0.;
 	for(k=0;k<pz_nk;k++)
-		chi2+=(pz_model_flux[k]-pz_galaxy_maggies[k])
-			*(pz_model_flux[k]-pz_galaxy_maggies[k])*pz_galaxy_invvar[k];
+		chi2+=(pz_reconstruct_maggies[k]-pz_galaxy_maggies[k])
+			*(pz_reconstruct_maggies[k]-pz_galaxy_maggies[k])*pz_galaxy_invvar[k];
 	
 	return(chi2);
 } /* end pz_calc_chi2 */
@@ -91,7 +91,7 @@ IDL_LONG k_fit_photoz(double *ematrix,    /* eigentemplates */
 	pz_zvals=(double *) malloc(pz_nz*sizeof(double));
 	for(i=0;i<pz_nz;i++)
 		pz_zvals[i]=zvals[i];
-	pz_model_flux=(double *) malloc(pz_nk*sizeof(double));
+	pz_reconstruct_maggies=(double *) malloc(pz_nk*sizeof(double));
 	pz_coeffs=(double *) malloc(pz_nt*sizeof(double));
 	pz_galaxy_maggies=(double *) malloc(pz_nk*sizeof(double));
 	pz_galaxy_invvar=(double *) malloc(pz_nk*sizeof(double));
@@ -149,7 +149,7 @@ IDL_LONG k_fit_photoz(double *ematrix,    /* eigentemplates */
 	FREEVEC(pz_zvals);
 	FREEVEC(pz_galaxy_maggies);
 	FREEVEC(pz_galaxy_invvar);
-	FREEVEC(pz_model_flux);
+	FREEVEC(pz_reconstruct_maggies);
 	FREEVEC(pz_coeffs);
 	FREEVEC(zgrid);
 	FREEVEC(chi2);

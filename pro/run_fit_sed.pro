@@ -54,14 +54,13 @@ if(NOT keyword_set(templatelist)) then $
                  'ssp_salp_z004.flux.0220.dat', $
                  'ssp_salp_z004.flux.0180.dat', $
                  'ssp_salp_z004.flux.0150.dat', $
-                 'ssp_salp_z004.flux.0120.dat', $
-                 'cos1.flux.dat', $
-                 'flat.flux.dat' $
+                 'ssp_salp_z004.flux.0120.dat' $
                 ]
-                 ;'ssp_salp_z004.flux.0220.dat', $
-                 ;'ssp_salp_z004.flux.0180.dat', $
-                 ;'ssp_salp_z004.flux.0150.dat', $
-                 ;'ssp_salp_z004.flux.0120.dat', $
+                 ;'ssp_salp_z0004.flux.0220.dat', $
+                 ;'ssp_salp_z0004.flux.0180.dat', $
+                 ;'ssp_salp_z0004.flux.0150.dat', $
+                 ;'ssp_salp_z0004.flux.0120.dat' $
+                 ;'flat.flux.dat' $
                  ;'cos1.flux.dat', $
 if(NOT keyword_set(nk)) then nk=5L
 if(NOT keyword_set(nl)) then nl=500L
@@ -200,21 +199,21 @@ for i = 0l, nk-2l do begin
     sp=sp[goodindx]
 endfor
 
-galaxy_flux=dblarr(nk,n_elements(sp))
+galaxy_maggies=dblarr(nk,n_elements(sp))
 galaxy_invvar=dblarr(nk,n_elements(sp))
 for k=0l,nk-1l do begin
-    galaxy_flux[k,*]=10.d^(-0.4d*(sp.petrocounts[k]-sp.reddening[k] $
+    galaxy_maggies[k,*]=10.d^(-0.4d*(sp.petrocounts[k]-sp.reddening[k] $
                                   +shiftband[k]))
-    galaxy_invvar[k,*]=galaxy_flux[k,*]*0.4d*alog(10.d)* $
+    galaxy_invvar[k,*]=galaxy_maggies[k,*]*0.4d*alog(10.d)* $
       sqrt(sp.petrocountserr[k]^2+errband[k]^2)
     galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
 endfor
 
-k_fit_sed,galaxy_flux,galaxy_invvar,sp.z,templatelist, $
+k_fit_sed,galaxy_maggies,galaxy_invvar,sp.z,templatelist, $
   filterlist, coeff, ematrix, bmatrix, bflux, lambda, nt=nt, $
-  model_flux=model_flux, /plotfluxes, smoothtemplate=smoothtemplate, $
-  maxiter=maxiter, subsmoothtemplate=subsmoothtemplate, $
-  subsmoothlimits=subsmoothlimits
+  reconstruct_maggies=reconstruct_maggies, /plotmaggies, $
+  smoothtemplate=smoothtemplate, maxiter=maxiter, $
+  subsmoothtemplate=subsmoothtemplate, subsmoothlimits=subsmoothlimits
 z=sp.z
 
 k_write_ascii_table,ematrix,outpath+'/ematrix.'+outname+'.dat'
@@ -225,7 +224,7 @@ k_write_ascii_table,coeff,outpath+'/coeff.'+outname+'.dat'
 k_write_ascii_table,z,outpath+'/z.'+outname+'.dat'
 
 savfile=outname+'.sav'
-save,galaxy_flux,galaxy_invvar,z,coeff,ematrix,bmatrix,bflux,lambda,nt, $
+save,galaxy_maggies,galaxy_invvar,z,coeff,ematrix,bmatrix,bflux,lambda,nt, $
   filename=savfile
 
 outpts=outname+'.pts'
@@ -236,6 +235,8 @@ openw,11,outpath+'/'+outpts
 writeu,11,out
 close,11
 out=0d
+
+k_coeffdist_plot,'default',vpath='.',psfile='k_coeffdist_plot.ps'
     
 end
 ;------------------------------------------------------------------------------

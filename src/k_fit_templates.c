@@ -57,7 +57,7 @@ IDL_LONG k_fit_templates(double *ematrix,    /* eigentemplates */
 				for(k=0;k<nk;k++) 
 					for(b=0;b<nb;b++) 
 						dmatrix[i*nk*nb+k*nb+b]=
-							k_interpolate(galaxy_z[i],&(rmatrix[k*nb*nz+b*nz]),zvals,nz);
+							k_interpolate_es(galaxy_z[i],&(rmatrix[k*nb*nz+b*nz]),zvals,nz);
 			} /* end if */
 		} /* end for i */
 	} /* end if */
@@ -94,7 +94,7 @@ IDL_LONG k_fit_templates(double *ematrix,    /* eigentemplates */
 				if(!galaxy_clip[i] && use) {
 					for(k=0;k<nk;k++) 
 						rhs[indx]+=galaxy_maggies[k+i*nk]*amatrix[i*nt+j]*
-							k_interpolate(galaxy_z[i],&(rmatrix[k*nb*nz+b*nz]),zvals,nz)
+							k_interpolate_es(galaxy_z[i],&(rmatrix[k*nb*nz+b*nz]),zvals,nz)
 							*galaxy_invvar[k+i*nk];
 				} /* end if */
 			} /* end for i */

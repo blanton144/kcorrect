@@ -6,13 +6,13 @@
 ;   Fit SED using k_fit_coeffs and k_fit_templates iteratively
 ;
 ; CALLING SEQUENCE:
-;   k_fit_sed, galaxy_flux, galaxy_invvar, galaxy_z, templatelist, $
+;   k_fit_sed, galaxy_maggies, galaxy_invvar, galaxy_z, templatelist, $
 ;     filterlist, coeff, ematrix, bmatrix, bflux, lambda, $
 ;     [smoothtemplate=, sublmin=, sublmax=, vmatrix=, $
-;     preset_ematrix=, maxiter=, nt=, model_flux=, plotfluxes=]
+;     preset_ematrix=, maxiter=, nt=, reconstruct_maggies==, plotmaggies=]
 ;
 ; INPUTS:
-;   galaxy_flux   - flux in each band for each galaxy [N_band, N_gal]
+;   galaxy_maggies   - maggies in each band for each galaxy [N_band, N_gal]
 ;   galaxy_invvar - errors in each band for each galaxy [N_band, N_gal]
 ;   galaxy_z      - redshift for each galaxy [N_gal]
 ;   templatelist  - list of templates specifying full SED space
@@ -26,8 +26,8 @@
 ;                      (defaults to unity on the diagonal)
 ;   maxiter          - maximum number of iterations (default 10)
 ;   nt               - number of eigentemplates (default N_band-1)
-;   model_flux       - reconstructed fluxes
-;   plot_fluxes      - set to plot pluxes as fit is done for debugging
+;   reconstruct_maggies       - reconstructed maggies
+;   plot_maggies      - set to plot pluxes as fit is done for debugging
 ;
 ; OUTPUTS:
 ;   coeff    - output coefficients [N_template, N_gal]
@@ -57,14 +57,14 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_sed, galaxy_flux, galaxy_invvar, galaxy_z, templatelist, filterlist, coeff, ematrix, bmatrix, bflux, lambda, smoothtemplate=smoothtemplate, sublmin=sublmin, sublmax=sublmax, vmatrix=vmatrix, preset_ematrix=preset_ematrix, maxiter=maxiter, nt=nt, model_flux=model_flux, plotfluxes=plotfluxes, cutlmin=cutlmin, cutlmax=cutlmax, subsmoothtemplate=subsmoothtemplate, subsmoothlimits=subsmoothlimits
+pro k_fit_sed, galaxy_maggies, galaxy_invvar, galaxy_z, templatelist, filterlist, coeff, ematrix, bmatrix, bflux, lambda, smoothtemplate=smoothtemplate, sublmin=sublmin, sublmax=sublmax, vmatrix=vmatrix, preset_ematrix=preset_ematrix, maxiter=maxiter, nt=nt, reconstruct_maggies=reconstruct_maggies, plotmaggies=plotmaggies, cutlmin=cutlmin, cutlmax=cutlmax, subsmoothtemplate=subsmoothtemplate, subsmoothlimits=subsmoothlimits
 
 ; Need at least 10 parameters
 if (N_params() LT 10) then begin
-    klog, 'Syntax - k_fit_sed, galaxy_flux, galaxy_invvar, galaxy_z, templatelist, $'
+    klog, 'Syntax - k_fit_sed, galaxy_maggies, galaxy_invvar, galaxy_z, templatelist, $'
     klog, '    filterlist, coeff, ematrix, bmatrix, bflux, lambda, [smoothtemplate=, $'
     klog, '    sublmin=, sublmax=, vmatrix=, preset_ematrix=, maxiter=, nt=, $'
-    klog, '    model_flux=, /plotfluxes]'
+    klog, '    reconstruct_maggies=, /plotmaggies]'
     return
 endif
 
@@ -72,8 +72,8 @@ endif
 if (NOT keyword_set(maxiter)) then maxiter=100l
 if (NOT keyword_set(sublmin)) then sublmin=3500.d
 if (NOT keyword_set(sublmax)) then sublmax=7500.d
-if (NOT keyword_set(cutlmin)) then cutlmin=2000.d
-if (NOT keyword_set(cutlmax)) then cutlmax=11500.d
+if (NOT keyword_set(cutlmin)) then cutlmin=1800.d
+if (NOT keyword_set(cutlmax)) then cutlmax=13000.d
 
 ; Find vmatrix and bmatrix
 k_load_templates,getenv('KCORRECT_DIR')+'/data/seds/'+templatelist,vmatrix, $
@@ -127,7 +127,7 @@ k_create_r,rmatrix,bmatrix,lambda,zvals,filterlist
 
 ; Iterate 
 ngalaxy=long(n_elements(galaxy_z))
-nk=long(n_elements(galaxy_flux))/ngalaxy
+nk=long(n_elements(galaxy_maggies))/ngalaxy
 if (NOT keyword_set(nt)) then nt=nk-1l
 if (NOT keyword_set(preset_ematrix)) then begin
   ematrix=dblarr(nb,nt)
@@ -136,28 +136,28 @@ if (NOT keyword_set(preset_ematrix)) then begin
 endif
 klog,'start iteration'
 k_ortho_etemplates,ematrix,bflux
-k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z,coeff,ematrix=ematrix, $
+k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,ematrix=ematrix, $
    zvals=zvals, rmatrix=rmatrix
 k_pca_etemplates,coeff,ematrix,bflux
 for i=0l, maxiter-1l do begin
-  k_fit_templates,galaxy_flux,galaxy_invvar,galaxy_z,coeff,ematrix,zvals, $
+  k_fit_templates,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,ematrix,zvals, $
     rmatrix=rmatrix
-  k_model_fluxes,coeff,galaxy_z,model_flux,ematrix=ematrix,zvals=zvals, $
-    rmatrix=rmatrix
+  k_reconstruct_maggies,coeff,galaxy_z,reconstruct_maggies,ematrix=ematrix, $
+    zvals=zvals, rmatrix=rmatrix
   for k=0l, nk-1 do $
-    print,string(k)+' : '+string(djsig(model_flux[k,*]/galaxy_flux[k,*], $
-                                       sigrej=5))
-  chi2=total((model_flux-galaxy_flux)^2*galaxy_invvar,/double)
+    print,string(k)+' : '+ $
+	     string(djsig(reconstruct_maggies[k,*]/galaxy_maggies[k,*],sigrej=5))
+  chi2=total((reconstruct_maggies-galaxy_maggies)^2*galaxy_invvar,/double)
   help,chi2
-  if(keyword_set(plotfluxes)) then begin
+  if(keyword_set(plotmaggies)) then begin
       !p.multi=[0,1,nk]
       for k=0l, nk-1 do begin
-          result=moment(model_flux[k,*]/galaxy_flux[k,*])
-          plot,galaxy_z,model_flux[k,*]/galaxy_flux[k,*],yra=[1.-3.*sqrt(result[1]), 1.+3.*sqrt(result[1])],psym=3,xst=1,yst=1,xra=[0.,0.5]
+          result=moment(reconstruct_maggies[k,*]/galaxy_maggies[k,*])
+          plot,galaxy_z,reconstruct_maggies[k,*]/galaxy_maggies[k,*],yra=[1.-3.*sqrt(result[1]), 1.+3.*sqrt(result[1])],psym=3,xst=1,yst=1,xra=[0.,0.5]
       endfor
   endif
   k_ortho_etemplates,ematrix,bflux
-  k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z,coeff,ematrix=ematrix, $
+  k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,ematrix=ematrix, $
      zvals=zvals, rmatrix=rmatrix
   k_pca_etemplates,coeff,ematrix,bflux
 endfor

@@ -7,11 +7,11 @@
 ;   a galaxy.
 ;
 ; CALLING SEQUENCE:
-;   k_fit_coeffs, galaxy_flux, galaxy_invvar, galaxy_z, coeff, 
+;   k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, 
 ;      [ematrix=, zvals=, filterlist=, bmatrix=, lambda=, rmatrix=, /default]
 ;
 ; INPUTS:
-;   galaxy_flux   - flux in each band for each galaxy [N_band, N_gal]
+;   galaxy_maggies   - maggies in each band for each galaxy [N_band, N_gal]
 ;   galaxy_invvar - errors in each band for each galaxy [N_band, N_gal]
 ;   galaxy_z      - redshift for each galaxy [N_gal]
 ;   ematrix       - eigentemplates [N_dim, N_template]
@@ -31,7 +31,7 @@
 ;   default  - set to use the default templates
 ;
 ; COMMENTS:
-;   galaxy_flux is in maggies (f=10.^{-0.4*mag}). galaxy_invvar is in 
+;   galaxy_maggies is in maggies (f=10.^{-0.4*mag}). galaxy_invvar is in 
 ;   maggies^{-2} ((f*0.4*ln(10)*magerr)^{-2}).
 ;
 ;   If filterlist, bmatrix, and lambda are specified, rmatrix is created 
@@ -40,9 +40,9 @@
 ; EXAMPLES:
 ;   To get the coefficients using the standard templates:
 ; 
-;   IDL> k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z, coeff, /default
+;   IDL> k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z, coeff, /default
 ; 
-;   Then you can pass "coeff" into k_model_fluxes
+;   Then you can pass "coeff" into k_reconstruct_maggies
 ;
 ; BUGS:
 ;   Will fail if N_dim is unity.
@@ -56,11 +56,11 @@
 ;   04-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_coeffs, galaxy_flux, galaxy_invvar, galaxy_z, coeff, ematrix=ematrix, zvals=zvals, filterlist=filterlist, bmatrix=bmatrix, lambda=lambda, rmatrix=rmatrix, version=version, vpath=vpath, filterpath=filterpath
+pro k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, ematrix=ematrix, zvals=zvals, filterlist=filterlist, bmatrix=bmatrix, lambda=lambda, rmatrix=rmatrix, version=version, vpath=vpath, filterpath=filterpath
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
-    klog, 'Syntax - k_fit_coeffs, galaxy_flux, galaxy_invvar, galaxy_z, coeff, $'  
+    klog, 'Syntax - k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, $'  
     klog, '         [ematrix=, zvals=, filterlist=, bmatrix=, lambda=, rmatrix=, $'
     klog, '          version=, vpath=, filterpath=]'
     return
@@ -93,7 +93,7 @@ soname=filepath('libkcorrect.so', $
 
 ; Determine dimensions
 ngalaxy=long(n_elements(galaxy_z))
-nk=long(n_elements(galaxy_flux)/ngalaxy)
+nk=long(n_elements(galaxy_maggies)/ngalaxy)
 if (keyword_set(bmatrix) AND keyword_set(filterlist) AND keyword_set(lambda)) $
   then begin
     k_create_r,rmatrix,bmatrix,lambda,zvals,filterlist,filterpath=filterpath
@@ -111,7 +111,7 @@ coeff=dblarr(nt,ngalaxy)
 retval=call_external(soname, 'idl_k_fit_coeffs', double(ematrix), $
                      long(nt), double(zvals), long(nz), double(rmatrix), $
                      long(nk), long(nb), double(coeff), $
-                     double(galaxy_flux), double(galaxy_invvar), $
+                     double(galaxy_maggies), double(galaxy_invvar), $
                      double(galaxy_z), long(ngalaxy) )
 
 end

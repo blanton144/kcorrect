@@ -1,26 +1,26 @@
 ;+
 ; NAME:
-;   k_model_fluxes
+;   k_reconstruct_maggies
 ;
 ; PURPOSE:
-;   Calculates the observed fluxes of a bunch of galaxies at a
+;   Calculates the observed maggies of a bunch of galaxies at a
 ;   redshift, given the coefficients and the templates, as well
 ;   as the filter information.
 ;
 ; CALLING SEQUENCE:
-;   k_model_fluxes,
+;   k_reconstruct_maggies,
 ;
 ; INPUTS:
 ;   coeff    - coefficients [N_template, N_gal]
 ;   galaxy_z      - redshift for each galaxy (where you want to
-;                   calculate flux in model) [N_gal]
+;                   calculate maggies in model) [N_gal]
 ;
 ; OPTIONAL INPUTS:
 ;   version   - version of eigentemplates to use
 ;   vpath   - version of eigentemplates to use
 ;
 ; OUTPUTS:
-;   model_flux  - flux in each band
+;   reconstruct_maggies  - maggies in each band
 ;
 ; OPTIONAL INPUT/OUTPUTS:
 ;   ematrix       - eigentemplates [N_dim, N_template]
@@ -32,18 +32,18 @@
 ;   zvals         - look up table for rmatrix [N_z]
 ;
 ; COMMENTS:
-;   Outputs fluxes in maggies. Does not calculate errors.
+;   Outputs maggies in maggies. Does not calculate errors.
 ; 
 ; EXAMPLES:
-;   Given coeffs from a call to k_fit_coeff, create reconstructed fluxes
+;   Given coeffs from a call to k_fit_coeff, create reconstructed maggies
 ;   for each galaxy using default templates
 ; 
-;   IDL> k_model_fluxes,coeffs,galaxy_z,model_flux,/default
+;   IDL> k_reconstruct_maggies,coeffs,galaxy_z,reconstruct_maggies,/default
 ;  
-;   To K-correct all the fluxes to the same redshift (0.1):
+;   To K-correct all the maggies to the same redshift (0.1):
 ;
-;   IDL> k_model_fluxes, coeffs,replicate(0.1,n_elements(galaxy_z)), $
-;        model_flux, /default
+;   IDL> k_reconstruct_maggies, coeffs,replicate(0.1,n_elements(galaxy_z)), $
+;        reconstruct_maggies, /default
 ;
 ; BUGS:
 ;
@@ -53,11 +53,11 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_model_fluxes,coeffs,galaxy_z,model_flux,ematrix=ematrix,zvals=zvals,rmatrix=rmatrix,bmatrix=bmatrix,lambda=lambda,version=version,vpath=vpath,filterpath=filterpath,filterlist=filterlist
+pro k_reconstruct_maggies,coeffs,galaxy_z,reconstruct_maggies,ematrix=ematrix,zvals=zvals,rmatrix=rmatrix,bmatrix=bmatrix,lambda=lambda,version=version,vpath=vpath,filterpath=filterpath,filterlist=filterlist
 
 ; Need at least 3 parameters
 if (N_params() LT 3) then begin
-    klog, 'Syntax - k_model_fluxes, coeffs, galaxy_z, model_flux, [ematrix=, zvals=, $'
+    klog, 'Syntax - k_reconstruct_maggies, coeffs, galaxy_z, reconstruct_maggies, [ematrix=, zvals=, $'
     klog, '    rmatrix=, bmatrix=, lambda=, version=, vpath=, filterpath=]'
     return
 endif
@@ -104,11 +104,12 @@ soname=filepath('libkcorrect.so', $
                 root_dir=getenv('KCORRECT_DIR'), subdirectory='lib')
 
 ; Call coefficient software
-model_flux=dblarr(nk,ngalaxy)
-retval=call_external(soname, 'idl_k_model_fluxes', double(ematrix), $
+reconstruct_maggies=dblarr(nk,ngalaxy)
+retval=call_external(soname, 'idl_k_reconstruct_maggies', double(ematrix), $
                      long(nt), double(zvals), long(nz), double(rmatrix), $
                      long(nk), long(nb), double(coeffs), $
-                     double(galaxy_z), double(model_flux), long(ngalaxy) )
+                     double(galaxy_z), double(reconstruct_maggies), $
+										 long(ngalaxy) )
 
 end
 ;------------------------------------------------------------------------------
