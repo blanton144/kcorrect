@@ -36,10 +36,11 @@ pro k_coeffdist_plot,savfile,basecoeff=basecoeff,subsample=subsample,nsig=nsig,p
 if(n_elements(lamlim) eq 0) then lamlim=[2000.,10000.]
 if(n_elements(nsig) eq 0) then nsig=3.
 
-;k_load_ascii_table,coeff,vpath+'/coeff.'+version+'.dat'
-;k_load_ascii_table,ematrix,vpath+'/ematrix.'+version+'.dat'
-;k_load_ascii_table,bmatrix,vpath+'/bmatrix.'+version+'.dat'
-;k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
+version='addgrgap'
+vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
+k_load_ascii_table,ematrix,vpath+'/ematrix.'+version+'.dat'
+k_load_ascii_table,bmatrix,vpath+'/bmatrix.'+version+'.dat'
+k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
 restore,savfile
 
 nt=long((size(ematrix))[2])

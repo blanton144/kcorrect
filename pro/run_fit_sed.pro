@@ -36,7 +36,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim
+pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim,subsmoothlimits=subsmoothlimits,subsmoothtemplate=subsmoothtemplate,etemplatepath=etemplatepath
 
 if(NOT keyword_set(nophotozplates)) then mustdo=[669,670,671,672] 
 
@@ -57,6 +57,16 @@ if(NOT keyword_set(templatelist)) then $
                  'ssp_salp_z008.flux.0123.dat', $
                  'ssp_salp_z008.flux.0154.dat', $
                  'ssp_salp_z008.flux.0093.dat' $
+                 'ssp_salp_z02.flux.0220.red0.1.dat', $
+                 'ssp_salp_z02.flux.0104.red0.1.dat', $
+                 'ssp_salp_z02.flux.0123.red0.1.dat', $
+                 'ssp_salp_z02.flux.0154.red0.1.dat', $
+                 'ssp_salp_z02.flux.0093.red0.1.dat', $
+                 'ssp_salp_z008.flux.0220.red0.1.dat', $
+                 'ssp_salp_z008.flux.0104.red0.1.dat', $
+                 'ssp_salp_z008.flux.0123.red0.1.dat', $
+                 'ssp_salp_z008.flux.0154.red0.1.dat', $
+                 'ssp_salp_z008.flux.0093.red0.1.dat' $
                 ]
 if(NOT keyword_set(nk)) then nk=5L
 if(NOT keyword_set(nl)) then nl=500L
@@ -74,15 +84,15 @@ if(NOT keyword_set(maglimit)) then maglimit=dblarr(nk)+22.5d
 if(NOT keyword_set(scale)) then scale=1.d
 if(NOT keyword_set(modelzlim)) then modelzlim=0.25
 if(NOT keyword_set(nozlim)) then nozlim=[0.28,0.32]
+if(NOT keyword_set(etemplatepath)) then $
+  etemplatepath=getenv('KCORRECT_DIR')+'/data/etemplates' 
 
 if(NOT keyword_set(filtfile)) then begin
-    filtfile=getenv('KCORRECT_DIR')+'/data/etemplates/filterlist.'+outname $
-      +'.dat'
+    filtfile=etemplatepath+'/filterlist.'+outname+'.dat'
     spawn,'cat '+filtfile+' | wc -l',nfilters
     nk=nfilters[0]-1
     filterlist=strarr(nk)
-    openr,unit,getenv('KCORRECT_DIR')+'/data/etemplates/filterlist.'+outname+ $
-      '.dat',/get_lun
+    openr,unit,filtfile,/get_lun
     readf,unit,nk
     readf,unit,filterlist
     close,unit
@@ -232,7 +242,7 @@ writeu,11,out
 close,11
 out=0d
 
-k_coeffdist_plot,'default',vpath='.',psfile='k_coeffdist_plot.ps',basecoeff=1
+;k_coeffdist_plot,'default',vpath='.',psfile='k_coeffdist_plot.ps',basecoeff=1
     
 end
 ;------------------------------------------------------------------------------

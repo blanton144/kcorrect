@@ -33,9 +33,9 @@
 pro run_fit_coeffs,version,spfile=spfile,chunksize=chunksize,zlimits=zlimits,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,vpath=vpath,savfile=savfile,nsp=nsp, evenz=evenz, primtargetmask=primtargetmask,modelzlim=modelzlim, nprimtargetmask=nprimtargetmask
 
 nk=5l
-if(NOT keyword_set(version)) then version='default'
-if(NOT keyword_set(vpath)) then vpath='.'
-if(NOT keyword_set(savfile)) then savfile=vpath+'/all.'+version+'.sav'
+;if(NOT keyword_set(version)) then version='default'
+;if(NOT keyword_set(vpath)) then vpath='.'
+if(NOT keyword_set(savfile)) then savfile='.'+'/all.'+version+'.sav'
 if(NOT keyword_set(zstep)) then zstep=0.08
 if(NOT keyword_set(chunksize)) then chunksize=10000l
 if(NOT keyword_set(spfile)) then spfile='/data/sdss/spectro/spAll.fits'
@@ -177,9 +177,8 @@ for k=0l,nk-1l do begin
     galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
 endfor
 
-k_fit_coeffs,galaxy_maggies,galaxy_invvar,sp.z,coeff,version=version, $
-  vpath=vpath,ematrix=ematrix,bmatrix=bmatrix,lambda=lambda, $
-  filterlist=filterlist
+kcorrect,galaxy_maggies,galaxy_invvar,sp.z,recmags,coeff=coeff, $
+  version=version, vpath=vpath, /maggies, /invvar, /addgrgap
 galaxy_z=sp.z
 galaxy_petrocounts=sp.petrocounts
 galaxy_petrocountserr=sp.petrocountserr
