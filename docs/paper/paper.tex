@@ -735,7 +735,7 @@ XXX square degrees.
 As described below, only a subset of these galaxies are used here to
 develop the templates, though we calculate the SED fits for all of
 them. The results of the photometric pipeline for all of these objects
-were extracted from the SDSS Operational Database {\bf ref munn?}. The
+were extracted from the SDSS Operational Database. The
 photometry used here for the bulk of these objects was the same as
 that used when the objects were targeted. However, for those objects
 which were in the EDR photometric catalog, we used the better
@@ -769,7 +769,7 @@ the factor of the speed of light $c$ (expressed in \AA\ s$^{-1}$)
 between the frequency and wavelength scales.
 
 The response functions of the filter-CCD combinations have been
-measured using a monochrometer by {\bf how ref Doi}.  Using a model
+measured using a monochrometer by Mamoru Doi.  Using a model
 for the atmospheric transmission and the reflectivity of the primary
 and secondary mirrors, one can then model the response of the entire
 system. For each bandpass in the SDSS, there are six different CCDs;
@@ -825,7 +825,7 @@ both the main sample and the LRGs; we sample these spectra such that
 we get an approximately even distribution within our range of
 redshifts. In addition, we add results from galaxies in several plates
 (totalling about 1,000 objects) which were selected by a photometric
-redshift algorithm ({\bf ref who?}) to be at around $z\sim
+redshift algorithm ({\bf ref what?}) to be at around $z\sim
 0.3$--$0.4$. These objects are invaluable for tying down the blue end
 of the templates. Finally, we exclude galaxies in the redshift range
 $0.28 <z<0.32$ from the fit for the templates, for reasons which we
@@ -851,9 +851,9 @@ estimated errors on the photometry listed in the catalog. Instead, the
 errors are dominated by local calibration errors and other systematic
 effects, which are poorly known. To account for these errors, we add
 extra error terms in quadrature with the errors listed in the catalog
-(0.05 mags, 0.02 mags 0.02 mags, 0.02 mags, and 0.03 mags for $ugriz$,
-respectively). Not accounting for this extra source of errors can
-cause the fits to be ill-behaved.
+(0.05 mags, 0.02 mags, 0.02 mags, 0.02 mags, and 0.03 mags for
+$ugriz$, respectively). Not accounting for this extra source of errors
+can cause the fits to be ill-behaved.
 
 For the SED space (our $\vv{v}_i(\lambda)$), we use the subspace
 defined by linear combinations of ten Bruzual-Charlot instantaneous
@@ -864,8 +864,7 @@ cannot recover information about the SED below a certain scale, we
 smooth most of the wavelength regime of the templates using a Gaussian
 with a standard deviation of $\sigma = 300$\AA; for the region of the
 spectrum which contains the sharpest gradients, around 4000\AA, we
-smooth only with $\sigma = 150$\AA. {\bf not clear anymore that this
-is the best thing to do; see the g/r gap discusssion}
+smooth only with $\sigma = 150$\AA. 
 
 We choose to fit for $N_t = 4$ eigentemplates, the maximum one can use
 and still allow freedom to fit for the templates themselves. Since
@@ -1131,9 +1130,8 @@ is no answer to this question which is simple, general, {\it and}
 realistic. The photometric errors can of course be propagated to the
 errors on the reconstructed magnitudes, but these estimates do not
 describe the errors associated with the restriction to a
-three-dimensional space of SED shapes. {\bf maybe we should implement
-this anyway, though}. An idea of the level of errors can be gleaned
-from the comparison of our method to other methods of
+three-dimensional space of SED shapes. An idea of the level of errors
+can be gleaned from the comparison of our method to other methods of
 $K$-correction. Clearly, $r$, $i$ and $z$ can be reconstructed to the
 level of the photometry. Judging from Figure
 \ref{k_speck_plot.fitfib.0.1}, the $g$ band can be reconstructed to
