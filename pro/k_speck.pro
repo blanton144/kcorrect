@@ -45,6 +45,7 @@ help,ngalaxy
 mags=dblarr(5,n_elements(sp))
 mags0=dblarr(5,n_elements(sp))
 for i=0l, n_elements(sp)-1l do begin
+    klog,sp[i].plate,sp[i].fiberid
     readspec,sp[i].plate,sp[i].fiberid,flux=fluxspec,synflux=synfluxspec, $
       wave=waveimg
 
