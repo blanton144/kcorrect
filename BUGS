@@ -1,0 +1,3 @@
+v3_2 seems to have k_test_filter incorrect? (Ryan Mallery)
+
+getopt fails on SunOS (Ryan Mallery) ?

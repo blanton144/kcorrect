@@ -4,192 +4,64 @@
 ; PURPOSE:
 ;   put together data for nmf fitting
 ; CALLING SEQUENCE:
-;   k_mmatrix [, outfile= ]
-; COMMENTS:
-;   makes [Nobs, Nsfh] matrix where 
-;        Nobs = nlambda + nlines + nz*nfilters
+;   k_nmf_data
 ; BUGS:
-;   needs to include emission line predictions   
+;   AB corrections need updated
+;   what about filter curves?
+;   smooth spectra to constant vdisp?
 ; REVISION HISTORY:
-;   29-Jul-2004  Michael Blanton (NYU)
+;   23-Nov-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_mmatrix, outfile=outfile
+pro k_nmf_data, mmatrix=mmatrix, sample=sample
 
-norm_lmin=1500.
-norm_lmax=23000.
-lmin=600.
-lmax=30000.
-navloglam=8000L
-nagesmax=10
-minzf=0.
-maxzf=1.
-nzf=100
-;;nmets=6
-;;mets=[0,1,2,3,4,5]
-nmets=2
-mets=[2,3]
+if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
+if(NOT keyword_set(sample)) then sample='drtwo14'
+if(NOT keyword_set(nsub)) then nsub=1000L
+if(NOT keyword_set(seed1)) then seed1=1000L
 
-;; 1. make stellar pops
+hdr=headfits(mmatrix)
+nspec=long(sxpar(hdr, 'NSPEC'))
+nzf=long(sxpar(hdr, 'NZ'))
+nfilter=long(sxpar(hdr, 'NFILTER'))
+ndusts=long(sxpar(hdr, 'NDUST'))
+nmets=long(sxpar(hdr, 'NMET'))
+nages=long(sxpar(hdr, 'NAGE'))
+lambda=mrdfits(mmatrix, 1)
+avloglam=alog10(lambda[0:nspec-1])
+filterlist=strtrim(mrdfits(mmatrix, 5), 2)
+zf=mrdfits(mmatrix, 6)
 
-;;     a. find minimum set of bursts to use
-bc03= k_im_read_bc03()
-iwave=where(bc03.wave gt norm_lmin and bc03.wave lt norm_lmax, nwave)
-nages=3000L + nagesmax
-tol=5.
-while(nages gt nagesmax) do begin
-    iuse=n_elements(bc03.age)-1L 
-    i=iuse
-    while i ge 1 do begin
-        j=iuse[0]-1L
-        scalefact=total(bc03.flux[iwave,i]*bc03.flux[iwave,j])/ $
-          total(bc03.flux[iwave,i]*bc03.flux[iwave,i])
-        diff=total(((bc03.flux[iwave,i]*scalefact- $
-                     bc03.flux[iwave,j])/ $
-                    bc03.flux[iwave,j])^2,/double) 
-        while(diff lt tol AND j gt 0L) do begin
-            j=j-1L
-            scalefact=total(bc03.flux[iwave,i]*bc03.flux[iwave,j])/ $
-              total(bc03.flux[iwave,i]*bc03.flux[iwave,i])
-            diff=total(((bc03.flux[iwave,i]*scalefact- $
-                         bc03.flux[iwave,j])/ $
-                        bc03.flux[iwave,j])^2,/double) 
-        endwhile
-        if(j ge 0 and diff ge tol) then begin
-            iuse=[j,iuse]
-        endif
-        i=j
-    endwhile
-    tol=tol/0.85
-    ages=bc03.age[iuse]
-    nages=n_elements(ages)
-    help,tol, nages
-endwhile
+lowz=mrdfits(getenv('VAGC_REDUX')+'/lowz/lowz_catalog.'+sample+'.fits',1)
+zhelio=lg_to_helio(lowz.zlg, lowz.ra, lowz.dec)
 
-;;     b. now make the full grid for the desired ages
-tmp_bc03= k_im_read_bc03(age=1.)
-nl=n_elements(tmp_bc03.flux)
-wave=tmp_bc03.wave
-loglam=alog10(wave)
-grid=fltarr(nl, nages, nmets)
-for im= 0L, nmets-1L do $
-  grid[*,*,im]= (k_im_read_bc03(met=mets[im])).flux[*,iuse]
+seed=seed1
+indx=shuffle_indx(n_elements(lowz), num_sub=nsub, seed=seed)
+lowz=lowz[indx]
 
-;;     c. put flux units into absolute maggies
-dfact=3.826/3.086*1.e-5
-absrc=3.631*2.99792*1.e-2/wave^2
-grid=grid*dfact
-for ia=0L, nages-1L do $
-  for im= 0L, nmets-1L do $
-  grid[*,ia,im]=grid[*,ia,im]*dfact/absrc
+;;sdss_spec_block, lowz.plate, lowz.fiberid, lowz.mjd, $
+;;  block_flux=block_flux, block_ivar=block_ivar, block_lambda=block_lambda, $
+;;  avloglam=avloglam
+;; convert!!
 
-;;     d. interpolate grid onto flux grid
-avloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
-                (dindgen(navloglam)+0.5)/float(navloglam))
-sfgrid=fltarr(navloglam, nages*nmets)
-ninterloglam=20000L
-interloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
-                   (dindgen(ninterloglam)+0.5)/float(ninterloglam))
-for im= 0L, nmets-1L do $
-  for ia= 0L, nages-1L do begin & $
-  splog, string(im)+string(ia) & $
-  intergrid=interpol(grid[*,ia,im], loglam, interloglam) & $
-  combine1fiber, interloglam, intergrid, fltarr(ninterloglam)+1., $
-  newloglam=avloglam, newflux=tmp1, maxiter=0 & $
-  sfgrid[*,ia+im*nages]=tmp1 & $
-  endfor
+iz=long(floor((nzf-1.)*(zhelio-zf[0])/(zf[nzf-1]-zf[0])+0.5))
 
-;; 2. make the dusty grid
-ndusts=3L
-dusts1={geometry:'', dust:'', structure:'', tauv:0.}
-dusts=replicate(dusts1,3)
-dusts.geometry=['dusty', $
-               'dusty','dusty']
-dusts.dust=['MW', $
-           'MW','MW']
-dusts.structure=['c', $
-                'c','c']
-dusts.tauv=[0.,1.,3.]
-dustygrid=fltarr(navloglam, nages*nmets, ndusts)
-dustfact=fltarr(navloglam, ndusts)
-for i=0L, ndusts-1L do $
-  dustfact[*,i]=exp(-witt_ext(dusts[i],dusts[i].tauv,10.^(avloglam)))
-for i=0L, ndusts-1L do $
-  for j=0L, nages*nmets-1L do $
-  dustygrid[*,j,i]=sfgrid[*,j]*dustfact[*,i]
+data=fltarr(n_elements(lambda), nsub)
+ivar=fltarr(n_elements(lambda), nsub)
+;;data[0:nspec-1, *]= block_flux
+;;ivar[0:nspec-1, *]= block_ivar
+;; ?? skip galex for the moment
+for ifilter=2L, nfilter-1L do begin & $
+    igood=where(lowz.absmag_ivar[ifilter-2] gt 0, ngood) & $
+    if(ngood gt 0) then begin & $
+        data[iz[igood]+ifilter*nzf+nspec, igood]= $
+          10.^(-0.4*lowz[igood].absmag[ifilter-2]) & $
+        ivar[iz[igood]+ifilter*nzf+nspec, igood]= $
+  data[iz[igood]+ifilter*nzf+nspec, igood]*0.4*alog(10.)* $
+  lowz[igood].absmag_ivar[ifilter-2]) & $
+    endif & $
+endfor
 
-;; 3. make lookup table for properties
-spgrid=reform(dustygrid,navloglam,nages*nmets*ndusts)
-dust=replicate(dusts[0], nages,nmets,ndusts)
-for i=0L, ndusts-1L do dust[*,*,i]=dusts[i]
-met=fltarr(nages,nmets,ndusts)
-for i=0L, nmets-1L do met[*,i,*]=mets[i]
-age=fltarr(nages,nmets,ndusts)
-for i=0L, nages-1L do age[i,*,*]=ages[i]
-
-;; now make emission lines 
-;;readcol, getenv('HOME')+'/eplusa/data/linelist.txt', f='(a,f,a)', $
-;; comment=';', elname, lambda, type
-;; ii=where(type eq 'em' OR type eq 'both' and $
-;; lambda gt 10.^(avloglam[0]) and $
-;; lambda lt 10.^(avloglam[navloglam-1L]))
-;; elname=elname[ii]
-;; lambda=lambda[ii]
-;; emgrid=fltarr(navloglam, n_elements(elname))
-;; sigma=2.
-;; for i=0L, n_elements(elname)-1L do $
-;; emgrid[*, i]= exp(-(10.^avloglam-lambda[i])^2/(sigma)^2)/ $
-;; (sqrt(2.*!DPI)*sigma)
-
-;; 3. now make all filters at all redshifts
-filterlist=['galex_FUV.par', $
-            'galex_NUV.par', $
-            'sdss_u0.par', $
-            'sdss_g0.par', $
-            'sdss_r0.par', $
-            'sdss_i0.par', $
-            'sdss_z0.par', $
-            'twomass_J.par', $
-            'twomass_H.par', $
-            'twomass_Ks.par']
-lambda=fltarr(navloglam+1L)
-davloglam=avloglam[1]-avloglam[0]
-lambda[0:navloglam-1L]=10.^(avloglam-davloglam)
-lambda[1:navloglam]=10.^(avloglam+davloglam)
-pgrid=spgrid
-for i=0L, nages*ndusts*nmets-1L do $
-  pgrid[*,i]=pgrid[*,i]*absrc
-k_projection_table, rmatrix, spgrid, lambda, zf, filterlist, zmin=minzf, $
-  zmax=maxzf, nz=nzf
-  
-;; 4. prepare output
-if(NOT keyword_set(outfile)) then outfile='k_nmf_mmatrix.fits'
-
-outgrid=fltarr(navloglam+nzf*n_elements(filterlist),nages*nmets*ndusts)
-outgrid[0:navloglam-1L,*]=spgrid
-for i=0L, n_elements(nages*nmets*ndusts)-1L do $
-  outgrid[navloglam:navloglam+nzf*n_elements(filterlist)-1L,i]= $
-  rmatrix[*,i,*]
-
-outlambda=fltarr(navloglam+nzf*n_elements(filterlist))
-outlambda[0:navloglam-1]=10.^(avloglam)
-outlambda[navloglam:navloglam+nzf*n_elements(filterlist)-1]= $
-  (1./(1.+zf))#k_lambda_eff(filterlist=filterlist)
-
-hdr=['']
-sxaddpar, hdr, 'NSPEC', navloglam, 'number of points in spectrum'
-sxaddpar, hdr, 'NZ', nzf, 'number of redshifts'
-sxaddpar, hdr, 'NFILTER', n_elements(filterlist), 'number of filters'
-sxaddpar, hdr, 'NDUST', ndusts, 'number of dusts'
-sxaddpar, hdr, 'NMET', nmets, 'number of metallicities'
-sxaddpar, hdr, 'NAGE', nages, 'number of ages'
-mwrfits, outgrid, outfile, hdr, /create
-mwrfits, outlambda,outfile 
-mwrfits, dust,outfile 
-mwrfits, met, outfile
-mwrfits, age, outfile
-mwrfits, filterlist, outfile
-mwrfits, zf, outfile
-
+stop
 
 end

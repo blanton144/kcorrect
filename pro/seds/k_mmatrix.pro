@@ -10,6 +10,7 @@
 ;        Nobs = nlambda + nlines + nz*nfilters
 ; BUGS:
 ;   needs to include emission line predictions   
+;   smooth spectra to constant vdisp?
 ; REVISION HISTORY:
 ;   29-Jul-2004  Michael Blanton (NYU)
 ;-
@@ -156,6 +157,7 @@ lambda=fltarr(navloglam+1L)
 davloglam=avloglam[1]-avloglam[0]
 lambda[0:navloglam-1L]=10.^(avloglam-davloglam)
 lambda[1:navloglam]=10.^(avloglam+davloglam)
+absrc=3.631*2.99792*1.e-2/10.^(avloglam*2.)
 pgrid=spgrid
 for i=0L, nages*ndusts*nmets-1L do $
   pgrid[*,i]=pgrid[*,i]*absrc
