@@ -59,6 +59,7 @@ IDL_LONG k_reconstruct_maggies(double *ematrix,    /* eigentemplates */
 															IDL_LONG nb,      /* number of templates */
 															double *coeffs, /* coefficients */
 															double *galaxy_z,
+															 double *band_shift,
 															double *rec_flux,
 															IDL_LONG ngalaxy);
 

@@ -72,11 +72,11 @@
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, addgrgap=addgrgap, invvar=invvar, vconstraint=vconstraint, constraints_amp=constraints_amp, constraints_mean=constraints_mean, constraints_var=constraints_var
+pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, addgrgap=addgrgap, invvar=invvar, vconstraint=vconstraint, constraints_amp=constraints_amp, constraints_mean=constraints_mean, constraints_var=constraints_var, plusmag=plusmag
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
-    print, 'Syntax - kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, $'
+    print, 'Syntax - kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect, $'
     print, '        [kcorrectz=, version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=,$'
     print, '         coeff=, /sdssfix, /invvar, /vconstraint]'
     return
@@ -152,6 +152,7 @@ endif else begin
       zvals=zvals,ematrix=ematrix, constraints_amp=constraints_amp, $
       constraints_var=constraints_var, constraints_mean=constraints_mean
 endelse
+
 ; Calculate model fluxes
 if(n_elements(kcorrectz) eq 0) then begin 
     correct_z=galaxy_z
@@ -164,8 +165,11 @@ endif else begin
 endelse
 indx=where(correct_z lt zvals[0],count)
 if(count gt 0) then correct_z[indx]=0.5*(zvals[0]+zvals[1])
-k_reconstruct_maggies,coeff,correct_z,reconstruct_maggies,rmatrix=rmatrix, $
-  zvals=zvals,ematrix=ematrix
+k_reconstruct_maggies,coeff,replicate(0.,n_elements(galaxy_z)), $
+  reconstruct_maggies,rmatrix=rmatrix,zvals=zvals,ematrix=ematrix, $
+  band_shift=correct_z
+k_reconstruct_maggies,coeff,galaxy_z,reconstruct_maggies0,rmatrix=rmatrix, $
+  zvals=zvals,ematrix=ematrix, band_shift=replicate(0.,n_elements(galaxy_z))
 
 ; Remove the grgap maggie if appropriate
 if(keyword_set(addgrgap)) then begin
@@ -173,18 +177,39 @@ if(keyword_set(addgrgap)) then begin
     tmp_reconstruct_maggies=reconstruct_maggies[0:nk-1,*]
     reconstruct_maggies=tmp_reconstruct_maggies
     tmp_reconstruct_maggies=0l
+
+    tmp_reconstruct_maggies0=dblarr(nk,ngalaxy)
+    tmp_reconstruct_maggies0=reconstruct_maggies0[0:nk-1,*]
+    reconstruct_maggies0=tmp_reconstruct_maggies0
+    tmp_reconstruct_maggies0=0l
 endif
 
 ; Calculate magnitudes if necessary
-galaxy_mag0=dblarr(nk,ngalaxy)
 if(NOT keyword_set(maggies)) then begin
+    reconstruct_mag0=dblarr(nk,ngalaxy)
+    reconstruct_mag=dblarr(nk,ngalaxy)
+
     negindx=where(reconstruct_maggies le 0.d,count)
-    if(count gt 0) then galaxy_mag0[negindx]=1000.d
+    if(count gt 0) then reconstruct_mag[negindx]=1000.d
     goodindx=where(reconstruct_maggies gt 0.d,count)
     if(count gt 0) then $
-      galaxy_mag0[goodindx]=-2.5*alog10(reconstruct_maggies[goodindx])
+      reconstruct_mag[goodindx]=-2.5*alog10(reconstruct_maggies[goodindx])
+
+    negindx=where(reconstruct_maggies0 le 0.d,count)
+    if(count gt 0) then reconstruct_mag0[negindx]=1000.d
+    goodindx=where(reconstruct_maggies0 gt 0.d,count)
+    if(count gt 0) then $
+      reconstruct_mag0[goodindx]=-2.5*alog10(reconstruct_maggies0[goodindx])
+
+    if(keyword_set(plusmag)) then $
+      kcorrect=reconstruct_mag $
+    else $
+      kcorrect=reconstruct_mag0-reconstruct_mag
 endif else begin
-    galaxy_mag0=reconstruct_maggies
+    if(keyword_set(plusmag)) then $
+      kcorrect=reconstruct_maggies $
+    else $
+      kcorrect=reconstruct_maggies0/reconstruct_maggies
 endelse
 
 end

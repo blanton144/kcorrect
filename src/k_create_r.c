@@ -15,6 +15,11 @@
  * AB magnitudes are assumed. The input spectra should be in units of
  * ergs cm^{-2} s^{-1} A^{-1}
  *
+ * The sense of the code here is that it produces AB maggies of a
+ * source shifted to z and observed through the given bandpasses.
+ * To obtain the AB maggies of the rest-frame spectrum in a set
+ * of shifted *bandpasses* requires *dividing* this result by (1+z)
+ *
  * Mike Blanton
  * 6/2001 */
 
@@ -124,8 +129,8 @@ IDL_LONG k_create_r(double *rmatrix,
 			lammin=cr_filter_lambda[0];
 			lammax=cr_filter_lambda[cr_filter_n-1];
 			for(cr_b=0;cr_b<nb;cr_b++) 
-				rmatrix[indxoff+cr_b*nz]=scale*k_qromo(cr_filter,lammin,lammax,k_midpnt)/
-					(1.+cr_z);
+				rmatrix[indxoff+cr_b*nz]=scale*k_qromo(cr_filter,lammin,lammax, 
+																							 k_midpnt)/(1.+cr_z);
 		} /* end for i */
 
 		/* deallocate memory */

@@ -53,7 +53,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_reconstruct_maggies,coeffs,galaxy_z,reconstruct_maggies,ematrix=ematrix,zvals=zvals,rmatrix=rmatrix,bmatrix=bmatrix,lambda=lambda,version=version,vpath=vpath,filterpath=filterpath,filterlist=filterlist
+pro k_reconstruct_maggies,coeffs,galaxy_z,reconstruct_maggies,band_shift=band_shift,ematrix=ematrix,zvals=zvals,rmatrix=rmatrix,bmatrix=bmatrix,lambda=lambda,version=version,vpath=vpath,filterpath=filterpath,filterlist=filterlist
 
 ; Need at least 3 parameters
 if (N_params() LT 3) then begin
@@ -65,6 +65,8 @@ endif
 
 if(NOT keyword_set(filterpath)) then $
   filterpath=getenv('KCORRECT_DIR')+'/data/filters'
+if(NOT keyword_set(band_shift)) then $
+  band_shift=replicate(0.,n_elements(galaxy_z))
 
 ; Get bmatrix and stuff from files if necessary
 if(keyword_set(version)) then begin 
@@ -109,7 +111,8 @@ reconstruct_maggies=dblarr(nk,ngalaxy)
 retval=call_external(soname, 'idl_k_reconstruct_maggies', double(ematrix), $
                      long(nt), double(zvals), long(nz), double(rmatrix), $
                      long(nk), long(nb), double(coeffs), $
-                     double(galaxy_z), double(reconstruct_maggies), $
+                     double(galaxy_z), double(band_shift), $
+										 double(reconstruct_maggies), $
 										 long(ngalaxy) )
 
 end

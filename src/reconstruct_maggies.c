@@ -33,7 +33,7 @@ static double *coeffs=NULL;
 int main(int argc,
 				 char **argv)
 {
-	double to_z=-1.;
+	double at_z=-1.,band_z=0.;
 	IDL_LONG i,j,k,*sizes=NULL,ndim,nchunk,ncurrchunk;
 	char ematrixfile[2000],bmatrixfile[2000],filterlist[2000],lambdafile[2000];
 	char version[1000],versionpath[2000];
@@ -47,15 +47,17 @@ int main(int argc,
 
 	/* read arguments */
 	if(argc<0) {
-		fprintf(stderr,"Usage: cat <coeff file> | reconstruct_maggies [to_z] [version [version path]]\n");
+		fprintf(stderr,"Usage: cat <coeff file> | reconstruct_maggies [at_z] [band_z] [version [version path]]\n");
 		exit(1);
 	} /* end if */
 	i=1;
 	if(argc>=2) 
-		to_z=atof(argv[i]); i++; 
+		at_z=atof(argv[i]); i++; 
 	if(argc>=3) 
-		strcpy(version,argv[i]); i++;
+		band_z=atof(argv[i]); i++; 
 	if(argc>=4) 
+		strcpy(version,argv[i]); i++;
+	if(argc>=5) 
 		strcpy(versionpath,argv[i]); i++;
 
 	sprintf(ematrixfile,"%s/ematrix.%s.dat",versionpath,version);
@@ -118,12 +120,12 @@ int main(int argc,
 			for(j=1;j<nt;j++)
 				fscanf(stdin,"%lf",&(coeffs[i*nt+j]));
 			fscanf(stdin,"%lf",&(galaxy_z[i]));
-			if(to_z!=-1.) galaxy_z[i]=to_z;
+			if(at_z!=-1.) galaxy_z[i]=at_z;
 			fscanf(stdin,"%lf",&(coeffs[(i+1)*nt+0]));
 		} /* end for i */
 		ncurrchunk=i;
 		k_reconstruct_maggies(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_z,
-													reconstruct_maggies,ncurrchunk);
+													&band_z,reconstruct_maggies,ncurrchunk);
 		for(i=0;i<ncurrchunk;i++) {
 			for(k=0;k<nk;k++)
 				fprintf(stdout,"%e ",reconstruct_maggies[i*nk+k]);

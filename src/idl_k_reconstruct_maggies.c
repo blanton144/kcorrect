@@ -15,7 +15,7 @@ IDL_LONG idl_k_reconstruct_maggies
 {
    IDL_LONG nt,nz,nk,nb,ngalaxy,*galaxy_clip,initialized_dmatrix;
    double *ematrix,*zvals,*rmatrix,*amatrix,*reconstruct_maggies;
-	 double *galaxy_z;
+	 double *galaxy_z,*band_shift;
 
 	 IDL_LONG i;
 	 IDL_LONG retval=1;
@@ -31,13 +31,14 @@ IDL_LONG idl_k_reconstruct_maggies
    nb=*((IDL_LONG *)argv[i]); i++;
 	 amatrix=(double *)argv[i]; i++;
 	 galaxy_z=(double *)argv[i]; i++;
+	 band_shift=(double *)argv[i]; i++;
 	 reconstruct_maggies=(double *)argv[i]; i++;
    ngalaxy=*((IDL_LONG *)argv[i]); i++;
 
 	 /* 1. run the fitting routine */
 	 retval=(IDL_LONG) k_reconstruct_maggies(ematrix,nt,zvals,nz,rmatrix,nk,nb,
-																					amatrix,galaxy_z,reconstruct_maggies,
-																					ngalaxy);
+																					 amatrix,galaxy_z,band_shift,
+																					 reconstruct_maggies,ngalaxy);
 
 	 /* 2. free memory and leave */
 	 free_memory();
