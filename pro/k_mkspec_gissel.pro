@@ -94,7 +94,7 @@ for m = 0, n_elements(metallicity)-1L do begin
               spec=spec+metspec[*,i]*contrib[i]
             for d = 0, n_elements(dust)-1L do begin
                 vindx=m*n_elements(sfhpars)*n_elements(dust)+ $
-                  a*n_elements(dust)+d
+                  d*n_elements(sfhpars)+a
                 vmatrix[*,vindx]=spec* $
                   exp(-witt_ext(dust[d],dust[d].tauv,lambda[0:nl-1]))
             endfor
