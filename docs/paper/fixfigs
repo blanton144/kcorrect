@@ -1,0 +1,26 @@
+#!/bin/csh -f
+
+set files = "ajv3/Blanton.fig4.ps ajv3/Blanton.fig5.ps ajv3/Blanton.fig6.ps ajv3/Blanton.fig8.ps"
+
+perl -pi.bak -e "s/BoundingBox: 0/BoundingBox: -20/g" $files
+foreach file ($files) 
+		epsffit 0 0 560 540 $file $file.new
+		cp -f $file.new $file
+end
+
+set files = "ajv3/Blanton.fig9.ps ajv3/Blanton.fig10.ps ajv3/Blanton.fig13.ps ajv3/Blanton.fig14.ps"
+
+perl -pi.bak -e "s/BoundingBox: 0/BoundingBox: -40/g" $files
+foreach file ($files) 
+		epsffit 0 0 580 540 $file $file.new
+		cp -f $file.new $file
+end
+
+color2bw ajv3/Blanton.fig1.ps ajv3/Blanton.fig1.ps.bw
+color2bw ajv3/Blanton.fig2.ps ajv3/Blanton.fig2.ps.bw
+color2bw ajv3/Blanton.fig3.ps ajv3/Blanton.fig3.ps.bw
+cp -f ajv3/Blanton.fig1.ps.bw ajv3/Blanton.fig1.ps
+cp -f ajv3/Blanton.fig2.ps.bw ajv3/Blanton.fig2.ps
+cp -f ajv3/Blanton.fig3.ps.bw ajv3/Blanton.fig3.ps
+
+rm -f ajv3/*.bak ajv3/*.new ajv3/*.bw
