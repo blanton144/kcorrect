@@ -12,7 +12,7 @@
  * Mike Blanton
  * 5/2003 */
 
-#define ZRES 0.02
+#define ZRES 0.10
 #define TOL 0.02
 #define MAXITER 3000
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
@@ -65,16 +65,16 @@ IDL_LONG k_fit_photoz(float *photoz,
 											float *chi2,
 											IDL_LONG verbose)
 {
-	float *zgrid,*chi2grid,chi2min,az,bz,cz;
+	float *lzgrid, *lchi2grid, *zgrid,*chi2grid,chi2min,az,bz,cz;
   float z_0,z_1,z_2,chi2_0,chi2_1,chi2_2;
-	IDL_LONG i,j,k,nzsteps,jmin;
+	IDL_LONG i,j,k,nzsteps,lnzsteps,jmin;
 
   pz_applyprior=1;
 	pz_nk=nk;
 	pz_nv=nv;
 	pz_nz=nz;
 	pz_nprior=nprior;
-	nzsteps=(IDL_LONG) floor((zvals[nz-1]-zvals[0])/ZRES);
+	nzsteps=(IDL_LONG) floor((zvals[nz-1]-zvals[0])/ZRES)+1;
 	chi2grid=(float *) malloc(nzsteps*sizeof(float));
 	pz_maggies=(float *) malloc(nk*sizeof(float));
 	pz_maggies_ivar=(float *) malloc(nk*sizeof(float));
@@ -94,6 +94,8 @@ IDL_LONG k_fit_photoz(float *photoz,
 	zgrid=(float *) malloc(nzsteps*sizeof(float));
 	for(j=0;j<nzsteps;j++) 
 		zgrid[j]=zvals[0]+(zvals[nz-1]-zvals[0])*(float)j/(float)(nzsteps-1);
+  lchi2grid=(float *) malloc(10000*sizeof(float));
+  lzgrid=(float *) malloc(10000*sizeof(float));
 	for(i=0;i<ngalaxy;i++) {
 
     pz_ncheck=0;
@@ -133,8 +135,38 @@ IDL_LONG k_fit_photoz(float *photoz,
 		} /* end if..else */
 		chi2min=k_brent(az,bz,cz,pz_fit_coeffs,TOL,&(photoz[i]));
 #else 
-    photoz[i]=zgrid[jmin];
-#endif
+		/* then search for minimum more intelligently around it */
+		if(jmin==0) {
+			az=zgrid[jmin];
+			bz=0.5*(zgrid[jmin]+zgrid[jmin+1]);
+			cz=zgrid[jmin+1];
+		} else if(jmin==nzsteps-1) {
+			az=zgrid[jmin-1];
+			bz=0.5*(zgrid[jmin-1]+zgrid[jmin]);
+			cz=zgrid[jmin];
+		} else {
+			az=zgrid[jmin-1];
+			bz=zgrid[jmin];
+			cz=zgrid[jmin+1];
+		} /* end if..else */
+
+		/* lay out a grid and get chi^2 for each z value */
+    lnzsteps=(IDL_LONG) floor((cz-az)/TOL)+1;
+    for(j=0;j<lnzsteps;j++) 
+      lzgrid[j]=az+(cz-az)*(float)j/(float)(lnzsteps-1);
+		for(j=0;j<lnzsteps;j++) 
+			lchi2grid[j]=pz_fit_coeffs(lzgrid[j]);
+
+		/* find minimum on grid */
+		jmin=0;
+		chi2min=lchi2grid[0];
+		for(jmin=0,chi2min=lchi2grid[0],j=1;j<lnzsteps;j++) 
+			if(lchi2grid[j]<chi2min) {
+				chi2min=lchi2grid[j];
+				jmin=j;
+			} /* end if */
+
+    photoz[i]=lzgrid[jmin];
 
     /* near bottom fit a parabola and get min */
     if(photoz[i]>TOL) {
@@ -149,7 +181,10 @@ IDL_LONG k_fit_photoz(float *photoz,
     chi2_0=pz_fit_coeffs(z_0);
     chi2_1=pz_fit_coeffs(z_1);
     chi2_2=pz_fit_coeffs(z_2);
-    photoz[i]=photoz[i]+0.5*TOL-(chi2_1-chi2_0)*TOL/(chi2_2-2.*chi2_1+chi2_0);
+    photoz[i]=z_0+0.5*TOL-(chi2_1-chi2_0)*TOL/(chi2_2-2.*chi2_1+chi2_0);
+    if(photoz[i]<z_0) photoz[i]=z_0;
+    if(photoz[i]>z_2) photoz[i]=z_2;
+#endif
 
 		/* evaluate coefficients at final z (using REAL chi2) */
     pz_applyprior=0;
@@ -172,5 +207,7 @@ IDL_LONG k_fit_photoz(float *photoz,
 	FREEVEC(pz_zprior);
 	FREEVEC(zgrid);
 	FREEVEC(chi2grid);
+	FREEVEC(lzgrid);
+	FREEVEC(lchi2grid);
 	return(1);
 } /* end k_fit_photoz */

@@ -1,0 +1,3 @@
+#!/usr/local/bin/perl
+
+system("wget --no-host-directories --no-parent --no-clobber --cut-dir=4 --recursive ftp://ftp.stsci.edu/cdbs/cdbs2/grid/kc96");

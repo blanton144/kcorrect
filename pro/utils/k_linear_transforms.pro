@@ -19,16 +19,18 @@ weight=interpolate(1./chist, (color-cmin)/(cmax-cmin)*float(n_elements(chist)))
 weight=weight/max(weight)
 iuse=where(randomu(seed, n_elements(weight)) lt weight)
 
+medcolor=median(color[iuse])
+sigcolor=djsig(color[iuse],sigrej=6)
 usecolor=reform(color[iuse]+0.01*randomn(seed,n_elements(iuse)), $
                 n_elements(iuse))
 usebdiff=reform(bdiff[iuse]+0.01*randomn(seed,n_elements(iuse)), $
                 n_elements(iuse))
-coeffs=linfit(usecolor,usebdiff)
+coeffs=linfit(usecolor-medcolor,usebdiff)
 slope=coeffs[1]
 offset=coeffs[0]
 
 xline=minmax(usecolor)
-yline=offset+slope*xline
+yline=offset+slope*(xline-medcolor)
 
 djs_plot, usecolor, usebdiff, xtitle=colorstr, ytitle=bdiffstr, psym=3
 djs_oplot, xline, yline, color='red'
@@ -36,10 +38,14 @@ xst=!X.CRANGE[0]+0.05*(!X.CRANGE[1]-!X.CRANGE[0])
 yst=!Y.CRANGE[0]+0.05*(!Y.CRANGE[1]-!Y.CRANGE[0])
 offsetstr=strtrim(string(offset,format='(f40.4)'),2)
 slopestr=strtrim(string(slope,format='(f40.4)'),2)
-djs_xyouts, xst, yst, 'y = '+offsetstr+' + ('+slopestr+') x'
+medcolorstr=strtrim(string(medcolor,format='(f40.4)'),2)
+djs_xyouts, xst, yst, 'y = '+offsetstr+' + ('+slopestr+') (x - ('+ $
+  medcolorstr+')'
 
 slopestr=strtrim(string(abs(slope),format='(f40.4)'),2)
 offsetstr=strtrim(string(abs(offset),format='(f40.4)'),2)
+medcolorstr=strtrim(string(abs(medcolor),format='(f40.4)'),2)
+sigcolorstr=strtrim(string((sigcolor),format='(f40.2)'),2)
 if(slope lt 0.) then $
   slopestr='- '+slopestr $
 else $
@@ -48,8 +54,13 @@ if(offset lt 0.) then $
   offsetstr='- '+offsetstr $
 else $
   offsetstr='+ '+offsetstr 
+if(medcolor gt 0.) then $
+  medcolorstr='- '+medcolorstr $
+else $
+  medcolorstr='+ '+medcolorstr 
 print, toband+' &=& '+fromband+' '+offsetstr+' '+slopestr+ $
-  ' \left[ '+fromcolor+' \right] \cr' 
+  ' \left[ '+fromcolor+' '+medcolorstr+' \right] \quad \mathrm{;} '+ $
+  ' \quad \sigma\left['+fromcolor+'\right] = '+sigcolorstr+'\cr' 
 
 end
 ;
@@ -83,25 +94,25 @@ k_reconstruct_maggies, kcorrect.coeffs, fltarr(ngals), jmaggies01, $
 k_reconstruct_maggies, kcorrect.coeffs, fltarr(ngals), jmaggies00, $
   filterlist=jfilters, lambda=lambda, vmatrix=vmatrix, band_shift=0.0
 
-jab2vega01=-k_vega2ab(filterlist=jfilters,/kurucz, band_shift=0.1)
-jab2vega00=-k_vega2ab(filterlist=jfilters,/kurucz, band_shift=0.0)
+;jab2vega01=-k_vega2ab(filterlist=jfilters,/kurucz, band_shift=0.1)
+;jab2vega00=-k_vega2ab(filterlist=jfilters,/kurucz, band_shift=0.0)
 
-sab2vega01=-k_vega2ab(filterlist=sfilters,/kurucz, band_shift=0.1)
-sab2vega00=-k_vega2ab(filterlist=sfilters,/kurucz, band_shift=0.0)
+;sab2vega01=-k_vega2ab(filterlist=sfilters,/kurucz, band_shift=0.1)
+;sab2vega00=-k_vega2ab(filterlist=sfilters,/kurucz, band_shift=0.0)
 
 johnson00=22.5-2.5*alog10(jmaggies00)
 sdss00=22.5-2.5*alog10(smaggies00)
 johnson01=22.5-2.5*alog10(jmaggies01)
 sdss01=22.5-2.5*alog10(smaggies01)
 
-for i=5, 7 do $
-  sdss00[i,*]=sdss00[i,*]+sab2vega00[i]
-for i=5, 7 do $
-  sdss01[i,*]=sdss01[i,*]+sab2vega01[i]
-for i=0, 4 do $
-  johnson00[i,*]=johnson00[i,*]+jab2vega00[i]
-for i=0, 4 do $
-  johnson01[i,*]=johnson01[i,*]+jab2vega01[i]
+;for i=5, 7 do $
+;  sdss00[i,*]=sdss00[i,*]+sab2vega00[i]
+;for i=5, 7 do $
+;  sdss01[i,*]=sdss01[i,*]+sab2vega01[i]
+;for i=0, 4 do $
+;  johnson00[i,*]=johnson00[i,*]+jab2vega00[i]
+;for i=0, 4 do $
+;  johnson01[i,*]=johnson01[i,*]+jab2vega01[i]
 
 u01='!8!u0.1!nu!6'
 g01='!8!u0.1!ng!6'
@@ -186,44 +197,44 @@ klt_plot, sdss01[6,*]-sdss01[7,*],  sdss00[7,*]-sdss01[7,*], $
 ; transformations from SDSS/TWOMASS at 0.0 to SDSS/TWOMASS at 0.1
 klt_plot, sdss00[0,*]-sdss00[1,*],  sdss01[0,*]-sdss00[0,*], $
   umg00, u01+'-'+u00 , slope, offset, $
-  toband='\band{0.0}{u}', fromband='\band{0.1}{u}', $
-  fromcolor='\band{0.1}{(u-g)}'
+  toband='\band{0.1}{u}', fromband='\band{0.0}{u}', $
+  fromcolor='\band{0.0}{(u-g)}'
 klt_plot, sdss00[0,*]-sdss00[1,*],  sdss01[1,*]-sdss00[1,*], $
   umg00, g01+'-'+g00, slope, offset, $
-  toband='\band{0.0}{g}', fromband='\band{0.1}{g}', $
-  fromcolor='\band{0.1}{(u-g)}'
+  toband='\band{0.1}{g}', fromband='\band{0.0}{g}', $
+  fromcolor='\band{0.0}{(u-g)}'
 klt_plot, sdss00[1,*]-sdss00[2,*],  sdss01[1,*]-sdss00[1,*], $
   gmr00, g01+'-'+g00, slope, offset, $
-  toband='\band{0.0}{g}', fromband='\band{0.1}{g}', $
-  fromcolor='\band{0.1}{(g-r)}'
+  toband='\band{0.1}{g}', fromband='\band{0.0}{g}', $
+  fromcolor='\band{0.0}{(g-r)}'
 klt_plot, sdss00[1,*]-sdss00[2,*],  sdss01[2,*]-sdss00[2,*], $
   gmr00, r01+'-'+r00, slope, offset, $
-  toband='\band{0.0}{r}', fromband='\band{0.1}{r}', $
-  fromcolor='\band{0.1}{(g-r)}'
+  toband='\band{0.1}{r}', fromband='\band{0.0}{r}', $
+  fromcolor='\band{0.0}{(g-r)}'
 klt_plot, sdss00[2,*]-sdss00[3,*],  sdss01[3,*]-sdss00[3,*], $
   rmi00, i01+'-'+i00, slope, offset, $
-  toband='\band{0.0}{i}', fromband='\band{0.1}{i}', $
-  fromcolor='\band{0.1}{(r-i)}'
+  toband='\band{0.1}{i}', fromband='\band{0.0}{i}', $
+  fromcolor='\band{0.0}{(r-i)}'
 klt_plot, sdss00[3,*]-sdss00[4,*],  sdss01[4,*]-sdss00[4,*], $
   imz00, z01+'-'+z00, slope, offset, $
-  toband='\band{0.0}{z}', fromband='\band{0.1}{z}', $
-  fromcolor='\band{0.1}{(i-z)}'
+  toband='\band{0.1}{z}', fromband='\band{0.0}{z}', $
+  fromcolor='\band{0.0}{(i-z)}'
 klt_plot, sdss00[4,*]-sdss00[5,*],  sdss01[5,*]-sdss00[5,*], $
   zmj00, j01+'-'+j00, slope, offset, $
-  toband='\band{0.0}{J}', fromband='\band{0.1}{J}', $
-  fromcolor='\band{0.1}{(z-J)}'
+  toband='\band{0.1}{J}', fromband='\band{0.0}{J}', $
+  fromcolor='\band{0.0}{(z-J)}'
 klt_plot, sdss00[5,*]-sdss00[6,*],  sdss01[5,*]-sdss00[5,*], $
   jmh00, j01+'-'+j00, slope, offset, $
-  toband='\band{0.0}{J}', fromband='\band{0.1}{J}', $
-  fromcolor='\band{0.1}{(J-H)}'
+  toband='\band{0.1}{J}', fromband='\band{0.0}{J}', $
+  fromcolor='\band{0.0}{(J-H)}'
 klt_plot, sdss00[5,*]-sdss00[6,*],  sdss01[6,*]-sdss00[6,*], $
   jmh00, h01+'-'+h00, slope, offset, $
-  toband='\band{0.0}{H}', fromband='\band{0.1}{H}', $
-  fromcolor='\band{0.1}{(J-H)}'
+  toband='\band{0.1}{H}', fromband='\band{0.0}{H}', $
+  fromcolor='\band{0.0}{(J-H)}'
 klt_plot, sdss00[6,*]-sdss00[7,*],  sdss01[7,*]-sdss00[7,*], $
   hmk00, k01+'-'+k00, slope, offset, $
-  toband='\band{0.0}{K_s}', fromband='\band{0.1}{K_s}', $
-  fromcolor='\band{0.1}{(H-K_s)}'
+  toband='\band{0.1}{K_s}', fromband='\band{0.0}{K_s}', $
+  fromcolor='\band{0.0}{(H-K_s)}'
 
 ; transformations from SDSS at 0.1 to Johnson at 0.
 klt_plot, sdss01[0,*]-sdss01[1,*],  johnson00[0,*]-sdss01[0,*], $

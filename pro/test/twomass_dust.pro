@@ -121,6 +121,15 @@ rmk=-2.5*alog10(kcorrect.abmaggies[2]/kcorrect.abmaggies[7])
 umk=-2.5*alog10(kcorrect.abmaggies[0]/kcorrect.abmaggies[7])
 zmk=-2.5*alog10(kcorrect.abmaggies[4]/kcorrect.abmaggies[7])
 
+red_fac = [5.155, 3.793, 2.751, 2.086, 1.479 ]
+red_fac=[red_fac,  0.902, 0.576, 0.367]
+ext_cont=fltarr(8,n_elements(spec))
+for i=0, 7 do ext_cont[i,*]=spec.tauv_cont*red_fac[i]*2.5/alog(10.)
+corrmaggies=kcorrect[m2].abmaggies
+for i=0, 7 do corrmaggies[i,*]=corrmaggies[i,*]*10.^(0.4*ext_cont[i,m1])
+
+corrrmk=-2.5*alog10(corrmaggies[2]/corrmaggies[7])
+
 stop
 
 end
