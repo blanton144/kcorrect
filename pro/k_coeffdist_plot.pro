@@ -36,7 +36,6 @@ pro k_coeffdist_plot,version,vpath=vpath,basecoeff=basecoeff,subsample=subsample
 if(n_elements(vpath) eq 0) then $
   vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
 if(n_elements(lamlim) eq 0) then lamlim=[2000.,10000.]
-if(n_elements(basecoeff) eq 0) then basecoeff=3
 if(n_elements(nsig) eq 0) then nsig=3.
 
 k_load_ascii_table,coeff,vpath+'/coeff.'+version+'.dat'
@@ -44,16 +43,19 @@ k_load_ascii_table,ematrix,vpath+'/ematrix.'+version+'.dat'
 k_load_ascii_table,bmatrix,vpath+'/bmatrix.'+version+'.dat'
 k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
 nt=long((size(ematrix))[2])
+if(n_elements(basecoeff) eq 0) then basecoeff=nt-1
 ngalaxy=long(n_elements(coeff))/nt
 nl=n_elements(lambda)-1l
 
-coeffmean1=djs_avsigclip(coeff[1,*]/coeff[0,*])
-coeffmean2=djs_avsigclip(coeff[2,*]/coeff[0,*])
-speccoeffs=[ $
-             [1.,coeffmean1,coeffmean2,-0.19], $
-             [1.,coeffmean1,coeffmean2,-0.06],$
-             [1.,coeffmean1,coeffmean2,0.10] $
-           ]
+coeffindx=(lindgen(nt-1)+1)[where(lindgen(nt-1)+1 ne basecoeff)]
+coeffmean=dblarr(nt-2)
+for i=0, nt-3 do $
+  coeffmean[i]=djs_avsigclip(coeff[coeffindx[i],*]/coeff[0,*])
+speccoeffs=dblarr(nt,3)
+speccoeffs[0,*]=1.
+speccoeffs[basecoeff,*]=[-0.20,-0.06,0.10]
+for i=0, nt-3 do $
+  speccoeffs[coeffindx[i],*]=coeffmean[i]
 nspecs=(size(speccoeffs))[2]
 
 if(n_elements(subsample) eq 0) then subsample=1l
@@ -104,10 +106,10 @@ ncolor= n_elements(colorname)
 !p.multi=[2*(nt-2),nt-2,2]
 espec=bmatrix#ematrix
 lam=0.5*(lambda[0l:nl-1l]+lambda[1l:nl])
-indx=(lindgen(nt-1)+1)[where(lindgen(nt-1)+1 ne basecoeff)]
-for i=0, n_elements(indx)-1 do begin
+for i=0, n_elements(coeffindx)-1 do begin
+    klog,basecoeff,coeffindx[i]
     xrat=coeff[basecoeff,*]/coeff[0,*]
-    yrat=coeff[indx[i],*]/coeff[0,*]
+    yrat=coeff[coeffindx[i],*]/coeff[0,*]
     xsig=djsig(xrat)
     ysig=djsig(yrat)
     xmean=mean(xrat)
@@ -118,15 +120,15 @@ for i=0, n_elements(indx)-1 do begin
     !Y.RANGE= ymean+nsig*[-xsig,xsig]
     djs_plot,xrat,yrat,psym=3,xst=1,yst=1
     axis,!X.RANGE[0],!Y.RANGE[1],xaxis=1,xcharsize=axis_char_scale, $
-      xtitle='a!d3!n/a!d0'
+      xtitle='a!d'+strtrim(string(basecoeff),2)+'!n/a!d0'
     if(i eq 0) then $
       axis,!X.RANGE[0],!Y.RANGE[0],yaxis=0,ycharsize=axis_char_scale, $
-      ytitle='a!d1!n/c!d0'
-    if(i eq n_elements(indx)-1) then $
+      ytitle='a!d'+strtrim(string(coeffindx[i]),2)+'!n/c!d0'
+    if(i eq n_elements(coeffindx)-1) then $
       axis,!X.RANGE[1],!Y.RANGE[0],yaxis=1,ycharsize=axis_char_scale, $
-      ytitle='a!d2!n/c!d0'
+      ytitle='a!d'+strtrim(string(coeffindx[i]),2)+'!n/c!d0'
     for j=0,nspecs-1 do begin
-        djs_oplot,[speccoeffs[basecoeff,j]],[speccoeffs[indx[i],j]],psym=8, $
+        djs_oplot,[speccoeffs[basecoeff,j]],[speccoeffs[coeffindx[i],j]],psym=8, $
           color=colorname[j],/fill
     endfor
 endfor
@@ -140,12 +142,11 @@ djs_plot,lam,out,xst=1,yst=1,yra=[-0.1,1.1],xra=[2000.,11000.],/nodata, $
   xtitle='Wavelength (Angstroms)', ytitle='f!d!4k!3', $
   ycharsize=axis_char_scale, xcharsize=axis_char_scale
 xout=lam[n_elements(lam)/9]
-yout=0.95
-xyouts,xout,yout,'a!d1!n/a!d0!n='+ $
-      strtrim(string(speccoeffs[1,0],format='(f5.2)'),2)
-yout=0.85
-xyouts,xout,yout,'a!d2!n/a!d0!n='+ $
-      strtrim(string(speccoeffs[2,0],format='(f5.2)'),2)
+for i = 0, nt-3 do begin
+    yout=0.95-double(i)*0.1
+    xyouts,xout,yout,'a!d'+strtrim(string(coeffindx[i]),2)+'!n/a!d0!n='+ $
+      strtrim(string(speccoeffs[coeffindx[i],0],format='(f5.2)'),2)
+endfor
 scalespec=[1.,2.,1.5]
 for j=0, nspecs-1 do begin
     out=scalespec[j]*spec[*,j]/max(spec[*,0])* $
@@ -156,7 +157,7 @@ for j=0, nspecs-1 do begin
     djs_oplot,lam,out,color=colorname[j],thick=6
     xout=lam[n_elements(lam)/2]
     yout=out[n_elements(lam)/2]+0.02
-    xyouts,xout,yout,'a!d3!n/a!d0!n='+ $
+    xyouts,xout,yout,'a!d'+strtrim(string(basecoeff),2)+'!n/a!d0!n='+ $
       strtrim(string(speccoeffs[basecoeff,j],format='(f5.2)'),2)
 endfor
 

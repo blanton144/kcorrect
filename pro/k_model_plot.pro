@@ -31,15 +31,14 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_model_plot,version,vpath=vpath,psfile=psfile, nsig=nsig
+pro k_model_plot,savfile,version=version,vpath=vpath
 
-if(n_elements(vpath) eq 0) then $
-  vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
-if(n_elements(nsig) eq 0) then nsig=3.d
+if(NOT keyword_set(version)) then version='default'
+if(NOT keyword_set(vpath)) then vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
 
-restore,vpath+'/'+version+'.sav'
-galaxy_z=z
-k_model_fluxes,coeff,galaxy_z,galaxy_flux_model,version=version,vpath=vpath
+restore,savfile
+k_reconstruct_maggies,coeff,sp.z,reconstruct_maggies,version=version, $
+  vpath=vpath
 
 ngalaxy=long(n_elements(galaxy_z))
 nk=long(n_elements(galaxy_flux))/ngalaxy

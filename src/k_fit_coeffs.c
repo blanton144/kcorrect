@@ -123,7 +123,6 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 					fprintf(stderr,"%e\n",rhs[j]);
 				for(j=0;j<nt;j++) 
 					amatrix[i*nt+j]=0.;
-				return(0);
 			} /* end if */
 			
 			/* 2e. Store result */

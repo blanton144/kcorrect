@@ -38,7 +38,7 @@
 ;   lists for best results (ie. don't call this 1,000,000 times to get
 ;   K-corrections for 1,000,000 objects). If it is *unavoidable* to
 ;   do this, then you should figure out how to use k_fit_coeffs and
-;   k_model_fluxes to this more efficiently (by calculating rmatrix
+;   k_reconstruct_maggies to this more efficiently (by calculating rmatrix
 ;   only once). You can ask me for help if this is too hard. Or you
 ;   can convince me to let you do this through kcorrect.
 ;
@@ -52,7 +52,7 @@
 ;
 ; PROCEDURES CALLED:
 ;   k_fit_coeffs
-;   k_model_fluxes
+;   k_reconstruct_maggies
 ;
 ; REVISION HISTORY:
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
@@ -63,7 +63,8 @@ pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorre
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
     print, 'Syntax - kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, $'
-    print, '        [kcorrectz=, version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=, coeff=]'
+    print, '        [kcorrectz=, version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=,$'
+    print, '         coeff=]'
     return
 endif
 
@@ -110,19 +111,19 @@ endif else begin
 endelse
 indx=where(correct_z lt zvals[0],count)
 if(count gt 0) then correct_z[indx]=0.5*(zvals[0]+zvals[1])
-k_model_fluxes,coeff,correct_z,model_flux,rmatrix=rmatrix,zvals=zvals, $
-  ematrix=ematrix
+k_reconstruct_maggies,coeff,correct_z,reconstruct_maggies,rmatrix=rmatrix, $
+  zvals=zvals,ematrix=ematrix
 
 ; Calculate magnitudes if necessary
 galaxy_mag0=dblarr(nk,ngalaxy)
 if(NOT keyword_set(maggies)) then begin
-    negindx=where(model_flux le 0.d,count)
+    negindx=where(reconstruct_maggies le 0.d,count)
     if(count gt 0) then galaxy_mag0[negindx]=0.d
-    goodindx=where(model_flux gt 0.d,count)
+    goodindx=where(reconstruct_maggies gt 0.d,count)
     if(count gt 0) then $
-      galaxy_mag0[goodindx]=-2.5*alog10(model_flux[goodindx])
+      galaxy_mag0[goodindx]=-2.5*alog10(reconstruct_maggies[goodindx])
 endif else begin
-    galaxy_mag0=model_flux
+    galaxy_mag0=reconstruct_maggies
 endelse
 
 end

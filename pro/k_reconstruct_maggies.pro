@@ -57,8 +57,9 @@ pro k_reconstruct_maggies,coeffs,galaxy_z,reconstruct_maggies,ematrix=ematrix,zv
 
 ; Need at least 3 parameters
 if (N_params() LT 3) then begin
-    klog, 'Syntax - k_reconstruct_maggies, coeffs, galaxy_z, reconstruct_maggies, [ematrix=, zvals=, $'
-    klog, '    rmatrix=, bmatrix=, lambda=, version=, vpath=, filterpath=]'
+    print, 'Syntax - k_reconstruct_maggies, coeffs, galaxy_z, reconstruct_maggies $'
+    print, '    [, ematrix=, zvals=, rmatrix=, bmatrix=, lambda=, version=, vpath=, $'
+    print, '     filterpath=]'
     return
 endif
 

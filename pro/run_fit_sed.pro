@@ -48,27 +48,23 @@ if(NOT keyword_set(nz)) then nz=8l
 if(NOT keyword_set(templatelist)) then $
   templatelist=[ $
                  'ssp_salp_z02.flux.0220.dat', $
-                 'ssp_salp_z02.flux.0180.dat', $
-                 'ssp_salp_z02.flux.0150.dat', $
-                 'ssp_salp_z02.flux.0120.dat', $
-                 'ssp_salp_z004.flux.0220.dat', $
-                 'ssp_salp_z004.flux.0180.dat', $
-                 'ssp_salp_z004.flux.0150.dat', $
-                 'ssp_salp_z004.flux.0120.dat' $
+                 'ssp_salp_z02.flux.0104.dat', $
+                 'ssp_salp_z02.flux.0123.dat', $
+                 'ssp_salp_z02.flux.0154.dat', $
+                 'ssp_salp_z02.flux.0093.dat', $
+                 'ssp_salp_z008.flux.0220.dat', $
+                 'ssp_salp_z008.flux.0104.dat', $
+                 'ssp_salp_z008.flux.0123.dat', $
+                 'ssp_salp_z008.flux.0154.dat', $
+                 'ssp_salp_z008.flux.0093.dat' $
                 ]
-                 ;'ssp_salp_z0004.flux.0220.dat', $
-                 ;'ssp_salp_z0004.flux.0180.dat', $
-                 ;'ssp_salp_z0004.flux.0150.dat', $
-                 ;'ssp_salp_z0004.flux.0120.dat' $
-                 ;'flat.flux.dat' $
-                 ;'cos1.flux.dat', $
 if(NOT keyword_set(nk)) then nk=5L
 if(NOT keyword_set(nl)) then nl=500L
 if(NOT keyword_set(lambdalim)) then lambdalim=[1000.,12000.]
 if(NOT keyword_set(smoothtemplate)) then smoothtemplate=300.d
 if(NOT keyword_set(subsmoothtemplate)) then subsmoothtemplate=150.d
 if(NOT keyword_set(subsmoothlimits)) then subsmoothlimits=[3000.,5000.]
-if(NOT keyword_set(nt)) then nt=4L
+if(NOT keyword_set(nt)) then nt=3L
 if(NOT keyword_set(fraction)) then fraction=1.
 if(NOT keyword_set(spfile)) then spfile='/data/sdss/spectro/spAll.fits'
 if(NOT keyword_set(shiftband)) then shiftband=dblarr(nk)
@@ -236,7 +232,7 @@ writeu,11,out
 close,11
 out=0d
 
-k_coeffdist_plot,'default',vpath='.',psfile='k_coeffdist_plot.ps'
+k_coeffdist_plot,'default',vpath='.',psfile='k_coeffdist_plot.ps',basecoeff=1
     
 end
 ;------------------------------------------------------------------------------
