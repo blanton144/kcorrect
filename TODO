@@ -3,6 +3,7 @@ NOTES:
 note dependence on idlutils
 better notes on how to calc kcorrection using reconstruct_maggies
 sawtooth behavior --- diagnose
+luptitudes for sdssfix --- docs on how to set errors, too
 
 recommendation for use of JHK?? -- use v5_4
 2MASS photometry checks

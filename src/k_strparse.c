@@ -45,7 +45,6 @@ void k_strparse(char *str,
 								char ***wrd)
 {
 	int i,istr,iword,len;
-	char tmpstr[STRMAX];
 
 	/* count words and allocate memory */
 

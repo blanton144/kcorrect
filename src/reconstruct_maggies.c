@@ -19,8 +19,6 @@
  */
 
 static IDL_LONG nz=1000;
-static IDL_LONG maxiter=10000;
-static float tolerance=1.e-6;
 static float zmin=1.e-4, zmax=1.e-0;
 static float band_shift=0.;
 static float all_redshift=-1.;
@@ -36,9 +34,7 @@ static IDL_LONG *filter_n=NULL;
 static IDL_LONG maxn;
 static float *redshift=NULL;
 static float *maggies=NULL;
-static float *maggies_ivar=NULL;
 static float *coeffs=NULL;
-static float *chi2=NULL;
 
 #define USAGE \
    { fprintf(stderr,"Usage: cat <coeffs file> | reconstruct_maggies [--vfile <vfile> --lfile <lfile>\n"); \
@@ -47,10 +43,9 @@ static float *chi2=NULL;
 int main(int argc,
 				 char **argv)
 {
-	IDL_LONG i,j,k,c,ndim,niter,nchunk,ncurrchunk,*sizes=NULL;
+	IDL_LONG i,j,k,c,ndim,nchunk,ncurrchunk,*sizes=NULL;
 	char vfile[2000],lfile[2000],ffile[2000],path[2000];
 	char vmatrixfile[2000],lambdafile[2000],filterfile[2000];
-	char filters[2000];
 
 	/* read arguments */
 	strcpy(vfile,"vmatrix.default.dat");
@@ -59,7 +54,6 @@ int main(int argc,
 	sprintf(path,"%s/data/templates",getenv("KCORRECT_DIR"));
 	i=0;
 	while(1) {
-		int this_option_optind = optind ? optind : 1;
 		int option_index = 0;
  		static struct option long_options[] =
 			{

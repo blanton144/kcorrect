@@ -47,7 +47,6 @@ int main(int argc,
 	IDL_LONG i,j,k,c,ndim,niter,nchunk,ncurrchunk,*sizes=NULL;
 	char vfile[2000],lfile[2000],ffile[2000],path[2000];
 	char vmatrixfile[2000],lambdafile[2000],filterfile[2000];
-	char filters[2000];
 
 	/* read arguments */
 	strcpy(vfile,"vmatrix.default.dat");
@@ -56,7 +55,6 @@ int main(int argc,
 	sprintf(path,"%s/data/templates",getenv("KCORRECT_DIR"));
 	i=0;
 	while(1) {
-		int this_option_optind = optind ? optind : 1;
 		int option_index = 0;
  		static struct option long_options[] =
 			{

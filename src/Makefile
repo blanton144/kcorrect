@@ -47,12 +47,12 @@ all: $(LIB)/libkcorrect.$(SO_EXT) $(BIN)/k_test_filter $(BIN)/fit_coeffs \
 	$(BIN)/reconstruct_maggies $(BIN)/fit_photoz
 #
 $(LIB)/libkcorrect.$(SO_EXT): $(OBJECTS)
-	$(LD) -g $(X_LD_FLAGS) -o $(LIB)/libkcorrect.$(SO_EXT) $(OBJECTS) 
+	$(LD) $(X_LD_FLAGS) -o $(LIB)/libkcorrect.$(SO_EXT) $(OBJECTS) 
 #	nm -s ../lib/libkcorrect.$(SO_EXT)
 
 $(BIN)/k_test_filter: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) k_test_filter.c 
-	$(CC) -g $(CFLAGS) -o $(BIN)/k_test_filter k_test_filter.c -lm -L$(LIB) \
-	-lkcorrect
+	$(CC) -g $(CFLAGS) -o $(BIN)/k_test_filter k_test_filter.c -lm -lkcorrect \
+  -L$(LIB) 
 
 $(BIN)/fit_coeffs: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) fit_coeffs.c 
 	$(CC) -g $(CFLAGS) -o $(BIN)/fit_coeffs fit_coeffs.c -lm -L$(LIB) \
