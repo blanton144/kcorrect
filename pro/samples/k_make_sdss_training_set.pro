@@ -224,7 +224,8 @@ outstr[isdss].ra=sp.plug_ra
 outstr[isdss].dec=sp.plug_dec
 outstr[isdss].redshift=sp.z
 outstr[isdss].maggies[0:4]=sdssflux2ab(sp.modelflux)
-outstr[isdss].maggies_ivar[0:4]=sdssflux2ab(sp.modelflux_ivar,/ivar)
+outstr[isdss].maggies_ivar[0:4]= $
+  1./(0.02^2+1./sdssflux2ab(sp.modelflux_ivar,/ivar))
 twomass_indx=where(tm.j_m_ext gt 0. and $
                    tm.h_m_ext gt 0. and $
                    tm.k_m_ext gt 0., twomass_count)
@@ -234,19 +235,19 @@ if(twomass_count gt 0) then begin
                    (k_vega2ab(filterlist='twomass_J.par',/kurucz))[0]))
     outstr[isdss[twomass_indx]].maggies_ivar[5]= $
       1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[5]* $
-          tm[twomass_indx].j_msig_ext)^2
+          sqrt(0.02^2+tm[twomass_indx].j_msig_ext))^2
     outstr[isdss[twomass_indx]].maggies[6]= $
       10.^(9.-0.4*(tm[twomass_indx].h_m_ext+ $
                    (k_vega2ab(filterlist='twomass_H.par',/kurucz))[0]))
     outstr[isdss[twomass_indx]].maggies_ivar[6]= $
       1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[6]* $
-          tm[twomass_indx].h_msig_ext)^2
+          sqrt(0.02^2+tm[twomass_indx].h_msig_ext))^2
     outstr[isdss[twomass_indx]].maggies[7]= $
       10.^(9.-0.4*(tm[twomass_indx].k_m_ext+ $
                    (k_vega2ab(filterlist='twomass_Ks.par',/kurucz))[0]))
     outstr[isdss[twomass_indx]].maggies_ivar[7]= $
       1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[7]* $
-          tm[twomass_indx].k_msig_ext)^2
+          sqrt(0.02^2+tm[twomass_indx].k_msig_ext))^2
 endif
 outstr[icnoc2].ra=cnoc2_childobj.ra
 outstr[icnoc2].dec=cnoc2_childobj.dec

@@ -125,14 +125,15 @@ endelse
 
 orig_chi2=chi2
 
-fixindx=where(gals[use_indx].maggies_ivar[0] gt 0. or $
-              gals[use_indx].maggies_ivar[1] gt 0. or $
-              gals[use_indx].maggies_ivar[2] gt 0. or $
-              gals[use_indx].maggies_ivar[3] gt 0. or $
-              gals[use_indx].maggies_ivar[4] gt 0. or $
-              gals[use_indx].maggies_ivar[5] gt 0. or $
-              gals[use_indx].maggies_ivar[6] gt 0. or $
-              gals[use_indx].maggies_ivar[7] gt 0.)
+fixindx=where(chi2 eq chi2 and $
+              (gals[use_indx].maggies_ivar[0] gt 0. or $
+               gals[use_indx].maggies_ivar[1] gt 0. or $
+               gals[use_indx].maggies_ivar[2] gt 0. or $
+               gals[use_indx].maggies_ivar[3] gt 0. or $
+               gals[use_indx].maggies_ivar[4] gt 0. or $
+               gals[use_indx].maggies_ivar[5] gt 0. or $
+               gals[use_indx].maggies_ivar[6] gt 0. or $
+               gals[use_indx].maggies_ivar[7] gt 0.))
 use_indx=use_indx[fixindx]
 coeffs=coeffs[*,fixindx]
 orig_chi2=orig_chi2[fixindx]
