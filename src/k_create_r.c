@@ -27,9 +27,14 @@
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 
 /* factor of 10^(0.4*2.41) which converts flux in based on 
- * f_lambda=erg/cm^2/s/A into maggies */
+ * f_lambda=erg/cm^2/s/A into maggies 
+ NO LONGER RELEVANT
 #define ABSCALE 9.20450
+*/
 
+static double cr_glambdaexp=0.;
+static double *cr_glambda=NULL;
+static double *cr_sppointer=NULL;
 static double *cr_bmatrix=NULL;
 static double *cr_lambda=NULL;
 static IDL_LONG cr_nb;
@@ -43,7 +48,7 @@ static double *cr_filter_pass=NULL;
 double cr_filter(double lambda) 
 {
 	double sl,rflambda,filt,spectrum;
-	unsigned long i,ip1,indxoff;
+	unsigned long i,ip1;
 
 	k_locate(cr_filter_lambda, cr_filter_n, lambda, &i);
 	if(i>=cr_filter_n-1 || i<0) return(0.);
@@ -56,26 +61,9 @@ double cr_filter(double lambda)
 	if(i>=cr_nl-1 || i<0) return(0.);
 	ip1=i+1;
 	sl=(rflambda-cr_lambda[i])/(cr_lambda[ip1]-cr_lambda[i]);
-	indxoff=cr_b*cr_nl;
-	spectrum=cr_bmatrix[indxoff+i]
-		+sl*(cr_bmatrix[indxoff+ip1]-cr_bmatrix[indxoff+i]);
+	spectrum=cr_sppointer[i]+sl*(cr_sppointer[ip1]-cr_sppointer[i]);
 	
 	filt=filt*lambda*spectrum;
-	return(filt);
-} /* end filter */
-
-double cr_scalefilter(double lambda) 
-{
-	double sl,filt;
-	unsigned long i,ip1;
-
-	k_locate(cr_filter_lambda, cr_filter_n, lambda, &i);
-	if(i>=cr_filter_n-1 || i<0) return(0.);
-	ip1=i+1;
-	sl=lambda-cr_filter_lambda[i];
-	filt=cr_filter_pass[i]+sl*(cr_filter_pass[ip1]-cr_filter_pass[i])
-		/(cr_filter_lambda[ip1]-cr_filter_lambda[i]);
-	filt=filt/lambda;
 	return(filt);
 } /* end filter */
 
@@ -91,7 +79,9 @@ IDL_LONG k_create_r(double *rmatrix,
 										IDL_LONG *filter_n,
 										double *filter_lambda,
 										double *filter_pass,
-										IDL_LONG maxn)
+										IDL_LONG maxn,
+										double *glambda,
+										double glambdaexp)
 {
 	double lammin,lammax,scale;
 	IDL_LONG i,l,k,indxoff;
@@ -99,11 +89,15 @@ IDL_LONG k_create_r(double *rmatrix,
 	/* make local copies of bmatrix */
 	cr_bmatrix=(double *) malloc(nb*nl*sizeof(double));
 	cr_lambda=(double *) malloc((nl+1)*sizeof(double));
+	cr_glambda=(double *) malloc(nl*sizeof(double));
+	cr_glambdaexp=glambdaexp;
 	cr_nb=nb;
 	cr_nl=nl;
-	for(i=0;i<nb*nl;i++) 
+	for(i=0;i<cr_nl;i++) 
+		cr_glambda[i]=glambda[i];
+	for(i=0;i<cr_nb*cr_nl;i++) 
 		cr_bmatrix[i]=bmatrix[i];
-	for(i=0;i<=nl;i++) 
+	for(i=0;i<=cr_nl;i++) 
 		cr_lambda[i]=lambda[i];
 	
 	/* make r matrix */
@@ -118,28 +112,49 @@ IDL_LONG k_create_r(double *rmatrix,
 		} /* end for l */
 
 		/* create scale factor for filter */
-		scale=ABSCALE/k_qromo(cr_scalefilter,cr_filter_lambda[0],
-													cr_filter_lambda[cr_filter_n-1],k_midpnt);
+		cr_sppointer=cr_glambda; 
+		cr_z=0.;
+		scale=pow(10.,-glambdaexp)/k_qromo(cr_filter,cr_filter_lambda[0], 
+																			 cr_filter_lambda[cr_filter_n-1], 
+																			 k_midpnt);
+		if(scale!=scale || fabs(scale)>1.e+20) {
+			for(i=0;i<cr_filter_n;i++) {
+				printf("%e %e\n",cr_filter_lambda[i],cr_filter_pass[i]); 
+				fflush(stdout);
+			}
+			for(i=0;i<cr_nl;i++) {
+				printf("%e %e\n",lambda[i],cr_sppointer[i]);
+				fflush(stdout);
+			}
+		}
 
 		/* loop over redshifts */
 		for(i=0;i<nz;i++) {
-			indxoff=k*nb*nz+i;
+			indxoff=k*cr_nb*nz+i;
 			cr_z=zvals[i];
 			lammin=cr_filter_lambda[0];
 			lammax=cr_filter_lambda[cr_filter_n-1];
-			for(cr_b=0;cr_b<nb;cr_b++) 
+			for(cr_b=0;cr_b<cr_nb;cr_b++) {
+				cr_sppointer=&(cr_bmatrix[cr_b*cr_nl]);
 				rmatrix[indxoff+cr_b*nz]=scale*k_qromo(cr_filter,lammin,lammax, 
 																							 k_midpnt)/(1.+cr_z);
+			} /* end for */
 		} /* end for i */
 
 		/* deallocate memory */
 		FREEVEC(cr_filter_lambda);
 		FREEVEC(cr_filter_pass);
+		cr_filter_n=-1;
 	} /* end for k */
 
 	/* deallocate local bmatrix */
 	FREEVEC(cr_bmatrix);
 	FREEVEC(cr_lambda);
+	FREEVEC(cr_glambda);
+	cr_sppointer=NULL;
+	cr_nb=-1;
+	cr_nl=-1;
+	cr_z=-1.;
 	
 	return(1);
 } /* end create_r */

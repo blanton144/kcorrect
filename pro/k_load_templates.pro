@@ -46,9 +46,9 @@ if (N_params() LT 3) then begin
 endif
 
 ; Set defaults
-if (NOT keyword_set(nl)) then nl=500l
-if (NOT keyword_set(lmin)) then lmin=1000.d
-if (NOT keyword_set(lmax)) then lmax=12000.d
+if (NOT keyword_set(nl)) then nl=5000l
+if (NOT keyword_set(lmin)) then lmin=1250.d
+if (NOT keyword_set(lmax)) then lmax=33333.d
 if (NOT keyword_set(cutlmin)) then cutlmin=0.d
 if (NOT keyword_set(cutlmax)) then cutlmax=1.d+30
 lambda=lmin+(lmax-lmin)*dindgen(nl+1l)/double(nl)
@@ -58,7 +58,7 @@ lint=0.5*(lambda[0l:nl-1l]+lambda[1l:nl])
 vmatrix=dblarr(nl,n_elements(templatelist))
 for i = 0l, n_elements(templatelist)-1l do begin
     spawn,'cat '+templatelist[i]+' | wc -l', nltmp
-    vtmp=dblarr(2,nltmp[0])
+    vtmp=dblarr(2,long(nltmp[0]))
     openr,unit,templatelist[i],/get_lun
     readf,unit,vtmp
     close,unit

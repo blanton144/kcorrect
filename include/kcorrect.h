@@ -90,7 +90,9 @@ IDL_LONG k_create_r(double *rmatrix,
 										IDL_LONG *filter_n,
 										double *filter_lambda,
 										double *filter_pass,
-										IDL_LONG maxn);
+										IDL_LONG maxn,
+										double *glambda,
+										double glambdaexp);
 
 /* open a file and return file pointer */
 FILE *k_fileopen(const char *Filename,

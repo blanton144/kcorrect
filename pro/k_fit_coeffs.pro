@@ -100,6 +100,7 @@ ngalaxy=long(n_elements(galaxy_z))
 nk=long(n_elements(galaxy_maggies)/ngalaxy)
 if (keyword_set(bmatrix) AND keyword_set(filterlist) AND keyword_set(lambda)) $
   then begin
+print,filterlist
     k_create_r,rmatrix,bmatrix,lambda,zvals,filterlist,filterpath=filterpath
 endif else begin
     if (NOT keyword_set(rmatrix)) then begin

@@ -14,7 +14,8 @@ IDL_LONG idl_k_create_r
    void *   argv[])
 {
 	IDL_LONG nk,nb,nl,nz,*filter_n,maxn;
-	double *rmatrix,*bmatrix,*lambda,*zvals,*filter_lambda,*filter_pass;
+	double *rmatrix,*bmatrix,*lambda,*zvals,*filter_lambda,*filter_pass,*glambda;
+	double glambdaexp;
 	
 	IDL_LONG i;
 	IDL_LONG retval=1;
@@ -33,10 +34,13 @@ IDL_LONG idl_k_create_r
 	filter_lambda=(double *)argv[i]; i++;
 	filter_pass=(double *)argv[i]; i++;
 	maxn=*((IDL_LONG *)argv[i]); i++;
+	glambda=(double *)argv[i]; i++;
+	glambdaexp=*((double *)argv[i]); i++;
 	
 	/* 1. run the fitting routine */
 	retval=(IDL_LONG) k_create_r(rmatrix,nk,nb,bmatrix,lambda,nl,zvals,nz,
-															 filter_n,filter_lambda,filter_pass,maxn);
+															 filter_n,filter_lambda,filter_pass,maxn, 
+															 glambda,glambdaexp);
 	
 	/* 2. free memory and leave */
 	free_memory();

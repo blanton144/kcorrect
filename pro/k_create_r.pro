@@ -22,6 +22,10 @@
 ; OPTIONAL INPUTS:
 ;   filterpath    - path for filters (default '$KCORRECT_DIR/data/filters')
 ;
+; KEYWORDS:
+;   system - Magnitude system: one of the predefined list: ['AB'] or a
+;            filename containing g(nu) [default to AB]
+;
 ; OUTPUTS:
 ;   rmatrix       - look up table for bmatrix and filter information 
 ;                   [N_z, N_dim, N_band]
@@ -47,7 +51,8 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_create_r, rmatrix, bmatrix, lambda, zvals, filterlist, zmin=zmin, zmax=zmax, nz=nz, filterpath=filterpath
+pro k_create_r, rmatrix, bmatrix, lambda, zvals, filterlist, zmin=zmin, $
+                zmax=zmax, nz=nz, filterpath=filterpath, system=system
 
 klog,'Creating rmatrix ...'
 
@@ -55,8 +60,27 @@ klog,'Creating rmatrix ...'
 if (NOT keyword_set(zmin)) then zmin=1.0e-4
 if (NOT keyword_set(zmax)) then zmax=1.0e-0
 if (NOT keyword_set(nz)) then nz=1000l
+if (NOT keyword_set(system)) then system='AB'
 if(NOT keyword_set(filterpath)) then $
   filterpath=getenv('KCORRECT_DIR')+'/data/filters'
+
+; set g(nu)
+if(system eq 'AB') then begin
+    ; glambda is specified as 10.^{glambdaexp} * glambda
+    glambdaexp=0.
+    i=lindgen(n_elements(lambda)-1L)
+    ip1=i+1
+    glambda=2.99792*3.631e-2/(0.5*(lambda[i]+lambda[ip1]))^2
+endif else begin
+    if(file_test(system)) then begin
+        k_load_ascii_table,glambda,system
+        glambdaexp=0.
+        glambda=glambda*10.^(-glambdaexp)
+    endif else begin
+        klog,'No such magnitude system: '+system
+        return
+    endelse
+endelse
 
 ; Set zvals 
 zvals=zmin+(zmax-zmin)*(dindgen(nz)+0.5)/double(nz)
@@ -77,7 +101,8 @@ retval=call_external(soname, 'idl_k_create_r', double(rmatrix), $
                      long(nk), long(nb), double(bmatrix), $
                      double(lambda), long(nl), double(zvals), long(nz), $
                      long(filter_n), double(filter_lambda), $
-                     double(filter_pass), long(max(filter_n)))
+                     double(filter_pass), long(max(filter_n)), $
+                     double(glambda), double(glambdaexp))
 
 klog,'Done.'
 
