@@ -1,3 +1,9 @@
+NOTES:
+
+note dependence on idlutils
+better notes on how to calc kcorrection using reconstruct_maggies
+sawtooth behavior --- diagnose
+
 recommendation for use of JHK?? -- use v5_4
 2MASS photometry checks
 switch to v5_4 (at level of vagc, though)

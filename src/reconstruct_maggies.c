@@ -11,6 +11,9 @@
  * given coefficients, a redshift, a filterlist, and the templates,
  * reconstruct the maggies at particular redshift
  *
+ * ??? EXPLAIN MORE CAREFULLY HOW K_PROJECTION_TABLE WORKS AND 
+ * HOW TO CONVERT TO KCORRECTIONS
+ *
  * Mike Blanton
  * 7/2003
  */

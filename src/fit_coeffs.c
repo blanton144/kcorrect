@@ -19,7 +19,7 @@
 static IDL_LONG nz=1000;
 static IDL_LONG maxiter=10000;
 static float tolerance=1.e-6;
-static float zmin=1.e-4, zmax=1.e-0;
+static float zmin=0., zmax=1.e-0;
 static float band_shift=0.;
 
 static float *lambda=NULL;

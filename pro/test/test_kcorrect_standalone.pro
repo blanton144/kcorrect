@@ -3,6 +3,10 @@ pro test_kcorrect_standalone,failed
 ; run reconstruction of maggies at the current redshift and 
 ; at redshift zero
 testfile=getenv('KCORRECT_DIR')+'/test/sample.dat'
+cmd='cat '+testfile+' | fit_coeffs '+ $
+  ' >! '+getenv('KCORRECT_DIR')+'/test/coeffs.dat'
+print,cmd
+spawn,cmd
 cmd='cat '+testfile+' | fit_coeffs | reconstruct_maggies'+ $
   ' >! '+getenv('KCORRECT_DIR')+'/test/maggies.dat'
 print,cmd
