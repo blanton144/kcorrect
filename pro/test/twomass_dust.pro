@@ -53,10 +53,30 @@ range=[[0.,1.], $
        [-23.,-17.], $
        [-2.,10.], $
        [0.5,2.]]
-hogg_manyd_scatterplot, fltarr(ndata)+1., data, 'color.ps', range=range
-hogg_manyd_meanplot, fltarr(ndata)+1., data, ndims-1L, 'color_vs_ba.ps', $
+
+hogg_manyd_scatterplot, fltarr(ndata)+1., data[*,jj], 'color.ps', range=range
+hogg_manyd_meanplot, fltarr(ndata)+1., data[*,jj], ndims-1L, $
+  'color_vs_ba.ps', $
   xdims=lonarr(ndims-1),ydims=lindgen(ndims-1), levels=0.1*findgen(20), $
-  dbin=[0.2,0.1,1.0,1.,0.1], range=range
+  dbin=[0.2,0.1,1.0,2.,0.1], range=range
+
+nn=6
+for i=1L, 3L do begin
+    for j=0L, nn-1L do begin
+        lo=range[0,i]+(range[1,i]-range[0,i])*float(j)/float(nn)
+        hi=range[0,i]+(range[1,i]-range[0,i])*float(j+1)/float(nn)
+        jj=where(data[i,*] gt lo and data[i,*] lt hi, jjcount)
+        if(jjcount gt 0) then begin
+            ndata=n_elements(jj)
+            hogg_manyd_meanplot, fltarr(ndata)+1., data[*,jj], ndims-1L, $
+              'color_vs_ba_'+strtrim(string(i),2)+'_'+ $
+              strtrim(string(j),2)+'.ps', $
+              xdims=lonarr(ndims-1),ydims=lindgen(ndims-1), $
+              levels=0.1*findgen(20), $
+              dbin=[0.2,0.1,1.0,2.,0.1], range=range
+        endif
+    endfor
+endfor
 
 stop
 
