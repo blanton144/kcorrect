@@ -13,6 +13,8 @@
 ; OPTIONAL INPUTS:
 ;   filterpath    - path for filters (default '$KCORRECT_DIR/data/filters')
 ;   band_shift    - shift the bands blueward by factor (1+band_shift)
+; KEYWORDS:
+;   silent        - shut up
 ; OUTPUTS:
 ;   rmatrix       - look up table for vmatrix and filter information 
 ;                   [N_z, N_dim, N_band]
@@ -39,7 +41,7 @@
 ;------------------------------------------------------------------------------
 pro k_projection_table, rmatrix, vmatrix, lambda, zvals, filterlist, $
                         zmin=zmin,zmax=zmax, nz=nz, filterpath=filterpath, $
-                        band_shift=band_shift
+                        band_shift=band_shift, silent=silent
 
 if(n_params() ne 5) then begin
     print,'Syntax - k_projection_table, rmatrix, vmatrix, lambda, zvals, filterlist '
@@ -49,7 +51,7 @@ endif
 
 if(NOT keyword_set(band_shift)) then band_shift=0.
 
-klog,'Creating rmatrix ...'
+if(NOT keyword_set(silent)) then klog,'Creating rmatrix ...'
 
 ; Set defaults
 if (n_elements(zmin) eq 0) then zmin=0.0
@@ -79,7 +81,7 @@ retval=call_external(soname, 'idl_k_projection_table', float(rmatrix), $
                      float(filter_pass), float(band_shift), $
                      long(max(filter_n)))
 
-klog,'Done.'
+if(NOT keyword_set(silent)) then klog,'Done.'
 
 end
 ;------------------------------------------------------------------------------

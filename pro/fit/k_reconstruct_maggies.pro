@@ -12,6 +12,8 @@
 ;   redshift      - [ngals] redshift for each galaxy (where you want to
 ;                   calculate maggies in model) 
 ; OPTIONAL INPUTS:
+; KEYWORDS:
+;   silent        - shut up
 ; OUTPUTS:
 ; OPTIONAL INPUT/OUTPUTS:
 ;   filterlist    - [nk] list of files with filter information 
@@ -53,7 +55,7 @@ pro k_reconstruct_maggies,coeffs,redshift,reconstruct_maggies, $
                           band_shift=band_shift,zvals=zvals, $
                           rmatrix=rmatrix,vmatrix=vmatrix,lambda=lambda, $
                           filterpath=filterpath, filterlist=filterlist, $
-                          zmin=zmin,zmax=zmax,nz=nz
+                          zmin=zmin,zmax=zmax,nz=nz,silent=silent
 
 ; Need at least 3 parameters
 if (N_params() LT 3) then begin
@@ -68,7 +70,8 @@ nv=long(n_elements(coeffs))/ngalaxy
 if (keyword_set(vmatrix) AND keyword_set(filterlist) AND keyword_set(lambda)) $
   then begin
     k_projection_table, rmatrix, vmatrix, lambda, zvals, filterlist, $
-      zmin=zmin,zmax=zmax, nz=nz, filterpath=filterpath, band_shift=band_shift
+      zmin=zmin,zmax=zmax, nz=nz, filterpath=filterpath, $
+      band_shift=band_shift, silent=silent
 endif else if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
     klog, 'need to specify rmatrix and zvals or vmatrix, lambda and filterlist'
     return
