@@ -31,7 +31,7 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_speck_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample,to_z=to_z,zrange=zrange,usefiber=usefiber,lumlim=lumlim
+pro k_speck_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample,to_z=to_z,zrange=zrange,usefiber=usefiber,lumlim=lumlim, primtargetmask=primtargetmask
 
 if(NOT keyword_set(version)) then version='default'
 if(NOT keyword_set(vpath)) then vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
@@ -40,7 +40,7 @@ if(NOT keyword_set(to_z)) then to_z=0.25
 if(NOT keyword_set(zrange)) then zrange=[0.,0.2]
 
 if(keyword_set(usefiber)) then begin
-    restore,'main.default.sav'
+    restore,usefiber
     spfull=sp
 endif
 
@@ -64,8 +64,11 @@ nk=long(n_elements(galaxy_maggies))/ngalaxy
 
 if(n_elements(subsample) eq 0) then subsample=1l
 indx=lindgen(ngalaxy/long(subsample))*long(subsample)
+if(keyword_set(primtargetmask)) then begin
+    indx2=indx[where((sp[indx].primtarget and 64) gt 0)]
+    indx=indx2
+endif
 galaxy_z=galaxy_z[indx]
-
 
 if(keyword_set(usefiber)) then begin
     spherematch,sp.ra,sp.dec,spfull.ra,spfull.dec,1.d/3600.d, $
@@ -73,7 +76,7 @@ if(keyword_set(usefiber)) then begin
     isort=sort(match1)
     tmpmags=spfull[match2[isort[indx]]].fibercounts[*]
     tmpmagserr=spfull[match2[isort[indx]]].fibercountserr[*]
-    maglimit=dblarr(5)+22.5
+    maglimit=dblarr(5)+23.5
     errlimit=dblarr(5)+0.8
     k_fix_mags,galaxy_z,tmpmags,tmpmagserr,maglimit,errlimit,8l
     galaxy_maggies=dblarr(5,n_elements(indx))
@@ -82,7 +85,7 @@ if(keyword_set(usefiber)) then begin
     for k = 0,4 do begin
         galaxy_maggies[k,*]= $
           10.d^(-0.4d*(tmpmags[k,*] $
-                       -spfull[match2[isort[indx]]].reddening[k]))
+                       -0.*spfull[match2[isort[indx]]].reddening[k]))
         galaxy_invvar[k,*]=galaxy_maggies[k,*]*0.4d*alog(10.d)* $
           sqrt(tmpmagserr[k,*]^2+errband[k]^2)
         galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)

@@ -45,7 +45,7 @@ if(n_elements(omega0) eq 0) then omega0=0.3d
 if(n_elements(omegal0) eq 0) then omegal0=0.7d
 if(n_elements(lumlim) eq 0) then lumlim=[-21.3,-21.0]
 if(n_elements(zrange) eq 0) then zrange=[0.,0.5]
-if(n_elements(zsplit) eq 0) then zsplit=0.13
+if(n_elements(zsplit) eq 0) then zsplit=[0.05,0.1,0.15]
 
 restore,savfile
 if(n_elements(sp) gt 0) then galaxy_z=sp.z
@@ -157,14 +157,16 @@ for k=0l, nk-2 do begin
 ;      '!4r!3='+strtrim(string(sig,format='(f8.2)'),2), $
 ;      charsize=1.*axis_char_scale,charthick=5
     hindx=where(color gt mn-nsig*sig and color lt mn+nsig*sig and $
-                galaxy_z[useindx] lt zsplit)
+                galaxy_z[useindx] gt zsplit[0] and $
+                galaxy_z[useindx] lt zsplit[1])
     hmax=mn+nsig*sig
     hmin=mn-nsig*sig
     hbins=30
     colorvals=hmin+(hmax-hmin)*(dindgen(hbins)+0.5)/double(hbins)
     colorhistlo=histogram(color[hindx],nbins=hbins,max=hmax,min=hmin)
     hindx=where(color gt mn-nsig*sig and color lt mn+nsig*sig and $
-                galaxy_z[useindx] gt zsplit)
+                galaxy_z[useindx] gt zsplit[1] and $
+                galaxy_z[useindx] lt zsplit[2])
     colorhisthi=histogram(color[hindx],nbins=hbins,max=hmax,min=hmin)
     colorhistloerr=sqrt(colorhistlo)
     zindx=where(colorhistloerr eq 0,count)
