@@ -331,11 +331,12 @@ Baltimore, MD 21218
 %% does not have this information. The dates will be filled in by the
 %% editorial office after submission.
 \begin{abstract}
-Certain astronomical questions, such as the evolution of the
-luminosity function of galaxies and the relationship between galaxy
-luminosities and galaxy colors, require transforming inherently
-redshift-dependent measurements of galaxy magnitudes into measures of
-galaxy properties which are consistent over a range of redshifts.  To
+Broad-band measurements of galaxy flux suffer from the difficulty that
+they probe different regions of the rest-frame galaxy spectrum for
+galaxies at different redshifts.  Certain astronomical questions, such
+as the evolution of the luminosity function of galaxies, require
+transforming these inherently redshift-dependent measurements of
+galaxy magnitudes into redshift-independent quantities. To prepare to
 address these astronomical questions, investigated in detail in
 subsequent papers, we implement here the method of \citet{csabai00a}
 for fitting spectral energy distributions (SEDs) to broad-band
@@ -385,14 +386,14 @@ is fast, robust, and consistent over a large range of redshifts.
 This task is nontrivial because SEDs of galaxies contain important
 information on scales considerably smaller than the width of typical
 broad-band filters. It is further complicated by the fact that SEDs of
-distant galaxies are redshifts due to the expansion of the
+distant galaxies are redshifted due to the expansion of the
 universe. Thus, the more distant the galaxy, the further the observed
 bandpass is blueshifted relative to the rest-frame spectral energy
-distribution of the object observed. 
+distribution of the object observed.
 
-In the past, accounting for these effects has in general come in the
-form of ``$K$-corrections'' applied to the observed magnitudes. That
-is, a function $K(z)$ is added to the standard cosmological bolometric
+In the past, people have in general accounted for these effects using
+``$K$-corrections'' applied to the observed magnitudes. That is, a
+function $K(z)$ is added to the standard cosmological bolometric
 distance modulus $\mathrm{DM}(z)$. Sometimes a single function has
 been applied regardless of the galaxy type, though more recently it
 has become standard to use a discrete set of $K(z)$ functions
@@ -477,10 +478,8 @@ large. In principle, this should be a complete set of galaxy SEDs if
 we want to express {\it any} galaxy SED in this basis set; in
 practice, this property is not necessary.  Given a set of
 $\vv{v}_i(\lambda)$, one can find an orthonormal set of spectra
-$\vv{b}_i(\lambda)$ spanning the space. 
-
-To be more precise, we define the dot-product in the space of galaxy
-spectra to be:
+$\vv{b}_i(\lambda)$ spanning the space.  To be more precise, we define
+the dot-product in the space of galaxy spectra to be:
 \begin{equation}
 \vv{v}_i \cdot \vv{v}_j =
 \int_{\lambda_{\mathrm{min}}}^{\lambda_{\mathrm{max}}} d\lambda
@@ -489,22 +488,21 @@ v_i(\lambda) v_j(\lambda),
 where $\lambda_{\mathrm{min}}$ and $\lambda_{\mathrm{max}}$ define the
 wavelength range used to define orthogonality. These limits are
 defined not over the full range covered by the $\vv{v}_i(\lambda)$
-spectra, but instead over a smaller range corresponding to the range
-which is within the observed wavelength range over most of the
-redshift range of the sample. Otherwise, orthogonality is defined in
-terms of regions of the spectra which are poorly constrained, which
-make interpretation of the fits inconvenient.  This choice does not
-affect the results for the reconstructed SED fit quantitatively
-whatsoever.\footnote{If the template spectra were identical in the
-subrange chosen and only differed outside of it, this choice would
-cause computational problems, but in fact the spectra are all
-independent in the restricted, as well as the full, wavelength range.}
-We then define the basis of the SED space such that the $N_b$ template
-SEDs, $\vv{v}_i$, are linear combinations of $N_b$ basis spectra
-$\vv{b}_i$ and that $\vv{b}_i \cdot \vv{b}_j = \delta_{ij}$. These
-conditions do not fully specify the $\vv{b}_i$, which naturally may be
-rotated arbitrarily within our $N_b$-dimensional subspace of spectral
-space.  
+spectra, but instead over a smaller range which is within observable
+wavelengths over most of the redshift range of the sample. If we
+defined orthogonality over the full range of $\vv{v}(\lambda)$, much
+of which is unobservable, it would complicate the interpretation of
+our fits.  This choice does not affect the results for the
+reconstructed SED fit quantitatively whatsoever.\footnote{If the
+template spectra were identical in the subrange chosen and only
+differed outside of it, this choice would cause computational
+problems, but in fact the spectra are all independent in the
+restricted, as well as the full, wavelength range.}  We then define
+the basis of the SED space such that the $N_b$ template SEDs,
+$\vv{v}_i$, are linear combinations of $N_b$ basis spectra $\vv{b}_i$
+and that $\vv{b}_i \cdot \vv{b}_j = \delta_{ij}$. These conditions do
+not fully specify the $\vv{b}_i$, which naturally may be rotated
+arbitrarily within our $N_b$-dimensional subspace of spectral space.
 
 In our case the number of observed bands is less than $N_b$, so we
 cannot determine an individual galaxy's position in this
@@ -525,9 +523,10 @@ reconstructed flux
 $F_{\mathrm{rec},il}$ in each survey bandpass by projecting
 the model SED onto the bandpass $l$: 
 \begin{equation}
-F_{\mathrm{rec},il} = \int_0^\infty d\lambda f(\lambda) S(\lambda),
+F_{\mathrm{rec},il} = \int_0^\infty d\lambda
+f_{\mathrm{rec},i}(\lambda) S_l(\lambda),
 \end{equation}
-where $S(\lambda)$ is the response of the instrument.  We define
+where $S_l(\lambda)$ is the response of the instrument in band $l$.  We define
 \begin{equation}
 \chi^2 = \sum_i \sum_l
 \frac{(F_{\mathrm{obs},il}-F_{\mathrm{rec},il})^2}{\sigma_{il}^2},
@@ -574,10 +573,10 @@ $a_i/a_0$ tend to be distributed very approximately in an ellipsoid,
 with not much curvature within the space defined by the template
 SEDs. Thus, we rotate the axes $\vv{e}_i$ (for $i>0$) such that they
 are aligned with the principal axes of the ellipsoid. Furthermore, we
-normalize the vectors $\vv{e}_i$ such that the $a_0=F_t$ in units of
-ergs cm$^{-2}$ s$^{-1}$. This choice of coordinate system is
-arbitrary and does not affect our quantitative results, but it is
-convenient.
+normalize the vectors $\vv{e}_i$ such that the zeroth component
+$a_0=F_t$ is in units of ergs cm$^{-2}$ s$^{-1}$. This choice of
+coordinate system is arbitrary and does not affect our quantitative
+results, but it is convenient.
 
 In this way, we can reconstruct SEDs based on the broad-band
 magnitudes of galaxies. From these reconstructed SEDs one can estimate
@@ -587,7 +586,7 @@ templates determined during the procedure can, of course, be used to
 estimate photometric redshifts, as \citet{csabai00a} and
 \citet{budavari00a} describe.
 
-The version of the $K$-correction code (v1\_2) implementing the
+The version of the $K$-correction code ({\tt v1\_2}) implementing the
 calculations described here, along with eigentemplates and filter
 curves is publicly available on the World Wide Web at {\tt
 http://physics.nyu.edu/\~\ mb144/kcorrect}. In addition, a public CVS
@@ -596,7 +595,7 @@ the appropriate version of the code from this repository are provided
 on the web page noted above. The whole of the code can be used through
 the Research Systems, Incorporated, IDL language; everything except
 for the template-fitting also exists in stand-alone C programs (which
-calls the same routines, guaranteeing consistency).
+call the same routines, guaranteeing consistency).
 
 \section{Application to SDSS Data}
 \label{data}
@@ -648,7 +647,6 @@ m_{AB} &=& -2.41 - 2.5 \log_{10}\left[
 &=& -48.60 - 2.5 \log_{10}\left[
 \frac{\int_{0}^{\infty} d\nu \nu^{-1} f(\nu) R(\nu)}
 {\int_{0}^{\infty} d\nu \nu^{-1} R(\nu)}\right],
-\cr
 \end{eqnarray}
 where $R(\lambda)$ is the fraction of photons entering the Earth's
 atmosphere which are detected as a function of wavelength (a unitless
