@@ -38,6 +38,7 @@ calibobj=calibobj[ii]
 zline=zline[*,ii]
 dm=lf_distmod(kcorrect.z, omega0=0.3, omegal0=0.7) 
 absmk=22.5-2.5*alog10(kcorrect.abmaggies[7])-dm-kcorrect.kcorrect[7]
+rmk=-2.5*alog10(kcorrect.abmaggies[2]/kcorrect.abmaggies[7])
 
 ndata=n_elements(absmk)
 ndims=5
@@ -47,7 +48,6 @@ data[1,*]=calibobj.fracpsf[2]
 data[2,*]=absmk
 data[3,*]=zline[17,*].lineew
 data[4,*]=rmk
-rmk=-2.5*alog10(kcorrect.abmaggies[2]/kcorrect.abmaggies[7])
 range=[[0.,1.], $
        [0.,1.], $
        [-23.,-17.], $
