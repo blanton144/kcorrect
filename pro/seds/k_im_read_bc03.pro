@@ -291,7 +291,7 @@ function k_im_read_bc03, isedfile=isedfile, isedpath=isedpath, metallicity=metal
           print, 'Reading SSP file '+isedpath+isedfile+':'
           print, imfinfo+', '+resinfo+', '+Zinfo
        endif
-       tempbin = read_binary(isedpath+isedfile,data_type=4)
+       tempbin = read_binary(isedpath+isedfile,data_type=4, endian='little')
     endif else begin
        print, 'SSP file '+isedpath+isedfile+' not found.'
        return, -1L

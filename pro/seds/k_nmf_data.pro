@@ -1,8 +1,8 @@
 ;+
 ; NAME:
-;   k_mmatrix
+;   k_nmf_data
 ; PURPOSE:
-;   make grid of BC03 model spectra for fitting
+;   put together data for nmf fitting
 ; CALLING SEQUENCE:
 ;   k_mmatrix [, outfile= ]
 ; COMMENTS:
