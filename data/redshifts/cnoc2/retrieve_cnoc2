@@ -113,3 +113,20 @@ for($i=0;$i<$num;$i++) {
 	$Rmag_ivar, $Imag_ivar;
 }
 close(fp);
+
+open(pp,"|idl");
+print pp <<EOF;
+a=yanny_readone('cnoc2.par') 
+b1=create_struct(a[0],'ra',0.D,'dec',0.D)
+b=replicate(b1,n_elements(a))
+struct_assign,a,b
+jprecess,b.ra1950,b.dec1950,ra,dec
+b.ra=ra
+b.dec=dec
+mwrfits,b,'cnoc2.fits',/create
+obj=sdss_findobj(b.ra,b.dec,dmax=10./3600.,rerun=131,childobj=childobj)
+mwrfits,obj,'cnoc2-obj.fits',/create
+mwrfits,childobj,'cnoc2-childobj.fits',/create
+help,where(obj.matchdist*3600. lt 10.)
+EOF
+		close(pp);
