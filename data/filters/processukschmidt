@@ -30,9 +30,9 @@ while(<ifp>) {
 		$scale=$lambda/4500.;
 		$response=$_[1]/$scale;
 		printf ofp "%e %e\n",$lambda,$response;
-		} else {
-			print ofp "# $line";
-		}
+	} else {
+		print ofp "# $line";
+	}
 }
 close(ifp);
 close(ofp);
