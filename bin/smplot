@@ -81,6 +81,12 @@ for($i=0;$i<@arglist-1;$i+=2) {
 		print ofp "define $arglist[$i] <$arglist[$i+1]>\n";
 	} 
 }
+@arglist=%ENV;
+for($i=0;$i<@arglist-1;$i+=2) {
+	if($arglist[$i+1] ne "") {
+		print ofp "define $arglist[$i] <$arglist[$i+1]>\n";
+	} 
+}
 while(<ifp>) {
 	if (!(/^#.*/)) {
 		print ofp;
@@ -140,6 +146,12 @@ if (defined $savefile) {
   print ofp "ps$encap $savefile\n";
 	print ofp "define _mbfile \"$currdir/$infile\"\n";
 	@arglist=%args;
+	for($i=0;$i<@arglist-1;$i+=2) {
+		if($arglist[$i+1] ne "") {
+			print ofp "define $arglist[$i] <$arglist[$i+1]>\n";
+		} 
+	}
+	@arglist=%ENV;
 	for($i=0;$i<@arglist-1;$i+=2) {
 		if($arglist[$i+1] ne "") {
 			print ofp "define $arglist[$i] <$arglist[$i+1]>\n";

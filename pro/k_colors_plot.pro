@@ -82,11 +82,6 @@ k_reconstruct_maggies,coeff,to_z,recmaggies,version=version,vpath=vpath
 dm=2.5*alog10((2.99792e+8*lumdis(galaxy_z,omega0,omegal0))^2)
 lum=-2.5*alog10(recmaggies[2,*])-dm
 indx=where(lum gt lumlim[0] and lum lt lumlim[1] and $
-           recmaggies[0,*] gt 0.d and $
-           recmaggies[1,*] gt 0.d and $
-           recmaggies[2,*] gt 0.d and $
-           recmaggies[3,*] gt 0.d and $
-           recmaggies[4,*] gt 0.d and $
            galaxy_z lt zrange[1] and galaxy_z gt zrange[0] ,count)
 help,indx
 if(count eq 0) then begin
@@ -139,7 +134,9 @@ ncolor= n_elements(colorname)
 bands=['u','g','r','i','z']
 !Y.MARGIN=0.3*axis_char_scale*[1,5]
 for k=0l, nk-2 do begin
-    color=transpose(-2.5*alog10(recmaggies[k,indx]/recmaggies[k+1,indx]))
+    useindx=indx[where(recmaggies[k,indx] gt 0. and $
+                       recmaggies[k+1,indx] gt 0.)]
+    color=transpose(-2.5*alog10(recmaggies[k,useindx]/recmaggies[k+1,useindx]))
     mn=(djs_avsigclip(color,sigrej=5))[0]
     sig=djsig(color,sigrej=5)
     !X.CHARSIZE = 1.*axis_char_scale
@@ -154,20 +151,20 @@ for k=0l, nk-2 do begin
     if(n_elements(colorlimits) gt 0) then begin
         !Y.RANGE=colorlimits[*,k]
     endif
-    djs_plot,galaxy_z[indx], color, psym=3,xst=1,yst=1
+    djs_plot,galaxy_z[useindx], color, psym=3,xst=1,yst=1
 ;    xyouts,!X.RANGE[1]-0.18*(!X.RANGE[1]-!X.RANGE[0]), $
 ;      !Y.RANGE[0]+0.08*(!Y.RANGE[1]-!Y.RANGE[0]), $
 ;      '!4r!3='+strtrim(string(sig,format='(f8.2)'),2), $
 ;      charsize=1.*axis_char_scale,charthick=5
     hindx=where(color gt mn-nsig*sig and color lt mn+nsig*sig and $
-                galaxy_z[indx] lt zsplit)
+                galaxy_z[useindx] lt zsplit)
     hmax=mn+nsig*sig
     hmin=mn-nsig*sig
     hbins=30
     colorvals=hmin+(hmax-hmin)*(dindgen(hbins)+0.5)/double(hbins)
     colorhistlo=histogram(color[hindx],nbins=hbins,max=hmax,min=hmin)
     hindx=where(color gt mn-nsig*sig and color lt mn+nsig*sig and $
-                galaxy_z[indx] gt zsplit)
+                galaxy_z[useindx] gt zsplit)
     colorhisthi=histogram(color[hindx],nbins=hbins,max=hmax,min=hmin)
     colorhistloerr=sqrt(colorhistlo)
     zindx=where(colorhistloerr eq 0,count)

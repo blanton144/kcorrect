@@ -672,8 +672,8 @@ from the models of \citealt{bruzual93a}).
 
 We extract one-dimensional spectra from the two-dimension images using
 a pipeline created specifically for the SDSS instrumentation
-(\citealt{schlegel02a}). We also use redshifts determined by the same
-pipeline; the official SDSS redshifts are obtained from a different
+(\citealt{schlegel02a}), which also fits for the redshift of each
+spectrum. The official SDSS redshifts are obtained from a different
 pipeline (\citealt{subbarao02a}). The two independent versions provide
 a consistency check on the redshift determination. They are consistent
 (for galaxies) at over the 99\% level.\footnote{The official pipeline
@@ -697,8 +697,12 @@ by the lead author of this paper!)  not to mix Petrosian and model
 magnitudes in a single analysis, since they measure galaxies in very
 different ways. Nevertheless, for the purposes of contraining galaxy
 template SEDs, it is perfectly acceptable to use {\it any}
-well-defined part of any galaxy.  We reddening-correct both types of
-magnitudes using the dust maps of \citet{schlegel98a}.
+well-defined part of any galaxy.  For our purposes, it is more
+important to have high signal-to-noise measurement for any
+well-defined part of our galaxies, even if the region of the galaxies
+probed and their total estimated fluxes are inconsistent with
+redshift. We extinction-correct both types of magnitudes using the
+dust maps of \citet{schlegel98a}.
 
 \subsection{Fitting SEDs to SDSS Data}
 
@@ -711,7 +715,10 @@ redshifts. In addition, we add results from galaxies in several plates
 (totalling about 1,000 objects) which were selected by a photometric
 redshift algorithm ({\bf ref who?}) to be at around $z\sim
 0.3$--$0.4$. These objects are invaluable for tying down the blue end
-of the templates.
+of the templates. Finally, we exclude galaxies in the redshift range
+$0.28 <z<0.32$ from the fit for the templates, for reasons which we
+will explain more fully below (nevertheless, we still can and do use
+the resulting templates to analyze galaxies in this range).
 
 Some of the objects have missing or poorly constrained data. For
 example, the $u$- or $z$-band fluxes for some objects are swamped by
@@ -738,7 +745,7 @@ deviation of $\sigma = 300$\AA; around 4000\AA, we smooth only with
 $\sigma = 150$\AA.
 
 We choose to fit for $N_t = 4$ eigentemplates, the maximum one can use
-and still fit allow freedom to fit for the templates themselves. Since
+and still allow freedom to fit for the templates themselves. Since
 galaxies live in a low-dimensional space, we find it is worth being
 able to fit for the templates. Simply using five templates (which
 obviously reproduces all the magnitudes exactly) tends to yield
@@ -789,39 +796,102 @@ An important test of the reasonableness of the fits is to check that
 for a fixed type of galaxy, the distribution of the fixed frame colors
 depends little on redshift. Because the galaxies shown in Figures
 \ref{k_coeffdist_plot} and \ref{k_model_plot} are inhomogeneously
-selected --- some are Main Sample
+selected --- some are Main Sample galaxies, some are Luminous Red
+Galaxies, and some are selected from the photometric redshift plates
+--- we will split our sample into two well-defined sets of
+objects. First, we choose a set of Main Sample galaxies in the
+luminosity range $-21.5 < M_{\band{0.1}{r}} < -21$. We reconstruct the
+four colors $^{0.1}(u-g)$, $^{0.1}(g-r)$, $^{0.1}(r-i)$, and
+$^{0.1}(i-z)$ for these galaxies and plot the reconstructions as a
+function of redshift in left-hand panels of Figure
+\ref{main_colors_plot}. The plots show a general consistency in the
+fixed-frame color distribution of these objects with redshift. The
+right-hand panels show the distribution for redshifts $z<0.13$ (solid
+histogram) and $z>0.13$ (dotted histogram) . Small changes are
+discernible in the distributions, mostly attributable to the increased
+errors at higher redshift. Note that for $z<0.1$ the $^{0.1}(u-g)$
+color depends on an extrapolation of the SED in the blue, while for
+$z>0.1$ the $^{0.1}(i-z)$ color depends on an extrapolation of the SED
+in the red.
 
-We must be careful in performing this check that
-we are comparing Figures \ref{coeffs1}--\ref{coeffs4} demonstrates
-this to be the case for galaxies in several luminosity ranges. The
-left column of Figure \ref{coeffs1} shows the three coefficient ratios
-$a_i/a_0$ for each galaxy as a function of redshift. The right column
-shows the distribution of these coefficient ratios for two redshift
-ranges, showing that they are nearly consistent. The resulting change
-in the color distribution inferred from these coefficients is
-similarly small, at the level of what one would expect intrinsic
-evolution to cause.
+Second, we choose a set of Cut I LRGs with $-22.8 < M_{\band{0.1}{r}}
+< -22.5$. Now we reconstruct the colors to a fixed-frame corresponding
+to the rest-frame bands used to observe a galaxy at $z=0.3$.  Near
+$z=0.3$ there is some singular behavior of the colors, which we will
+discuss in more detail later. Again, for $z<0.3$ the $^{0.3}(u-g)$
+color relies on an extrapolation, which is probably responsible for
+the scatter in that color at low redshifts. Otherwise, the
+distribution of colors is remarkably constant. $^{0.3}(g-r)$ (which is
+very similar to $^{0.0}(u-g)$) experiences a blueward shift of about
+0.1 magnitudes between $z=0.1$ and $z=0.45$, which is attributable to
+passive evolution.
 
 In short, these fits to galaxy SEDs provide estimates which reproduce
 the galaxy photometry nearly to the level of the errors in the
 photometry itself, seem physically reasonable, and are consistent over
-the range of redshifts we consider ($0.0. < z < 0.5$).
+the range of redshifts we consider ($0.0 < z < 0.5$). The only
+remaining problem is the aforementioned difficulties at $z=0.3$,
+discussed in more detail in the next section.
+
+\section{The $g$/$r$ Gap}
+\label{grgap}
+
+It is clear from Figure \ref{k_kcorrect_plot} that $z=0.3$ is a
+special redshift regime where our fits become unphysical. In fact, it
+is easy to demonstrate that the diagonal spur (going from the upper
+left to the lower right) around the red dot in the upper right panel
+of Figure \ref{k_coeffdist_plot} is due to galaxies at $z\sim
+0.3$. The difficulty arises because the 4000 \AA\ break lies in the
+gap between $g$ and $r$ at $z=0.3$. The algorithm requires strong
+gradients in the spectrum in this area to explain the 4000\AA break
+--- however, the gap in the bands causes a degeneracy arise. 
+
+To demonstrate this degeneracy, Figure \ref{spur} shows the spectrum
+corresponding to the direction of the spur in the $a_1/a_0$-$a_3/a_0$
+plane of Figure \ref{k_coeffdist_plot}. We overplot the \band{0.3}{g}
+and \band{0.3}{r} bands. The spur has a strong peak in the gap between
+the two bands at $z=0.3$. Because of this gap, at $z\sim 0.3$ the
+algorithm tends to use this direction to help fit the $u$, $i$, and
+$z$ fluxes, with relatively little harm done to the $g$ and $r$
+fits. This explains why the reconstructed fluxes in Figure
+\ref{k_model_plot} fit well even at $z=0.3$, even though the spur at
+$z=0.3$ in the distribution of coefficients is so evident.  This
+difficulty is why, in Section \ref{data}, we exclude the regime around
+$z\sim 0.3$; otherwise the templates became distracted by the
+degeneracies in this regime.
+
+The question arises of what to do about this problem. One solution is
+to simply work around it. It is clear we cannot use the fits presented
+here to $K$-correct galaxies which are at $z=0.3$ to other redshifts
+reliably. However, nothing prevents one from $K$-correcting galaxies
+at other redshifts {\it to} $z=0.3$. If you are considering the LRG
+sample, the median redshift is close to $z=0.3$ anyway, so this is a
+viable solution (and the one adopted in Figure \ref{lrg_colors_plot}).
+
+A second solution, not adopted here, is to place stronger constraints
+in the SED fit on the form of the 4000 \AA\ break. One obvious way of
+doing this is to use the spectra to constrain the size of the break
+(making it a weak constraint to prevent biases). This constraint could
+be applied in a linear fashion to retain the speed of our method ---
+except for the fact that you would have to read in the spectra to
+apply the $K$-correction. For simplicity, and because the aforemention
+work-around is so easy to obey, we have not implemented this solution
+here.
 
 \section{$K$-corrections}
 \label{kcorrection}
 
 \subsection{Calculating $K$-corrections}
 
-With a model of the rest-frame galaxy SED in hand, it is 
-straightforward to project that SED onto a filter corresponding to 
-an observation at any redshift, and predict the so-called
-$K$-correction to the galaxy magnitude in order to compare galaxies 
-at different redshifts. One simply calculates the AB magnitude at 
-any redshift as:
+With a reconstruction of the rest-frame galaxy SED in hand, it is
+straightforward to project that SED onto a filter corresponding to an
+observation at any redshift, and predict the so-called $K$-correction
+to the galaxy magnitude in order to compare galaxies at different
+redshifts. One simply calculates the AB magnitude at any redshift as:
 \begin{equation}
-m_{AB} = -2.41 - 2.5 \log_{10}\left[
+m_{AB,\mathrm{rec}} = -2.41 - 2.5 \log_{10}\left[
 \frac{\int_{0}^{\infty} d\lambda \frac{\lambda}{1+z}
-f(\frac{\lambda}{1+z}) R(\lambda)}
+f_{\mathrm{rec}}(\frac{\lambda}{1+z}) R(\lambda)}
 {\int_{0}^{\infty} d\lambda \lambda^{-1} R(\lambda)}\right].
 \end{equation}
 The simple way to think about this equation is that simply moving away

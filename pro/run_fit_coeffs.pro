@@ -50,7 +50,8 @@ if(NOT keyword_set(modelzlim)) then modelzlim=0.25
 
 columns=['z','petrocounts','petrocountserr','counts_model','counts_modelerr', $
          'reddening','class', 'ra', 'dec', 'plate','tile','fiberid', 'run', $
-         'rerun', 'camcol','field','id','primtarget']
+         'rerun', 'camcol','field','id','primtarget','fibercounts', $
+         'fibercountserr']
 
 ; Read the necessary columns from spAll.fits
 openr,unit,spfile,/get_lun
