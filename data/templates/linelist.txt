@@ -1,0 +1,22 @@
+; Name vacuum-wavelength abs/em/both
+;
+ MgII   2800.32   em
+ OII    3728.30   em
+ CaK    3934.777  abs
+ CaH    3969.588  abs
+ G      4305.61   abs
+ Hbeta  4862.68   both
+ OIII   4960.295  em 
+ OIII   5008.240  em
+ Mg     5176.7    abs
+ Na     5895.6    abs
+ NII    6549.86   em
+ Halpha 6564.61   both
+ NII    6585.27   em
+ SII    6718.29   em
+ SII    6732.67   em
+
+
+
+
+
