@@ -29,8 +29,7 @@ endif else begin
 endelse
 
 ii=where(kcorrect.abmaggies[7] gt 0. and $
-         kcorrect.kcorrect[7] eq kcorrect.kcorrect[7] and $
-         kcorrect.z gt 0.04 and kcorrect.z lt 0.07)
+         kcorrect.kcorrect[7] eq kcorrect.kcorrect[7])
 twomass=twomass[ii]
 im=im[ii]
 sp=sp[ii]
