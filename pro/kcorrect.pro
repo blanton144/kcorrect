@@ -23,6 +23,9 @@
 ;   version       - version of templates to use (default 'default')
 ;   vpath   - path to templates (default $KCORRECT_DIR/data/etemplates)
 ;   maggies       - set if input and output in 10^{-0.4*mag}
+;   invvar        - if maggies is set, this means that magerr is
+;                   actually invvar
+;   sdssfix       - uses k_sdssfix to "fix" the SDSS magnitudes
 ;
 ; OUTPUTS:
 ;   galaxy_mag0   - K-corrected AB magnitudes
@@ -44,7 +47,14 @@
 ;
 ;   Be careful when sending SDSS "photo" outputs directly into this program.
 ;   Eg. occasionally the magnitudes or the errors have crazy values,
-;   such as -9999. The normal "garbage in, garbage out" rules apply.
+;   such as -9999. The normal "garbage in, garbage out" rules
+;   apply. However, I have supplied the /sdssfix flag, which does a
+;   reasonable job in most cases of identifying problem cases and
+;   doing something OK about it. If you really care about the u
+;   magnitudes of every single object, you will have to think harder,
+;   but if all you want is to K-correct gri magnitudes well, this 
+;   will probably do just fine. /sdssfix also adds photometric
+;   zeropoint errors (0.05,0.02,0.02,0.02,0.03) to the fit.
 ;
 ; EXAMPLES:
 ;
@@ -58,13 +68,13 @@
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff
+pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
     print, 'Syntax - kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, $'
     print, '        [kcorrectz=, version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=,$'
-    print, '         coeff=]'
+    print, '         coeff=, /sdssfix]'
     return
 endif
 
@@ -78,23 +88,40 @@ if(NOT keyword_set(vpath)) then $
 if(NOT keyword_set(version)) then $
   version='default'
 
+; Fix SDSS mags if desired
+if(keyword_set(sdssfix)) then begin
+   if(n_elements(rmatrix) gt 0 AND n_elements(zvals) gt 0 AND $
+      n_elements(ematrix) gt 0) then begin
+       k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
+         filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
+         ematrix=ematrix
+   endif else begin
+       k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
+	       version=version,vpath=vpath,filterpath=filterpath,rmatrix=rmatrix, $
+	       zvals=zvals,ematrix=ematrix
+   endelse
+endif
+
 ; Calculate maggies if necessary
 if(NOT keyword_set(maggies)) then begin
-    galaxy_flux=10.^(-0.4*galaxy_mag)
-    galaxy_invvar=1./(galaxy_flux*0.4*alog(10.)*galaxy_magerr)^2
+    galaxy_maggies=10.^(-0.4*galaxy_mag)
+    galaxy_invvar=1./(galaxy_maggies*0.4*alog(10.)*galaxy_magerr)^2
 endif else begin
-    galaxy_flux=galaxy_mag
-    galaxy_invvar=1./galaxy_magerr^2
+    galaxy_maggies=galaxy_mag
+    if(NOT keyword_set(invvar)) then $
+      galaxy_invvar=1./galaxy_magerr^2
+    if(keyword_set(invvar)) then $
+      galaxy_invvar=galaxy_magerr
 endelse 
 
 ; Calculate coeffs
 if(n_elements(rmatrix) gt 0 AND n_elements(zvals) gt 0 AND $
    n_elements(ematrix) gt 0) then begin
-    k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z,coeff, $
+    k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff, $
       filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
       ematrix=ematrix
 endif else begin
-    k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z,coeff,version=version, $
+    k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,version=version, $
       vpath=vpath,filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
       ematrix=ematrix
 endelse

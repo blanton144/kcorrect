@@ -9,7 +9,7 @@
 ;
 ; CALLING SEQUENCE:
 ;   kphotoz, galaxy_mag, galaxy_magerr, photoz, [coeffs=, version=, $
-;       vpath=, /maggies, rmatrix=, zvals=, ematrix=] 
+;       vpath=, /maggies, /invvar, rmatrix=, zvals=, ematrix=] 
 ;      
 ; INPUTS:
 ;   galaxy_mag    - AB magnitudes of galaxies [N_band, N_gal]
@@ -54,7 +54,8 @@ pro kphotoz, galaxy_mag, galaxy_magerr, photoz, coeffs=coeffs, version=version, 
 ; Need at least 6 parameters
 if (N_params() LT 3) then begin
     print, 'Syntax - kphotoz, galaxy_mag, galaxy_magerr, photoz [, coeffs=, $'
-    print, '         version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=]'
+    print, '         version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=, $'
+    print, '         /invvar]
     return
 endif
 
