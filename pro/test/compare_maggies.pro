@@ -18,12 +18,12 @@ hogg_plot_defaults, axis_char_scale=axis_char_scale,xold=xold,yold=yold, $
   pold=pold,default_font=default_font
 !P.MULTI=[0,1,nk]
 for i=0,nk-1 do $
-  plot,redshift,-2.5*alog10(recmaggies[i,*]/maggies[i,*]),yra=[-0.59,-0.59], $
+  plot,redshift,-2.5*alog10(recmaggies[i,*]/maggies[i,*]),yra=[-0.99,0.99], $
   psym=psym,xra=xrange
 !P.MULTI=[0,1,nk-1]
 for i=0,nk-2 do $
   plot,redshift,-2.5*alog10(recmaggies[i,*]/maggies[i,*])+ $
-  2.5*alog10(recmaggies[i+1,*]/maggies[i+1,*]),yra=[-0.59,0.59],psym=psym, $
+  2.5*alog10(recmaggies[i+1,*]/maggies[i+1,*]),yra=[-0.99,0.99],psym=psym, $
   xra=xrange
 device,/close
 set_plot,'x'

@@ -82,7 +82,8 @@ if(NOT keyword_set(nkmeans)) then nkmeans=10
 if(NOT keyword_set(sublmin)) then sublmin=1600.
 if(NOT keyword_set(sublmax)) then sublmax=25000.
 if(NOT keyword_set(filterlist)) then $
-  filterlist=['sdss_u0.par','sdss_g0.par', $
+  filterlist=['galex_FUV.par', 'galex_NUV.par', $
+              'sdss_u0.par','sdss_g0.par', $
               'sdss_r0.par','sdss_i0.par', $
               'sdss_z0.par','twomass_J.par', $
               'twomass_H.par','twomass_Ks.par']
@@ -106,6 +107,8 @@ if(not file_test(savfile)) then begin
                    ;gals.sdss_spectro_tag eq -1)
     ;use_indx=[use_indx,add_indx]
     use_indx=lindgen(n_elements(gals))
+    ;use_indx=where(gals.maggies_ivar[0] gt 0.)
+    help,use_indx
     coeffs=k_fit_nonneg(gals[use_indx].maggies, $
                         gals[use_indx].maggies_ivar,vmatrix, $
                         lambda,redshift=gals[use_indx].redshift, $
@@ -128,17 +131,19 @@ endelse
 
 orig_chi2=chi2
 
-fixindx=where(gals[use_indx].maggies_ivar[0] gt 0. or $
-              gals[use_indx].maggies_ivar[1] gt 0. or $
-              gals[use_indx].maggies_ivar[2] gt 0. or $
-              gals[use_indx].maggies_ivar[3] gt 0. or $
-              gals[use_indx].maggies_ivar[4] gt 0. or $
-              gals[use_indx].maggies_ivar[5] gt 0. or $
-              gals[use_indx].maggies_ivar[6] gt 0. or $
-              gals[use_indx].maggies_ivar[7] gt 0.)
-use_indx=use_indx[fixindx]
-coeffs=coeffs[*,fixindx]
-orig_chi2=orig_chi2[fixindx]
+;fixindx=where(gals[use_indx].maggies_ivar[0] gt 0. or $
+              ;gals[use_indx].maggies_ivar[1] gt 0. or $
+              ;gals[use_indx].maggies_ivar[2] gt 0. or $
+              ;gals[use_indx].maggies_ivar[3] gt 0. or $
+              ;gals[use_indx].maggies_ivar[4] gt 0. or $
+              ;gals[use_indx].maggies_ivar[5] gt 0. or $
+              ;gals[use_indx].maggies_ivar[6] gt 0. or $
+              ;gals[use_indx].maggies_ivar[7] gt 0. or $
+              ;gals[use_indx].maggies_ivar[8] gt 0. or $
+              ;gals[use_indx].maggies_ivar[9] gt 0.)
+;use_indx=use_indx[fixindx]
+;coeffs=coeffs[*,fixindx]
+;orig_chi2=orig_chi2[fixindx]
 gals=gals[use_indx]
 
 ;   for kicks, reconstruct maggies

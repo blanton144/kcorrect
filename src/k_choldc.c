@@ -12,7 +12,7 @@ void k_choldc(float *a, int n, float p[])
 			for (sum=a[i*n+j],k=i-1;k>=0;k--) sum -= a[i*n+k]*a[j*n+k];
 			if (i == j) {
 				if (sum <= 0.0) {
-					printf("ERROR: choldc failed (sum==%e)\n",sum);
+					fprintf(stderr,"ERROR: choldc failed (sum==%e)\n",sum);
 					return;
 				}
 				p[i]=sqrt(sum);

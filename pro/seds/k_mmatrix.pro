@@ -12,7 +12,7 @@
 pro k_mmatrix
 
 ;; make stellar pops
-bc03= im_read_bc03()
+bc03= k_im_read_bc03()
 iwave=where(bc03.wave gt 3000. and bc03.wave lt 10000., nwave)
 
 nages=3000L
@@ -49,7 +49,7 @@ endwhile
 nmets=6
 mets=[0,1,2,3,4,5]
 
-tmp_bc03= im_read_bc03(age=1.)
+tmp_bc03= k_im_read_bc03(age=1.)
 nl=n_elements(tmp_bc03.flux)
 
 wave=tmp_bc03.wave
@@ -57,7 +57,7 @@ loglam=alog10(wave)
 grid=fltarr(nl, nages, nmets)
 
 for im= 0L, nmets-1L do $
-  grid[*,*,im]= (im_read_bc03(met=mets[im])).flux[*,iuse]
+  grid[*,*,im]= (k_im_read_bc03(met=mets[im])).flux[*,iuse]
 
 navloglam=4000L
 avloglam=double(alog10(3500.)+(alog10(9500.)-alog10(3500.))* $

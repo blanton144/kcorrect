@@ -154,6 +154,11 @@ zmj00='!8!u0.0!n(z-J)!6'
 jmh00='!8!u0.0!n(J-H)!6'
 hmk00='!8!u0.0!n(H-K_s)!6'
 
+bumb00='!8!u0.0!n(U-B)!6'
+bbmv00='!8!u0.0!n(B-V)!6'
+bvmr00='!8!u0.0!n(V-R)!6'
+brmi00='!8!u0.0!n(R-I)!6'
+
 set_print, filename='k_linear_transform.ps'
 
 ; transformations from SDSS/TWOMASS at 0.1 to SDSS/TWOMASS at 0.0
@@ -167,7 +172,7 @@ klt_plot, sdss01[1,*]-sdss01[2,*],  sdss00[1,*]-sdss01[1,*], $
   fromcolor='\band{0.1}{(g-r)}'
 klt_plot, sdss01[2,*]-sdss01[3,*],  sdss00[2,*]-sdss01[2,*], $
   rmi01, r00+'-'+r01, slope, offset, $
-  toband='\band{0.0}{g}', fromband='\band{0.1}{r}', $
+  toband='\band{0.0}{r}', fromband='\band{0.1}{r}', $
   fromcolor='\band{0.1}{(r-i)}'
 klt_plot, sdss01[3,*]-sdss01[4,*],  sdss00[3,*]-sdss01[3,*], $
   imz01, i00+'-'+i01, slope, offset, $
@@ -279,6 +284,32 @@ klt_plot, sdss00[3,*]-sdss00[4,*],  johnson00[4,*]-sdss00[4,*], $
   imz00, bi00+'-'+z00 , slope, offset, $
   toband='\band{0.0}{I_c}', fromband='\band{0.0}{z}', $
   fromcolor='\band{0.0}{(i-z)}'
+
+; transformations from Johnson at 0. to SDSS at 0.
+klt_plot, johnson00[0,*]-johnson00[1,*],  sdss00[0,*]-johnson00[0,*], $
+  bumb00, u00+'-'+bu00 , slope, offset, $
+  toband='\band{0.0}{u}', fromband='\band{0.0}{U}', $
+  fromcolor='\band{0.0}{(U-B)}'
+klt_plot, johnson00[1,*]-johnson00[2,*],  sdss00[1,*]-johnson00[1,*], $
+  bbmv00, g00+'-'+bb00 , slope, offset, $
+  toband='\band{0.0}{g}', fromband='\band{0.0}{B}', $
+  fromcolor='\band{0.0}{(B-V)}'
+klt_plot, johnson00[1,*]-johnson00[2,*],  sdss00[2,*]-johnson00[2,*], $
+  bbmv00, r00+'-'+bv00 , slope, offset, $
+  toband='\band{0.0}{r}', fromband='\band{0.0}{V}', $
+  fromcolor='\band{0.0}{(B-V)}'
+klt_plot, johnson00[2,*]-johnson00[3,*],  sdss00[2,*]-johnson00[2,*], $
+  bvmr00, r00+'-'+bv00 , slope, offset, $
+  toband='\band{0.0}{r}', fromband='\band{0.0}{V}', $
+  fromcolor='\band{0.0}{(V-R)}'
+klt_plot, johnson00[3,*]-johnson00[4,*],  sdss00[3,*]-johnson00[3,*], $
+  brmi00, i00+'-'+br00 , slope, offset, $
+  toband='\band{0.0}{i}', fromband='\band{0.0}{R_c}', $
+  fromcolor='\band{0.0}{(R_c-I_c)}'
+klt_plot, johnson00[3,*]-johnson00[4,*],  sdss00[4,*]-johnson00[4,*], $
+  brmi00, z00+'-'+bi00 , slope, offset, $
+  toband='\band{0.0}{z}', fromband='\band{0.0}{I_c}', $
+  fromcolor='\band{0.0}{(R_c-I_C)}'
 
 end_print
 

@@ -461,7 +461,7 @@ K-corrections from the observed bandpasses to rest-frame bandpasses
 shifted by 0.1, you could call the code as follows: 
 <pre>
 cat $KCORRECT_DIR/test/sample.dat | fit_coeffs | reconstruct_maggies >! maggies.dat
-cat $KCORRECT_DIR/test/sample.dat | fit_coeffs | reconstruct_maggies --redshift 0. >! maggies.z0.dat
+cat $KCORRECT_DIR/test/sample.dat | fit_coeffs | reconstruct_maggies --band-shift 0.1 --redshift 0. >! maggies.z0.dat
 </pre>
 The K-corrections are then defined by -2.5 log_10(maggies/maggies.z0).
 
@@ -659,6 +659,24 @@ returned by kcorrect v1_10 and earlier, please apply a correction of
 error in the absolute measures of magnitude; colors are unchanged, the
 shapes of LFs are unchanged (just shifted in magnitude), etc. Many
 thanks to Ivan for pointing out the error.
+
+<h3> Known problems </h3>
+
+<ol>
+<li> In v3_2, fit_coeffs sends output to stdout occasionally of the form:
+<pre>
+ERROR: choldc failed (sum==-1.197184e+06)
+</pre>
+which screws up the inputs to reconstruct_maggies. If this affects
+you, change the line in k_choldc.c:
+<pre>
+printf("ERROR: choldc failed (sum==%e)\n",sum);
+</pre>
+to
+<pre>
+fprintf(stderr, "ERROR: choldc failed (sum==%e)\n",sum);
+</pre>
+</ol>
 
 <hr> 
 

@@ -67,6 +67,7 @@ if(NOT keyword_set(name)) then name='test'
 ; get data to search through
 savfile='sdss_training_set.'+name+'.sav'
 if(NOT file_test(savfile)) then begin
+
     
 ; add CNOC2 data 
     cnoc2=mrdfits(getenv('KCORRECT_DIR')+'/data/redshifts/cnoc2/cnoc2.fits',1) ;
@@ -128,6 +129,7 @@ if(NOT file_test(savfile)) then begin
     tm=replicate(twomass[0],n_elements(sp))
     struct_assign,{junk:0},tm
     tm[m1]=twomass[m2]
+    
     help,tm,sp
     k_add_stack, CNOC2_STACK_MF, CNOC2_STACK_MF_ivar, cnoc_stacked, $
       cnoc_stacked_ivar
@@ -136,6 +138,9 @@ if(NOT file_test(savfile)) then begin
 endif else begin
     restore,savfile
 endelse
+
+galex= $
+  mrdfits('/global/data/galex/ero/raw/galex-ero-photom-resolve.fits.gz',1)
 
 ; now equalize the redshift bins (but include all mustdo plates)
 sp[tostack].modelflux=stacked
@@ -183,6 +188,8 @@ for i=nzchunks-1L,0,-1 do begin
         endelse
     endif
 endfor
+ikeep=where(sp.z gt 0.6)
+includegal[ikeep]=1
 include_indx=where(includegal gt 0 or mustdo gt 0,include_count)
 if(include_count eq 0) then begin
     klog,'no remaining galaxies after equalizing redshifts.'
@@ -191,7 +198,6 @@ endif
 tm=tm[include_indx]
 sp=sp[include_indx]
 help,sp,tm
-
 
 ;   HACK to rid of bad u-band (bad uband!)
 umg=-2.5*alog10(sp.modelflux[0]/sp.modelflux[1])
@@ -221,51 +227,62 @@ outfile='sdss_training_set.'+name+'.fits'
 hdr=strarr(1)
 sxaddpar,hdr,'DATE',systime(),'date of creation'
 sxaddpar,hdr,'KVERSION',k_version(),'version of kcorrect'
-outstr1={maggies:fltarr(8), maggies_ivar:fltarr(8), redshift:0.D, ra:0.D, $
+outstr1={maggies:fltarr(10), maggies_ivar:fltarr(10), redshift:0.D, ra:0.D, $
          dec:0.D, objc_rowc:0.D, objc_colc:0.D}
-outstr=replicate(outstr1,n_elements(sp)+n_elements(cnoc2))
+outstr=replicate(outstr1,n_elements(sp)+n_elements(cnoc2)+n_elements(galex))
 isdss=0L+lindgen(n_elements(sp))
 icnoc2=n_elements(sp)+lindgen(n_elements(cnoc2))
+igalex=n_elements(sp)+n_elements(cnoc2)+lindgen(n_elements(galex))
 outstr[isdss].ra=sp.plug_ra
 outstr[isdss].dec=sp.plug_dec
 outstr[isdss].redshift=sp.z
-outstr[isdss].maggies[0:4]=sdssflux2ab(sp.modelflux)
-outstr[isdss].maggies_ivar[0:4]= $
-  1./((0.02*outstr[isdss].maggies[0:4])^2+ $
+outstr[isdss].maggies[2:6]=sdssflux2ab(sp.modelflux)
+outstr[isdss].maggies_ivar[2:6]= $
+  1./((0.02*outstr[isdss].maggies[2:6])^2+ $
       1./sdssflux2ab(sp.modelflux_ivar,/ivar))
 twomass_indx=where(tm.j_m_ext gt 0. and $
                    tm.h_m_ext gt 0. and $
                    tm.k_m_ext gt 0., twomass_count)
 if(twomass_count gt 0) then begin
-    outstr[isdss[twomass_indx]].maggies[5]= $
+    outstr[isdss[twomass_indx]].maggies[7]= $
       10.^(9.-0.4*(tm[twomass_indx].j_m_ext+ $
                    (k_vega2ab(filterlist='twomass_J.par',/kurucz))[0]))
-    outstr[isdss[twomass_indx]].maggies_ivar[5]= $
-      1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[5]* $
-          sqrt(0.02^2+tm[twomass_indx].j_msig_ext^2))^2
-    outstr[isdss[twomass_indx]].maggies[6]= $
-      10.^(9.-0.4*(tm[twomass_indx].h_m_ext+ $
-                   (k_vega2ab(filterlist='twomass_H.par',/kurucz))[0]))
-    outstr[isdss[twomass_indx]].maggies_ivar[6]= $
-      1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[6]* $
-          sqrt(0.02^2+tm[twomass_indx].h_msig_ext^2))^2
-    outstr[isdss[twomass_indx]].maggies[7]= $
-      10.^(9.-0.4*(tm[twomass_indx].k_m_ext+ $
-                   (k_vega2ab(filterlist='twomass_Ks.par',/kurucz))[0]))
     outstr[isdss[twomass_indx]].maggies_ivar[7]= $
       1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[7]* $
+          sqrt(0.02^2+tm[twomass_indx].j_msig_ext^2))^2
+    outstr[isdss[twomass_indx]].maggies[8]= $
+      10.^(9.-0.4*(tm[twomass_indx].h_m_ext+ $
+                   (k_vega2ab(filterlist='twomass_H.par',/kurucz))[0]))
+    outstr[isdss[twomass_indx]].maggies_ivar[8]= $
+      1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[8]* $
+          sqrt(0.02^2+tm[twomass_indx].h_msig_ext^2))^2
+    outstr[isdss[twomass_indx]].maggies[9]= $
+      10.^(9.-0.4*(tm[twomass_indx].k_m_ext+ $
+                   (k_vega2ab(filterlist='twomass_Ks.par',/kurucz))[0]))
+    outstr[isdss[twomass_indx]].maggies_ivar[9]= $
+      1./(0.4*alog(10.)*outstr[isdss[twomass_indx]].maggies[9]* $
           sqrt(0.02^2+tm[twomass_indx].k_msig_ext^2))^2
 endif
 outstr[icnoc2].ra=cnoc2_childobj.ra
 outstr[icnoc2].dec=cnoc2_childobj.dec
 outstr[icnoc2].redshift=cnoc2.z
 ; AB shifts
-outstr[icnoc2].maggies[0:4]=sdssflux2ab(cnoc_stacked)
-outstr[icnoc2].maggies_ivar[0:4]=sdssflux2ab(cnoc_stacked_ivar,/ivar)
+outstr[icnoc2].maggies[2:6]=sdssflux2ab(cnoc_stacked)
+outstr[icnoc2].maggies_ivar[2:6]=sdssflux2ab(cnoc_stacked_ivar,/ivar)
+outstr[igalex].redshift=galex.z
+outstr[igalex].ra=galex.ra
+outstr[igalex].dec=galex.dec
+outstr[igalex].maggies[0:1]=galex.flux[0:1]
+outstr[igalex].maggies_ivar[0:1]=1./((0.1*galex.flux[0:1])^2+ $
+                                     1./galex.flux_ivar[0:1])
+outstr[igalex].maggies[2:6]=galex.flux[2:6]
+outstr[igalex].maggies_ivar[2:6]=1./((0.02*galex.flux[2:6])^2+ $
+                                     1./galex.flux_ivar[2:6])
 
 ; now reddening correct all
 euler,outstr.ra,outstr.dec,ll,bb,1
-red_fac = [5.155, 3.793, 2.751, 2.086, 1.479, 0.902, 0.576, 0.367]
+red_fac = [8.206, 9.235, 5.155, 3.793, 2.751, 2.086, 1.479, 0.902, $
+           0.576, 0.367]
 extinction= $
   red_fac # dust_getval(ll, bb, /interp, /noloop)
 outstr.maggies=outstr.maggies*10.^(0.4*extinction)
