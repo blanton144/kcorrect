@@ -1,0 +1,84 @@
+<HTML>
+<BODY>
+
+<H1> Photometric Redshifts</H1>
+ 
+<p> Once one has constructed the SED templates, it is trivial to use
+them to calculate photometric redshifts. One cannot fit all four
+templates to the data plus the redshift -- there just is not enough
+information. Instead, one has to settle for fitting only two templates
+-- one which estimates the flux and one which estimates the color. The
+photometric redshift templates we use ("defaultpz" in the
+$KCORRECT_DIR/data/etemplates directory) use the most principal axis
+(e_3) from the full 4D fit as the color direction. </p>
+
+<p> Fitting photometric redshifts just requires fitting the two
+coefficients for a number of redshifts and minimizing the chi^2
+residuals for the fits. I provide routines here to do so. They are
+reasonably fast -- about 8 ms an object on a 700MHz Pentium III -- and
+reasonably accurate -- the 5-sigma clipped estimate of the redshift
+errors is about 0.05. </p>
+
+<p> The IDL routine <b>kphotoz</b> works in a way which is extremely
+similar to the <b>kcorrect</b> routine.
+<pre>
+kphotoz, galaxy_mag, galaxy_magerr, photoz, [, coeffs=, $
+    /maggies, version=, vpath=, rmatrix=, ematrix=, zvals=]
+</pre>
+For example, one might do the following:
+<pre>
+kphotoz, [0., 2., 0.7, 0.3, 0.3], [0.02,0.02,0.02,0.02,0.02], photoz 
+</pre>
+</p>
+
+<p> The stand-alone program <b>fit_photoz</b> works in the same way as
+<b>fit_coeffs</b>: 
+<pre>
+cat maggies.dat | fit_photoz $KCORRECT_DIR/data/etemplates/ematrix.defaultpz.dat \
+   $KCORRECT_DIR/data/etemplates/bmatrix.defaultpz.dat \
+   $KCORRECT_DIR/data/etemplates/lambda.defaultpz.dat \
+   $KCORRECT_DIR/data/etemplates/filterlist.defaultpz.dat 
+</pre>
+where in this case each line of "maggies.dat" has the form:
+<pre>
+umaggies gmaggies rmaggies imaggies zmaggies uinvvar ginvvar rinvvar iinvvar zinvvar
+</pre>
+The output is again to standard out and is of the form:
+<pre>
+coeff0 coeff1 photoz
+</pre>
+</p>
+
+<p> The photo-z code can also be accessed through the C library
+libkcorrect.so. Follow the directions in the <a href="index.html">
+main page</a> for using this library. Instead of <b>k_fit_coeffs</b>,
+you will be calling <b>k_fit_photoz</b>, as in:
+<pre>
+k_fit_photoz(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_flux,
+             galaxy_invvar,galaxy_photoz,ngalaxy);
+</pre>
+Remember that galaxy_flux and galaxy_invvar are expressed in maggies
+</p>
+
+<p> Please note that the photometric redshifts resulting from this
+code are not in any sense "official" SDSS photometric redshifts. In
+addition, they should be used with due regard to the correlations
+between errors in type and errors in redshift, as well as the
+systematic errors associated with photometric redshifts. </p>
+
+<p> Finally, this code can be (almost) trivially adapted to
+any optical photometry results for galaxies in the redshift range 0 to
+0.5. All you need to do is to put different filters into the
+filterlist file, make sure your magnitudes are AB, and plug away!</p>
+
+<hr> 
+
+<address>
+Snail Mail: <a href="../address.html"
+>
+Michael Blanton</a>;
+Email: <a href="mailto:mb144@nyu.edu"> mb144@nyu.edu</a> 
+</address>
+
+</BODY>
+</HTML>
