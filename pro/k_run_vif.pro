@@ -36,8 +36,10 @@ for i=0L, n_elements(filenames)-1L do begin
     if(i eq 0) then $
       greyscale,red,0.396,'arcsec',lohi[1],lohi[0],'run_vif_qa.ps', $
       title=filenames[i]+' (red)',/startps 
-    greyscale,red,0.396,'arcsec',lohi[1],lohi[0],title=filenames[i]+' (red)' 
-    greyscale,blue,0.396,'arcsec',lohi[1],lohi[0],title=filenames[i]+' (blue)'
+    hogg_greyscale_plot,red,pixscale=0.396,scalename='arcsec',lo=lohi[1], $
+      hi=lohi[0],title=filenames[i]+' (red)' 
+    hogg_greyscale_plot,blue,pixscale=0.396,scalename='arcsec',lo=lohi[1], $
+      hi=lohi[0],title=filenames[i]+' (blue)'
 endfor
 end_print
 
