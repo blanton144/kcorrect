@@ -225,7 +225,8 @@ outstr[isdss].dec=sp.plug_dec
 outstr[isdss].redshift=sp.z
 outstr[isdss].maggies[0:4]=sdssflux2ab(sp.modelflux)
 outstr[isdss].maggies_ivar[0:4]= $
-  1./(0.02^2+1./sdssflux2ab(sp.modelflux_ivar,/ivar))
+  1./((0.02*outstr[isdss].maggies[0:4])^2+ $
+      1./sdssflux2ab(sp.modelflux_ivar,/ivar))
 twomass_indx=where(tm.j_m_ext gt 0. and $
                    tm.h_m_ext gt 0. and $
                    tm.k_m_ext gt 0., twomass_count)
