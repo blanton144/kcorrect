@@ -1,0 +1,20 @@
+#!/bin/bash
+######################################################################
+# get_dale
+#
+# download Dale SEDs
+#
+######################################################################
+wget \
+  --verbose \
+  --no-clobber \
+  --no-parent \
+  --continue \
+  --wait=1 \
+  --no-host-directories \
+  --cut-dirs=3 \
+  --directory-prefix=$KCORRECT_DIR/data/seds/dale \
+  --recursive \
+  --level=3 \
+  http://physics.uwyo.edu/~ddale/research/seds/seds.html
+

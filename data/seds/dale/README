@@ -1,0 +1,52 @@
+I have developed spectral energy distributions appropriate for a wide
+range of interstellar environments and thus heating intensity levels U
+(from 0.3 to 100,000 times the local ISRF).  In an attempt to mimic what
+happens in a "real" galaxy, I have constructed galaxy SEDs by combining
+the individual SEDs according to a power-law distribution in U:
+
+dM(U) ~ U^{-alpha} dU,
+
+where M(U) represents the dust mass heated by U.  Each SED corresponds 
+to a slightly different exponent (alpha).  As it turns out, only a 
+portion of these spectra are applicable to our normal  galaxy sample: 
+alpha~2.6 at the quiescent end, and alpha~1 at the active end.  Models 
+with alpha<1 may apply to more active galaxies.
+
+spectra.dat  (z=0)
+------------------
+This file contains the model SEDs for a range of alpha, 0.0625 to 4.  The
+spectra span a wavelength range of 0.36 um to 1100 um.  Beware that I've
+only constrained the models from 3 to 850 microns.
+
+col. 1:  lambda in um
+col. 2:  log of nu*f_nu for alpha=0.0625
+col. 3:  log of nu*f_nu for alpha=0.1250
+.
+.
+.
+col. 65: log of nu*f_nu for alpha=4.0000
+
+alpha.dat
+---------
+col. 1:  the 64 alpha values that correspond to cols. 2-65 in spectra.dat
+col. 2:  log of IRAS f_nu(60 um)/f_nu(100 um) ratio.
+
+model.0.dat  z=0.0 file
+-----------
+col. 1:  alpha
+col. 2:  log(fnu) for ISO  6.75 micron filter
+col. 3:  log(fnu) for IRAS   12 micron filter
+col. 4:  log(fnu) for ISO    15 micron filter
+col. 5:  log(fnu) for IRAS   25 micron filter
+col. 6:  log(fnu) for IRAS   60 micron filter
+col. 7:  log(fnu) for IRAS  100 micron filter
+col. 8:  log(fnu) for SIRTF 3.6 micron filter
+col. 9:  log(fnu) for SIRTF 4.5 micron filter
+col.10:  log(fnu) for SIRTF 5.8 micron filter
+col.11:  log(fnu) for SIRTF 8.0 micron filter
+col.12:  log(fnu) for SIRTF  24 micron filter
+col.13:  log(fnu) for SIRTF  70 micron filter
+col.14:  log(fnu) for SIRTF 160 micron filter
+    15                SCUBA 850 micron
+    16                radio 20 cm
+    17                SCUBA 450 micron
