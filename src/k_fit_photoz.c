@@ -12,8 +12,8 @@
  * Mike Blanton
  * 5/2003 */
 
-#define ZRES 0.1
-#define TOL 0.001
+#define ZRES 0.02
+#define TOL 0.02
 #define MAXITER 3000
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 
@@ -25,6 +25,7 @@ static float *pz_zprior=NULL;
 static float *pz_maggies=NULL;
 static float *pz_maggies_ivar=NULL;
 static IDL_LONG pz_nk=0,pz_nv=0,pz_nz=0,pz_nprior,pz_ncheck;
+static IDL_LONG pz_applyprior=1;
 
 float pz_fit_coeffs(float z) 
 {
@@ -38,7 +39,7 @@ float pz_fit_coeffs(float z)
   k_fit_nonneg(pz_coeffs,pz_rmatrix,pz_nk,pz_nv,pz_zvals,pz_nz, 
                pz_maggies,pz_maggies_ivar,&z,1,TOL,MAXITER,&niter,
                &chi2,0,dontinit);
-	chi2-=k_interpolate_es(z, pz_lprior, pz_zprior, pz_nprior);
+	if(pz_applyprior) chi2-=k_interpolate_es(z, pz_lprior, pz_zprior, pz_nprior);
   pz_ncheck++;
 	
 	return(chi2);
@@ -65,8 +66,10 @@ IDL_LONG k_fit_photoz(float *photoz,
 											IDL_LONG verbose)
 {
 	float *zgrid,*chi2grid,chi2min,az,bz,cz;
+  float z_0,z_1,z_2,chi2_0,chi2_1,chi2_2;
 	IDL_LONG i,j,k,nzsteps,jmin;
 
+  pz_applyprior=1;
 	pz_nk=nk;
 	pz_nv=nv;
 	pz_nz=nz;
@@ -112,7 +115,8 @@ IDL_LONG k_fit_photoz(float *photoz,
 				chi2min=chi2grid[j];
 				jmin=j;
 			} /* end if */
-
+    
+#if 0
 		/* then search for minimum more intelligently around it */
 		if(jmin==0) {
 			az=zgrid[jmin];
@@ -128,9 +132,29 @@ IDL_LONG k_fit_photoz(float *photoz,
 			cz=zgrid[jmin+1];
 		} /* end if..else */
 		chi2min=k_brent(az,bz,cz,pz_fit_coeffs,TOL,&(photoz[i]));
+#else 
+    photoz[i]=zgrid[jmin];
+#endif
 
-		/* evaluate coefficients at final z */
+    /* near bottom fit a parabola and get min */
+    if(photoz[i]>TOL) {
+      z_0=photoz[i]-TOL;
+      z_1=photoz[i];
+      z_2=photoz[i]+TOL;
+    } else {
+      z_0=1.e-4;
+      z_1=TOL;
+      z_2=2.*TOL;
+    }
+    chi2_0=pz_fit_coeffs(z_0);
+    chi2_1=pz_fit_coeffs(z_1);
+    chi2_2=pz_fit_coeffs(z_2);
+    photoz[i]=photoz[i]+0.5*TOL-(chi2_1-chi2_0)*TOL/(chi2_2-2.*chi2_1+chi2_0);
+
+		/* evaluate coefficients at final z (using REAL chi2) */
+    pz_applyprior=0;
 		chi2[i]=pz_fit_coeffs(photoz[i]);
+    pz_applyprior=1;
 		for(j=0;j<nv;j++)
 			coeffs[i*nv+j]=pz_coeffs[j];
 

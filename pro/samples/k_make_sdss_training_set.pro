@@ -41,8 +41,10 @@ pro k_stack_south, ra, dec, modelflux, modelflux_ivar
         imatch=where(obj.matchdist*3600. lt 2. and obj.matchdist gt 0., $
                      nmatch) 
         if(nmatch gt 0) then begin 
-            modelflux[*,imatch,i]=childobj[imatch].modelflux 
-            modelflux_ivar[*,imatch,i]=childobj[imatch].modelflux_ivar 
+            tmpobj=childobj[imatch]
+            sdss_recalibrate,tmpobj
+            modelflux[*,imatch,i]=tmpobj.modelflux 
+            modelflux_ivar[*,imatch,i]=tmpobj.modelflux_ivar 
         endif 
     endfor
 end
@@ -85,14 +87,17 @@ if(NOT file_test(savfile)) then begin
     sp=hogg_mrdfits(getenv('SPECTRO_REDUX')+'/spAll.fits', 1, $
                     columns=['specprimary','plug_ra','plug_dec','z','plate', $
                              'mjd','fiberid','zerr','zwarning','class', $
-                             'modelflux', 'modelflux_ivar','extinction'], $
+                             'modelflux', 'modelflux_ivar','extinction', $
+                             'nmgypercount', 'run', 'rerun', 'camcol', $
+                             'field', 'id', 'colc'], $
                     nrowchunk=40000)
     sp_indx=where(sp.specprimary gt 0 and $
                   sp.class eq 'GALAXY' and $
                   sp.z gt zlimits[0] and $
                   sp.z le zlimits[1] and $
-                  sp.zwarning eq 0, sp_count) 
+                  sp.zwarning eq 0 and sp.run gt 0, sp_count) 
     sp=sp[sp_indx]
+    sdss_recalibrate,sp
 
     tostack=where(sp.plug_dec gt -1.5 and sp.plug_dec lt 1.5 and $
                   (sp.plug_ra gt 300. or sp.plug_ra lt 100.))
