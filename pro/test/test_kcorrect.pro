@@ -12,7 +12,7 @@ kcorrect, data.maggies, data.maggies_ivar, data.redshift, kcorrect, $
 k_print,filename=getenv('KCORRECT_DIR')+'/test/sample_test_kcorrect.ps', $
   pold=pold,xold=xold,yold=yold
 for i=0, n_elements(data[0].maggies)-1L do $
-  plot, data.redshift, 2.5*alog10(kcorrect[i,*]), psym=4
+  plot, data.redshift, kcorrect[i,*], psym=4
 k_end_print,pold=pold,xold=xold,yold=yold
 
 end

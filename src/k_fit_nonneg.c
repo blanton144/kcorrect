@@ -31,15 +31,15 @@ IDL_LONG k_fit_nonneg(float *coeffs,
 											float *chi2,
 											IDL_LONG verbose)
 {
-	int i,j,k,jp,ngood;
+	int i,j,k,jp,ngood,allpos;
 	float *local_rmatrix=NULL,*invcovar=NULL,*bb=NULL,*pp=NULL,*xx=NULL,offset;
-	float *cholesky=NULL;
-
+	float *cholesky=NULL,*bblin=NULL;
 
 	local_rmatrix=(float *) malloc(nk*nv*sizeof(float));
 	invcovar=(float *) malloc(nv*nv*sizeof(float));
-	cholesky=(float *) malloc(nk*nk*sizeof(float));
+	cholesky=(float *) malloc(nv*nv*sizeof(float));
 	bb=(float *) malloc(nv*sizeof(float));
+	bblin=(float *) malloc(nv*sizeof(float));
 	xx=(float *) malloc(nv*sizeof(float));
 	pp=(float *) malloc(nv*sizeof(float));
 	for(i=0;i<ngalaxy;i++) {
@@ -68,15 +68,17 @@ IDL_LONG k_fit_nonneg(float *coeffs,
 		for(j=0;j<nv;j++) 
 			for(jp=0;jp<j;jp++) 
 				invcovar[j*nv+jp]=invcovar[jp*nv+j];
-		for(j=0;j<ngood;j++) 
-			for(jp=0;jp<ngood;jp++)
-				cholesky[j*ngood+jp]=invcovar[j*nv+jp];
+		for(j=0;j<nv;j++) 
+			for(jp=0;jp<nv;jp++)
+				cholesky[j*nv+jp]=invcovar[j*nv+jp];
 
 		/*    c. calculate b */
 		for(j=0;j<nv;j++) bb[j]=0.;
 		for(j=0;j<nv;j++) 
 			for(k=0;k<nk;k++) 
 				bb[j]-=local_rmatrix[k*nv+j]*maggies[i*nk+k]*maggies_ivar[i*nk+k];
+		for(j=0;j<nv;j++) 
+      bblin[j]=-bb[j];
 		
 		/*    d. calculate offset to chi2 */
 		offset=0.;
@@ -89,26 +91,36 @@ IDL_LONG k_fit_nonneg(float *coeffs,
 		 * value of all components, and then put in a little bit of all the 
 		 * other spectra... */
 #if 0
-		for(j=0;j<2;j++) 
-			for(jp=0;jp<2;jp++) 
-				printf("ch: %d %d %d %e\n",ngood,j,jp,cholesky[j*nv+jp]);
 		for(j=0;j<ngood;j++) 
 			for(jp=0;jp<ngood;jp++) 
 				if(cholesky[j*ngood+jp]<=0.) 
 					printf("ch: %d %d %e\n",j,jp,cholesky[j*ngood+jp]);
 		fflush(stdout);
 #endif
-		ngood=1;
-		k_choldc(cholesky,ngood,pp);
-		k_cholsl(cholesky,ngood,pp,bb,xx);
-		for(j=0;j<ngood;j++) xx[j]=fabs(xx[j]);
-		for(j=ngood;j<nv;j++) xx[j]=xx[0]/(float)nv;
-		xx[0]/=(float)nv;
+		if(ngood<=nv) {
+			ngood=1;
+			k_choldc(cholesky,ngood,pp);
+			k_cholsl(cholesky,ngood,pp,bb,xx);
+			for(j=0;j<ngood;j++) xx[j]=fabs(xx[j]);
+			for(j=ngood;j<nv;j++) xx[j]=xx[0]/(float)nv;
+			xx[0]/=(float)nv;
+			allpos=0;
+		} else {
+      k_choldc(cholesky,nv,pp);
+      k_cholsl(cholesky,nv,pp,bblin,xx);
+      allpos=1;
+			for(j=0;j<nv;j++) 
+				if(xx[j]<0.) allpos=0;
+			chi2[i]=k_nonneg_chi2(xx,invcovar,bb,offset,nv);
+		}
 
 		/* 3. run the iteration */
-		k_nonneg_solve(xx,invcovar,bb,offset,nv,tolerance,maxiter,niter, 
-									 &(chi2[i]),verbose);
-
+    if(!allpos) {
+      for(j=0;j<nv;j++) if(xx[j]<0.) xx[j]=1.e-3*fabs(xx[j]);
+      k_nonneg_solve(xx,invcovar,bb,offset,nv,tolerance,maxiter,niter, 
+                     &(chi2[i]),verbose);
+    }
+		
 		for(j=0;j<nv;j++) coeffs[i*nv+j]=xx[j];
 	} /* end for i */
 
@@ -116,6 +128,7 @@ IDL_LONG k_fit_nonneg(float *coeffs,
 	FREEVEC(invcovar);
 	FREEVEC(cholesky);
 	FREEVEC(bb);
+	FREEVEC(bblin);
 	FREEVEC(pp);
 	FREEVEC(xx);
 

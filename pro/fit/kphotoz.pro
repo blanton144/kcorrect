@@ -119,6 +119,6 @@ photoz=k_fit_photoz(use_maggies,use_maggies_ivar,vmatrix,lambda, $
                     filterlist=filterlist,chi2=chi2, $
                     rmatrix=rmatrix,zvals=zvals,maxiter=maxiter, zmin=zmin, $
                     zmax=zmax, nz=nz, verbose=verbose, lprior=lprior, $
-                    zprior=zprior)
+                    zprior=zprior, coeffs=coeffs)
 
 end

@@ -11,7 +11,7 @@ CFLAGS  = -I$(KCORRECT_DIR)/include \
 	-I$(KCORRECT_DIR)/src $(X_CFLAGS) $(SDSS_CFLAGS) -DCHECK_LEAKS
 #
 .c.o : $(KCORRECT_DIR)/include/kcorrect.h export.h
-	$(CC) -g -c $(CCCHK) $(CFLAGS) $(IDL_FLAG) $*.c
+	$(CC) -O -c $(CCCHK) $(CFLAGS) $(IDL_FLAG) $*.c
 
 LIB = $(KCORRECT_DIR)/lib
 BIN = $(KCORRECT_DIR)/bin
