@@ -144,21 +144,24 @@ endfor
 mustdo[tostack]=1
 includegal=lonarr(n_elements(sp))
 ninchunk=fltarr(nzchunks)
+first=-1
 for i=nzchunks-1L,0,-1 do begin
     zchunk_lo=zlimits[0]+(zlimits[1]-zlimits[0])*float(i)/float(nzchunks)
     zchunk_hi=zlimits[0]+(zlimits[1]-zlimits[0])*float(i+1)/float(nzchunks)
     chunk_indx=where(sp.z gt zchunk_lo and $
                      sp.z lt zchunk_hi, chunk_count)
     ninchunk[i]=chunk_count
-    if(i ne nzchunks-1L) then begin
-        dice=randomu(seed,ninchunk[i])
-        subsample=float(ninchunk[nzchunks-1L])/float(ninchunk[i])
-        help,i,subsample[0]
-        include_indx=where(dice lt subsample[0], include_count)
-        if(include_count gt 0) then includegal[chunk_indx[include_indx]]=1
-    endif else begin
-        includegal[chunk_indx]=1L
-    endelse
+    if(chunk_count gt 0) then begin
+        if(first ge 0) then begin
+            dice=randomu(seed,ninchunk[i])
+            subsample=float(ninchunk[first])/float(ninchunk[i])
+            help,i,subsample[0]
+            include_indx=where(dice lt subsample[0], include_count)
+            if(include_count gt 0) then includegal[chunk_indx[include_indx]]=1
+        endif else begin
+            includegal[chunk_indx]=1L
+            if(chunk_count gt 4000) then first=i
+        endelse
 endfor
 include_indx=where(includegal gt 0 or mustdo gt 0,include_count)
 if(include_count eq 0) then begin
