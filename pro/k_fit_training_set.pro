@@ -308,6 +308,108 @@ for i=0L, n_elements(indx)-1L do begin & $
   photoz[i]=0.+1.*(double(iminchi2)+0.5)/100. & $
   thefit[i]=fit[iminchi2,1,i]/fit[iminchi2,0,i] & $
   endfor    
+
+stop
+
+for i=0L, 4L do $
+  maggies[i,*]=maggies[i,*]/maggies_factor[i]
+
+threevecs=[[1.,-0.6,0.,0.], $
+           [1.,0.09,0.07,-0.041], $
+           [1.,0.20,-0.06,0.035]]
+;threevecs=[[1.,-0.6,0.,0.], $
+;           [1.,0.15,0.,0.]]
+vmatrix_nn=bmatrix#(newematrix#threevecs)
+coeffs_nn=k_fit_nonneg(maggies[*,0:2999],maggies_err[*,0:2999],vmatrix_nn, $
+                       lambda,redshift=gals[0:2999].redshift, $
+                       filterlist=['sdss_u0','sdss_g0','sdss_r0', $
+                                   'sdss_i0','sdss_z0']+'.dat', $
+                       chi2=chi2,rmatrix=rmatrix,zvals=zvals,maxiter=5000)
+k_reconstruct_maggies,coeffs_nn,gals[*].redshift,rec_maggies, $
+  zvals=zvals,lambda=lambda,bmatrix=vmatrix_nn,ematrix=identity(3), $
+  filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
+set_print,filename='qa_k_fit_training_set_nn_coeffs.ps'
+umg_model=-2.5*alog10(rec_maggies[0,*]/rec_maggies[1,*])
+umg_obs=gals[*].mag[0]-gals[*].mag[1]
+gmr_model=-2.5*alog10(rec_maggies[1,*]/rec_maggies[2,*])
+gmr_obs=gals[*].mag[1]-gals[*].mag[2]
+rmi_model=-2.5*alog10(rec_maggies[2,*]/rec_maggies[3,*])
+rmi_obs=gals[*].mag[2]-gals[*].mag[3]
+imz_model=-2.5*alog10(rec_maggies[3,*]/rec_maggies[4,*])
+imz_obs=gals[*].mag[3]-gals[*].mag[4]
+plot,umg_obs,gmr_obs,psym=3,xra=[0.,3.2],yra=[-0.3,2.2]
+oplot,umg_model,gmr_model,psym=4,color=djs_icolor('red')
+plot,gmr_obs,rmi_obs,psym=3,xra=[-0.3,2.2],yra=[-0.1,1.0]
+oplot,gmr_model,rmi_model,psym=4,color=djs_icolor('red')
+plot,rmi_obs,imz_obs,psym=3,xra=[-0.1,1.0],yra=[-0.2,0.6]
+oplot,rmi_model,imz_model,psym=4,color=djs_icolor('red')
+plot,gals[*].redshift,umg_model-umg_obs,psym=3,yra=[-0.4,0.4]
+plot,gals[*].redshift,gmr_model-gmr_obs,psym=3,yra=[-0.4,0.4]
+plot,gals[*].redshift,rmi_model-rmi_obs,psym=3,yra=[-0.4,0.4]
+plot,gals[*].redshift,imz_model-imz_obs,psym=3,yra=[-0.4,0.4]
+end_print
+
+k_tweak_templates, maggies[*,0:2999], maggies_ivar[*,0:2999], $
+  gals[0:2999].redshift, coeffs_nn[*,0:2999], vmatrix_nn, lambda, $
+  filterlist=filterlist, maggies_factor=maggies_factor, $
+  vmatrix_tweaked=vmatrix_tweaked_nn
+tweaked_maggies=maggies
+for i=0L, 4L do $
+  tweaked_maggies[i,*]=maggies[i,*]*maggies_factor[i]
+k_reconstruct_maggies,coeffs_nn,gals[*].redshift,rec_maggies, $
+  zvals=zvals,lambda=lambda,bmatrix=vmatrix_tweaked_nn,ematrix=identity(3), $
+  filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
+for i=0L, 4L do $
+  rec_maggies[i,*]=rec_maggies[i,*]/maggies_factor[i]
+set_print,filename='qa_k_fit_training_set_tweaked_nn_coeffs.ps'
+umg_model=-2.5*alog10(rec_maggies[0,*]/rec_maggies[1,*])
+umg_obs=gals[*].mag[0]-gals[*].mag[1]
+gmr_model=-2.5*alog10(rec_maggies[1,*]/rec_maggies[2,*])
+gmr_obs=gals[*].mag[1]-gals[*].mag[2]
+rmi_model=-2.5*alog10(rec_maggies[2,*]/rec_maggies[3,*])
+rmi_obs=gals[*].mag[2]-gals[*].mag[3]
+imz_model=-2.5*alog10(rec_maggies[3,*]/rec_maggies[4,*])
+imz_obs=gals[*].mag[3]-gals[*].mag[4]
+plot,umg_obs,gmr_obs,psym=3,xra=[0.,3.2],yra=[-0.3,2.2]
+oplot,umg_model,gmr_model,psym=4,color=djs_icolor('red')
+plot,gmr_obs,rmi_obs,psym=3,xra=[-0.3,2.2],yra=[-0.1,1.0]
+oplot,gmr_model,rmi_model,psym=4,color=djs_icolor('red')
+plot,rmi_obs,imz_obs,psym=3,xra=[-0.1,1.0],yra=[-0.2,0.6]
+oplot,rmi_model,imz_model,psym=4,color=djs_icolor('red')
+plot,gals[*].redshift,umg_model-umg_obs,psym=3,yra=[-0.4,0.4]
+plot,gals[*].redshift,gmr_model-gmr_obs,psym=3,yra=[-0.4,0.4]
+plot,gals[*].redshift,rmi_model-rmi_obs,psym=3,yra=[-0.4,0.4]
+plot,gals[*].redshift,imz_model-imz_obs,psym=3,yra=[-0.4,0.4]
+end_print
+
+chi2=dblarr(100,n_elements(indx))
+fit=dblarr(100,3,n_elements(indx))
+for i=0L, 99L do begin & $
+    redshift=0.+1.*(double(i)+0.5)/100. & $
+    k_photoz2, tweaked_maggies, 1./maggies_err^2, redshift, lambda, vmatrix_tweaked_nn, $
+      tmp_fit, tmp_chi2 & $
+    fit[i,*,*]=tmp_fit & $
+    chi2[i,*]=tmp_chi2 & $
+  endfor
+
+photoz=dblarr(n_elements(indx))
+thefit=dblarr(n_elements(indx))
+minchi2=dblarr(n_elements(indx))
+for i=0L, n_elements(indx)-1L do begin & $
+  minchi2[i]=min(chi2[*,i],iminchi2) & $
+  photoz[i]=0.+1.*(double(iminchi2)+0.5)/100. & $
+  thefit[i]=fit[iminchi2,1,i]/fit[iminchi2,0,i] & $
+  endfor    
+
+k_fit_nonneg_photoz,tweaked_maggies[*,0:2999],maggies_err[*,0:2999], $
+  vmatrix_tweaked_nn,lambda,redshift=redshift, chi2=chi2, maxiter=3000, $
+  filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
+
+set_print,filename='test_z.ps'
+plot,gals[0:637].redshift,redshift,psym=4,yra=[-0.05,1.03*max(redshift)]
+oplot,[0.,0.5],[0.,0.5]
+end_print
+
 stop
 
 threevecs=[[1.,0.05,0.09,-0.045], $
@@ -324,11 +426,12 @@ coeffs_nn=k_fit_nonneg(maggies[*,0:100],maggies_err[*,0:100],vmatrix_nn, $
   ;maggies_factor=maggies_factor, vmatrix_tweaked=vmatrix_tweaked_nn
 ;for i=0L, 4L do $
   ;maggies[i,*]=maggies[i,*]*maggies_factor[i]
-k_fit_nonneg_photoz,maggies[*,0:100],maggies_err[*,0:100],vmatrix_tweaked_nn, $
-  lambda,redshift=redshift, chi2=chi2, maxiter=2000, $
+k_fit_nonneg_photoz,maggies[*,0:300],maggies_err[*,0:300],vmatrix_nn, $
+  lambda,redshift=redshift, chi2=chi2, maxiter=3000, $
   filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
 !P.MULTI=0
-plot,gals[0:100].redshift,redshift[0:100]-gals[0:100].redshift,psym=4,xra=[0.,0.5],yra=[0.,0.5]
+plot,gals[0:300].redshift,redshift[0:300],psym=4,xra=[0.,0.5],yra=[0.,0.5]
+plot,gals[0:300].redshift,redshift[0:300]-gals[0:300].redshift,psym=4,xra=[0.,0.5]
 
 stop
 
