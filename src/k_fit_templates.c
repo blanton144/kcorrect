@@ -27,7 +27,7 @@ IDL_LONG k_fit_templates(double *ematrix,    /* eigentemplates */
 												 IDL_LONG nk,             /* number of bandpasses */
 												 IDL_LONG nb,             /* number of templates */
 												 double *amatrix, /* current coefficients */
-												 double *galaxy_flux, /* galaxy fluxes [i][k] redshifts */
+												 double *galaxy_maggies, /* galaxy maggies */
 												 double *galaxy_invvar,
 												 double *galaxy_z,
 												 IDL_LONG *galaxy_clip,
@@ -93,7 +93,7 @@ IDL_LONG k_fit_templates(double *ematrix,    /* eigentemplates */
 						use=0;
 				if(!galaxy_clip[i] && use) {
 					for(k=0;k<nk;k++) 
-						rhs[indx]+=galaxy_flux[k+i*nk]*amatrix[i*nt+j]*
+						rhs[indx]+=galaxy_maggies[k+i*nk]*amatrix[i*nt+j]*
 							k_interpolate(galaxy_z[i],&(rmatrix[k*nb*nz+b*nz]),zvals,nz)
 							*galaxy_invvar[k+i*nk];
 				} /* end if */

@@ -60,7 +60,7 @@ eflux=bflux#ematrix
 
 ; Set the initial vector to carry all flux
 tmpe=ematrix#transpose(eflux)
-ematrix[*,0]=tmpe
+ematrix[*,0]=tmpe/sqrt(total(tmpe^2))
 
 ; Perform final orthogonalization
 for t = 0l, nt-1l do begin
@@ -75,6 +75,7 @@ for t = 0l, nt-1l do begin
 	dot=1./sqrt(dot)
 	ematrix[*,t]=ematrix[*,t]*dot
 endfor 
+klog,bflux#ematrix
 
 ; Now normalize the ematrix so that unit coefficient 
 ; means unit visual flux

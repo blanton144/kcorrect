@@ -30,7 +30,7 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 											IDL_LONG nk,             /* number of bandpasses */
 											IDL_LONG nb,             /* number of templates */
 											double *amatrix, /* coefficients */
-											double *galaxy_flux, /* galaxy fluxes [i][k], 
+											double *galaxy_maggies, /* galaxy fluxes [i][k], 
 																							redshifts */
 											double *galaxy_invvar,
 											double *galaxy_z,
@@ -89,7 +89,7 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 		for(j=0;j<nt;j++) {
 			rhs[j]=0.;
 			for(k=0;k<nk;k++) 
-				rhs[j]+=galaxy_flux[k+i*nk]*cmatrix[i*nk*nt+k*nt+j]
+				rhs[j]+=galaxy_maggies[k+i*nk]*cmatrix[i*nk*nt+k*nt+j]
 						*galaxy_invvar[k+i*nk];
 		} /* end for j */
 
@@ -113,7 +113,7 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 #endif
 				fprintf(stderr,"at galaxy %d, info=%d\n",i,info);
 				for(k=0;k<nk;k++) 
-					fprintf(stderr,"%e\n",galaxy_flux[k+i*nk]);
+					fprintf(stderr,"%e\n",galaxy_maggies[k+i*nk]);
 				for(k=0;k<nk;k++) 
 					fprintf(stderr,"%e\n",galaxy_invvar[k+i*nk]);
 				for(j=0;j<nt;j++) 

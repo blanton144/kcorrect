@@ -15,7 +15,7 @@ IDL_LONG idl_k_fit_templates
 {
    IDL_LONG nt,nz,nk,nb,ngalaxy,*galaxy_clip,initialized_dmatrix;
    double *ematrix,*zvals,*rmatrix,*amatrix,*dmatrix;
-	 double *galaxy_flux,*galaxy_invvar,*galaxy_z;
+	 double *galaxy_maggies,*galaxy_invvar,*galaxy_z;
 
 	 IDL_LONG i;
 	 IDL_LONG retval=1;
@@ -30,7 +30,7 @@ IDL_LONG idl_k_fit_templates
    nk=*((IDL_LONG *)argv[i]); i++;
    nb=*((IDL_LONG *)argv[i]); i++;
 	 amatrix=(double *)argv[i]; i++;
-	 galaxy_flux=(double *)argv[i]; i++;
+	 galaxy_maggies=(double *)argv[i]; i++;
 	 galaxy_invvar=(double *)argv[i]; i++;
 	 galaxy_z=(double *)argv[i]; i++;
 	 galaxy_clip=(IDL_LONG *)argv[i]; i++;
@@ -40,7 +40,7 @@ IDL_LONG idl_k_fit_templates
 
 	 /* 1. run the fitting routine */
 	 retval=(IDL_LONG) k_fit_templates(ematrix,nt,zvals,nz,rmatrix,nk,nb,
-																		 amatrix,galaxy_flux,galaxy_invvar,
+																		 amatrix,galaxy_maggies,galaxy_invvar,
 																		 galaxy_z,galaxy_clip,ngalaxy,dmatrix,
 																		 initialized_dmatrix);
 

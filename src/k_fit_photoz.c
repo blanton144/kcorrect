@@ -22,7 +22,7 @@ static double *pz_rmatrix=NULL;
 static double *pz_zvals=NULL;
 static double *pz_coeffs=NULL;
 static double *pz_model_flux=NULL;
-static double *pz_galaxy_flux=NULL;
+static double *pz_galaxy_maggies=NULL;
 static double *pz_galaxy_invvar=NULL;
 static double *pz_coeffspnorm=NULL;
 static double pz_z,pz_linepos;
@@ -37,8 +37,8 @@ double pz_calc_chi2(double z)
 								 pz_nk,pz_nb,pz_coeffs,&z,pz_model_flux,1);
 	chi2=0.;
 	for(k=0;k<pz_nk;k++)
-		chi2+=(pz_model_flux[k]-pz_galaxy_flux[k])
-			*(pz_model_flux[k]-pz_galaxy_flux[k])*pz_galaxy_invvar[k];
+		chi2+=(pz_model_flux[k]-pz_galaxy_maggies[k])
+			*(pz_model_flux[k]-pz_galaxy_maggies[k])*pz_galaxy_invvar[k];
 	
 	return(chi2);
 } /* end pz_calc_chi2 */
@@ -51,7 +51,7 @@ double pz_fit_coeffs(double z)
 	
 	/* fit coeffs */
 	k_fit_coeffs(pz_ematrix,pz_nt,pz_zvals,pz_nz,pz_rmatrix,
-							 pz_nk,pz_nb,pz_coeffs,pz_galaxy_flux,pz_galaxy_invvar,
+							 pz_nk,pz_nb,pz_coeffs,pz_galaxy_maggies,pz_galaxy_invvar,
 							 &z,1);
 	
 	chi2=pz_calc_chi2(z);
@@ -68,7 +68,7 @@ IDL_LONG k_fit_photoz(double *ematrix,    /* eigentemplates */
 											IDL_LONG nk,             /* number of bandpasses */
 											IDL_LONG nb,             /* number of templates */
 											double *coeffs, /* coefficients */
-											double *galaxy_flux, /* galaxy fluxes [i][k], 
+											double *galaxy_maggies, /* galaxy fluxes [i][k], 
 																							redshifts */
 											double *galaxy_invvar,
 											double *galaxy_z,
@@ -93,7 +93,7 @@ IDL_LONG k_fit_photoz(double *ematrix,    /* eigentemplates */
 		pz_zvals[i]=zvals[i];
 	pz_model_flux=(double *) malloc(pz_nk*sizeof(double));
 	pz_coeffs=(double *) malloc(pz_nt*sizeof(double));
-	pz_galaxy_flux=(double *) malloc(pz_nk*sizeof(double));
+	pz_galaxy_maggies=(double *) malloc(pz_nk*sizeof(double));
 	pz_galaxy_invvar=(double *) malloc(pz_nk*sizeof(double));
 	
 	nzsteps=(IDL_LONG) floor((zvals[nz-1]-zvals[0])/ZRES);
@@ -104,7 +104,7 @@ IDL_LONG k_fit_photoz(double *ematrix,    /* eigentemplates */
 	for(i=0;i<ngalaxy;i++) {
 		
 		for(k=0;k<nk;k++) {
-			pz_galaxy_flux[k]=galaxy_flux[i*nk+k];
+			pz_galaxy_maggies[k]=galaxy_maggies[i*nk+k];
 			pz_galaxy_invvar[k]=galaxy_invvar[i*nk+k];
 		} /* end for k */
 
@@ -147,7 +147,7 @@ IDL_LONG k_fit_photoz(double *ematrix,    /* eigentemplates */
 	FREEVEC(pz_rmatrix);
 	FREEVEC(pz_ematrix);
 	FREEVEC(pz_zvals);
-	FREEVEC(pz_galaxy_flux);
+	FREEVEC(pz_galaxy_maggies);
 	FREEVEC(pz_galaxy_invvar);
 	FREEVEC(pz_model_flux);
 	FREEVEC(pz_coeffs);

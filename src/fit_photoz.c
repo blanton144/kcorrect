@@ -27,7 +27,7 @@ static double *filter_pass=NULL;
 static IDL_LONG *filter_n=NULL;
 static IDL_LONG maxn;
 static double *galaxy_z=NULL;
-static double *galaxy_flux=NULL;
+static double *galaxy_maggies=NULL;
 static double *galaxy_invvar=NULL;
 static double *coeffs=NULL;
 
@@ -84,21 +84,21 @@ int main(int argc,
 	/* get the redshift estimates */
 	nchunk=1;
 	galaxy_z=(double *) malloc(nchunk*sizeof(double));
-	galaxy_flux=(double *) malloc(nchunk*nk*sizeof(double));
+	galaxy_maggies=(double *) malloc(nchunk*nk*sizeof(double));
 	galaxy_invvar=(double *) malloc(nchunk*nk*sizeof(double));
 	coeffs=(double *) malloc(nchunk*nt*sizeof(double));
-	fscanf(stdin,"%lf",&(galaxy_flux[0]));
+	fscanf(stdin,"%lf",&(galaxy_maggies[0]));
 	while(!feof(stdin)) {
 		for(k=1;k<nk;k++)
-			fscanf(stdin,"%lf",&(galaxy_flux[k]));
+			fscanf(stdin,"%lf",&(galaxy_maggies[k]));
 		for(k=0;k<nk;k++)
 			fscanf(stdin,"%lf",&(galaxy_invvar[k]));
-		k_fit_photoz(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_flux,
+		k_fit_photoz(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_maggies,
 								 galaxy_invvar,galaxy_z,nchunk);
 		for(j=0;j<nt;j++)
 			fprintf(stdout,"%e ",coeffs[j]);
 		fprintf(stdout,"%e\n",galaxy_z[0]);
-		fscanf(stdin,"%lf",&(galaxy_flux[0]));
+		fscanf(stdin,"%lf",&(galaxy_maggies[0]));
 	} /* end for while */
 	
 	FREEVEC(zvals);
@@ -110,7 +110,7 @@ int main(int argc,
 	FREEVEC(filter_lambda);
 	FREEVEC(filter_pass);
 	FREEVEC(galaxy_z);
-	FREEVEC(galaxy_flux);
+	FREEVEC(galaxy_maggies);
 	FREEVEC(galaxy_invvar);
 	FREEVEC(coeffs);
 } /* end main */

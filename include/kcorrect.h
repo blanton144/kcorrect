@@ -21,7 +21,7 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 											IDL_LONG nk,             /* number of bandpasses */
 											IDL_LONG nb,             /* number of templates */
 											double *amatrix, /* coefficients */
-											double *galaxy_flux, /* galaxy fluxes [i][k] and redshifts */
+											double *galaxy_maggies, /* galaxy maggies */
 											double *galaxy_invvar,
 											double *galaxy_z,
 											IDL_LONG ngalaxy);
@@ -37,7 +37,7 @@ IDL_LONG k_fit_templates(double *ematrix,    /* eigentemplates */
 												 IDL_LONG nk,             /* number of bandpasses */
 												 IDL_LONG nb,             /* number of templates */
 												 double *amatrix, /* current coefficients */
-												 double *galaxy_flux, /* galaxy fluxes [i][k] redshifts */
+												 double *galaxy_maggies, /* galaxy maggies */
 												 double *galaxy_invvar,
 												 double *galaxy_z,
 												 IDL_LONG *galaxy_clip,
@@ -45,18 +45,18 @@ IDL_LONG k_fit_templates(double *ematrix,    /* eigentemplates */
 												 double *dmatrix,    /* d matrix */
 												 IDL_LONG initialized_dmatrix);
 
-/* calculate the model fluxes, given the coeffs of the model */
-IDL_LONG k_model_fluxes(double *ematrix,    /* eigentemplates */
-												IDL_LONG nt,             /* number of eigentemplates */
-												double *zvals,      /* z interpolation */
-												IDL_LONG nz,
-												double *rmatrix,    /* r matrix */
-												IDL_LONG nk,             /* number of bandpasses */
-												IDL_LONG nb,             /* number of templates */
-												double *coeffs, /* coefficients */
-												double *galaxy_z,
-												double *model_flux,
-												IDL_LONG ngalaxy);
+/* calculate the reconstructed fluxes, given the coeffs of the model */
+IDL_LONG k_reconstructed_fluxes(double *ematrix,    /* eigentemplates */
+																IDL_LONG nt, /* number of eigentemplates */
+																double *zvals,      /* z interpolation */
+																IDL_LONG nz,
+																double *rmatrix,    /* r matrix */
+																IDL_LONG nk,      /* number of bandpasses */
+																IDL_LONG nb,      /* number of templates */
+																double *coeffs, /* coefficients */
+																double *galaxy_z,
+																double *rec_flux,
+																IDL_LONG ngalaxy);
 
 /* fit redshift and coefficients, given information about the templates and 
  * the filters (in ematrix and rmatrix) and a set of galaxies */
@@ -68,8 +68,7 @@ IDL_LONG k_fit_photoz(double *ematrix,    /* eigentemplates */
 											IDL_LONG nk,             /* number of bandpasses */
 											IDL_LONG nb,             /* number of templates */
 											double *coeffs, /* coefficients */
-											double *galaxy_flux, /* galaxy fluxes [i][k], 
-																							redshifts */
+											double *galaxy_maggies, /* galaxy */
 											double *galaxy_invvar,
 											double *galaxy_z,
 											IDL_LONG ngalaxy);
@@ -132,16 +131,3 @@ double k_brent(double ax, double bx, double cx, double (*f)(double),
 /* lapack stuff to call from C */
 void k_dposv__(char *uplo, IDL_LONG *n, IDL_LONG *nrhs, double *a, 
 							 IDL_LONG *lda, double *b, IDL_LONG *ldb, IDL_LONG *info);
-
-/* calculate the model fluxes, given the coeffs of the model */
-IDL_LONG k_model_fluxes(double *ematrix,    /* eigentemplates */
-												IDL_LONG nt,             /* number of eigentemplates */
-												double *zvals,      /* z interpolation */
-												IDL_LONG nz,
-												double *rmatrix,    /* r matrix */
-												IDL_LONG nk,             /* number of bandpasses */
-												IDL_LONG nb,             /* number of templates */
-												double *coeffs, /* coefficients */
-												double *galaxy_z,
-												double *model_flux,
-												IDL_LONG ngalaxy);

@@ -92,7 +92,7 @@ ascale=transpose(transpose(ascale)#covar)
 for i = 1l, nt-1l do begin
     coeff[i,*]=coeff[0,*]*ascale[i-1,*]
 endfor
-for i = 1l, nb-1l do begin
+for i = 0l, nb-1l do begin
     ematrix[i,1:nt-1]=covar#transpose(ematrix[i,1:nt-1])
 endfor
 

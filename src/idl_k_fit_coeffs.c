@@ -15,7 +15,7 @@ IDL_LONG idl_k_fit_coeffs
 {
    IDL_LONG nt,nz,nk,nb,ngalaxy;
    double *ematrix,*zvals,*rmatrix,*amatrix;
-	 double *galaxy_flux,*galaxy_invvar,*galaxy_z;
+	 double *galaxy_maggies,*galaxy_invvar,*galaxy_z;
 
 	 IDL_LONG i;
 	 IDL_LONG retval=1;
@@ -30,14 +30,14 @@ IDL_LONG idl_k_fit_coeffs
    nk=*((IDL_LONG *)argv[i]); i++;
    nb=*((IDL_LONG *)argv[i]); i++;
 	 amatrix=(double *)argv[i]; i++;
-	 galaxy_flux=(double *)argv[i]; i++;
+	 galaxy_maggies=(double *)argv[i]; i++;
 	 galaxy_invvar=(double *)argv[i]; i++;
 	 galaxy_z=(double *)argv[i]; i++;
    ngalaxy=*((IDL_LONG *)argv[i]); i++;
 
 	 /* 1. run the fitting routine */
 	 retval=(IDL_LONG) k_fit_coeffs(ematrix,nt,zvals,nz,rmatrix,nk,nb,
-																	amatrix,galaxy_flux,galaxy_invvar,
+																	amatrix,galaxy_maggies,galaxy_invvar,
 																	galaxy_z,ngalaxy);
 
 	 /* 2. free memory and leave */

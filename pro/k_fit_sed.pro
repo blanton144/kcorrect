@@ -135,11 +135,11 @@ if (NOT keyword_set(preset_ematrix)) then begin
 	ematrix[indx,indx]=1.d
 endif
 klog,'start iteration'
+k_ortho_etemplates,ematrix,bflux
+k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z,coeff,ematrix=ematrix, $
+   zvals=zvals, rmatrix=rmatrix
+k_pca_etemplates,coeff,ematrix,bflux
 for i=0l, maxiter-1l do begin
-  k_ortho_etemplates,ematrix,bflux
-  k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z,coeff,ematrix=ematrix, $
-    zvals=zvals, rmatrix=rmatrix
-  k_pca_etemplates,coeff,ematrix,bflux
   k_fit_templates,galaxy_flux,galaxy_invvar,galaxy_z,coeff,ematrix,zvals, $
     rmatrix=rmatrix
   k_model_fluxes,coeff,galaxy_z,model_flux,ematrix=ematrix,zvals=zvals, $
@@ -156,6 +156,10 @@ for i=0l, maxiter-1l do begin
           plot,galaxy_z,model_flux[k,*]/galaxy_flux[k,*],yra=[1.-3.*sqrt(result[1]), 1.+3.*sqrt(result[1])],psym=3,xst=1,yst=1,xra=[0.,0.5]
       endfor
   endif
+  k_ortho_etemplates,ematrix,bflux
+  k_fit_coeffs,galaxy_flux,galaxy_invvar,galaxy_z,coeff,ematrix=ematrix, $
+     zvals=zvals, rmatrix=rmatrix
+  k_pca_etemplates,coeff,ematrix,bflux
 endfor
 
 ; Output results
