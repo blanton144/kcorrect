@@ -159,8 +159,8 @@ for k=0l, nk-2 do begin
     hindx=where(color gt mn-nsig*sig and color lt mn+nsig*sig and $
                 galaxy_z[useindx] gt zsplit[0] and $
                 galaxy_z[useindx] lt zsplit[1])
-    hmax=mn+nsig*sig
-    hmin=mn-nsig*sig
+    hmax=colorlimits[1,k]
+    hmin=colorlimits[0,k]
     hbins=30
     colorvals=hmin+(hmax-hmin)*(dindgen(hbins)+0.5)/double(hbins)
     colorhistlo=histogram(color[hindx],nbins=hbins,max=hmax,min=hmin)
@@ -179,8 +179,9 @@ for k=0l, nk-2 do begin
     denom=total(colorhisthi*colorhisthi/(colorhistallerr^2),/double)
     scale=numer/denom
     colorhistlo=colorhistlo/scale
-    colorhistlo=colorhistlo/max([colorhisthi,colorhistlo])
-    colorhisthi=colorhisthi/max([colorhisthi,colorhistlo])
+    maxval=max([colorhisthi,colorhistlo])
+    colorhistlo=colorhistlo/maxval
+    colorhisthi=colorhisthi/maxval
     !X.RANGE=!Y.RANGE
     !Y.RANGE=[0.,1.05*max([colorhistlo,colorhisthi])]
     !Y.CHARSIZE=tiny
@@ -191,12 +192,14 @@ for k=0l, nk-2 do begin
     axis,!X.RANGE[1],!Y.RANGE[0],yaxis=1,ycharsize=axis_char_scale, $
       ytitle='N!dgal!n (Normalized)'
     if(k eq 1) then begin
-        xyouts,!X.RANGE[0]+(!X.RANGE[1]-!X.RANGE[0])*0.07, $
+        xyouts,!X.RANGE[0]+(!X.RANGE[1]-!X.RANGE[0])*0.03, $
           !Y.RANGE[1]-(!Y.RANGE[1]-!Y.RANGE[0])*0.15, $
-          'Solid:   z < '+strtrim(string(zsplit,format='(d5.2)'),2)
-        xyouts,!X.RANGE[0]+(!X.RANGE[1]-!X.RANGE[0])*0.07, $
+          'Solid:  '+strtrim(string(zsplit[0],format='(d5.2)'),2) + $
+          ' z < '+strtrim(string(zsplit[1],format='(d5.2)'),2)
+        xyouts,!X.RANGE[0]+(!X.RANGE[1]-!X.RANGE[0])*0.03, $
           !Y.RANGE[1]-(!Y.RANGE[1]-!Y.RANGE[0])*0.30, $
-          'Dotted: z > '+strtrim(string(zsplit,format='(d5.2)'),2)
+          'Dotted: '+strtrim(string(zsplit[1],format='(d5.2)'),2) + $
+          ' z < '+strtrim(string(zsplit[2],format='(d5.2)'),2)
     endif
 endfor
 

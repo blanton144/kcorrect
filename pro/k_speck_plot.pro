@@ -31,18 +31,13 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_speck_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample,to_z=to_z,zrange=zrange,usefiber=usefiber,lumlim=lumlim, primtargetmask=primtargetmask
+pro k_speck_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample,to_z=to_z,zrange=zrange,usefiber=usefiber,lumlim=lumlim, primtargetmask=primtargetmask,fitfib=fitfib,ylimits=ylimits
 
 if(NOT keyword_set(version)) then version='default'
 if(NOT keyword_set(vpath)) then vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
 if(NOT keyword_set(nsig)) then nsig=1.7d
 if(NOT keyword_set(to_z)) then to_z=0.25
 if(NOT keyword_set(zrange)) then zrange=[0.,0.2]
-
-if(keyword_set(usefiber)) then begin
-    restore,usefiber
-    spfull=sp
-endif
 
 restore,savfile
 
@@ -51,51 +46,16 @@ if(n_elements(z) gt 0) then galaxy_z=z
 ngalaxy=long(n_elements(galaxy_z))
 nk=long(n_elements(galaxy_maggies))/ngalaxy
 
-;if(n_elements(sp) gt 0) then begin
-    ;indx=where(sp.petrocountserr[0,*] lt 0.1 and $
-               ;sp.petrocountserr[1,*] lt 0.1 and $
-               ;sp.petrocountserr[2,*] lt 0.1 and $
-               ;sp.petrocountserr[3,*] lt 0.1 and $
-               ;sp.petrocountserr[4,*] lt 0.1)
-    ;galaxy_z=galaxy_z[indx]
-    ;galaxy_maggies=galaxy_maggies[*,indx]
-    ;coeff=coeff[*,indx]
-;endif
-
 if(n_elements(subsample) eq 0) then subsample=1l
 indx=lindgen(ngalaxy/long(subsample))*long(subsample)
 if(keyword_set(primtargetmask)) then begin
-    indx2=indx[where((sp[indx].primtarget and 64) gt 0)]
+    indx2=indx[where((sp[indx].primtarget and primtargetmask) gt 0)]
     indx=indx2
 endif
 galaxy_z=galaxy_z[indx]
-
-if(keyword_set(usefiber)) then begin
-    spherematch,sp.ra,sp.dec,spfull.ra,spfull.dec,1.d/3600.d, $
-      match1,match2,distance12
-    isort=sort(match1)
-    tmpmags=spfull[match2[isort[indx]]].fibercounts[*]
-    tmpmagserr=spfull[match2[isort[indx]]].fibercountserr[*]
-    maglimit=dblarr(5)+23.5
-    errlimit=dblarr(5)+0.8
-    k_fix_mags,galaxy_z,tmpmags,tmpmagserr,maglimit,errlimit,8l
-    galaxy_maggies=dblarr(5,n_elements(indx))
-    galaxy_invvar=dblarr(5,n_elements(indx))
-    errband=[0.05,0.02,0.02,0.02,0.03]
-    for k = 0,4 do begin
-        galaxy_maggies[k,*]= $
-          10.d^(-0.4d*(tmpmags[k,*] $
-                       -0.*spfull[match2[isort[indx]]].reddening[k]))
-        galaxy_invvar[k,*]=galaxy_maggies[k,*]*0.4d*alog(10.d)* $
-          sqrt(tmpmagserr[k,*]^2+errband[k]^2)
-        galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
-    endfor
-endif else begin
-    galaxy_maggies=galaxy_maggies[*,indx]
-    galaxy_invvar=galaxy_invvar[*,indx]
-    coeff=coeff[*,indx]
-endelse
-
+galaxy_maggies=galaxy_maggies[*,indx]
+galaxy_invvar=galaxy_invvar[*,indx]
+coeff=coeff[*,indx]
 mags=mags[*,indx]
 mags0=mags0[*,indx]
 help,indx
@@ -119,6 +79,26 @@ if(n_elements(lumlim) gt 0) then begin
     galaxy_z=galaxy_z[indx]
     mags=mags[*,indx]
     mags0=mags0[*,indx]
+endif
+
+if(keyword_set(fitfib)) then begin
+    indx=where(mags[0,*] eq mags[0,*] and $
+               mags[1,*] eq mags[1,*] and $
+               mags[2,*] eq mags[2,*] and $
+               mags[3,*] eq mags[3,*] and $
+               mags[4,*] eq mags[4,*])
+    galaxy_maggies=galaxy_maggies[*,indx]
+    galaxy_invvar=galaxy_invvar[*,indx]
+    coeff=coeff[*,indx]
+    galaxy_z=galaxy_z[indx]
+    mags=mags[*,indx]
+    mags0=mags0[*,indx]
+    udg=galaxy_maggies[0,*]/galaxy_maggies[1,*]
+    zdi=galaxy_maggies[4,*]/galaxy_maggies[3,*]
+    galaxy_maggies[1:3,*]=10.^(-0.4*mags[1:3,*])
+    galaxy_maggies[0,*]=udg*galaxy_maggies[1,*]
+    galaxy_maggies[4,*]=zdi*galaxy_maggies[3,*]
+    galaxy_maggies=galaxy_maggies*(1.+0.02*randomn(n_elements(galaxy_maggies)))
 endif
 
 k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,version=version, $
@@ -185,7 +165,7 @@ for k=1l, nk-2 do begin
     !X.CHARSIZE = tiny
     !Y.CHARSIZE = 1.35*axis_char_scale
     !X.TITLE = ''
-    !Y.TITLE = 'K!d!s!e'+strtrim(string(to_z,format='(d4.2)'),2)+'!r  '+ $
+    !Y.TITLE = '!4D!3K!d!s!e'+strtrim(string(to_z,format='(d4.2)'),2)+'!r  '+ $
       bands[k]+'!n(z)'
     if (k eq nk-2) then !X.CHARSIZE = 1.2*axis_char_scale
     if (k eq nk-2) then !X.TITLE = 'Redshift z'
@@ -199,6 +179,10 @@ for k=1l, nk-2 do begin
     kkspec=mags[k,nzindx]-mags0[k,nzindx]
     kk=kkspec-kk
     !Y.RANGE=[0.,0.]+nsig*sig*[-1.,1.]
+    sigit=djsig(kk,sigrej=3)
+    help,sigit
+    if(keyword_set(ylimits)) then $
+      !Y.RANGE=ylimits
     djs_plot,galaxy_z[nzindx],kk, psym=3,xst=1,yst=1
     ;xyouts,!X.RANGE[1]-0.18*(!X.RANGE[1]-!X.RANGE[0]), $
       ;!Y.RANGE[0]+0.08*(!Y.RANGE[1]-!Y.RANGE[0]), $

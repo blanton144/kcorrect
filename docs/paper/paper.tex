@@ -58,8 +58,7 @@
 %% you desire.
 
 \title{Estimating Fixed-frame Galaxy Magnitudes in the SDSS
-Spectroscopic Survey}
-
+Spectroscopic Survey$^1$}
 
 %% Use \author, \affil, and the \and command to format
 %% author and affiliation information.
@@ -87,8 +86,8 @@ Michael R. Blanton\altaffilmark{\ref{NYU}},
 Istv\'an Csabai\altaffilmark{\ref{JHU}},
 Mamoru Doi\altaffilmark{\ref{Tokyo}},
 Daniel Eisenstein\altaffilmark{\ref{Arizona}},
-James E. Gunn\altaffilmark{\ref{Princeton}}, and
-David W. Hogg\altaffilmark{\ref{NYU}}
+James E. Gunn\altaffilmark{\ref{Princeton}}
+David W. Hogg\altaffilmark{\ref{NYU}}, and
 David J. Schlegel\altaffilmark{\ref{Princeton}}
 %Julianne Dalcanton\altaffilmark{\ref{UW}},
 %Jon Loveday\altaffilmark{\ref{Sussex}},
@@ -175,11 +174,24 @@ Baltimore, MD 21218
 %3941 O'Hara Street,
 %Pittsburgh, PA 15260
 %\label{Pitt}}
-%\altaffiltext{\theaddress}{
-%\stepcounter{address}
-%rinceton University Observatory, Princeton,
-%NJ 08544
-%\label{Princeton}}
+\altaffiltext{\theaddress}{
+\stepcounter{address}
+Department of Astronomy and Research Center for 
+the Early Universe,
+School of Science, University of Tokyo,
+Tokyo 113-0033, Japan
+\label{Tokyo}}
+\altaffiltext{\theaddress}{
+\stepcounter{address}
+Steward Observatory, 
+933 N. Cherry Ave., Tucson, AZ
+85721
+\label{Arizona}}
+\altaffiltext{\theaddress}{
+\stepcounter{address}
+Princeton University Observatory, Princeton,
+NJ 08544
+\label{Princeton}}
 %\addtocounter{address}{1}
 %\altaffiltext{\theaddress}{
 %\stepcounter{address}
@@ -229,13 +241,6 @@ Baltimore, MD 21218
 %Observatoire Midi-Pyr\'en\'ees, 
 %14 ave Edouard Belin, Toulouse, F-31400, France
 %\label{Pyrenees}}
-%\altaffiltext{\theaddress}{
-%\stepcounter{address}
-%Department of Astronomy and Research Center for 
-%the Early Universe,
-%School of Science, University of Tokyo,
-%Tokyo 113-0033, Japan
-%\label{Tokyo}}
 %\altaffiltext{\theaddress}{
 %\stepcounter{address}
 %UC Berkeley, Dept. of Astronomy, 601 Campbell Hall, Berkeley, CA  94720-3411
@@ -443,12 +448,10 @@ specified in any such paper. The version of the code used to make the
 figures for this paper is {\tt kcorrect v1\_2}.
 
 Section \ref{sedfit} describes our method of fitting galaxy SEDs to
-broad-band photometry. Section \ref{data} applies the method to
-galaxies in the SDSS, showing that the fits are robust. Section
-\ref{kcorrection} shows how one derives $K$-corrections from the
-results, and discusses how best to use the results of such
-fits. Section \ref{conclusions} concludes and discusses future
-development of the method described here.
+broad-band photometry and how to calculate $K$-corrections. Section
+\ref{data} applies the method to galaxies in the SDSS, showing that
+the fits are robust.  Section \ref{conclusions} concludes and
+discusses future development of the method described here.
 
 \section{Calculating Fixed-frame Galaxy Magnitudes}
 \label{sedfit}
@@ -642,14 +645,14 @@ for our fits), there is very little difference between these two
 methods. Having estimated $\band{z_0}{m}$, you can then calculate the
 luminosity by simply applying to the calculated magnitude the
 cosmological distance modulus (that is, the luminosity
-distance-squared law, as tabulated by, {\it e.g.}  \citealt{hogg97a}).
+distance-squared law, as tabulated by, {\it e.g.}  \citealt{hogg99a}).
 
 We want to emphasize here that, while $K$-correcting to a fixed frame
 bandpass is {\it sometimes} necessary in order to achieve a scientific
 objective, it is not {\it always} necessary or appropriate. Because
 $K$-corrections are an inherently uncertain business (the broad-band
 magnitudes just do not uniquely determine the SED) they should be
-avoid or minimized when possible. For example, if one was calculating
+avoided or minimized when possible. For example, if one was calculating
 the evolution of clustering of red and blue galaxies separately, it
 would perhaps be wise to perform the separation not on the
 $K$-corrected colors of the galaxies but on the median color of, say,
@@ -811,8 +814,7 @@ acceptable to use {\it any} well-defined part of any galaxy.  For our
 purposes, it is more important to have high signal-to-noise
 measurements of galaxy colors than to probe exactly the same regions
 of galaxies at low and high redshift.  We extinction-correct both
-types of magnitudes using the dust maps of \citet{schlegel98a}. {\tt
-describe fiber mags}
+types of magnitudes using the dust maps of \citet{schlegel98a}. 
 
 \subsection{Fitting SEDs to SDSS Data}
 
@@ -843,6 +845,16 @@ error bar, of 0.8 magnitudes. Thus, we account for the missing
 information by simply requiring that the object SED have
 ``reasonable'' properties.
 
+In addition, the photometric errors for most objects in the
+spectroscopic galaxy sample of the SDSS are not dominated by the
+estimated errors on the photometry listed in the catalog. Instead, the
+errors are dominated by local calibration errors and other systematic
+effects, which are poorly known. To account for these errors, we add
+extra error terms in quadrature with the errors listed in the catalog
+(0.05 mags, 0.02 mags 0.02 mags, 0.02 mags, and 0.03 mags for $ugriz$,
+respectively). Not accounting for this extra source of errors can
+cause the fits to be ill-behaved.
+
 For the SED space (our $\vv{v}_i(\lambda)$), we use the subspace
 defined by linear combinations of ten Bruzual-Charlot instantaneous
 burst models with ages ranging from $3 \times 10^7$ to $2\times
@@ -861,7 +873,7 @@ galaxies live in a low-dimensional space, we find it is worth being
 able to fit for the templates. Simply using five templates (which
 obviously reproduces all the magnitudes exactly) tends to yield
 unphysical trends of galaxy SED versus redshift ({\it cf.}  Figure
-\ref{constantz} below). Using three templates does nearly as well as
+\ref{main_colors_plot} below). Using three templates does nearly as well as
 four templates in the sense that the resulting templates reproduce the
 $griz$ magnitudes nearly as well. However, the fourth template is
 necessary to recover the $u$-band flux to better than about 15\%. In
@@ -949,10 +961,10 @@ the range of redshifts we consider ($0.0 < z < 0.5$). The only
 remaining problem is the aforementioned difficulties at $z=0.3$,
 discussed in more detail in the next subsection.
 
-\section{The $g$/$r$ Gap}
+\subsection{The $g$/$r$ Gap}
 \label{grgap}
 
-It is clear from Figure \ref{k_kcorrect_plot} that $z=0.3$ is a
+It is clear from Figure \ref{lrg_colors_plot} that $z=0.3$ is a
 special redshift regime where our fits become unphysical. In fact, it
 is easy to demonstrate that the diagonal spur (going from the upper
 left to the lower right) around the red dot in the upper right panel
@@ -1052,26 +1064,54 @@ fixed frame $u$-band magnitudes.
 Finally, it is possible to use the galaxy spectra obtained with the
 spectrograph to estimate the $K$-correction for each object.  However,
 this procedure requires trusting the spectrophotometry over a wide
-wavelength range. In addition, the spectra only probe the inner parts
-of galaxies, and because the fiber aperture is fixed in angular space,
-a different region of the galaxy is probed as a function of
-redshift. However, we can test the $K$-correction method by applying
-it to the SDSS fiber magnitudes. We again group the galaxies into Main
-Sample galaxies and LRG galaxies, and do this problem separately for
-objects $K$-corrected to $z=0.1$ and objects $K$-corrections to
-$z=0.3$, respectively.
+wavelength range. In addition, the region of the galaxy which the
+spectra probe is not completely well defined. The small scale
+wavelength features are set by the fiber aperture ($3''$ in diameter)
+which large scale wavelength features are constrained by a short
+``smear exposure'' which probes a larger area. The smear exposure
+corrections are clearly the correct approach for point sources, but
+for galaxies it does cause the small scale and large scale features of
+the spectrum to be determined by somewhat different regions of the
+galaxy.
 
-Nevertheless, in Figure \ref{k_speck_plot.fiber.0.1}, we compare the
-$K$-corrections calculated based on the spectra to those of Figure
-\ref{kcorrect}, finding that they are extremely similar. The fact that
-they are so similar might prove useful, in the sense that one could
-combine the photometric and spectroscopic results, using the spectra
-to constrain small-scale features such as the 4000 \AA\ break and the
-photometry to cover a large wavelength range and to probe the full
-extent of the galaxy. Such a procedure might resolve the difficulties
-in handling the $u$-band discussed in the previous paragraph. We will
-not pursue this issue further in this paper and leave it for future
-investigation.
+Nevertheless, in Figure \ref{k_speck_plot.0.1}, we compare the
+$K$-corrections to $z=0.1$ of Main Sample galaxies calculated based on
+the spectra to those of Figure \ref{k_kcorrect_plot}, finding that
+they are extremely similar. There is a trend within redshift in the
+$g$-band, which is due to the fact that on average the $g-r$ color is
+about 0.1 magnitudes redder in the fiber aperture than in the
+Petrosian aperture. The implication is that the $K$-corrections {\it
+are} stronger for the fiber aperture than for the Petrosian aperture.
+Correspondingly we repeat the exercise using the SDSS fiber magnitudes
+to determine the $K$-corrections, we find consistent results for the
+$\band{0.1}{g}$-band. 
+
+Skeptics may worry that even if we {\it did} have photometry that
+corresponded precisely to the same region of the galaxy that the
+spectroscopy did, we still might be calculating the $g$-band
+$K$-corrections in some biased way. However, we can test whether this
+is the case by synthesizing the observed broad-band photometry from
+the spectra, and trying to recover the $K$-corrections in a case where
+we know the spectrum completely. Since we cannot synthesize the
+observed $u$ and $z$ bands, we simply base them on the synthesized $g$
+and $i$ band magnitudes plus the $u-g$ and $z-i$ colors. (This
+procedure is unlikely to make the photometric estimations of the
+$K$-corrections {\it better}). Finally, we added 2\% random errors to
+all of the measurements. Figure \ref{k_speck_plot.fitfib.0.1} compares
+the $K$-corrections from the synthesized photometry to that calculated
+from the spectroscopy itself. The agreement is now very good,
+suggesting that our method can indeed recover the correct
+$K$-corrections based only on broad-band magnitudes (and furthermore
+that for the $g$-band one should not rely on $K$-corrections based on
+the spectroscopy alone).
+
+For completeness, Figure \ref{k_speck_plot.0.3} compares the
+spectroscopic and photometric $K$-corrections to $z=0.3$ of LRGs. The
+\band{0.3}{r} and \band{0.3}{i} bands agree very well. However, there
+is considerable scatter in the \band{0.3}{g} band (nearly equivalent
+to the \band{0.0}{u} band), at around 20\%. Because the LRGs tend to
+have small color gradients, the issues of fiber sizes and smear
+exposures are not important in this context.
 
 \section{Conclusions and Future Work}
 \label{conclusions}
@@ -1086,45 +1126,44 @@ galaxies. Furthermore, we plan to incorporate observations of objects
 in bands other than the SDSS bands to further describe the nature of
 galaxy SEDs.
 
-Some of the scatter in the three-dimension space describing the shape
-of the galaxy SED is probably due to dust. It may be possible to
-evaluate the effects of reddening in this space and, by assuming that
-galaxies corrected for internal reddening live in an even lower
-dimensional space, perform a reddening correction. We will be
-investigating this question in the near future.
+We have not discussed in detail the question of error analysis. There
+is no answer to this question which is simple, general, {\it and}
+realistic. The photometric errors can of course be propagated to the
+errors on the reconstructed magnitudes, but these estimates do not
+describe the errors associated with the restriction to a
+three-dimensional space of SED shapes. {\bf maybe we should implement
+this anyway, though}. An idea of the level of errors can be gleaned
+from the comparison of our method to other methods of
+$K$-correction. Clearly, $r$, $i$ and $z$ can be reconstructed to the
+level of the photometry. Judging from Figure
+\ref{k_speck_plot.fitfib.0.1}, the $g$ band can be reconstructed to
+about 5\% accuracy. The $u$ band is more difficult to evaluate.
+Judging from the poor reconstructions of the $\band{0.3}{g}$ band
+(nearly equal to the $\band{0.0}{u}$ band, the reconstructions may be
+as bad as 20\% accuracy.
 
-Furthermore, one may want to include the effects of evolution in the
-$K$-corrections. One approach to this calculation is to define a
-one-dimensional locus, and record which position on this locus is
-closest to each galaxy. Then, the one-dimensional locus provides a set
-of spectra, for which estimates of evolution can be calculated. This
-procedure avoids fitting star-formation histories to a huge number of
-different positions in galaxy SED space. Since their will be
-degeneracies between age and metallicity in these fits in any case, it
-may be best to simplify the problem to one dimension.
+Topics we have not discussed here are dust- and evolution-correction
+of the magnitudes. Some of the scatter in the three-dimensional space
+describing the shape of the galaxy SED is probably due to dust. It may
+be possible to evaluate the effects of reddening in this space and, by
+assuming that galaxies corrected for internal reddening live in an
+even lower dimensional space, perform a reddening correction. We will
+be investigating this question in the near future. One can perform a
+similar exercise with evolution estimates, relating the position of a
+galaxy along the $a_1$ axis in Figure \ref{k_coeffdist_plot} to a
+particular star-formation history, and estimating the evolution of the
+object from that history.
 
 The distribution of galaxies in the three-dimensional space of galaxy
-SEDs described here may be useful for other purposes, as well. As one
-example, which has already been explored in a separate project, one
-can calculate photometric redshifts (if you are willing to restrict
-your galaxy models to a one-dimensional, though possibly curved, locus
-within the three-dimensional space). However, there is a fairly severe
-redshift-type degeneracy, in the sense that blue galaxies at high
-redshift can be confused with red galaxies at lower redshift. These
-problems can be hazardous to someone trying to estimate the evolution
-of the luminosity function from a photometric redshift sample (such
-studies rarely include these correlated errors in their estimate of
-their uncertainties). However, one can make an alternative set of
-assumptions by modeling the distribution of the galaxies in the
-three-dimensional spectral space as a pair of gaussians. For such a
-model, and a model for the position and luminosity evolution of each
-gaussian, one can calculate the probability of observing any given
-galaxy. Thus, one could use the galaxy photometry to constrain the
-luminosity evolution of galaxies in each gaussian, as well as the
-evolution of the position of the gaussians. This method has its own
-systematic errors and its own restrictive set of assumptions, but
-provides an alternative path to calculating the luminosity function
-directly from photometric redshifts.
+SEDs described here may be useful for other purposes, as well. For
+example, you can calculate photometric redshifts using the method
+described here. {\tt kcorrect v1\_2} has a simple (and very fast)
+photometric redshift estimator with very tight core of residuals
+($\sigma \sim 0.05$) in a comparison to SDSS galaxies with redshifts.
+Before this code can be used as a reliable photometric redshift
+indicator, more work has to be done (which the reader is invited to do
+using the released code) to identify galaxies which are likely to be
+redshift outliers. 
 
 \acknowledgments
 
@@ -1154,7 +1193,7 @@ Society. The SDSS Web site is http://www.sdss.org/.
 
 \newpage
 
-\include{tables}
+%\include{tables}
 
 \include{figures}
 
