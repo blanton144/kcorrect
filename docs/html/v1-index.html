@@ -1,7 +1,7 @@
 <HTML>
 <BODY>
 
-<H1> K-corrections and Photometric Redshifts with Broad-band
+<H1> K-corrections and Photometric Redshifts <br> with Broad-band
 Photometry</h1>
  
 <p> Mike Blanton, Department of Physics, New York University </p>
@@ -65,10 +65,9 @@ to earliest, are:
 <ul>
 <li> <a href="kcorrect.v3_1.tar.gz"> kcorrect.v3_1.tar.gz</a> 
 <li> <a href="kcorrect.v1_16.tar.gz"> kcorrect.v1_16.tar.gz</a>
-(latest old version)
+(latest recommended old version)
 </ul>
-(In
-The earlier versions are only included so that you can reproduce old
+The earlier version is only included so that you can reproduce old
 results if you like.
 
 It is also possible to export tagged versions from a public CVS
@@ -88,9 +87,9 @@ cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot login
 When the above asks for a password, just hit Enter. 
 <li> After this, you can just export any version you want:
 <pre>
-cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v1_11 kcorrect
+cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v3_1 kcorrect
 </pre>
-where you can replace v1_11 with whatever version you want.
+where you can replace v3_1 with whatever version you want.
 </ul> 
 Please export only based on revision tag, so that we can
 track versions properly. 
@@ -112,14 +111,18 @@ performed. Other Linux versions should port very easily, at least.
 In order to compile the code follow these directions:
 
 <ul>
-<li> First set the environmental variables (in, for example, bash):
+<li> First set the environmental variables. For example, in bash:
 <pre>
 KCORRECT_DIR=/usr/local/kcorrect
 IDL_PATH=$IDL_PATH:+$KCORRECT_DIR/pro
-MAKE_FTNLIB="-lg2c"
-KCORRECT_LD_LIB="/usr/lib"
 PATH=$KCORRECT_DIR/bin:$PATH
-export KCORRECT_LD_LIB MAKE_FTNLIB KCORRECT_DIR 
+export KCORRECT_DIR 
+</pre>
+or in tcsh:
+<pre>
+setenv KCORRECT_DIR /usr/local/kcorrect
+setenv IDL_PATH $IDL_PATH:+$KCORRECT_DIR/pro
+setenv PATH $KCORRECT_DIR/bin:$PATH
 </pre>
 These default settings may need to be changed on your system as
 follows:
@@ -128,36 +131,23 @@ follows:
 <b>KCORRECT_DIR</b>: Simply substitute whatever directory you have
 downloaded this product into. 
 <li>
-<b>MAKE_FTNLIB</b>: The library C needs to load in order to include
-Fortran objects. As implied above, "-lg2c" is appropriate for Red Hat
-Linux. 
-<li>
 <b>IDL_PATH</b>: Set only if you are using IDL
 <li>
-<b>KCORRECT_LD_LIB</b>: Should be a location which is in your
-LD_LIBRARY_PATH, in which we will put the shared object library when
-it is compiled. If you are trying to link this code in as a C library,
-KCORRECT_LD_LIB has to be in LD_LIBRARY_PATH at run time. If you
-don't have permission to write into /usr/lib, set
-"LD_LIBRARY_PATH=$KCORRECT_LD_LIB:$LD_LIBARARY_PATH", so your code
-knows where to find the kcorrect stuff.
+<b>PATH</b>: Obviously needed to run the binaries created
 </ul>
 You probably want to put these settings in your .bashrc or .tcshrc
-file.
-<li> Type "evilmake -k". 
+file. Then
+<li> Type "kevilmake -k". 
 Then everything should compile, and IDL documentation should be
 created. If you do not have IDL, the compile should complete what it
 needs to complete and then give an error message that it can't make
 the IDL docs. At this point, you should be able to open IDL and
 start using the utilities described below. 
-<li> Type "evilmake -k install". This will just copy libkcorrect.so to
-the directory specified by KCORRECT_LD_LIB, so that writers of C code
-can use it.  
 </ul>
 
 <p>
 Note that the C codes "fit_coeffs.c" and "reconstruct_maggies.c" only depend
-in the K-correction library; thus, you can use them as templates for
+on the K-correction library; thus, you can use them as templates for
 incorporating the K-correction code directly into your C code, as long
 as you include the K-correction library. In fact, you would probably
 put something like "fit_coeffs.c" into your code but include the
@@ -168,13 +158,11 @@ k_reconstruct_maggies() call directly inside to get the K-corrections.
 
 <p> We'll describe the basic idea before getting into exactly how to
 use the code. To each set of five-band galaxy magnitudes I fit an SED
-which is a linear combination of four templates. The four templates
-have been optimized to minimize the residuals between the actual
-galaxy magnitudes and the galaxy magnitudes reconstructed from the
-galaxy SED fit.  The units of the fit spectra created are in ergs
-cm^{-2} s^{-1} A^{-1}. The first coefficient of each object is the
-number of ergs cm^{-2} s^{-1} within the range 3500 to 7500
-Angstroms.</p>
+which is a nonnegative linear combination of some templates. The
+templates have been optimized to minimize the residuals between the
+actual galaxy magnitudes and the galaxy magnitudes reconstructed from
+the galaxy SED fit.  The units of the fit spectra created are in ergs
+cm^{-2} s^{-1} A^{-1}. <b>need to guarantee this</b>
 
 <p> From the SED fit, one can reconstruct magnitudes corresponding to
 observing the galaxy at any redshift within a large range (like 0 to
@@ -196,7 +184,9 @@ is the distance modulus, accounting for the angular diameter distance
 and cosmological surface-brightness dimming, and K_QR(z) is the
 K-correction. By absolute magnitude we mean: the apparent magnitude
 in band Q the object would have if it were observed at rest, 10 pc
-away, using an aperture that contains its total flux.  </p>
+away, using an aperture that contains its total flux. See <a
+href="http://arxiv.org/astro-ph/00000000> Hogg et al. (2002)</a> for
+a full description of what the K correction is. </p>
 
 <p> Our code is designed to calculate K-corrections between the
 observed AB bands ugriz and those same bands shifted by an arbitrary
@@ -208,10 +198,10 @@ galaxies at z=0.1 will then have a K-correction which independent of
 their SEDs (and therefore their colors) and equal to -2.5 log_10
 (1+0.1). In general, for a bandpass shifted by z_0, the K-correction
 for a galaxy at z_0 to the observed bandpass shifted by z_0 is -2.5
-log_10 (1+z_0), independent of galaxy SED. (Note that the
-K-correction is not zero in this case; earlier versions of code, v1_10
-and previous, incorrectly did not apply this overall offset ---
-see the <a href="#note1"> note</a> at bottom. </p>
+log_10 (1+z_0), independent of galaxy SED. (Note that the K-correction
+is not zero in this case; very early versions of code, v1_10 and
+previous, incorrectly did not apply this overall offset --- see the <a
+href="#note1"> note</a> at bottom. </p>
 
 <p> 
 You can use the reconstructions two ways:
@@ -219,20 +209,23 @@ You can use the reconstructions two ways:
 <li> Use the reconstruction as the best estimate of the magnitude in
 the given bandpass
 <li> Estimate a K-correction to the actual magnitude as the ratio of the
-reconstruction at z=0. observed in the shifted bandpass to the
+reconstruction at z=0 observed in the shifted bandpass to the
 reconstruction at the actual redshift observed in the unshifted
 bandpass
 </ul>
 This distinction matters very little if your reconstructions are
-really good, as they are here. The default behavior of <b>kcorrect</b>
-is the second method.
+really good. What you actually want to do depends largely on
+context. The default behavior of <b>kcorrect</b> is the second method
+but it can easily do the first.
 </p>
 
-<p> The code is generally based on AB magnitudes or AB maggies. SDSS
+<p> The code is generally based on AB magnitudes or AB "maggies." SDSS
 luptitudes are AB quantities and for reasonably bright objects are
 equivalent to AB magnitudes. "Maggies" are simply the linearized
 version of AB magnitudes; that is, they are 10^{-0.4*mag} (the
-conversion from luptitudes to maggies is a bit more complicated). </P>
+conversion from luptitudes to maggies is a bit more complicated, see
+the description accompanying the <a href="http://www.sdss.org/dr1/">
+DR1 documentation</a>). </P>
 
 <p> But you may still be wondering what I mean by an "AB"
 magnitude. The AB system is designed such that a flat spectrum object
@@ -251,7 +244,8 @@ between making precise measurements and making interpretable ones.</p>
 The easiest interface to the code, if it is available to you, is the
 IDL code. The detailed <a href="kcorrect_help.html"> documentation</a>
 is available for all of the routines, but there is basically only
-one you would usually use, which is <b>kcorrect</b>.
+one you would usually use, which is <b>kcorrect</b>. The IDL code
+depends on the <a href="0000000"> idlutils</a> package.
 
 This routine performs the K-corrections on a 
 set of magnitudes or maggies. It is called as follows:
@@ -529,18 +523,35 @@ this work. It turns out that the SDSS filters do not have the
 responses they were designed to have, but <a
 href="http://www.ioa.s.u-tokyo.ac.jp/~doi/"> Mamoru Doi</a> has done
 the hard work of measuring them. Jim Gunn then took these, ran them
-through models of the telescope and the atmosphere. Daniel Eisenstein
-deserves special mention for the extensive testing he has done on
-these. We have a <a href="filters"> repository</a> of these and other
-curves. For <b>kcorrect</b> we use the files:
+through models of the telescope and the atmosphere (using an
+appropriately scaled model of the Palomar atmospheric model at airmass
+1.3). Daniel Eisenstein deserves special mention for the extensive
+testing he has done on these. We have a <a href="../../data/filters">
+repository</a> of these and other curves. For <b>kcorrect</b> we use
+the SDSS files:
 <pre>
-sdss_u0.dat
-sdss_g0.dat
-sdss_r0.dat
-sdss_i0.dat
-sdss_z0.dat
-</pre>
+sdss_u0.par 
+sdss_g0.par 
+sdss_r0.par
+sdss_i0.par 
+sdss_z0.par 
+</pre> 
 The other SDSS files refer to the responses for each camcol.</p>
+
+<p> The files are in a special SDSS format called FTCL described at <a
+href="http://www.sdss.org/dr1</a>. IDL code (in particular,
+yanny_readone()) exists in <a href="0000000"> idlutils</a> to read in
+such files. </p>
+
+<h3> A Note on the Absolute Calibration of SDSS Magnitudes</h3>
+
+Our best estimate of the absolute calibration of SDSS data indicates
+that the magnitudes output by the SDSS pipeline code are not exactly
+on an AB system. There are offsets Delta m = m_AB - m_SDSS = [-0.042,
+0.036, 0.015, 0.013, -0.002] in u, g, r, i, and z bands. We have
+trained our templates on SDSS magnitudes corrected to this system. For
+the moment we recommend that the user apply these corrections to the
+magnitudes they are using. 
 
 <h3> A Note on Photometric Errors</h3>
 
@@ -550,42 +561,6 @@ etc. Instead, the errors are dominated by local calibration errors and
 other systematic effects, which are poorly known. I usually add errors
 of [0.05,0.02,0.02,0.02,0.03] in ugriz in quadrature to the estimated
 errors from PHOTO, which makes things considerably better behaved.
-
-<!-- 
-<h3> A Note on the g/r Gap</h3>
-
-As noted in the <a href="paper.ps"> kcorrection paper</a>, there is a
-troublesome gap between the g and r bands in the SDSS filter
-system. Linear fits such as the one used by <b>kcorrect</b> tend to
-allow unphysical solutions very easily --- that is, we have not
-sufficiently constrained our fits. The result in this case is that
-some directions in the space correspond to big spikes right between g
-and r at z=0.3; these directions are necessary because they help
-characterize the 4000 angstrom break. Thus, we are stuck with very
-unphysical fits to the galaxy SEDs near z=0.3. 
-
-The correct fix is to impose non-negative contributions of each of the
-original templates to any fit to a galaxy. We have not implemented
-this yet, and instead have the following hack available to deal with
-galaxies around z=0.3. If you specify the <b>/addgrgap</b> flag in
-your call to <b>kcorrect</b>, it artificially adds an extra band
-between g and r, which has a FWHM of 2000 angstroms and a center of
-5500 angstroms. The "measured" value is the mean of the g and r
-maggies, and is given 4 sigma significance. This extra constraint
-changes the K-corrections for galaxies outside the range 0.27 < z <
-0.33 by far less than 1 percent. The constraint helps to clean up the
-fits but it is not sufficient; the coefficients are still clearly
-messed up around z=0.3. It helps considerably if one is K-correcting
-to z=0.3, which we recommend for the moment for studies of LRGs; this
-minimizes the corrections which are performed using our most
-unphysical fits.
-
-Remember, you really only need to worry about this effect in the SDSS
-when you are dealing with the LRGs, for galaxies in the range about
-0.27 < z < 0.33. The Main Sample results are not significantly
-affected at all.  Furthermore, one can still observe a galaxy at z=0.1
-and reliably infer what it would look like at z=0.3; it is only the
-reverse process which is difficult. -->
 
 <A NAME="note1"> 
 <h3> A Note on non-AB Magnitudes Returned by v1_10 and

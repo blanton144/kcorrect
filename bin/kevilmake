@@ -36,9 +36,9 @@ case `uname` in
 		X_LD_FLAGS="-S -shared";;
 	"Linux" )
 		SO_EXT=so
-		X_CFLAGS="-fPIC"
+		X_CFLAGS=
 		X_FFLAGS="-ffixed-line-length-none"
-		SDSS_CFLAGS=-O2
+		SDSS_CFLAGS=
 		X_LD_FLAGS=-shared ;;
 	*) echo "This system is not supported" >&2
 		exit 1;;
