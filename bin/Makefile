@@ -5,7 +5,8 @@
 
 SHELL = /bin/sh
 #
-all :;
+all :
+
 #
 # Install things in their proper places in $(KCORRECT_DIR)
 #
