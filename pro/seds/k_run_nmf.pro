@@ -12,30 +12,36 @@
 pro k_run_nmf
 
 mmatrix=mrdfits('k_nmf_mmatrix.fits')
-data=mrdfits('k_nmf_data.fits',1)
-ivar=mrdfits('k_nmf_data.fits',2)
+datastr=mrdfits('k_nmf_spdata.fits',1)
+vals=mrdfits('k_nmf_spdata.fits',2)
+ivar=mrdfits('k_nmf_spdata.fits',3)
+xx=mrdfits('k_nmf_spdata.fits',4)
 
-ilez=where(data le 0., nlez)
+data=create_struct(datastr, $
+                   'val', fltarr(n_elements(vals)), $
+                   'x', fltarr(n_elements(vals)))
+data.val=vals
+data.x=xx
+data_ivar=create_struct(datastr, $
+                        'val', fltarr(n_elements(vals)), $
+                        'x', fltarr(n_elements(vals)))
+data_ivar.val=ivar
+data_ivar.x=xx
+
+ilez=where(data.val le 0., nlez)
 if(nlez gt 0) then begin
-    data[ilez]=1.
-    ivar[ilez]=0.
+    data.val[ilez]=1.
+    data_ivar.val[ilez]=0.
 endif
 
 if(file_test('k_nmf_soln.fits')) then begin
-    ww0=mrdfits('k_nmf_soln.fits',0)
-    hh0=mrdfits('k_nmf_soln.fits',1)
-    nmf_sq_m_err, data, 6, mmatrix, ivar, 5000L, ww0, hh0, ww=ww, hh=hh
-endif else begin
-    nmf_sq_m_err, data, 6, mmatrix, ivar, 5000L, ww=ww, hh=hh
-endelse
+    templates=mrdfits('k_nmf_soln.fits',0)
+    coeffs=mrdfits('k_nmf_soln.fits',1)
+endif 
+nmf_sparse, data, data_ivar, 6, mmatrix, 5000L, coeffs=coeffs, $
+  templates=templates
 
-mwrfits, ww, 'k_nmf_soln.fits', /create
-mwrfits, hh, 'k_nmf_soln.fits'
-
-ww=mrdfits('k_nmf_soln.fits')
-hh=mrdfits('k_nmf_soln.fits',1)
-model=mmatrix#ww#hh
-
-
+mwrfits, templates, 'k_nmf_soln.fits', /create
+mwrfits, coeffs, 'k_nmf_soln.fits'
 
 end

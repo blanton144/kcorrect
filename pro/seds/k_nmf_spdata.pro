@@ -38,6 +38,7 @@
 ;     HDU7: [Ngals]; heliocentric redshift of each object
 ;   This file is readable by k_nmf_run.pro
 ; BUGS:
+;   add errors in quadrature
 ;   AB corrections need updated
 ;   tweak spectra to match fluxes??
 ;   what about filter curves?
@@ -46,11 +47,12 @@
 ;   23-Nov-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_nmf_spdata, mmatrix=mmatrix, sample=sample
+pro k_nmf_spdata, mmatrix=mmatrix, sample=sample, flux=flux
 
 if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
 if(NOT keyword_set(sample)) then sample='sample15'
+if(NOT keyword_set(flux)) then flux='model'
 if(NOT keyword_set(nsdss_photo)) then nsdss_photo=100L
 if(NOT keyword_set(nsdss_spec)) then nsdss_spec=100L
 if(NOT keyword_set(ngalex)) then ngalex=160L
@@ -100,8 +102,8 @@ postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='bsafe', $
                                post='1'), 1, nrow=28800)
 indx_spec=shuffle_indx(n_elements(postcat), num_sub=nsdss_spec, seed=seed)
 postcat=postcat[indx_spec]
-kc=mrdfits(vagc_name('kcorrect', flux='model', collision_type='none', $
-                     band_shift='0.00'),1,row=postcat.object_position)
+kc=mrdfits(vagc_name('kcorrect', flux=flux, collision_type='none', $
+                     band_shift='0.10'),1,row=postcat.object_position)
 sp=mrdfits(vagc_name('object_sdss_spectro'),1,row=postcat.object_position)
 vmod=mrdfits(getenv('VAGC_REDUX')+'/velmod_distance/distance_'+velmodtype+ $
              '.fits',1, row=postcat.object_position)
@@ -115,18 +117,21 @@ for i=0L, n_elements(postcat)-1L do $
 for i=0L, n_elements(postcat)-1L do $
   block_ivar[*,i]=block_ivar[*,i]*absrc^2*10.^(-0.8*dm[i])
 for i=0L, n_elements(postcat)-1L do begin
-    if(keyword_set(data)) then begin
-        data=[data, block_flux[*,i]]
-        ivar=[ivar, block_ivar[*,i]*sdss_spec_weight]
-        xx=[xx, lindgen(nspec)]
-    endif else begin
-        data=block_flux[*,i]
-        ivar=block_ivar[*,i]*sdss_spec_weight
-        xx=lindgen(nspec)
-    endelse
-    datastr.rowstart[isdss_spec[i]]=currx
-    datastr.nxrow[isdss_spec[i]]=nspec
-    currx=currx+nspec
+    igood=where(block_ivar[*,i] gt 0., ngood)
+    if(ngood gt 0) then begin
+        if(keyword_set(data)) then begin
+            data=[data, block_flux[igood,i]]
+            ivar=[ivar, block_ivar[igood,i]*sdss_spec_weight]
+            xx=[xx, igood]
+        endif else begin
+            data=block_flux[igood,i]
+            ivar=block_ivar[igood,i]*sdss_spec_weight
+            xx=igood
+        endelse
+        datastr.rowstart[isdss_spec[i]]=currx
+        datastr.nxrow[isdss_spec[i]]=ngood
+        currx=currx+ngood
+    endif
 endfor
 zdist[isdss_spec]=vmod.zdist
 zhelio[isdss_spec]=kc.z
@@ -136,8 +141,8 @@ postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='bsafe', $
                                post='1'), 1, nrow=28800)
 indx_photo=shuffle_indx(n_elements(postcat), num_sub=nsdss_photo, seed=seed)
 postcat=postcat[indx_photo]
-kc=mrdfits(vagc_name('kcorrect', flux='model', collision_type='none', $
-                     band_shift='0.00'),1,row=postcat.object_position)
+kc=mrdfits(vagc_name('kcorrect', flux=flux, collision_type='none', $
+                     band_shift='0.10'),1,row=postcat.object_position)
 sp=mrdfits(vagc_name('object_sdss_spectro'),1,row=postcat.object_position)
 vmod=mrdfits(getenv('VAGC_REDUX')+'/velmod_distance/distance_'+velmodtype+ $
              '.fits',1, row=postcat.object_position)
@@ -149,13 +154,13 @@ for i=0L, n_elements(postcat)-1L do begin
     igood=where(kc[i].abmaggies gt 0., ngood) 
     if(ngood gt 0) then begin
         if(keyword_set(data)) then begin
-            data=[data, kc[i].abmaggies[igood]*10.^(0.4*dm[i])]
-            ivar=[ivar, kc[i].abmaggies_ivar[igood]*10.^(-0.8*dm[i])* $
+            data=[data, 1.e-9*kc[i].abmaggies[igood]*10.^(0.4*dm[i])]
+            ivar=[ivar, 1.e+18*kc[i].abmaggies_ivar[igood]*10.^(-0.8*dm[i])* $
                   sdss_photo_weight]
             xx=[xx, iz[i]+(igood+2L)*nzf+nspec]
         endif else begin
-            data=kc[i].abmaggies[igood]*10.^(0.4*dm[i])
-            ivar=kc[i].abmaggies_ivar[igood]*10.^(-0.8*dm[i])* $
+            data=1.e-9*kc[i].abmaggies[igood]*10.^(0.4*dm[i])
+            ivar=1.e+18*kc[i].abmaggies_ivar[igood]*10.^(-0.8*dm[i])* $
               sdss_photo_weight
             xx=iz[i]+(igood+2L)*nzf+nspec
         endelse
@@ -172,7 +177,7 @@ imatched=where(galex_objects.object_tag ge 0)
 galex_objects=galex_objects[imatched]
 galex=galex[imatched]
 galex_lss=mrdfits(vagc_name('lss_index', sample=sample), 1, $
-                  row=galex_objects.object_tag)
+                  row=galex_objects.object_position)
 igot=where(galex_lss.ztype gt 0 and $
            galex_lss.z gt 0.01 and $
            galex_lss.z lt 0.30)
@@ -184,61 +189,66 @@ galex=galex[indx_galex]
 galex_objects=galex_objects[indx_galex]
 galex_lss=galex_lss[indx_galex]
 galex_vmod=mrdfits(getenv('VAGC_REDUX')+'/velmod_distance/distance_'+ $
-                   velmodtype+'.fits',1, row=galex_objects.object_tag)
+                   velmodtype+'.fits',1, row=galex_objects.object_position)
 galex_dm=lf_distmod(galex_vmod.zdist)
 galex_sdss=mrdfits(vagc_name('object_sdss_imaging'), 1, $
-                   row=galex_objects.object_tag)
+                   row=galex_objects.object_position)
+galex_kc=mrdfits(vagc_name('kcorrect', flux=flux, collision_type='none', $
+                           band_shift='0.10'),1, $
+                 row=galex_objects.object_position)
 zdist[igalex]=galex_vmod.zdist
 zhelio[igalex]=galex_vmod.zact
 iz=long(floor((nzf-1.)*(zhelio[igalex]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
-for i=0L, n_elements(postcat)-1L do begin
-    datastr.rowstart[isdss_photo[i]]=currx
+for i=0L, n_elements(galex)-1L do begin
+    datastr.rowstart[igalex[i]]=currx
 
     if(galex[i].fuv_mag ne -99.) then begin
-        datastr.nxrow[isdss_galex[i]]=datastr.nxrow[isdss_galex[i]]+1L
+        datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+1L
         maggies=10.^(-0.4*(galex[i].fuv_mag-galex[i].fuv_extinction- $
                            galex_dm[i]))
         maggies_ivar=1./(galex[i].fuv_magerr*0.4*alog(10.)*maggies)^2
         if(keyword_set(data)) then begin
             data=[data, maggies]
-            ivar=[ivar, maggies_ivar*sdss_galex_weight]
+            ivar=[ivar, maggies_ivar*galex_weight]
             xx=[xx, iz[i]+(0L)*nzf+nspec]
         endif else begin
             data=maggies
-            ivar=maggies_ivar*sdss_galex_weight
+            ivar=maggies_ivar*galex_weight
             xx=iz[i]+(0L)*nzf+nspec
         endelse
         currx=currx+1L
     endif 
 
     if(galex[i].nuv_mag ne -99.) then begin
-        datastr.nxrow[isdss_galex[i]]=datastr.nxrow[isdss_galex[i]]+1L
+        datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+1L
         maggies=10.^(-0.4*(galex[i].nuv_mag-galex[i].nuv_extinction- $
                            galex_dm[i]))
         maggies_ivar=1./(galex[i].nuv_magerr*0.4*alog(10.)*maggies)^2
         if(keyword_set(data)) then begin
             data=[data, maggies]
-            ivar=[ivar, maggies_ivar*sdss_galex_weight]
+            ivar=[ivar, maggies_ivar*galex_weight]
             xx=[xx, iz[i]+(1L)*nzf+nspec]
         endif else begin
             data=maggies
-            ivar=maggies_ivar*sdss_galex_weight
+            ivar=maggies_ivar*galex_weight
             xx=iz[i]+(1L)*nzf+nspec
         endelse
         currx=currx+1L
     endif 
 
-    igood=where(kc[i].abmaggies gt 0., ngood1) 
+    igood=where(galex_kc[i].abmaggies gt 0., ngood) 
     if(keyword_set(data)) then begin
-        data=[data, kc[i].abmaggies[igood]]
-        ivar=[ivar, kc[i].abmaggies_ivar[igood]*sdss_galex_weight]
+        data=[data, 1.e-9*galex_kc[i].abmaggies[igood]*10.^(0.4*galex_dm[i])]
+        ivar=[ivar, 1.e+18*galex_kc[i].abmaggies_ivar[igood]*galex_weight* $
+              10.^(-0.8*galex_dm[i])]
         xx=[xx, iz[i]+(igood+2L)*nzf+nspec]
     endif else begin
-        data=kc[i].abmaggies[igood]
-        ivar=kc[i].abmaggies_ivar[igood]*sdss_galex_weight
+        data=1.e-9*galex_kc[i].abmaggies[igood]*10.^(0.4*galex_dm[i])
+        ivar=1.e+18*galex_kc[i].abmaggies_ivar[igood]*galex_weight* $
+          10.^(-0.8*galex_dm[i])
         xx=iz[i]+(igood+2L)*nzf+nspec
     endelse
-    datastr.nxrow[isdss_galex[i]]=datastr.nxrow[isdss_galex[i]]+ngood
+    datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+ngood
     currx=currx+ngood
 endfor
 

@@ -28,15 +28,15 @@ back=0.5  ;; how many Gyrs earlier?
 lmin=600.
 lmax=30000.
 navloglam=8000L
-nagesmax=10
+nagesmax=30
 vdisp=300.
 minzf=0.
 maxzf=1.
-nzf=100
-;;nmets=6
-;;mets=[0,1,2,3,4,5]
-nmets=2
-mets=[3,4]
+nzf=500
+nmets=6
+mets=[0,1,2,3,4,5]
+;;nmets=2
+;;mets=[3,4]
 sigma=vdisp/(2.99792e+5*alog(10.))
 
 ;; 1. make stellar pops

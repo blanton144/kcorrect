@@ -38,7 +38,7 @@ if(NOT keyword_set(outfile)) then outfile='k_nmf_data.fits'
 if(NOT keyword_set(sample)) then sample='drtwo14'
 if(NOT keyword_set(nsdss_photo)) then nsdss_photo=100L
 if(NOT keyword_set(nsdss_spec)) then nsdss_spec=100L
-if(NOT keyword_set(ngalex)) then ngalex=160L
+if(NOT keyword_set(ngalex)) then ngalex=300L
 if(NOT keyword_set(seed1)) then seed1=1000L
 if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
@@ -142,7 +142,7 @@ zdist[igalex]=galex_vmod.zdist
 zhelio[igalex]=galex_vmod.zact
 iz=long(floor((nzf-1.)*(zhelio[igalex]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
 ifilter=0
-igood=where(galex.fuv_mag ne -99., ngood)
+igood=where(galex.fuv_mag ne -999., ngood)
 if(ngood gt 0) then begin
     data[iz[igood]+ifilter*nzf+nspec, igalex[igood]]= $
       10.^(-0.4*(galex[igood].fuv_mag-galex[igood].fuv_extinction- $
@@ -153,7 +153,7 @@ if(ngood gt 0) then begin
            0.4*alog(10.))^2)
 endif
 ifilter=1
-igood=where(galex.nuv_mag ne -99., ngood)
+igood=where(galex.nuv_mag ne -999., ngood)
 if(ngood gt 0) then begin
     data[iz[igood]+ifilter*nzf+nspec, igalex[igood]]= $
       10.^(-0.4*(galex[igood].nuv_mag-galex[igood].nuv_extinction- $
