@@ -14,6 +14,24 @@
 # Meaning of/Reason for default column: Only available
 #
 # Notes:
+# 
+# From Schiminovich:
+#
+# "In ground calibration, by measuring photon count rates of a
+# monochromatic source and comparing to counts measured by a
+# NIST-referenced photomultiplier tube.  At a given wavelength:
+#
+# Effective area=(Geometric open aperture)*(measured
+# counts)*(phototube efficiency)/(phototube counts) 
+# 
+# Can determine zero-point from this.  We have compared to WD
+# standards in-flight and believe our zero-point is less than 0.1 mag
+# off, and will improve accuracy over the next few months (more
+# calibrators are being observed).  Grism mode allows us to make some
+# band shape determinations, however grism order efficiency enters
+# into calculation.
+#   
+# -DS"
 #
 # The units are "effective area" in cm^2
 #
