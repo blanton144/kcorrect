@@ -39,9 +39,33 @@
 \shorttitle{$K$-corrections and photometric redshifts}
 
 \begin{document}
+
+Here are linear conversions between a number of different bandpass
+systems. In each case the results are a linear regression of the
+difference between the magnitudes on the given color. The color term
+is offset to a median color of some sort, so that if you ignore the
+color term you'll get a sensible answer (the standard deviation around
+the median color is also given).  {\bf ALL OF THE ZEROPOINTS ARE AB
+ZEROPOINTS! SEE LAST PAGE FOR CONVERSIONS FROM VEGA TO AB MAGNITUDES}.
  
 \begin{eqnarray}
 \input{k_linear.tex}
 \end{eqnarray}
+
+\clearpage
+
+As promised, here are the conversions between the Vega and AB systems
+for the Bessell and 2MASS filters:
+\begin{eqnarray}
+U_{\mathrm{AB}} -U_{\mathrm{Vega}} &=& 0.76 \cr
+B_{\mathrm{AB}} -B_{\mathrm{Vega}} &=& -0.09 \cr
+V_{\mathrm{AB}} -V_{\mathrm{Vega}} &=& 0.02 \cr
+R_{\mathrm{AB}} -R_{\mathrm{Vega}} &=& 0.22 \cr
+I_{\mathrm{AB}} -I_{\mathrm{Vega}} &=& 0.46 \cr
+J_{\mathrm{AB}} -J_{\mathrm{Vega}} &=& 0.91 \cr
+H_{\mathrm{AB}} -H_{\mathrm{Vega}} &=& 1.39 \cr
+K_{s,\mathrm{AB}} -K_{s,\mathrm{Vega}} &=& 1.85 
+\end{eqnarray}
+
 
 \end{document}
