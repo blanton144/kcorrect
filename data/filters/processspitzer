@@ -1,0 +1,27 @@
+#!/usr/local/bin/perl 
+
+# re-format Spitzer bandpass files to .par format
+
+@bands=("1", "2", "3", "4");
+$jegdir="spitzer";
+foreach $band (@bands) {
+    $filename="$jegdir/irac_tr$band.dat";
+    $outfilename="./spitzer_irac_ch$band.par";
+    print "$filename -> $outfilename\n";
+    open(ofp,">$outfilename");
+    print ofp "# built automatically by processspitzer";
+    print ofp "\ntypedef struct {\n";
+    print ofp "  double lambda;\n";
+    print ofp "  double pass;\n";
+    print ofp "} KFILTER;\n\n";
+    open(ifp,"<$filename");
+    while(<ifp>) {
+	if(/^\s*(\d+\.\d+)\s+(\d+\.\d+)\s+/){
+	    $lambda= $1*10000.0;
+	    $pass= $2;
+	    printf ofp "KFILTER %8.1f %9.6f\n",$lambda,$pass;
+	}
+    }
+    close(ifp);
+    close(ofp);
+}
