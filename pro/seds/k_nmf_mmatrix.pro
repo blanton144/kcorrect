@@ -7,7 +7,8 @@
 ;   k_nmf_mmatrix [, outfile= ]
 ; COMMENTS:
 ;   makes [Nobs, Nsfh] matrix where 
-;        Nobs = nlambda + nlines + nz*nfilters
+;        Nobs = nlambda + nz*nfilters
+;   units are absolute maggies per solar mass
 ; BUGS:
 ;   needs to output *unsmoothed* spectra 
 ;   should have better constrained emission lines
@@ -16,6 +17,9 @@
 ;-
 ;------------------------------------------------------------------------------
 pro k_nmf_mmatrix, outfile=outfile
+
+if(NOT keyword_set(outfile)) then outfile='k_nmf_mmatrix.fits'
+if(NOT keyword_set(rawfile)) then rawfile='k_nmf_rawspec.fits'
 
 norm_lmin=1500.
 norm_lmax=23000.
@@ -78,14 +82,6 @@ grid=fltarr(nl, nages, nmets)
 for im= 0L, nmets-1L do $
   grid[*,*,im]= (k_im_read_bc03(met=mets[im])).flux[*,iuse]
 
-;;     c. put flux units into absolute maggies
-dfact=3.826/3.086*1.e-5
-absrc=3.631*2.99792*1.e-2/wave^2
-grid=grid*dfact
-for ia=0L, nages-1L do $
-  for im= 0L, nmets-1L do $
-  grid[*,ia,im]=grid[*,ia,im]*dfact/absrc
-
 ;;     d. interpolate grid onto flux grid
 avloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
                 (dindgen(navloglam)+0.5)/float(navloglam))
@@ -102,7 +98,16 @@ for im= 0L, nmets-1L do begin
         sfgrid[*,ia+im*nages]=tmp1 
     endfor
 endfor
-  
+rawgrid=sfgrid
+
+;;     c. put flux units into absolute maggies
+dfact=3.826/3.086*1.e-5
+absrc=3.631*2.99792*1.e-2/(10.^avloglam)^2
+sfgrid=sfgrid*dfact
+for ia=0L, nages-1L do $
+  for im= 0L, nmets-1L do $
+  sfgrid[*,ia+im*nages]=sfgrid[*,ia+im*nages]/absrc
+
 ;;     e. smooth to desired vdisp
 for im= 0L, nmets-1L do begin
     for ia= 0L, nages-1L do begin 
@@ -123,15 +128,20 @@ dusts.structure=['c', $
                 'c','c']
 dusts.tauv=[0.,1.,3.]
 dustygrid=fltarr(navloglam, nages*nmets, ndusts)
+rawdustygrid=fltarr(navloglam, nages*nmets, ndusts)
 dustfact=fltarr(navloglam, ndusts)
 for i=0L, ndusts-1L do $
   dustfact[*,i]=exp(-witt_ext(dusts[i],dusts[i].tauv,10.^(avloglam)))
 for i=0L, ndusts-1L do $
   for j=0L, nages*nmets-1L do $
   dustygrid[*,j,i]=sfgrid[*,j]*dustfact[*,i]
+for i=0L, ndusts-1L do $
+  for j=0L, nages*nmets-1L do $
+  rawdustygrid[*,j,i]=rawgrid[*,j]*dustfact[*,i]
 
 ;; 3. make lookup table for properties
 spgrid=reform(dustygrid,navloglam,nages*nmets*ndusts)
+rawspgrid=reform(rawdustygrid,navloglam,nages*nmets*ndusts)
 dust=replicate(dusts[0], nages,nmets,ndusts)
 for i=0L, ndusts-1L do dust[*,*,i]=dusts[i]
 met=fltarr(nages,nmets,ndusts)
@@ -141,25 +151,22 @@ for i=0L, nages-1L do age[i,*,*]=ages[i]
 
 ;; now make emission lines 
 nel=0
-if(1) then begin
-    readcol, getenv('KCORRECT_DIR')+'/data/templates/linelist.txt', $
-      f='(a,f,a)', comment=';', elname, lambda, type
-    ii=where(type eq 'em' OR type eq 'both' and $
-             lambda gt 3700. and $
-             lambda lt 9000.)
-    elname=elname[ii]
-    lambda=lambda[ii]
-    nel=n_elements(elname)
-    emgrid=fltarr(navloglam, nel)
-    absrc=3.631*2.99792*1.e-2/10.^(avloglam*2.)
-    for i=0L, nel-1L do $
-      emgrid[*, i]= 1.e-14*exp(-(avloglam-alog10(lambda[i]))^2/(sigma)^2)/ $
-      (sqrt(2.*!DPI)*sigma)/absrc
-    tmp_spgrid=spgrid
-    spgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
-    spgrid[*,0L:nages*nmets*ndusts-1L]=tmp_spgrid
-    spgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
-endif
+readcol, getenv('KCORRECT_DIR')+'/data/templates/linelist.txt', $
+  f='(a,f,a)', comment=';', elname, lambda, type
+ii=where(type eq 'em' OR type eq 'both' and $
+         lambda gt 3700. and $
+         lambda lt 9000.)
+elname=elname[ii]
+lambda=lambda[ii]
+nel=n_elements(elname)
+emgrid=fltarr(navloglam, nel)
+for i=0L, nel-1L do $
+  emgrid[*, i]= 1.e-9*exp(-(avloglam-alog10(lambda[i]))^2/(sigma)^2)/ $
+  (sqrt(2.*!DPI)*sigma)/absrc
+tmp_spgrid=spgrid
+spgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
+spgrid[*,0L:nages*nmets*ndusts-1L]=tmp_spgrid
+spgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
 
 ;; 3. now make all filters at all redshifts
 filterlist=['galex_FUV.par', $
@@ -176,7 +183,6 @@ lambda=fltarr(navloglam+1L)
 davloglam=avloglam[1]-avloglam[0]
 lambda[0:navloglam-1L]=10.^(avloglam-davloglam)
 lambda[1:navloglam]=10.^(avloglam+davloglam)
-absrc=3.631*2.99792*1.e-2/10.^(avloglam*2.)
 pgrid=spgrid
 for i=0L, nages*ndusts*nmets+nel-1L do $
   pgrid[*,i]=pgrid[*,i]*absrc
@@ -185,7 +191,6 @@ k_projection_table, rmatrix, pgrid, lambda, zf, filterlist, zmin=minzf, $
 rmatrix=rmatrix > 0.
   
 ;; 4. prepare output
-if(NOT keyword_set(outfile)) then outfile='k_nmf_mmatrix.fits'
 
 outgrid=fltarr(navloglam+nzf*n_elements(filterlist),nages*nmets*ndusts+nel)
 outgrid[0:navloglam-1L,*]=spgrid
@@ -214,5 +219,13 @@ mwrfits, met, outfile
 mwrfits, age, outfile
 mwrfits, filterlist, outfile
 mwrfits, zf, outfile
+
+hdr=['']
+sxaddpar, hdr, 'NSPEC', navloglam, 'number of points in spectrum'
+sxaddpar, hdr, 'NDUST', ndusts, 'number of dusts'
+sxaddpar, hdr, 'NMET', nmets, 'number of metallicities'
+sxaddpar, hdr, 'NAGE', nages, 'number of ages'
+sxaddpar, hdr, 'NEL', nel, 'number of emission lines'
+mwrfits, rawspgrid, rawfile, hdr, /create
 
 end
