@@ -7,7 +7,7 @@
 
 SHELL = /bin/sh
 #
-CFLAGS  = -I$(IDL_DIR)/external -I$(KCORRECT_DIR)/include \
+CFLAGS  = -I$(KCORRECT_DIR)/include \
 	-I$(KCORRECT_DIR)/src $(X_CFLAGS) $(SDSS_CFLAGS) -DCHECK_LEAKS
 #
 .c.o : $(KCORRECT_DIR)/include/kcorrect.h export.h
@@ -39,12 +39,13 @@ OBJECTS = \
 	k_brent.o \
 	k_polint.o 
 
+all: $(LIB)/libkcorrect.$(SO_EXT)
+#
 $(LIB)/libkcorrect.$(SO_EXT): $(OBJECTS) 
 	$(LD) -shared $(X_LD_FLAGS) -o $(LIB)/libkcorrect.$(SO_EXT) $(OBJECTS) 
 #	nm -s ../lib/libkcorrect.$(SO_EXT)
 
 #
-
 #
 # Install things in their proper places in $(BASEDIR)
 #

@@ -11,7 +11,7 @@ SHELL = /bin/sh
 #
 #
 
-SUBDIRS = src docs
+SUBDIRS = src 
 
 all :
 	@ for f in $(SUBDIRS); do \
