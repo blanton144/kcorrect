@@ -12,7 +12,12 @@ SHELL = /bin/sh
 #
 SUBDIRS = src pro data docs lib test src ups include bin
 
-install:
+all :
+	@ for f in $(SUBDIRS); do \
+		(cd $$f ; echo In $$f; $(MAKE) $(MFLAGS) all ); \
+	done
+
+install: 
 	@echo "You should be sure to have updated before doing this."
 	@echo ""
 	@if [ "$(KCORRECT_DIR)" = "" ]; then \
@@ -34,11 +39,6 @@ install:
 		(mkdir $(KCORRECT_DIR)/$$f; cd $$f ; echo In $$f; $(MAKE) $(MFLAGS) install ); \
 	done
 	/bin/cp Makefile $(KCORRECT_DIR)
-
-all :
-	@ for f in $(SUBDIRS); do \
-		(cd $$f ; echo In $$f; $(MAKE) $(MFLAGS) all ); \
-	done
 
 clean :
 	- /bin/rm -f *~ core
