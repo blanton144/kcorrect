@@ -30,7 +30,7 @@ Petrosian is just as good.</p>
 similar to the <b>kcorrect</b> routine.
 <pre>
 kphotoz, galaxy_mag, galaxy_magerr, photoz, [, coeffs=, $
-    /maggies, version=, vpath=, rmatrix=, ematrix=, zvals=]
+    /maggies, version=, vpath=, rmatrix=, ematrix=, zvals=, /sdssfix]
 </pre>
 For example, one might do the following:
 <pre>
@@ -47,6 +47,8 @@ kphotoz, [0., 2., 0.7, 0.3, 0.3], [0.02,0.02,0.02,0.02,0.02], $
 kphotoz, [0., 1.7, 0.8, 0.2, 0.2], [0.02,0.02,0.02,0.02,0.02], $
     photoz, rmatrix=rmatrix, ematrix=ematrix, zvals=zvals
 </pre>
+Finally, the /sdssfix option fixes SDSS magnitudes in the same way as
+for <b>kcorrect</b>.
 
 <p> The stand-alone program <b>fit_photoz</b> works in the same way as
 <b>fit_coeffs</b>: 
