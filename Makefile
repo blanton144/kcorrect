@@ -10,7 +10,7 @@ SHELL = /bin/sh
 	$(CC) -c $(CCCHK) $(CFLAGS) $*.c
 #
 #
-SUBDIRS = src pro data docs lib test src ups include
+SUBDIRS = src pro data docs lib test src ups include bin
 
 install:
 	@echo "You should be sure to have updated before doing this."
