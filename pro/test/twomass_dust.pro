@@ -29,7 +29,8 @@ endif else begin
 endelse
 
 ii=where(kcorrect.abmaggies[7] gt 0. and $
-         kcorrect.kcorrect[7] eq kcorrect.kcorrect[7])
+         kcorrect.kcorrect[7] eq kcorrect.kcorrect[7] and $
+         kcorrect.z gt 0.04 and kcorrect.z lt 0.07)
 twomass=twomass[ii]
 im=im[ii]
 sp=sp[ii]
@@ -51,8 +52,13 @@ data[4,*]=rmk
 range=[[0.,1.], $
        [0.,1.], $
        [-23.,-17.], $
-       [-2.,10.], $
+       [-2.,13.], $
        [0.5,2.]]
+labels=['!8b/a!6', $
+        '!8f_{!6dev}', $
+        '!8M_{K}!6', $
+        '!6H_{\alpha}!6', $
+        '!8!u0.1!n[r-K]!6']
 
 jj=lindgen(ndata)
 hogg_manyd_scatterplot, fltarr(ndata)+1., data[*,jj], 'color.ps', range=range
@@ -74,7 +80,7 @@ for i=1L, 3L do begin
               strtrim(string(j),2)+'.ps', $
               xdims=lindgen(ndims-1),ydims=lindgen(ndims-1), $
               levels=0.1*findgen(20), $
-              dbin=[0.2,0.1,1.0,2.,0.1], range=range
+              dbin=[0.2,0.1,1.0,3.,0.1], range=range
         endif
     endfor
 endfor
