@@ -24,7 +24,7 @@ pro k_spec_pegase,peg,spec,lambda,nl=nl,lmin=lmin,lmax=lmax,linewidth=linewidth
 if(n_elements(nl) eq 0) then nl=5000L
 if(n_elements(lmin) eq 0) then lmin=double(min(peg.cont))
 if(n_elements(lmax) eq 0) then lmax=double(max(peg.cont))
-if(n_elements(linewidth) eq 0) then linewidth=50.
+if(n_elements(linewidth) eq 0) then linewidth=10.
 
 lambda=lmin+(lmax-lmin)*dindgen(nl+1)/double(nl)
 dl=lambda[1]-lambda[0]
