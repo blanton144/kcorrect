@@ -73,8 +73,8 @@ pro k_fit_sdss_training_set, name=name, navg=navg
 
 if(NOT keyword_set(name)) then name='test'
 if(NOT keyword_set(navg)) then navg=3
-orig_name=name
-orig_navg=navg
+dontsave_name=name
+dontsave_navg=navg
 
 if(NOT keyword_set(npca)) then npca=5
 if(NOT keyword_set(nkmeans)) then nkmeans=10
@@ -113,14 +113,18 @@ if(not file_test(savfile)) then begin
                         chi2=chi2,rmatrix=rmatrix,zvals=zvals,maxiter=10000, $
                         /verbose)
 
+    dontsave_navg=0
+    dontsave_name=0
     save,filename=savfile
 endif else begin
     splog,'restoring'
     restore,savfile
     splog,'done'
-    name=orig_name
-    navg=orig_navg
+    if(keyword_set(dontsave_name)) then name=dontsave_name
+    if(keyword_set(dontsave_navg)) then navg=dontsave_navg
 endelse
+
+orig_chi2=chi2
 
 fixindx=where(gals[use_indx].maggies_ivar[0] gt 0. or $
               gals[use_indx].maggies_ivar[1] gt 0. or $
@@ -132,6 +136,7 @@ fixindx=where(gals[use_indx].maggies_ivar[0] gt 0. or $
               gals[use_indx].maggies_ivar[7] gt 0.)
 use_indx=use_indx[fixindx]
 coeffs=coeffs[*,fixindx]
+orig_chi2=orig_chi2[fixindx]
 gals=gals[use_indx]
 
 ;   for kicks, reconstruct maggies
@@ -240,7 +245,7 @@ compare_maggies,avgcoeffs,gals.redshift,gals.maggies,gals.maggies_ivar, $
   recmaggies=recmaggies, filename='compare_maggies_avgspec_'+ $
   strtrim(string(navg),2)+'.ps'
 
-goodindx=where(chi2gals lt 20. and gals.redshift lt 0.8)
+goodindx=where(orig_chi2 lt 200. and gals.redshift lt 0.8)
 k_tweak_templates, gals[goodindx].maggies, gals[goodindx].maggies_ivar, $
   gals[goodindx].redshift, avgcoeffs[*,goodindx], $
   avgspec, lambda, filterlist=filterlist, $

@@ -1,10 +1,7 @@
 stand alone c code
 documentation
-recommendation for use of JHK??
-   a. check that templates are being tweaked for it right 
-   b. deal with photometry issues
-  a) fix model mags ...
-  b) use v5_4
+photoz -- put good prior in as the standard
+recommendation for use of JHK?? -- use v5_4
 
 release v3_1
 

@@ -36,10 +36,10 @@ IDL_LONG k_nonneg_solve(float *xx, float *invcovar, float *bb,
 
 /* photo-z */
 IDL_LONG k_fit_photoz(float *photoz, float *coeffs, float *rmatrix, 
-											IDL_LONG nk, IDL_LONG nv, float *zvals, IDL_LONG nz, 
-											float *maggies, float *maggies_ivar, IDL_LONG ngalaxy,
-											float tolerance, IDL_LONG maxiter, IDL_LONG *niter, 
-											float *chi2, IDL_LONG verbose);
+											IDL_LONG nk, IDL_LONG nv, float *lprior, float *zvals, 
+											IDL_LONG nz, float *maggies, float *maggies_ivar, 
+											IDL_LONG ngalaxy, float tolerance, IDL_LONG maxiter, 
+											IDL_LONG *niter, float *chi2, IDL_LONG verbose);
 
 /* linear solving */
 void k_cholsl(float *a, int n, float p[], float b[], float x[]);

@@ -54,14 +54,14 @@ pro kphotoz, maggies, maggies_ivar, photoz, $
              magnitude=magnitude, stddev=stddev, $
              lfile=lfile, vfile=vfile, vpath=vpath, $
              filterlist=filterlist, filterpath=filterpath, $
-             rmatrix=rmatrix, zvals=zvals, lambda=lambda, $
-             vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
-             chi2=chi2, maxiter=maxiter, verbose=verbose
+             rmatrix=rmatrix, zmin=zmin, zmax=zmax, nz=nz, zvals=zvals, $
+             lambda=lambda, vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
+             chi2=chi2, maxiter=maxiter, verbose=verbose, lprior=lprior
 
 ; Need at least 6 parameters
 if (N_params() LT 3) then begin
     print, 'Syntax - kphotoz, maggies, maggies_ivar, photoz [ , $'
-    print, '             /magnitude, /stddev, lfile=, $'
+    print, '             /magnitude, /stddev, lfile=, zmin=, zmax=, nz=, $'
     print, '             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $'
     print, '             zvals=, lambda=, vmatrix=, coeffs=, /verbose /sdssfix ]'
     return
@@ -106,6 +106,6 @@ if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then $
 photoz=k_fit_photoz(use_maggies,use_maggies_ivar,vmatrix,lambda, $
                     filterlist=filterlist,chi2=chi2, $
                     rmatrix=rmatrix,zvals=zvals,maxiter=maxiter, zmin=zmin, $
-                    zmax=zmax, nz=nz, verbose=verbose)
+                    zmax=zmax, nz=nz, verbose=verbose, lprior=lprior)
 
 end

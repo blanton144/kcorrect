@@ -35,7 +35,7 @@
 ;-
 ;------------------------------------------------------------------------------
 function k_fit_photoz, maggies, maggies_ivar, vmatrix, lambda, $
-                       filterlist=filterlist, chi2=chi2, $
+                       filterlist=filterlist, chi2=chi2, lprior=lprior, $
                        rmatrix=rmatrix, zvals=zvals, maxiter=maxiter, $
                        filterpath=filterpath, zmin=zmin, zmax=zmax, nz=nz, $
                        band_shift=band_shift, tolerance=tolerance, $
@@ -79,6 +79,8 @@ endelse
 nz=long(n_elements(zvals))
 nv=long(n_elements(rmatrix)/(nz*nk)) 	 
 
+if(NOT keyword_set(lprior)) then lprior=fltarr(nz)
+
 ; Set rmatrix
 photoz=fltarr(ngalaxy)
 coeffs=fltarr(nv,ngalaxy)
@@ -86,7 +88,7 @@ chi2=fltarr(ngalaxy)
 niter=0L
 retval=call_external(soname, 'idl_k_fit_photoz', float(photoz), $
                      float(coeffs), float(rmatrix), long(nk), long(nv), $
-                     float(zvals), long(nz), float(maggies), $
+                     float(lprior), float(zvals), long(nz), float(maggies), $
                      float(maggies_ivar), long(ngalaxy), float(tolerance), $
                      long(maxiter), long(niter),float(chi2),long(verbose)) 
 
