@@ -28,6 +28,19 @@ endif else begin
     restore,savfile
 endelse
 
+ii=where(kcorrect.abmaggies[7] gt 0. and $
+         kcorrect.kcorrect[7] eq kcorrect.kcorrect[7])
+twomass=twomass[ii]
+im=im[ii]
+sp=sp[ii]
+kcorrect=kcorrect[ii]
+calibobj=calibobj[ii]
+zline=zline[ii]
+dm=lf_distmod(kcorrect.z, omega0=0.3, omegal0=0.7) 
+absmk=22.5-2.5*alog10(kcorrect.abmaggies[7])-dm-kcorrect.kcorrect[7]
+
+stop
+
 ii=where(zline[17,*].lineew gt 5.)
 absmk=absmk[ii]
 twomass=twomass[ii]
@@ -35,8 +48,6 @@ im=im[ii]
 sp=sp[ii]
 kcorrect=kcorrect[ii]
 
-dm=lf_distmod(kcorrect.z, omega0=0.3, omegal0=0.7) 
-absmk=22.5-2.5*alog10(kcorrect.abmaggies[7])-dm-kcorrect.kcorrect[7]
 
 ii=where(absmk gt -22. and absmk lt -21.)
 absmk=absmk[ii]

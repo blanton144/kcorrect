@@ -104,7 +104,8 @@ if(NOT keyword_set(maxiter)) then maxiter=3000L
 
 ; calculate the preliminaries
 if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
-    k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
+    if(NOT keyword_set(vmatrix) OR NOT keyword_set(lambda)) then $
+      k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
       vpath=vpath
     k_projection_table,rmatrix,vmatrix,lambda,zvals,filterlist, $ 
       zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath
