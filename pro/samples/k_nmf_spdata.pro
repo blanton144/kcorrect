@@ -60,22 +60,25 @@ if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
 if(NOT keyword_set(sample)) then sample='sample15'
 if(NOT keyword_set(flux)) then flux='model'
-if(NOT keyword_set(nsdss_photo)) then nsdss_photo=100L
-if(NOT keyword_set(nsdss_spec)) then nsdss_spec=100L
-if(NOT keyword_set(ngalex)) then ngalex=160L
+if(NOT keyword_set(nsdss_photo)) then nsdss_photo=150L
+if(NOT keyword_set(nsdss_spec)) then nsdss_spec=150L
+if(NOT keyword_set(ngalex)) then ngalex=150L
+if(NOT keyword_set(ndeep)) then ndeep=150L
 if(NOT keyword_set(seed1)) then seed1=1000L
 if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
 if(NOT keyword_set(velmodtype)) then velmodtype='sigv150'
-; min errors in FNugrizJHK
-minerrors=[0.05, 0.05, 0.05, 0.02, 0.02, 0.02, 0.03, 0.05, 0.05, 0.05]
-kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0., 0., 0.]
+; min errors in FNugrizJHKBRI
+minerrors=[0.05, 0.05, 0.05, 0.02, 0.02, 0.02, 0.03, $
+           0.05, 0.05, 0.05, 0.02, 0.02, 0.02]
+kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0., 0., 0., 0., 0., 0.]
 seed=seed1
 
 ;; relative weights
 galex_weight=5.
 sdss_spec_weight=0.3
 sdss_photo_weight=1.
+deep_weight=1.
 
 ;; figure out what form we need the data in
 hdr=headfits(mmatrix)
@@ -92,7 +95,7 @@ filterlist=strtrim(mrdfits(mmatrix, 5), 2)
 zf=mrdfits(mmatrix, 6)
 
 ;; create full matrix
-ntotal=nsdss_photo+nsdss_spec+ngalex
+ntotal=nsdss_photo+nsdss_spec+ngalex+ndeep
 datastr={nx:n_elements(lambda), $
          ny:ntotal, $
          rowstart:lonarr(ntotal), $
@@ -106,6 +109,7 @@ zhelio=fltarr(ntotal)
 isdss_spec=lindgen(nsdss_spec)
 isdss_photo=nsdss_spec+lindgen(nsdss_photo)
 igalex=nsdss_spec+nsdss_photo+lindgen(ngalex)
+ideep=nsdss_spec+nsdss_photo+ngalex+lindgen(ndeep)
 
 ;; sdss spectra
 postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='bsafe', $
@@ -276,6 +280,83 @@ for i=0L, n_elements(galex)-1L do begin
     endelse
     datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+ngood
     currx=currx+ngood
+endfor
+
+;; collect some deep photometry 
+deep=mrdfits(getenv('KCORRECT_DIR')+ $
+             '/data/redshifts/deep/zcat.dr1.uniq.fits.gz',1)
+igot=where(deep.zquality ge 3 and deep.zhelio gt 0.01 and deep.zhelio lt 2.) 
+deep=deep[igot]
+indx_deep=shuffle_indx(n_elements(deep), num_sub=ndeep, seed=seed)
+deep=deep[indx_deep]
+deep_dm=lf_distmod(deep.zhelio)
+zdist[ideep]=deep.zhelio
+zhelio[ideep]=deep.zhelio
+iz=long(floor((nzf-1.)*(zhelio[ideep]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
+for i=0L, n_elements(deep)-1L do begin
+    datastr.rowstart[ideep[i]]=currx
+
+    ngood=0L
+
+    iband=10L
+    if(deep[i].magb lt 25.) then begin
+        datastr.nxrow[ideep[i]]=datastr.nxrow[ideep[i]]+1L
+        extinction=deep[i].sfd_ebv*4.32
+        maggies=10.^(-0.4*(deep[i].magb-extinction-deep_dm[i]))
+        maggies_ivar=1./((0.03^2)*(0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(iband)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, maggies]
+            ivar=[ivar, maggies_ivar*deep_weight]
+            xx=[xx, new_xx]
+        endif else begin
+            data=maggies
+            ivar=maggies_ivar*deep_weight
+            xx=new_xx
+        endelse
+        currx=currx+1L
+        ngood=ngood+1L
+    endif 
+
+    iband=11L
+    if(deep[i].magr lt 25.) then begin
+        datastr.nxrow[ideep[i]]=datastr.nxrow[ideep[i]]+1L
+        extinction=deep[i].sfd_ebv*2.63
+        maggies=10.^(-0.4*(deep[i].magr-extinction-deep_dm[i]))
+        maggies_ivar=1./((0.03^2)*(0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(iband)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, maggies]
+            ivar=[ivar, maggies_ivar*deep_weight]
+            xx=[xx, new_xx]
+        endif else begin
+            data=maggies
+            ivar=maggies_ivar*deep_weight
+            xx=new_xx
+        endelse
+        currx=currx+1L
+        ngood=ngood+1L
+    endif 
+
+    iband=12L
+    if(deep[i].magi lt 25.) then begin
+        datastr.nxrow[ideep[i]]=datastr.nxrow[ideep[i]]+1L
+        extinction=deep[i].sfd_ebv*1.96
+        maggies=10.^(-0.4*(deep[i].magi-extinction-deep_dm[i]))
+        maggies_ivar=1./((0.03^2)*(0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(iband)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, maggies]
+            ivar=[ivar, maggies_ivar*deep_weight]
+            xx=[xx, new_xx]
+        endif else begin
+            data=maggies
+            ivar=maggies_ivar*deep_weight
+            xx=new_xx
+        endelse
+        currx=currx+1L
+        ngood=ngood+1L
+    endif 
 endfor
 
 hdr=['']

@@ -39,7 +39,7 @@ nfilter=long(sxpar(hdr, 'NFILTER'))
 ndusts=long(sxpar(hdr, 'NDUST'))
 nmets=long(sxpar(hdr, 'NMET'))
 nages=long(sxpar(hdr, 'NAGE'))
-filternames=['F', 'N', 'u', 'g', 'r', 'i', 'z', 'J', 'H', 'K_s']
+filternames=['F', 'N', 'u', 'g', 'r', 'i', 'z', 'J', 'H', 'K_s', 'B', 'R', 'I']
 metallicities=[0.0001, 0.0004, 0.004, 0.008, 0.02, 0.05]
 
 ;; read in the data
@@ -165,17 +165,19 @@ for ifilter=0L, nfilter-2L do begin
     endfor
     igood=where(colerr[ifilter,*] ne 0., ngood)
 
-    djs_plot, zhelio[igood], mcol[ifilter,igood], psym=4, $
-      ytitle=filternames[ifilter]+'-'+filternames[ifilter+1]
-    djs_oplot, zhelio[igood], col[ifilter,igood], psym=6, color='red'
-    djs_oploterr, zhelio[igood], col[ifilter,igood], $
-      yerr=colerr[ifilter,igood], color='red'
-    djs_plot, zhelio[igood], col[ifilter,igood]-mcol[ifilter,igood], psym=6, $
-      ytitle=filternames[ifilter]+'-'+filternames[ifilter+1]+' residual', $
-      xtitle='redshift z', color='red'
-    djs_oplot, minmax(zhelio), [0., 0.], color='blue', linestyle=1
-    djs_oploterr, zhelio[igood], col[ifilter,igood]-mcol[ifilter,igood], $
-      yerr=colerr[ifilter,igood], color='red'
+    if(ngood gt 0) then begin
+        djs_plot, zhelio[igood], mcol[ifilter,igood], psym=4, $
+          ytitle=filternames[ifilter]+'-'+filternames[ifilter+1]
+        djs_oplot, zhelio[igood], col[ifilter,igood], psym=6, color='red'
+        djs_oploterr, zhelio[igood], col[ifilter,igood], $
+          yerr=colerr[ifilter,igood], color='red'
+        djs_plot, zhelio[igood], col[ifilter,igood]-mcol[ifilter,igood], psym=6, $
+          ytitle=filternames[ifilter]+'-'+filternames[ifilter+1]+' residual', $
+          xtitle='redshift z', color='red'
+        djs_oplot, minmax(zhelio), [0., 0.], color='blue', linestyle=1
+        djs_oploterr, zhelio[igood], col[ifilter,igood]-mcol[ifilter,igood], $
+          yerr=colerr[ifilter,igood], color='red'
+    endif
 endfor
 
 
@@ -183,16 +185,19 @@ endfor
 !P.MULTI=[0,1,1]
 for ifilter=0L, nfilter-3L do begin
     igood=where(colerr[ifilter,*] gt 0. and $
-                colerr[ifilter+1L,*] gt 0.)
-    djs_plot, col[ifilter,igood], col[ifilter+1L,igood], psym=4, $
-      xtitle=filternames[ifilter]+'-'+filternames[ifilter+1], $
-      ytitle=filternames[ifilter+1]+'-'+filternames[ifilter+2]
-    djs_oploterr, col[ifilter,igood], col[ifilter+1,igood], $
-      xerr=colerr[ifilter,igood], yerr=colerr[ifilter+1,igood]
-    djs_oplot, mcol[ifilter,igood], mcol[ifilter+1,igood], psym=4, color='red'
+                colerr[ifilter+1L,*] gt 0., ngood)
+    if(ngood gt 0) then begin
+        djs_plot, col[ifilter,igood], col[ifilter+1L,igood], psym=4, $
+          xtitle=filternames[ifilter]+'-'+filternames[ifilter+1], $
+          ytitle=filternames[ifilter+1]+'-'+filternames[ifilter+2]
+        djs_oploterr, col[ifilter,igood], col[ifilter+1,igood], $
+          xerr=colerr[ifilter,igood], yerr=colerr[ifilter+1,igood]
+        djs_oplot, mcol[ifilter,igood], mcol[ifilter+1,igood], psym=4, color='red'
+    endif
 endfor
 
 ;; random set of spectra
+nsubsp=nsubsp < n_elements(zhelio)
 iran=shuffle_indx(n_elements(zhelio), num_sub=nsubsp)
 for i=0L, nsubsp-1L do begin
     icurr=data.rowstart[iran[i]]+lindgen(data.nxrow[iran[i]])

@@ -38,7 +38,7 @@ if(file_test('k_nmf_soln.fits')) then begin
     templates=mrdfits('k_nmf_soln.fits',0)
     coeffs=mrdfits('k_nmf_soln.fits',1)
 endif 
-nmf_sparse, data, data_ivar, 6, mmatrix, 5000L, coeffs=coeffs, $
+nmf_sparse, data, data_ivar, 6, mmatrix, 100L, coeffs=coeffs, $
   templates=templates
 
 mwrfits, templates, 'k_nmf_soln.fits', /create

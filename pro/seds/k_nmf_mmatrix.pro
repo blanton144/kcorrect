@@ -44,7 +44,7 @@ if(NOT keyword_set(navloglam)) then navloglam=8000L
 if(NOT keyword_set(nagesmax)) then nagesmax=30
 if(NOT keyword_set(vdisp)) then vdisp=300.
 if(NOT keyword_set(minzf)) then minzf=0.
-if(NOT keyword_set(maxzf)) then maxzf=1.
+if(NOT keyword_set(maxzf)) then maxzf=2.
 if(NOT keyword_set(nzf)) then nzf=500
 if(n_tags(dusts) eq 0) then begin
     dusts1={geometry:'', dust:'', structure:'', tauv:0.}
@@ -227,7 +227,10 @@ filterlist=['galex_FUV.par', $
             'sdss_z0.par', $
             'twomass_J.par', $
             'twomass_H.par', $
-            'twomass_Ks.par']
+            'twomass_Ks.par', $
+            'deep_B.par', $
+            'deep_R.par', $
+            'deep_I.par']
 lambda=fltarr(navloglam+1L)
 davloglam=avloglam[1]-avloglam[0]
 lambda[0:navloglam-1L]=10.^(avloglam-davloglam)
@@ -241,7 +244,7 @@ rmatrix=rmatrix > 0.
 earlypgrid=earlyspgrid
 for i=0L, nages*ndusts*nmets+nel-1L do $
   earlypgrid[*,i]=earlypgrid[*,i]*absrc
-
+k_projection_table, earlyrmatrix, earlypgrid, lambda, zf, filterlist, $
   zmin=minzf, zmax=maxzf, nz=nzf
 earlyrmatrix=earlyrmatrix > 0.
   
