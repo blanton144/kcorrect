@@ -15,7 +15,7 @@ double k_midpnt(double (*func)(double), double a, double b, IDL_LONG n)
 	} else {
 		for(it=1,j=1;j<n-1;j++) it *= 3;
 		tnm=it;
-		del=(b-a)/(3.0*tnm);
+		del=(b-a)/(3.0*(double)tnm);
 		ddel=del+del;
 		x=a+0.5*del;
 		sum=0.0;
@@ -25,7 +25,7 @@ double k_midpnt(double (*func)(double), double a, double b, IDL_LONG n)
 			sum += FUNC(x);
 			x += del;
 		}
-		s=(s+(b-a)*sum/tnm)/3.0;
+		s=(s+(b-a)*sum/(double)tnm)/3.0;
 		return s;
 	}
 }
