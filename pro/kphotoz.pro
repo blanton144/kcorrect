@@ -54,7 +54,7 @@ pro kphotoz, galaxy_mag, galaxy_magerr, photoz, coeffs=coeffs, version=version, 
 ; Need at least 6 parameters
 if (N_params() LT 3) then begin
     print, 'Syntax - kphotoz, galaxy_mag, galaxy_magerr, photoz [, coeffs=, $'
-    print, '         version=, vpath=, maggies=, rmatrix=, zvals=, ematrix=]'
+    print, '         version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=]'
     return
 endif
 

@@ -30,7 +30,7 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
  * a previous guess at the best coefficients to the templates (in
  * amatrix) */
 IDL_LONG k_fit_templates(double *ematrix,    /* eigentemplates */
-												 IDL_LONG nt,             /* number of eigentemplates */
+												 IDL_LONG nt,           /* number of eigentemplates */
 												 double *zvals,      /* z interpolation */
 												 IDL_LONG nz,
 												 double *rmatrix,    /* r matrix */
@@ -96,6 +96,12 @@ IDL_LONG k_load_ascii_table(double **table,
 														IDL_LONG *ndim,
 														IDL_LONG **sizes,
 														char filename[]);
+
+/* write an ascii table in my standard format */
+IDL_LONG k_write_ascii_table(double *table,
+														 IDL_LONG ndim,
+														 IDL_LONG *sizes,
+														 char filename[]);
 
 /* load the filters in their standard format */
 IDL_LONG k_load_filters(IDL_LONG **filter_n,

@@ -19,6 +19,13 @@ reasonably fast -- about 1 ms an object on a 1GHz Pentium III -- and
 reasonably accurate -- the 5-sigma clipped estimate of the redshift
 errors is about 0.05. </p>
 
+<p> A piece of advice on the *type* of magnitudes to use for
+photometric redshifts: basically you want to use the highest
+signal-to-noise measurement which has consistently defined
+colors. This means to use <b>counts_model</b> in most cases (not
+deVaucouleurs or exponential magnitudes!), though for bright objects
+Petrosian is just as good.</p>
+
 <p> The IDL routine <b>kphotoz</b> works in a way which is extremely
 similar to the <b>kcorrect</b> routine.
 <pre>
@@ -64,10 +71,11 @@ libkcorrect.so. Follow the directions in the <a href="index.html">
 main page</a> for using this library. Instead of <b>k_fit_coeffs</b>,
 you will be calling <b>k_fit_photoz</b>, as in:
 <pre>
-k_fit_photoz(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_flux,
+k_fit_photoz(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_maggies,
              galaxy_invvar,galaxy_photoz,ngalaxy);
 </pre>
-Remember that galaxy_flux and galaxy_invvar are expressed in maggies
+Remember that galaxy_maggies and galaxy_invvar are expressed in
+maggies.
 </p>
 
 <p> Please note that the photometric redshifts resulting from this

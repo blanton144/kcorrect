@@ -122,7 +122,10 @@ use the code. To each set of five-band galaxy magnitudes I fit an SED
 which is a linear combination of four templates. The four templates
 have been optimized to minimize the residuals between the actual
 galaxy magnitudes and the galaxy magnitudes reconstructed from the
-galaxy SED fit.</p>
+galaxy SED fit.  The units of the fit spectra created are in ergs
+cm^{-2} s^{-1} A^{-1}. The first coefficient of each object is the
+number of ergs cm^{-2} s^{-1} within the range 3500 to 7500
+Angstroms.</p>
 
 <p> From the SED fit, one can reconstruct magnitudes corresponding to
 observing the galaxy at an redshift within a large range (like 0 to
@@ -162,10 +165,6 @@ since no objects have a flat spectrum. There is a tension between
 these two needs --- similar to other tensions throughout astronomy
 between making precise measurements and making interpretable ones.</p>
 
-<p> The units of the template spectra created are in ergs cm^{-2}
-s^{-1} A^{-1}. The first coefficient of each object is the number of
-ergs cm^{-2} s^{-1} within the range 3500 to 7500 Angstroms.</p>
-
 <h3> Using the IDL Code</h3>
 
 The easiest interface to the code, if it is available to you, is the
@@ -184,25 +183,26 @@ If the "/maggies" flag is specified, galaxy_mag and galaxy_magerr
 are in maggies; otherwise they are in magnitudes (see explanation
 above). They should be [5,n] arrays. The reconstructed magnitudes 
 are returned in galaxy_mag0. If kcorrectz is set, all of the magnitudes are
-reconstructed at the specified redshift. Ignore version and vpath
+reconstructed at the specified redshift; otherwise they are
+reconstructed at the redshift of each object. Ignore version and vpath
 UNLESS you want to specify your own set of templates. </p>
 
 <p>
 For example, one might do the following:
 <pre>
 kcorrect, [0., 2., 0.7, 0.3, 0.3], [0.02,0.02,0.02,0.02,0.02], $
-    0.03, galaxy_mag0, kcorrectz=0.
+    0.03, galaxy_mag0, kcorrectz=0.1
 </pre>
 which would take the set of magnitudes in the first argument, observed
 for a galaxy at redshift 0.03, and reconstruct the magnitudes at z=0.1,
 putting the result in galaxy_mag0.  </p>
 
-<p> Please note that "kcorrect" uses a lot of overhead, so if you can,
-use it on several thousand galaxies simultaneously at least. If you
-use it on each object individually (as in the example given above),
-you will be in trouble. If you truly cannot avoid it, then specify the
-extra arguments rmatrix, ematrix, and zvals. For example, if you run
-the following:
+<p> Please note that "kcorrect" uses a lot of overhead (2-3 seconds
+worth), so if you can, use it on several thousand galaxies
+simultaneously at least. If you use it on each object individually (as
+in the example given above), you will be in trouble. If you truly
+cannot avoid it, then specify the extra arguments rmatrix, ematrix,
+and zvals. For example, if you run the following:
 <pre>
 kcorrect, [0., 2., 0.7, 0.3, 0.3], [0.02,0.02,0.02,0.02,0.02], $
     0.03, galaxy_mag0, kcorrectz=0.1, rmatrix=rmatrix, ematrix=ematrix, $
@@ -244,7 +244,7 @@ z umaggies gmaggies rmaggies imaggies zmaggies uinvvar ginvvar rinvvar iinvvar z
 The "z" in the first column refers to redshift. All of the quantities
 in this file are in maggies, as described above. So you have to
 convert the luptitudes or magnitudes --- and the inverse variances ---
-you have into maggies before calling this. (Note that the conversion
+into maggies before calling this. (Note that the conversion
 to the inverse variances from the maggies and the magnitude errors is
 (maggies*0.4*ln(10)*magerr)^{-2}. </p>
 
@@ -254,8 +254,11 @@ the galaxy SED. The first coefficient measures the visual flux, as
 described in the <a href="paper.ps"> paper</a>. This number is the
 ergs/cm^2/s in the wavelength range 3500 to 7500 Angstroms. The other
 coefficients are measures of the shape of the SED. The coefficients
-are output to standard out in the form: <pre> coeff0 coeff1 coeff2
-coeff3 z </pre> where the redshift z is included for reasons which
+are output to standard out in the form: 
+<pre> 
+coeff0 coeff1 coeff2 coeff3 z 
+</pre> 
+where the redshift z is included for reasons which
 will be clear soon. </p>
 
 <p> Once you have the coefficients, you can calculate the

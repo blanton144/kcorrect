@@ -60,9 +60,9 @@ pro k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, ematrix=ematri
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
-    klog, 'Syntax - k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, $'  
-    klog, '         [ematrix=, zvals=, filterlist=, bmatrix=, lambda=, rmatrix=, $'
-    klog, '          version=, vpath=, filterpath=]'
+    print, 'Syntax - k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, $'  
+    print, '         [ematrix=, zvals=, filterlist=, bmatrix=, lambda=, rmatrix=, $'
+    print, '          version=, vpath=, filterpath=]'
     return
 endif
 

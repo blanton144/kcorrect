@@ -63,7 +63,7 @@ pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorre
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
     print, 'Syntax - kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, $'
-    print, '        [kcorrectz=, version=, vpath=, maggies=, rmatrix=, zvals=, ematrix=]'
+    print, '        [kcorrectz=, version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=, coeff=]'
     return
 endif
 
