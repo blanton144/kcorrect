@@ -4,7 +4,9 @@
 ;
 ; PURPOSE:
 ;   Calculate conversion to apply to AB magnitudes to obtain
-;   Vega magnitudes.
+;   Vega magnitudes. We define things such that:
+;
+;   m_AB = m_Vega + k_vega2ab()
 ;
 ; CALLING SEQUENCE:
 ;
@@ -30,9 +32,10 @@
 ; IDL> print,3631.*10.^(-0.4*k_vega2ab(filterlist=['bessell_B','bessell_V','bessell_R','bessell_I'],/hayes))/[4000.,3600.,3060.,2420.] 
 ;        1.0136841      0.99102008      0.97584356      0.99039233
 ;
-; The first version uses the Kurucz models from the BaSeL
-; distribution; the second the Hayes spectrophotometry, as transcribed
-; by Hogg (see details in the data/filters/hoggraw/hayes directory). 
+; The first version uses the Kurucz 1991 models from the BaSeL
+; distribution (ADC: J/A+AS/125/229); the second the Hayes 
+; spectrophotometry, as transcribed by Hogg (see details in the 
+; data/filters/hoggraw/hayes directory). 
 ;
 ; EXAMPLES:
 ;
@@ -46,12 +49,12 @@
 ;------------------------------------------------------------------------------
 function k_vega2ab,filterpath=filterpath, $
                    filterlist=filterlist, $
-                   vega_z=vega_z, $
+                   band_shift=band_shift, $
                    veganame=veganame, $
                    qa=qa,kurucz=kurucz,hayes=hayes
 
 if(n_elements(ab_z) eq 0) then ab_z=0.
-if(n_elements(vega_z) eq 0) then vega_z=0.
+if(n_elements(band_shift) eq 0) then band_shift=0.
 if(NOT keyword_set(veganame)) then veganame='lcbvega.ori'
 if(NOT keyword_set(filterpath)) then $
   filterpath=getenv('KCORRECT_DIR')+'/data/filters'
@@ -81,7 +84,7 @@ end
 
 ; get AB maggies of Vega -- this is the conversion
 maggies=k_project_filters(lambda,flux,filterlist=filterlist, $
-                          filterpath=filterpath,band_shift=vega_z,qa=qa)
+                          filterpath=filterpath,band_shift=band_shift,qa=qa)
 vega2ab=-2.5*alog10(maggies)
 
 return,vega2ab

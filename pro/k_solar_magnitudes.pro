@@ -26,11 +26,11 @@
 ;   17-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-function k_solar_magnitudes,to_z=to_z,filterpath=filterpath, $
+function k_solar_magnitudes,band_shift=band_shift,filterpath=filterpath, $
                             filterlist=filterlist, $
                             solarname=solarname
 
-if(n_elements(to_z) eq 0) then to_z=0.
+if(n_elements(band_shift) eq 0) then band_shift=0.
 if(NOT keyword_set(solarname)) then solarname='lcbsun.ori'
 if(NOT keyword_set(filterpath)) then $
   filterpath=getenv('KCORRECT_DIR')+'/data/filters'
@@ -52,7 +52,7 @@ flux=flux ; redshift it
 
 ; get answer in maggies
 maggies=k_project_filters(lambda,flux,filterlist=filterlist, $
-                          filterpath=filterpath,band_shift=to_z)
+                          filterpath=filterpath,band_shift=band_shift)
 solarmags=-2.5*alog10(maggies)
 
 return,solarmags
