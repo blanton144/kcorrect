@@ -162,6 +162,7 @@ for i=nzchunks-1L,0,-1 do begin
             includegal[chunk_indx]=1L
             if(chunk_count gt 4000) then first=i
         endelse
+    endif
 endfor
 include_indx=where(includegal gt 0 or mustdo gt 0,include_count)
 if(include_count eq 0) then begin
