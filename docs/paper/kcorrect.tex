@@ -1,0 +1,548 @@
+\documentclass[10pt,preprint]{aastex}
+
+\newcommand{\vv}[1]{{\bf #1}}
+\newcommand{\df}{\delta}
+\newcommand{\dfft}{{\tilde{\delta}}}
+\newcommand{\betaft}{{\tilde{\beta}}}
+\newcommand{\erf}{{\mathrm{erf}}}
+\newcommand{\erfc}{{\mathrm{erfc}}}
+\newcommand{\Step}{{\mathrm{Step}}}
+\newcommand{\ee}[1]{\times 10^{#1}}
+\newcommand{\avg}[1]{{\langle{#1}\rangle}}
+\newcommand{\Avg}[1]{{\left\langle{#1}\right\rangle}}
+\def\simless{\mathbin{\lower 3pt\hbox
+	{$\,\rlap{\raise 5pt\hbox{$\char'074$}}\mathchar"7218\,$}}} % < or of order
+\def\simgreat{\mathbin{\lower 3pt\hbox
+	{$\,\rlap{\raise 5pt\hbox{$\char'076$}}\mathchar"7218\,$}}} % > or of order
+\newcommand{\iras}{{\sl IRAS\/}}
+\newcommand{\petroratio}{{{\mathcal{R}}_P}}
+\newcommand{\petroradius}{{{r}_P}}
+\newcommand{\petronumber}{{{N}_P}}
+\newcommand{\petroratiolim}{{{\mathcal{R}}_{P,\mathrm{lim}}}}
+\newcommand{\band}[2]{\ensuremath{^{{#1}}\!{#2}}}
+
+\newcommand{\kversion}{{\tt v1\_11}}
+
+\setlength{\footnotesep}{9.6pt}
+
+\newcounter{thefigs}
+\newcommand{\fignum}{\arabic{thefigs}}
+
+\newcounter{thetabs}
+\newcommand{\tabnum}{\arabic{thetabs}}
+
+\newcounter{address}
+
+\slugcomment{To be submitted to \aj}
+
+\shortauthors{Blanton {\it et al.} (2000)}
+\shorttitle{$K$-corrections and photometric redshifts}
+
+% TODO:
+% finish final templates
+% fix kphotoz banding
+% fit SFHs to final spectra to get stellar masses, mean ages, 
+% mean metallicities
+
+\begin{document}
+ 
+\title{$K$-corrections and photometric redshifts in SDSS and 2MASS$^1$}
+
+\author{
+Michael R. Blanton\altaffilmark{\ref{NYU}}
+%Tamas Budavari\altaffilmark{\ref{JHU}},
+%Andrew J. Connolly\altaffilmark{\ref{Pitt}},
+%J.~Brinkmann\altaffilmark{\ref{APO}},
+%Istv\'an Csabai\altaffilmark{\ref{JHU}},
+%Mamoru Doi\altaffilmark{\ref{Tokyo}},
+%Daniel Eisenstein\altaffilmark{\ref{Arizona}},
+%Masataka Fukugita\altaffilmark{\ref{CosmicRay},\ref{IAS}},
+%James E. Gunn\altaffilmark{\ref{Princeton}},
+%David W. Hogg\altaffilmark{\ref{NYU}}, and
+%David J. Schlegel\altaffilmark{\ref{Princeton}}
+%Julianne Dalcanton\altaffilmark{\ref{UW}},
+%Jon Loveday\altaffilmark{\ref{Sussex}},
+%Michael A. Strauss\altaffilmark{\ref{Princeton}},
+%Mark SubbaRao\altaffilmark{\ref{Chicago}},
+%David H. Weinberg\altaffilmark{\ref{Ohio}},
+%John E. Anderson, Jr.\altaffilmark{\ref{Fermilab}},
+%James Annis\altaffilmark{\ref{Fermilab}},
+%Neta A. Bahcall\altaffilmark{\ref{Princeton}},
+%Mariangela Bernardi\altaffilmark{\ref{Chicago}},
+%Robert J. Brunner\altaffilmark{\ref{Caltech}},
+%Scott Burles\altaffilmark{\ref{Fermilab}},
+%Larry Carey\altaffilmark{\ref{UW}},
+%Francisco J. Castander\altaffilmark{\ref{Chicago}, \ref{Pyrenees}},
+%Andrew J. Connolly\altaffilmark{\ref{Pitt}},
+%Istv\'an Csabai\altaffilmark{\ref{JHU}},
+%Douglas Finkbeiner\altaffilmark{\ref{Berkeley}},
+%Scott Friedman\altaffilmark{\ref{JHU}},
+%Joshua A. Frieman\altaffilmark{\ref{Fermilab}},
+%G. S. Hennessy\altaffilmark{\ref{USNO}},
+%Robert B. Hindsley\altaffilmark{\ref{USNO}},
+%Takashi Ichikawa\altaffilmark{\ref{Tokyo}},
+%\v{Z}eljko Ivezi\'{c}\altaffilmark{\ref{Princeton}},
+%Stephen Kent\altaffilmark{\ref{Fermilab}},
+%G. R.~Knapp\altaffilmark{\ref{Princeton}},
+%D. Q.~Lamb\altaffilmark{\ref{Chicago}},
+%R. French Leger\altaffilmark{\ref{UW}},
+%Daniel C. Long\altaffilmark{\ref{APO}},
+%Robert H. Lupton\altaffilmark{\ref{Princeton}},
+%Timothy A.~McKay\altaffilmark{\ref{Michigan}},
+%Avery Meiksin\altaffilmark{\ref{Edinburgh}},
+%Aronne Merelli\altaffilmark{\ref{Caltech}},
+%Jeffrey A. Munn\altaffilmark{\ref{USNO}},
+%Vijay Narayanan\altaffilmark{\ref{Princeton}},
+%Matt Newcomb\altaffilmark{\ref{CarnegieMellon}},
+%R. C. Nichol\altaffilmark{\ref{CarnegieMellon}},
+%Sadanori Okamura\altaffilmark{\ref{Tokyo}},
+%Russell Owen\altaffilmark{\ref{UW}},
+%Jeffrey R.~Pier\altaffilmark{\ref{USNO}},
+%Adrian Pope\altaffilmark{\ref{JHU}},
+%Marc Postman\altaffilmark{\ref{STScI}},
+%Thomas Quinn\altaffilmark{\ref{UW}},
+%Constance M. Rockosi\altaffilmark{\ref{Chicago}},
+%Donald P. Schneider\altaffilmark{\ref{PennState}}, 
+%Kazuhiro Shimasaku\altaffilmark{\ref{Tokyo}},
+%Walter A. Siegmund\altaffilmark{\ref{UW}},
+%Stephen Smee\altaffilmark{\ref{Maryland}},
+%Yehuda Snir\altaffilmark{\ref{CarnegieMellon}},
+%Chris Stoughton\altaffilmark{\ref{Fermilab}},
+%Christopher Stubbs\altaffilmark{\ref{UW}},
+%Alexander S.~Szalay\altaffilmark{\ref{JHU}},
+%Gyula P.~Szokoly\altaffilmark{\ref{Potsdam}},
+%Aniruddha R.~Thakar\altaffilmark{\ref{JHU}},
+%Christy Tremonti\altaffilmark{\ref{JHU}},
+%Douglas L. Tucker\altaffilmark{\ref{Fermilab}},
+%Alan Uomoto\altaffilmark{\ref{JHU}},
+%Dan vanden Berk\altaffilmark{\ref{Fermilab}},
+%Michael S. Vogeley\altaffilmark{\ref{Drexel}},
+%Patrick Waddell\altaffilmark{\ref{UW}},
+%Brian Yanny\altaffilmark{\ref{Fermilab}},
+%Naoki Yasuda\altaffilmark{\ref{NAOJ}},
+%and Donald G.~York\altaffilmark{\ref{Chicago}}
+}
+
+\altaffiltext{1}{Based on observations obtained with the
+Sloan Digital Sky Survey} 
+\setcounter{address}{2}
+\altaffiltext{\theaddress}{
+\stepcounter{address}
+New York University, Department of Physics, 4 Washington Place, New
+York, NY 10003
+\label{NYU}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Physics and Astronomy, The Johns Hopkins University,
+%Baltimore, MD 21218
+%\label{JHU}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%University of Pittsburgh,
+%Department of Physics and Astronomy,
+%3941 O'Hara Street,
+%Pittsburgh, PA 15260
+%\label{Pitt}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Astronomy and Research Center for 
+%the Early Universe,
+%School of Science, University of Tokyo,
+%Tokyo 113-0033, Japan
+%\label{Tokyo}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Steward Observatory, 
+%933 N. Cherry Ave., Tucson, AZ
+%85721
+%\label{Arizona}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Princeton University Observatory, Princeton,
+%NJ 08544
+%\label{Princeton}}
+%\addtocounter{address}{1}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Fermi National Accelerator Laboratory, P.O. Box 500,
+%Batavia, IL 60510
+%\label{Fermilab}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Astronomy, University of Washington,
+%Box 351580,
+%Seattle, WA 98195 
+%\label{UW}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%University of Chicago, Astronomy \&
+%Astrophysics Center, 5640 S. Ellis Ave., Chicago, IL 60637
+%\label{Chicago}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Hubble Fellow 
+%\label{Hubble}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Sussex Astronomy Centre,
+%University of Sussex,
+%Falmer, Brighton BN1 9QJ, UK
+%\label{Sussex}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Ohio State University,
+%Department of Astronomy,
+%Columbus, OH 43210
+%\label{Ohio}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Apache Point Observatory,
+%2001 Apache Point Road,
+%P.O. Box 59, Sunspot, NM 88349-0059
+%\label{APO}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Astronomy, California Institute of Technology,
+%Pasadena, CA 91125
+%\label{Caltech}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Observatoire Midi-Pyr\'en\'ees, 
+%14 ave Edouard Belin, Toulouse, F-31400, France
+%\label{Pyrenees}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%UC Berkeley, Dept. of Astronomy, 601 Campbell Hall, Berkeley, CA  94720-3411
+%\label{Berkeley}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Institute for Cosmic Ray Research, University of
+%Tokyo, Midori, Tanashi, Tokyo 188-8502, Japan
+%\label{CosmicRay}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Institute for Advanced Study, Olden Lane,
+%Princeton, NJ 08540
+%\label{IAS}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%U.S. Naval Observatory,
+%3450 Massachusetts Ave., NW,
+%Washington, DC  20392-5420
+%\label{USNO}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%University of Michigan, Department of Physics,
+%500 East University, Ann Arbor, MI 48109
+%\label{Michigan}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Physics \& Astronomy,
+%The University of Edinburgh,
+%James Clerk Maxwell Building,
+%The King's Buildings,
+%Mayfield Road,
+%Edinburgh EH9 3JZ, UK
+%\label{Edinburgh}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Physics, Carnegie Mellon University, 
+%5000 Forbes Avenue, Pittsburgh, PA 15213-3890 
+%\label{CarnegieMellon}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Space Telescope Science Institute, Baltimore, MD 21218
+%\label{STScI}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Astronomy and Astrophysics,
+%The Pennsylvania State University,
+%University Park, PA 16802
+%\label{PennState}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Astronomy,
+%University of Maryland,
+%College Park, MD 20742-2421 
+%\label{Maryland}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Astrophysikalisches Institut Potsdam,
+%An der Sternwarte 16, D-14482 Potsdam, Germany
+%\label{Potsdam}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Physics, Drexel University, Philadelphia, PA 19104
+%\label{Drexel}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%National Astronomical Observatory, Mitaka, Tokyo 181-8588, Japan
+%\label{NAOJ}}
+%\addtocounter{address}{1}
+%\altaffiltext{\theaddress}{Physics Dept., University of California, Davis, CA 95616
+%\label{UCDavis}}
+%\addtocounter{address}{1}
+%\altaffiltext{\theaddress}{IGPP/Lawrence Livermore National Laboratory
+%\label{IGPP}}
+%\addtocounter{address}{1}
+%\altaffiltext{\theaddress}{Department of Astronomy, University of California, Berkeley, C
+%A 94720-3411
+%\label{Berkeley}}
+%\stepcounter{address}
+%\altaffiltext{\theaddress}{Remote Sensing Division, Code 7215, Naval
+%Research Laboratory, Washington, DC 20375
+%\label{NRL}}
+%\addtocounter{address}{1}
+%\altaffiltext{\theaddress}{U.S. Naval Observatory, Flagstaff Station,
+%P.O. Box 1149,
+%Flagstaff, AZ  86002-1149
+%\label{Flagstaff}}
+
+\clearpage
+
+\begin{abstract}
+We present a method to develop templates for calculating
+$K$-corrections and photometric redshifts suitable for ultraviolet,
+optical, and infrared observations. Since we base the templates on
+stellar population synthesis results, the results are intepretable in
+terms of approximate stellar masses and star-formation histories. We
+present templates fit with this method to the Sloan Digital Sky Survey
+and Two-Micron All Sky Survey photometry.  The software that generates
+these results is publicly available and easily adapted to handle a
+wide range of galaxy observations.
+\end{abstract}
+
+\keywords{galaxies: fundamental parameters --- galaxies: photometry
+--- galaxies: statistics}
+
+\section{Motivation}
+\label{motivation}
+
+
+\section{Fitting SEDs to broad-band magnitudes}
+\label{sedfit}
+
+First, we describe how we reconstruct galaxy SEDs from broad band
+magnitude measurements. 
+
+A broad-band flux $F_k$ in filter $k$ is a measurement of the
+projection of the source spectrum $f(\lambda)$ on the response
+$R_k(\lambda)$ (where typically this function includes the effects of
+the atmosphere, telescope, filter $k$, and the CCD itself)
+\begin{equation}
+F_k = \int_0^\infty d\lambda f(\lambda) R_k(\lambda).
+\end{equation}
+Now, let us model $f(\lambda)$ as a sum of many template spectra:
+\begin{equation}
+f(\lambda) = \sum_j a_j v_j(\lambda)
+\end{equation}
+In order to fit the $a_j$ given the observations in the bands $k$ for
+a single object, we minimize
+\begin{eqnarray}
+\label{chi2}
+\chi^2 &=& \sum_{k} \left[ \frac{F_{k,\mathrm{obs}} - F(k)}{\sigma_k}
+\right]^2 \cr
+&=& \sum_{ik} \left[ \frac{F_{k,\mathrm{obs}} -\sum_j a_j
+  v_j(\lambda)}{\sigma_k} \right]^2
+\end{eqnarray}
+over the $a_j$, where $\sigma_k$ is the standard deviation of the
+error in band $k$. Since we will use $v_j(\lambda)$ which are the light
+emitted from stars and ionized gas, we make the reasonable assumption
+that these only {\it add} light to the spectrum, not subtract it, and
+require nonnegativity: that $a_j\ge 0$ for all $j$. (We discuss dust
+below).  In order to perform this nonnegative minimization of Equation
+\ref{chi2}, we use the method of \citet{sha02a}. 
+
+At this point, the reader probably realizes that the number of
+templates $j$ should not be much higher than the number of bands $k$,
+or else the problem becomes very degenerate. In fact, for the case of
+unconstrained minimization of Equation \ref{chi2} the problem is
+formally degenerate if $j>k$. The nonnegativity constraint adds enough
+information that this is no longer the case, but still one cannot get
+strong constraints on a huge number of parameters given a small number
+of measurements. Nevertheless, below we {\it will} use a huge number
+of $j$ given the number of $k$, simply for the purposes of finding the
+subspace of possible galaxy spectra which actually conform to galaxy
+observations. We do not mean to imply that we can determine each of
+the resulting parameters at high signal-to-noise.
+
+For our model templates we use a set of spectra from the stellar
+evolution synthesis results of PEGASE2 (\citealt{fioc97a}). We use 15
+bursts of varying ages. The top panel of Figure \ref{sfh} shows the
+star-formation history of each of these bursts. For each age we create
+five templates with five different metallicities ($Z=0.03$, $0.02$,
+$0.008$, $0.004$, and $0.001$). The bottom panel of Figure \ref{sfh}
+shows the template for the $Z=0.008$ case at every other age, starting
+with the oldest. The bottom panel of For each age and metallicity, we
+create three templates with three different extinctions ($\tau_V=0$,
+$1$, and $3$) using the Milky Way extinction law using the ``clumpy,''
+``dusty'' model of \citet{witt00a}. This procedure results in 225
+templates and spans a very large range of possible spectra. Our
+procedure is designed to take this large dimensionality space and
+determine a low dimensionality subspace in which galaxies reside.
+
+We fit these models to a set of galaxies for which we know the
+redshifts. The majority of the redshifts are from the SDSS, but a
+small number of the redshifts are from CNOC2 ({\bf ref}). We consider
+only redshifts with 1$^\circ$.25 of the J2000 Equator, between
+$-60<\alpha<100$. We match the locations of these spectra to the SDSS
+photometric catalog ({\bf describe}) in all of the observations in
+this region and to the 2MASS Extended Source Catalog (XSC). In
+passing, we note that there are large errors (many arcseconds) in the
+catalog astrometry for CNOC2, and we needed to take care to account
+for these errors. For spectra which had matches in multiple runs of
+the SDSS, we take the (unweighted) mean of their photometry to reduce
+errors {\bf how many is this done for?}. We select a random set of
+these galaxies in such a way that the number per redshift is nearly
+constant across redshift. For each galaxy, we consider its
+extinction-corrected model photometry. Figure \ref{gmrz} shows the
+observed $g-r$ colors and redshifts of the resulting set of
+galaxies. Note that only for the lower redshift galaxies do we have
+matches to the 2MASS XSC.
+
+Figure \ref{kfit} shows the residuals between the observed and fit
+colors after minimizing Equation \ref{chi2} for all the galaxies in
+our sample. Interestingly, even this large set of parameters cannot
+perfectly describe the trends of color with redshift. There are
+deviations at the percent level or so in $ugriz$. The $J$-band 2MASS
+observations at moderate redshift appear to be about $0.1$ magnitudes
+off of the models; this discrepancy is probably related to the similar
+discrepancies found by \citet{blanton03d} and \citet{baldry03a} when
+comparing the luminosity density of the universe to models.  Our
+attitude in this paper will be to trust the data in preference to the
+models and so below we describe how we deal with these discrepancies.
+
+Each many-parameter fit to the broad-band fluxes of each galaxy yields
+a complete spectrum from which to derive $K$-corrections. It also
+provides a value of $\chi^2$; in principle, for galaxies without
+redshifts we can find the assumed redshift with minimum $\chi^2$ in
+order to find the photometric redshift. In practice, the fit takes too
+long to perform to be useful for either of these purposes. Thus, we
+describe here our method for reducing the dimensionality to a set of
+three templates which adequately describe the data.
+
+Our procedure has two steps. First, we use principle component
+analysis on the set of 225-coefficent vectors describing all the fits
+in order to find a 10-dimensional subspace which still describes the
+data. Second, within this 10-dimensional subspace we group the
+galaxies into a set of ten groups, average the spectra within each
+group, and pick the triple among these groups which best describes the
+data. We adopted this procedure because we did not know of a
+principled way in which to reduce the dimensionality without
+sacrificing nonnegativity; however, it turns out that such methods do
+exist, and we recommend those methods for future investigators ({\bf
+refs from sam}) while retaining this method for the moment because it
+appears to work for our purposes.
+
+Because the galaxies all have very different bolometric fluxes, there
+is a strong variation in the coefficient values simply due to the
+total flux differing by large factors. Therefore, before performing
+principal component analysis, we scale all the coefficients of each
+galaxy by a single number (per galaxy) such that the galaxies all lie
+exactly on a plane in coefficient space. We choose the plane to be the
+plane on which the sum of the templates has a constant flux between
+1500 \AA\ and 30000 \AA. After scaling the galaxies to this plane, we
+perform principal component analysis to obtain the five most principal
+axes, using the efficient method of \citet{roweis99a}. There is almost
+no difference between the full fit shown above and that using the
+first five eigencoefficients.
+
+On the other hand, the five eigencomponents natural consist partly of
+positive star-formation components and partly of negative
+star-formation components. This means that we cannot simply sum them
+nonnegatively to get a nonnegative star-formation history. In order to
+get a set of components that consists purely of all-positive
+star-formation histories, we consider the distribution of galaxies in
+the five-component space. We perform a $K$-means grouping on this set
+of points, which produces ten groups. This is simply a way of very
+roughly mapping the locus on which the galaxies reside (it is
+significantly nonlinear within the five-dimensional space, so we
+cannot simply take fewer principal components). We then average the
+spectra in each group. This gives ten spectra who roughly span the
+space of galaxy types. Finally, we pick from among those ten the
+triple which best describes the galaxies, in the sense of minimizing
+$\chi^2$ in Equation \ref{chi2}. 
+
+Figure \ref{kfit3} shows the color residuals after fitting with the
+final three templates. 
+
+[ new model: 3 PEGASE2 spectra; Figure show spectra, Figure stellar
+  mass to light ratios ]
+
+[ to deal with that for K-correction and photo-z, tweak ]
+ 
+We recognize that this procedure is rather convoluted and a bit of a
+hack. As noted above, we have adopted it simply as one way of
+automatically getting a small set of templates that explain galaxy
+broad-band fluxes as a sum of star-formation histories. There are
+methods for directly performing principal component analysis subject
+to the conditions that the components and the coefficients are all
+positive, and we recommend the investigation of such methods to the
+reader ({\bf ref}).
+
+\section{Determining $K$-corrections} 
+\label{kcorrect}
+
+Given a model spectrum for the galaxy, the determination of the
+$K$-correction is straightforward. Here we repeat the 
+
+[ Figure demonstrate K-corrections ]
+
+[ Figure show K-corrections to z=0 ]
+
+[ note band-shifting ]
+
+[ Figure test: against a bunch of spectra ]
+
+\section{Determining photometric redshifts}
+\label{kphotoz}
+
+[ describe simple fitting procedure ]
+
+[ Figure show training set results ]
+
+[ Figure show results on deeper sdss data ] 
+
+\section{Public access to the code}
+
+\section{Summary}
+\label{conclusions}
+
+[ summarize ]
+
+[ this does not describe what constraints photometry puts on the SFH ]
+
+\acknowledgments
+
+Sam Roweis
+
+Funding for the creation and distribution of the SDSS Archive has been
+provided by the Alfred P. Sloan Foundation, the Participating
+Institutions, the National Aeronautics and Space Administration, the
+National Science Foundation, the U.S. Department of Energy, the
+Japanese Monbukagakusho, and the Max Planck Society. The SDSS Web site
+is {\tt http://www.sdss.org/}.
+
+The SDSS is managed by the Astrophysical Research Consortium (ARC) for
+the Participating Institutions. The Participating Institutions are The
+University of Chicago, Fermilab, the Institute for Advanced Study, the
+Japan Participation Group, The Johns Hopkins University, Los Alamos
+National Laboratory, the Max-Planck-Institute for Astronomy (MPIA),
+the Max-Planck-Institute for Astrophysics (MPA), New Mexico State
+University, Princeton University, the United States Naval Observatory,
+and the University of Washington.
+ 
+\bibliographystyle{../../../nyu-astro/tex/apj}
+\bibliography{../../../nyu-astro/tex/apj-jour,../../../nyu-astro/tex/ccpp}
+
+\appendix
+
+\section{Approximate conversions between common magnitude systems}
+
+\newpage
+
+%\include{tables}
+
+\include{kcorrect_figures}
+
+\end{document}

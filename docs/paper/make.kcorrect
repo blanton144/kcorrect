@@ -1,0 +1,28 @@
+NAME= kcorrect
+
+${NAME}.ps.gz: ${NAME}.ps
+	gzip -fv ${NAME}.ps
+
+${NAME}.ps: ${NAME}.dvi 
+	dvips -N0 -o ${NAME}.ps ${NAME}.dvi
+
+${NAME}.dvi: ${NAME}.tex ${NAME}_figures.tex ${NAME}_tables.tex \
+	~/nyu-astro/tex/ccpp.bib 
+	latex ${NAME}; bibtex ${NAME}; latex ${NAME}; latex ${NAME}
+
+clean:
+	rm ${NAME}.ps ${NAME}.ps.gz *.log *.dvi
+
+fullclean:
+	rm ${NAME}.ps *.log *.dvi *.aux *.bbl *.blg
+
+aj: ${NAME}.ps
+	${HOME}/environment/bin/mkaj ${NAME} 10000000
+
+apj: ${NAME}.ps
+	${HOME}/environment/bin/mkapj ${NAME} 10000000
+
+common: ${NAME}.ps
+	${HOME}/environment/bin/mkcommon ${NAME} 10000000
+
+dummy:
