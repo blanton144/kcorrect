@@ -3,7 +3,7 @@
 $ra0=35.8748;
 $dec0=0.08691666666;
 
-system("wget http://www.astro.utoronto.ca/~cnoc/cnoc2_0223_20010213.tar.gz");
+system("wget --no-clobber http://www.astro.utoronto.ca/~cnoc/cnoc2_0223_20010213.tar.gz");
 system("tar -xvzf cnoc2_0223_20010213.tar.gz");
 
 open(fp,"<cnoc2_0223_20010213.dat");
