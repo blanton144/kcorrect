@@ -1,0 +1,17 @@
+#!/bin/csh -f
+
+if($1 == "") exit
+
+cd $KCORRECT_DIR
+echo $1 >! VERSION
+cvs ci -m "tagging and releasing"
+cvs rtag $1 kcorrect 
+mkdir tmp
+cd tmp
+cvs -d "blanton@spectro.princeton.edu:/usr/local/cvsroot" export -r $1 kcorrect
+tar -cvf kcorrect.$1.tar kcorrect
+gzip -dv kcorrect.$1.tar
+mv kcorrect.$1.tar.gz ../docs/html
+cd ../
+\rm -r tmp
+echo devel >! VERSION
