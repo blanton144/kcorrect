@@ -98,11 +98,9 @@ if(not file_test(savfile)) then begin
 
 ;   HACK for reasonable numbers 
     vmatrix=vmatrix/1.e+38
-    gals.maggies=gals.maggies*1.e+9
-    gals.maggies_ivar=gals.maggies_ivar/1.e+18
 
 ;   fit nonnegative model
-    use_indx=shuffle_indx(n_elements(gals),num_sub=200)
+    use_indx=shuffle_indx(n_elements(gals),num_sub=2500)
     ;add_indx=where(gals.redshift gt 0.5 OR $
                    ;gals.sdss_spectro_tag eq -1)
     ;use_indx=[use_indx,add_indx]
