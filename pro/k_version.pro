@@ -29,6 +29,6 @@
 pro k_version
 
 spawn,'cat '+getenv('KCORRECT_DIR')+'/VERSION',version
-splog,version[0]
+klog,version[0]
 
 end
