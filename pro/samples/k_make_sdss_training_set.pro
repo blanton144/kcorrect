@@ -207,6 +207,7 @@ goodindx=where(cnoc_stacked[0,*] gt 0 and $
 cnoc2=cnoc2[goodindx]
 cnoc_stacked=cnoc_stacked[*,goodindx]
 cnoc_stacked_ivar=cnoc_stacked_ivar[*,goodindx]
+help,cnoc2
 
 ; now output 
 outfile='sdss_training_set.'+name+'.fits'
