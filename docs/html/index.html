@@ -194,16 +194,19 @@ This routine performs the K-corrections on a
 set of magnitudes or maggies. It is called as follows:
 <pre>
 kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0 [, $
-    kcorrectz=, maggies=, version=, vpath=, rmatrix=, ematrix=, $
-    zvals=, coeffs=]
+    kcorrectz=, /maggies, version=, vpath=, rmatrix=, ematrix=, $
+    zvals=, coeffs=, /sdssfix]
 </pre>
-If the "/maggies" flag is specified, galaxy_mag and galaxy_magerr
-are in maggies; otherwise they are in magnitudes (see explanation
-above). They should be [5,n] arrays. The reconstructed magnitudes 
-are returned in galaxy_mag0. If kcorrectz is set, all of the magnitudes are
-reconstructed at the specified redshift; otherwise they are
+If the "/maggies" flag is specified, galaxy_mag and galaxy_magerr are
+in maggies; otherwise they are in magnitudes (see explanation
+above). They should be [5,n] arrays. The reconstructed magnitudes are
+returned in galaxy_mag0. If kcorrectz is set, all of the magnitudes
+are reconstructed at the specified redshift; otherwise they are
 reconstructed at the redshift of each object. Ignore version and vpath
-UNLESS you want to specify your own set of templates. </p>
+UNLESS you want to specify your own set of templates. Finally, the
+flag "/sdssfix" makes an attempt to analyze your magnitudes and fix
+wacky magnitudes and errors to "reasonable" values for galaxies. This
+flag is recommended for SDSS data.</p>
 
 <p>
 For example, one might do the following:
