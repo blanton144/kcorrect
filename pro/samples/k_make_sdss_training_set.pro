@@ -83,7 +83,7 @@ if(NOT file_test(savfile)) then begin
     save,filename=savfile
     
 ;   get redshifts for all spectra
-    sp=hogg_mrdfits(getenv('SPECTRO_DATA')+'/spAll.fits', 1, $
+    sp=hogg_mrdfits(getenv('SPECTRO_REDUX')+'/spAll.fits', 1, $
                     columns=['specprimary','plug_ra','plug_dec','z','plate', $
                              'mjd','fiberid','zerr','zwarning','class', $
                              'modelflux', 'modelflux_ivar','extinction'], $
