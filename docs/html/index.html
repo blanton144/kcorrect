@@ -19,8 +19,8 @@ This web page documents a code written in C and IDL to calculate
 spectral energy distributions and K-corrections. Standard format IDL
 <a href="kcorrect_help.html"> documentation</a> exists. There is a <a
 href="paper.ps"> paper</a> which describes the methods in
-detail. Please cite this paper if you use the code or results on this
-web site.
+detail. Conditions of using the code released here are to cite this
+paper and to specify the version tag (eg. v1_1) of the code used.
 </p>
 
 <p> We document in detail here how to use the SED fits provided to
@@ -138,7 +138,7 @@ reconstruction at the redshift desired to the
 reconstruction at the actual redshift 
 </ul>
 This distinction matters very little if your reconstructions are
-really good.
+really good, as they are here.
 </p>
 
 <p>
@@ -148,10 +148,22 @@ equivalent to AB magnitudes. "Maggies" are simply the linearized
 version of AB magnitudes; that is, they are 10^{-0.4*mag} (the
 conversion from luptitudes to maggies is a bit more complicated). </P>
 
-<p> TODO But you may still be wondering what I mean by an "AB"
-magnitude. The AB system simply has the zeropoints of all the
-magnitudes set such that an object with f(nu)=1 (or
-f(lambda)=1/lambda^2) ... EXPLAIN </P>
+<p> But you may still be wondering what I mean by an "AB"
+magnitude. The AB system is designed such that a flat spectrum object
+with f_nu = 3631 Jy = 3.631e-20 ergs cm^{-2} s^{-1} Hz^{-1} should
+have every magnitude equal to zero. The beauty of the AB system is
+that the uniform definition makes it convenient to synthesize AB
+magnitudes from theory or models. The tragic flaw is that the quality
+of the AB-ness of a system is very dependent on precise
+spectrophotometry of standards and the carefulness of the calibrators,
+since no objects have a flat spectrum. There is a tension between
+these two needs --- similar to other tensions throughout astronomy
+between making precise measurements and making interpretable ones.</p>
+
+<p>
+The units of the template spectra created are in ergs cm^{-2} s^{-1}
+A^{-1}. The first coefficient of each object is the ergs cm^{-2}
+s^{-1} within the range 3500 to 7500 Angstroms.</p>
 
 <h3> Using the IDL Code</h3>
 

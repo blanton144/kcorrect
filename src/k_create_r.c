@@ -7,15 +7,22 @@
  * k_create_r.c
  *
  * Makes the rmatrix. This matrix is the impact of each filter curve
- * on each template basis element. 
+ * on each template basis element.
  *
  * Amazingly, this is the only part of the code in which the 
  * filter curves are necessary.
+ *
+ * AB magnitudes are assumed. The input spectra should be in units of
+ * ergs cm^{-2} s^{-1} A^{-1}
  *
  * Mike Blanton
  * 6/2001 */
 
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
+
+/* factor of 10^(0.4*48.60) which converts flux in based on 
+ * f_lambda=erg/cm^2/s/A into maggies */
+#define ABSCALE 2.75423e+19
 
 static double *cr_bmatrix=NULL;
 static double *cr_lambda=NULL;
@@ -107,8 +114,8 @@ IDL_LONG k_create_r(double *rmatrix,
 		} /* end for l */
 
 		/* create scale factor for filter */
-		scale=1./k_qromo(scalefilter,cr_filter_lambda[0],
-										 cr_filter_lambda[cr_filter_n-1],k_midpnt);
+		scale=ABSCALE/k_qromo(scalefilter,cr_filter_lambda[0],
+													cr_filter_lambda[cr_filter_n-1],k_midpnt);
 
 		/* loop over redshifts */
 		for(i=0;i<nz;i++) {

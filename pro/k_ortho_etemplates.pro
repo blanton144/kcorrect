@@ -76,4 +76,9 @@ for t = 0l, nt-1l do begin
 	ematrix[*,t]=ematrix[*,t]*dot
 endfor 
 
+; Now normalize the ematrix so that unit coefficient 
+; means unit visual flux
+eflux=bflux#ematrix
+ematrix=ematrix/eflux[0]
+
 end 

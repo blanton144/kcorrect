@@ -165,7 +165,7 @@ help,sp
 galaxy_flux=dblarr(nk,n_elements(sp))
 galaxy_invvar=dblarr(nk,n_elements(sp))
 for k=0l,nk-1l do begin
-    galaxy_flux[k,*]=10.d^(-0.4d*(sp.petrocounts[k]-sp.reddening[k]-17.d $
+    galaxy_flux[k,*]=10.d^(-0.4d*(sp.petrocounts[k]-sp.reddening[k] $
                                   +shiftband[k]))
     galaxy_invvar[k,*]=galaxy_flux[k,*]*0.4d*alog(10.d)* $
       sp.petrocountserr[k]
