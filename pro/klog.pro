@@ -88,7 +88,7 @@ pro klog, noname=noname, prelog=prelog, $
    ; Determine the name of the calling routine
    help, calls=calls
 
-   fname = (str_sep(calls[1], ' '))[0] + ': '
+   fname = (k_str_sep(calls[1], ' '))[0] + ': '
 
    ; Add spaces for depth of routine
    for i=0,n_elements(calls)-4 do fname = ' ' + fname 
