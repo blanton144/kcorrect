@@ -1,0 +1,16 @@
+File=Table
+Product=kcorrect
+
+Group:
+Flavor=ANY
+Qualifiers=""
+
+Common:
+   Action=setup
+      setupOptional("-f ${UPS_PROD_FLAVOR} idlutils")
+      proddir()
+      setupenv()
+      pathAppend(PATH, ${UPS_PROD_DIR}/bin)
+      envPrepend(IDL_PATH, +${UPS_PROD_DIR}/pro)
+End:
+
