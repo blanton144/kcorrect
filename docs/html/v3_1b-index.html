@@ -295,7 +295,8 @@ these to look at the fit spectrum)
 <li> <b>chi2=</b>: outputs chi^2 of the template fit
 <li> <b>/sdssfix</b>: assumes you are giving it tsObj inputs
 (luptitudes and standard deviation of luptitudes) and
-translates to maggies and inverse variance; automatically sets
+translates to maggies and inverse variance in the AB system (using our
+best guess for the AB offsets); automatically sets
 /magnitude and /stddev
 <li> <b>/magnitude</b>: "maggies" inputs are in magnitudes, not
 maggies; returns K-corrections in magnitudes
@@ -611,7 +612,7 @@ the hard work of measuring them. Jim Gunn then took these, ran them
 through models of the telescope and the atmosphere (using an
 appropriately scaled model of the Palomar atmospheric model at airmass
 1.3). Daniel Eisenstein deserves special mention for the extensive
-testing he has done on these. We have a <a href="../../data/filters">
+testing he has done on these. We have a <a href="filters">
 repository</a> of these and other curves. For <b>kcorrect</b> we use
 the SDSS files:
 <pre>
