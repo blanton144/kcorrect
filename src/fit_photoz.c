@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <kcorrect.h>
@@ -133,4 +134,6 @@ int main(int argc,
 	FREEVEC(galaxy_maggies);
 	FREEVEC(galaxy_invvar);
 	FREEVEC(coeffs);
+	
+	return(0);
 } /* end main */

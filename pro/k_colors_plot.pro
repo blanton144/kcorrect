@@ -82,13 +82,9 @@ endif else begin
     to_z_str='z'
 endelse
 
-kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies,kcorrectz=to_z, $
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,kcorrect_val,kcorrectz=to_z, $
   version=version,vpath=vpath,/maggies,/invvar,addgrgap=addgrgap, $
   vconstraint=vconstraint, sdssfix=sdssfix, coeff=coeff
-kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies0, $
-  version=version,vpath=vpath,/maggies,/invvar,addgrgap=addgrgap, $
-  vconstraint=vconstraint, sdssfix=sdssfix
-kcorrect_val=recmaggies/recmaggies0
 recmaggies=galaxy_maggies*kcorrect_val
 
 dm=2.5*alog10((2.99792e+8*lumdis(galaxy_z,omega0,omegal0))^2)
@@ -175,6 +171,7 @@ for k=0l, nk-2 do begin
         tmpcoeff=dblarr(4,n_elements(zs))
         tmpcoeff[0,*]=1.
         tmpcoeff[basecoeff,*]=dots[j]
+				; may not be correct
         k_reconstruct_maggies,tmpcoeff,zs,tmpmaggies,version='default'
         linecolor=transpose(-2.5*alog10(tmpmaggies[k,*]/tmpmaggies[k+1,*]))
         djs_oplot,zs,linecolor,thick=5,color='white'
@@ -196,6 +193,7 @@ for k=0l, nk-2 do begin
                                     sigrej=4)
         tmpcoeff[3,*]=djs_avsigclip(coeff[3,zuseindx]/coeff[0,zuseindx], $
                                     sigrej=4)
+				; may not be correct
         k_reconstruct_maggies,tmpcoeff,zs,tmpmaggies,version='default'
         linecolor=transpose(-2.5*alog10(tmpmaggies[k,*]/tmpmaggies[k+1,*]))
         djs_oplot,zs,linecolor,thick=5,color='white'

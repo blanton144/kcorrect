@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <kcorrect.h>
@@ -24,17 +25,18 @@ static double *pz_coeffs=NULL;
 static double *pz_reconstruct_maggies=NULL;
 static double *pz_galaxy_maggies=NULL;
 static double *pz_galaxy_invvar=NULL;
-static double *pz_coeffspnorm=NULL;
-static double pz_z,pz_linepos;
-static IDL_LONG pz_nt,pz_nz,pz_nk,pz_nb,pz_puse,pz_np,pz_p;
+static IDL_LONG pz_nt,pz_nz,pz_nk,pz_nb;
 
 double pz_calc_chi2(double z) 
 {
-	double *reconstruct_maggies,chi2;
+	double chi2;
+	double band_shift;
 	IDL_LONG k;
 	
+	band_shift=0.;
 	k_reconstruct_maggies(pz_ematrix,pz_nt,pz_zvals,pz_nz,pz_rmatrix,
-											 pz_nk,pz_nb,pz_coeffs,&z,pz_reconstruct_maggies,1);
+												pz_nk,pz_nb,pz_coeffs,&z,&band_shift, 
+												pz_reconstruct_maggies,1);
 	chi2=0.;
 	for(k=0;k<pz_nk;k++)
 		chi2+=(pz_reconstruct_maggies[k]-pz_galaxy_maggies[k])
@@ -46,8 +48,7 @@ double pz_calc_chi2(double z)
 /* calculates chi2 */
 double pz_fit_coeffs(double z) 
 {
-	double chi2,az,bz,cz;
-	IDL_LONG i,k;
+	double chi2;
 	
 	/* fit coeffs; no direct constraints are put on the coeffs in this case */
 	k_fit_coeffs(pz_ematrix,pz_nt,pz_zvals,pz_nz,pz_rmatrix,
@@ -74,8 +75,8 @@ IDL_LONG k_fit_photoz(double *ematrix,    /* eigentemplates */
 											double *galaxy_z,
 											IDL_LONG ngalaxy)
 {
-	double *zgrid,*chi2,chi2min,az,bz,cz,sl;
-	IDL_LONG i,j,k,b,p,nzsteps,jmin;
+	double *zgrid,*chi2,chi2min,az,bz,cz;
+	IDL_LONG i,j,k,nzsteps,jmin;
 
 	/* allocate memory */
 	pz_nk=nk;

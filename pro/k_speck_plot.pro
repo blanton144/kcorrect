@@ -64,7 +64,7 @@ if(n_elements(lumlim) gt 0) then begin
     galaxy_z_k=replicate(to_z,n_elements(galaxy_z))
     kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies,coeff=coeff, $
       version=version, vpath=vpath, /maggies, /invvar, kcorrectz=galaxy_z_k, $
-      addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix
+      addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix, /returnmag
 
     omega0=0.3
     omegal0=0.7
@@ -103,10 +103,12 @@ endif
 galaxy_z_k=replicate(to_z,n_elements(galaxy_z))
 kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies, $
   coeff=coeff,version=version,vpath=vpath,/maggies,/invvar, $
-  kcorrectz=to_z, addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix
+  kcorrectz=to_z, addgrgap=addgrgap, vconstraint=vconstraint, $
+  sdssfix=sdssfix, /returnmag 
 kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies0, $
   coeff=coeff,version=version,vpath=vpath,/maggies,/invvar, $
-  addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix
+  addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix, $
+  /returnmag
 
 if(keyword_set(psfile)) then begin
     set_plot, "PS"

@@ -44,7 +44,7 @@ k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
 restore,savfile
 if(n_elements(sp) gt 0) then galaxy_z=sp.z
 
-kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies, $
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,kcorrect, $
   version=version,vpath=vpath,/maggies,/invvar,addgrgap=addgrgap, $
   sdssfix=sdssfix, vconstraint=vconstraint, coeff=coeff 
 

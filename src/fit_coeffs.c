@@ -143,4 +143,6 @@ int main(int argc,
 	FREEVEC(galaxy_maggies);
 	FREEVEC(galaxy_invvar);
 	FREEVEC(coeffs);
+
+	return(0);
 } /* end main */

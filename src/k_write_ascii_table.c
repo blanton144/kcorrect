@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <kcorrect.h>
@@ -46,4 +47,5 @@ IDL_LONG k_write_ascii_table(double *table,
 		fprintf(fp,"%e\n",table[i]);
 	fclose(fp);
 
+	return(1);
 } /* end k_write_ascii_table */

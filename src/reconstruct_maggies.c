@@ -8,7 +8,27 @@
  * reconstruct_maggies.c
  *
  * Calculates the reconstructed flux, given the coefficients and the template
- * information
+ * information; one can specify two parameters which characterize the 
+ * magnitude:
+ *
+ * band_z : the shift applied to the band pass
+ * at_z   : the redshift at which to observe the galaxy
+ *
+ * To use reconstruct_maggies as part of a system to produce absolute
+ * magnitudes, use at_z=0. and set band_z to the shifted bandpass you
+ * want to K-correct to. Eg. to K-correct to ^{0.2}b (in the notation
+ * of the paper) call it like:
+ *
+ *  cat coeffs.dat | reconstruct_maggies 0.2 0. > maggies.dat
+ *
+ * where we specify at_z = 0. because this guarantees that we 
+ * observe the galaxy at z=0. (appropriate for K-correction defn).
+ *
+ * To reconstruct the observed magnitudes at the observed redshift:
+ *
+ *  cat coeffs.dat | reconstruct_maggies > maggies.dat
+ *
+ * (Assuming coeffs.dat is actually output of fit_coeffs)
  *
  * Mike Blanton
  * 1/2002 */
@@ -28,6 +48,7 @@ static double *filter_pass=NULL;
 static IDL_LONG *filter_n=NULL;
 static IDL_LONG maxn;
 static double *galaxy_z=NULL;
+static double *band_shift=NULL;
 static double *coeffs=NULL;
 
 int main(int argc,
@@ -47,14 +68,14 @@ int main(int argc,
 
 	/* read arguments */
 	if(argc<0) {
-		fprintf(stderr,"Usage: cat <coeff file> | reconstruct_maggies [at_z] [band_z] [version [version path]]\n");
+		fprintf(stderr,"Usage: cat <coeff file> | reconstruct_maggies [band_z] [at_z] [version [version path]]\n");
 		exit(1);
 	} /* end if */
 	i=1;
 	if(argc>=2) 
-		at_z=atof(argv[i]); i++; 
-	if(argc>=3) 
 		band_z=atof(argv[i]); i++; 
+	if(argc>=3) 
+		at_z=atof(argv[i]); i++; 
 	if(argc>=4) 
 		strcpy(version,argv[i]); i++;
 	if(argc>=5) 
@@ -113,6 +134,7 @@ int main(int argc,
 	nchunk=2;
 	reconstruct_maggies=(double *) malloc(nk*(nchunk+1)*sizeof(double));
 	galaxy_z=(double *) malloc((nchunk+1)*sizeof(double));
+	band_shift=(double *) malloc((nchunk+1)*sizeof(double));
 	coeffs=(double *) malloc((nchunk+1)*nt*sizeof(double));
 	fscanf(stdin,"%lf",&(coeffs[0]));
 	while(!feof(stdin)) {
@@ -121,11 +143,12 @@ int main(int argc,
 				fscanf(stdin,"%lf",&(coeffs[i*nt+j]));
 			fscanf(stdin,"%lf",&(galaxy_z[i]));
 			if(at_z!=-1.) galaxy_z[i]=at_z;
+			band_shift[i]=band_z;
 			fscanf(stdin,"%lf",&(coeffs[(i+1)*nt+0]));
 		} /* end for i */
 		ncurrchunk=i;
 		k_reconstruct_maggies(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_z,
-													&band_z,reconstruct_maggies,ncurrchunk);
+													band_shift,reconstruct_maggies,ncurrchunk);
 		for(i=0;i<ncurrchunk;i++) {
 			for(k=0;k<nk;k++)
 				fprintf(stdout,"%e ",reconstruct_maggies[i*nk+k]);
@@ -145,4 +168,6 @@ int main(int argc,
 	FREEVEC(galaxy_z);
 	FREEVEC(reconstruct_maggies);
 	FREEVEC(coeffs);
+
+	return(0);
 } /* end main */

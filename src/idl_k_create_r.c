@@ -16,7 +16,7 @@ IDL_LONG idl_k_create_r
 	IDL_LONG nk,nb,nl,nz,*filter_n,maxn;
 	double *rmatrix,*bmatrix,*lambda,*zvals,*filter_lambda,*filter_pass;
 	
-	IDL_LONG i,j;
+	IDL_LONG i;
 	IDL_LONG retval=1;
 
 	/* 0. allocate pointers from IDL */

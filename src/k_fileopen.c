@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /*
  * k_fileopen.c : contains routine to open a file 

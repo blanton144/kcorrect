@@ -64,11 +64,8 @@ coeff=coeff[*,indx]
 help,indx
 
 galaxy_z_k=replicate(to_z,n_elements(galaxy_z))
-kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies, $
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,kcorrect, $
   coeff=coeff,kcorrectz=galaxy_z_k,version=version,vpath=vpath, $
-  /maggies,/invvar,addgrgap=addgrgap,sdssfix=sdssfix,vconstraint=vconstraint
-kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies0, $
-  coeff=coeff,version=version,vpath=vpath, $
   /maggies,/invvar,addgrgap=addgrgap,sdssfix=sdssfix,vconstraint=vconstraint
 
 if(keyword_set(psfile)) then begin
@@ -122,10 +119,8 @@ for k=0l, nk-1 do begin
     if (k eq nk-1) then !X.CHARSIZE = 1.2*axis_char_scale
     if (k eq nk-1) then !X.TITLE = 'Redshift z'
     !X.RANGE=[0.,0.5]
-    nzindx=where(galaxy_reconstruct_maggies0[k,*] gt 0. and $
-                 galaxy_reconstruct_maggies[k,*] gt 0.)
-    kk=2.5*alog10(galaxy_reconstruct_maggies[k,nzindx]/ $
-                   galaxy_reconstruct_maggies0[k,nzindx])
+    nzindx=where(kcorrect[k,*] lt 500. and kcorrect[k,*] gt 0.)
+    kk=2.5*alog10(kcorrect[k,nzindx])
     mn=djs_avsigclip(kk,sigrej=5)
     sig=djsig(kk,sigrej=5)
     !Y.RANGE=[mn,mn]+nsig*sig*[-1.,1.]

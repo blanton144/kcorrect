@@ -47,12 +47,12 @@ cspeed=2.99792d+18 ; ang per sec
 flux=3.14159*4.*flux*cspeed/ $
   (lambda#replicate(1,nspectra))^2 ; from "hnu" to flambda
 flux=flux*(solarradtocm/(10.*pctocm))^2  ; from solar radius to 10 pc
-lambda=(1.+to_z)*lambda ; redshift it
-flux=flux/(1.+to_z) ; redshift it
+lambda=lambda ; redshift it
+flux=flux ; redshift it
 
 ; get answer in maggies
 maggies=k_project_filters(lambda,flux,filterlist=filterlist, $
-                          filterpath=filterpath)
+                          filterpath=filterpath,band_shift=to_z)
 solarmags=-2.5*alog10(maggies)
 
 return,solarmags

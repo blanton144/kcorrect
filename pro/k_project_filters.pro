@@ -27,16 +27,18 @@
 ;-
 ;------------------------------------------------------------------------------
 function k_project_filters,lambda,flux,filterlist=filterlist, $
-                           filterpath=filterpath
+                           filterpath=filterpath,band_shift=band_shift
 
 if(NOT keyword_set(filterpath)) then $
   filterpath=getenv('KCORRECT_DIR')+'/data/filters'
 if(NOT keyword_set(filterlist)) then $
   filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']
+if(NOT keyword_set(band_shift)) then band_shift=0.
 
 ; load in the filters
 filterlist=filterpath+'/'+filterlist+'.dat'
 k_load_filters,filterlist,filter_n,filter_lambda,filter_pass
+filter_lambda=filter_lambda/(1.+band_shift)
 
 ; calculate differential for each point
 nlambda=n_elements(lambda)

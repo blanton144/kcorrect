@@ -14,15 +14,15 @@
 
 <h3> General Description</h3>
 
-<p>
-This web page documents a code written in C and IDL to calculate
+<p> This web page documents a code written in C and IDL to calculate
 spectral energy distributions and K-corrections. Standard format IDL
 <a href="kcorrect_help.html"> documentation</a> exists. There is a <a
 href="paper.ps"> paper</a> which describes the methods in
-detail. Conditions of using the code released here are to cite this
-paper and to specify the version tag (eg. v1_6) of the code used. (You
-can check this in the IDL code using the <b>k_version</b> command).
-</p>
+detail. Please read this paper before using the code, it will help you
+understand what the code does. Conditions of using the code released
+here are to cite this paper and to specify the version tag (eg. v1_6)
+of the code used. (You can check this in the IDL code using the
+<b>k_version</b> command).  </p>
 
 <p> We document in detail here how to use the SED fits provided to
 calculate K-corrections and SEDs for particular objects with
@@ -50,12 +50,21 @@ estimate <a href="photoz.html"> photometric redshifts</a>.</p>
 
 <h3> Obtaining the Code</h3>
 
+<p>First off, if you are downloading the code, please register it. Do so
+by sending your email address to <a href="mailto:mb144@nyu.edu">
+mb144@nyu.edu</a>. No other information is required. I want this
+because it will allow me to contact users in case of any improvements
+or bug fixes.</p>
+
 The best way to obtain the code is to simply download the latest
 version from this site. The tagged and released versions, from latest
 to earliest, are:
 <ul>
+<li> <a href="kcorrect.v1_10.tar.gz"> kcorrect.v1_11.tar.gz</a> 
+<li> <a href="kcorrect.v1_10.tar.gz"> kcorrect.v1_10.tar.gz</a> 
+<b> <a href="#note1"> [SEE NOTE AT BOTTOM]</a></b>
 <li> <a href="kcorrect.v1_8.tar.gz"> kcorrect.v1_8.tar.gz</a>
-<li> <a href="kcorrect.v1_10.tar.gz"> kcorrect.v1_10.tar.gz</a>
+<b> <a href="#note1"> [SEE NOTE AT BOTTOM]</a></b>
 </ul>
 The earlier versions are only included so that you can reproduce old
 results if you like.
@@ -166,26 +175,58 @@ number of ergs cm^{-2} s^{-1} within the range 3500 to 7500
 Angstroms.</p>
 
 <p> From the SED fit, one can reconstruct magnitudes corresponding to
-observing the galaxy at an redshift within a large range (like 0 to
-1). When you reconstruct magnitudes this way, it is best to ignore
-those cases for which you are extrapolating the magnitude into a
-region of the spectrum not directly observed (ie. for SDSS
-observations you shouldn't trust
-a reconstruction of the z=0.2 u-band based on z=0 observations). You
-can use the reconstructions two ways: 
+observing the galaxy at any redshift within a large range (like 0 to
+1) plus any shift of the bandpass.  When you reconstruct magnitudes
+this way, it is best to ignore those cases for which you are
+extrapolating the magnitude into a region of the spectrum not directly
+observed (ie. for SDSS observations you shouldn't trust a
+reconstruction of the u-band shifted by z=0.2 based on z=0
+observations).</p>
+
+<p> If you want to convert apparent magnitudes in band R to absolute
+magnitudes in band Q, you need to calculate the K-correction, which is defined
+by the equation: 
+<pre> 
+m_R = M_Q + DM(z) + K_QR(z) 
+</pre> 
+where m_R is the apparent magnitude, M_Q is the absolute magnitude, DM(z)
+is the distance modulus, accounting for the angular diameter distance
+and cosmological surface-brightness dimming, and K_QR(z) is the
+K-correction. By absolute magnitude we mean: the apparent magnitude
+in band Q the object would have if it were observed at rest, 10 pc
+away, using an aperture that contains its total flux.  </p>
+
+<p> Our code is designed to calculate K-corrections between the
+observed AB bands ugriz and those same bands shifted by an arbitrary
+redshift. For example, for the SDSS spectroscopic survey, most
+galaxies are observed near redshift 0.1; it makes sense, therefore, to
+K-correct to bandpasses shifted by 0.1 (ie. by a factor 1.1). This
+procedure minimizes errors in the estimated K-corrections, because the
+galaxies at z=0.1 will then have a K-correction which independent of
+their SEDs (and therefore their colors) and equal to -2.5 log_10
+(1+0.1). In general, for a bandpass shifted by z_0, the K-correction
+for a galaxy at z_0 to the observed bandpass shifted by z_0 is -2.5
+log_10 (1+z_0), independent of galaxy SED. (Note that the
+K-correction is not zero in this case; earlier versions of code, v1_10
+and previous, incorrectly did not apply this overall offset ---
+see the <a href="#note1"> note</a> at bottom. </p>
+
+<p> 
+You can use the reconstructions two ways:
 <ul>
-<li> Use the reconstruction as the best estimate of that magnitude at
-that redshift
+<li> Use the reconstruction as the best estimate of the magnitude in
+the given bandpass
 <li> Estimate a K-correction to the actual magnitude as the ratio of the
-reconstruction at the redshift desired to the
-reconstruction at the actual redshift 
+reconstruction at z=0. observed in the shifted bandpass to the
+reconstruction at the actual redshift observed in the unshifted
+bandpass
 </ul>
 This distinction matters very little if your reconstructions are
-really good, as they are here.
+really good, as they are here. The default behavior of <b>kcorrect</b>
+is the second method.
 </p>
 
-<p>
-The code is generally based on AB magnitudes or AB maggies. SDSS
+<p> The code is generally based on AB magnitudes or AB maggies. SDSS
 luptitudes are AB quantities and for reasonably bright objects are
 equivalent to AB magnitudes. "Maggies" are simply the linearized
 version of AB magnitudes; that is, they are 10^{-0.4*mag} (the
@@ -213,34 +254,42 @@ one you would usually use, which is <b>kcorrect</b>.
 This routine performs the K-corrections on a 
 set of magnitudes or maggies. It is called as follows:
 <pre>
-kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0 [, $
+kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect [, $
     kcorrectz=, /maggies, version=, vpath=, rmatrix=, ematrix=, $
-    zvals=, coeffs=, /sdssfix, /vconstraint]
+    zvals=, coeffs=, /sdssfix, /vconstraint, /returnmag]
 </pre>
 If the "/maggies" flag is specified, galaxy_mag and galaxy_magerr are
 in maggies; otherwise they are in magnitudes (see explanation
-above). They should be [5,n] arrays. The reconstructed magnitudes are
-returned in galaxy_mag0. If kcorrectz is set, all of the magnitudes
-are reconstructed at the specified redshift; otherwise they are
-reconstructed at the redshift of each object. Ignore version and vpath
-UNLESS you want to specify your own set of templates. the flag
+above). They should be [5,n] arrays. The K-corrections are returned in
+"kcorrect". "kcorrectz" allows the user to specify a shift to the
+bandpass; by default the code calculate the K-corrections to the 
+unshifted bandpass. Ignore version and vpath
+UNLESS you want to specify your own set of templates. The flag
 "/sdssfix" makes an attempt to analyze your magnitudes and fix wacky
 magnitudes and errors to "reasonable" values. This flag is recommended
 for SDSS data. Finally, the "/vconstraint" flag imposes a constraint
 that the galaxy not reside too far out of the ellipsoid containing
 most of the well-measured galaxies; again, this helps when data is
-missing or noisy, and has little affect when high signal-to-noise data
-is available, so it is highly recommended..</p>
+missing or noisy, and has little effect when high signal-to-noise data
+is available, so it is highly recommended.</p>
+
+<p> Please note that the calling procedure changed after v1_10 (see <a
+href="#note1"> note</a> at bottom). I apologize that some people may
+have to change their code, but it is much better for <b>kcorrect</b>
+to return a K-correction rather than "reconstructed magnitudes." For
+behavior similar to the v1_10 behavior and previous, use the flag
+"/returnmag," which returns the K-correction added back to the original
+magnitude.</p>
 
 <p>
 For example, one might do the following:
 <pre>
 kcorrect, [0., 2., 0.7, 0.3, 0.3], [0.02,0.02,0.02,0.02,0.02], $
-    0.03, galaxy_mag0, kcorrectz=0.1
+    0.03, kcorrect, kcorrectz=0.1
 </pre>
 which would take the set of magnitudes in the first argument, observed
-for a galaxy at redshift 0.03, and reconstruct the magnitudes at z=0.1,
-putting the result in galaxy_mag0.  </p>
+for a galaxy at redshift 0.03, and return the K-corrections to the
+ugriz magnitudes shifted by 0.1.</p>
 
 <p> Please note that "kcorrect" uses a lot of overhead (2-3 seconds
 worth), so if you can, use it on several thousand galaxies
@@ -250,10 +299,10 @@ cannot avoid it, then specify the extra arguments rmatrix, ematrix,
 and zvals. For example, if you run the following:
 <pre>
 kcorrect, [0., 2., 0.7, 0.3, 0.3], [0.02,0.02,0.02,0.02,0.02], $
-    0.03, galaxy_mag0, kcorrectz=0.1, rmatrix=rmatrix, ematrix=ematrix, $
+    0.03, kcorrect, kcorrectz=0.1, rmatrix=rmatrix, ematrix=ematrix, $
     zvals=zvals
 kcorrect, [0., 1.7, 0.8, 0.2, 0.2], [0.02,0.02,0.02,0.02,0.02], $
-    0.07, galaxy_mag0, kcorrectz=0.1, rmatrix=rmatrix, ematrix=ematrix, $
+    0.07, kcorrect, kcorrectz=0.1, rmatrix=rmatrix, ematrix=ematrix, $
     zvals=zvals
 </pre>
 You will find that the second call takes far less time than the first,
@@ -307,33 +356,39 @@ where the redshift z is included for reasons which
 will be clear soon. </p>
 
 <p> Once you have the coefficients, you can calculate the
-reconstructed maggies at any redshift, using
+reconstructed maggies for a galaxy with the same SED and same total
+flux, observed at any redshift through a shifted bandpass, using
 <b>reconstruct_maggies</b>. The call to <b>reconstruct_maggies</b> is
 
 <pre>
-cat coeffs.dat | reconstruct_maggies [to_z]
+cat coeffs.dat | reconstruct_maggies [band_z] [at_z]
 </pre>
 where coeffs.dat is in the same format as the output to
 <b>fit_coeffs</b>:
 <pre>
 coeff0 coeff1 coeff2 coeff3 z
 </pre>
-If the optional parameter "to_z" is not specified, the maggies are
-reconstructed at the redshift z of each object. If "to_z" is
-specified, the maggies are all reconstructed to the specified
-redshift. The output is in the form:
+The optional parameter "band_z" specifies the bandpasses to
+reconstruct band_z=0. indicates to use the observed bandpasses. "at_z"
+specifies the redshift at which to observe the galaxy.
+The output is in the form:
 <pre>
 u_rec g_rec r_rec i_rec z_rec 
 </pre>
 in the original maggy units.
 </p>
 
-<p> To summarize with an example, if you wanted to reconstruct a set
-of maggies, all at redshift 0.1, you could call the code as follows:
+<p> To summarize with an example, if you wanted to calculate the
+K-corrections from the observed bandpasses to rest-frame bandpasses
+shifted by 0.1, you could call the code as follows: 
 <pre>
-cat maggies.dat | fit_coeffs | reconstruct_maggies 0.1 > recmaggies.dat
+cat maggies.dat | fit_coeffs | reconstruct_maggies > recmaggies.dat
+cat maggies.dat | fit_coeffs | reconstruct_maggies 0.1 0. > recmaggies.0.1.dat
 </pre>
-The results would be put into recmaggies.dat. </p>
+The K-corrections are then defined by -2.5 log_10
+(recmaggies.0.1/recmaggies).  Note that this form has changed since
+v1_10 -- for which one did not specify the "0." in the second call to
+reconstruct_maggies (see <a href="#note1"> note</a> below). </p>
 
 <p> As I noted above, I have not worked very hard to make the
 stand-alone C code or the C library *very* usable, as generally
@@ -448,7 +503,7 @@ coefficients (as described in the paper).
 <li> <b>k_reconstruct_maggies</b> is called as:
 <pre>
 k_reconstruct_maggies(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_z,
-                      reconstruct_maggies,ngalaxy);
+                      band_shift,reconstruct_maggies,ngalaxy);
 </pre>
 where reconstruct_maggies are expressed in maggies.
 </ul>
@@ -509,6 +564,24 @@ when you are dealing with the LRGs, for galaxies in the range about
 affected at all.  Furthermore, one can still observe a galaxy at z=0.1
 and reliably infer what it would look like at z=0.3; it is only the
 reverse process which is difficult. -->
+
+<A NAME="note1"> 
+<h3> A Note on non-AB Magnitudes Returned by v1_10 and
+Previous</h3>
+</a>
+
+Back in the days of v1_10, Ivan Baldry pointed out that kcorrect
+returned non-AB magnitudes when it was requested to output
+K-corrections to shifted bandpasses. The sense of the error was that
+the K-correction was missing a term of -2.5 log_10 (1+z_0) for a
+bandpass shift of z_0. This error occurred independent of bandpass,
+color, redshift, and anything else. Thus, when interpreting magnitudes
+returned by kcorrect v1_10 and earlier, please apply a correction of
+-2.5 log_10 (1+z_0), where z_0 is the shift of the bandpass
+(eg. $^{z_0}b$ is the b-band shifted by z_0). Luckily this only is an
+error in the absolute measures of magnitude; colors are unchanged, the
+shapes of LFs are unchanged (just shifted in magnitude), etc. Many
+thanks to Ivan for pointing out the error.
 
 <hr> 
 

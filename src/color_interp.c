@@ -62,8 +62,6 @@ static double scalefiltfunc(double lambda)
 
 static double tfunc(double lambda)
 {
-	unsigned long i,ip1;
-
 	return(ci_A*pow(lambda/(1.+ci_z),ci_alpha)/(1.+ci_z));
 } /* end tfunc */
 
@@ -76,8 +74,6 @@ static double tempfiltfunc(double lambda)
 
 static double bfunc(double lambda)
 {
-	unsigned long i,ip1;
-
 	if(lambda/(1.+ci_z)<4000.)
 		return(ci_break*pow(lambda/(1.+ci_z),2.)/(1.+ci_z));
 	else 
@@ -156,8 +152,8 @@ double balpha_fit(double alpha)
 
 int main(int argc, char **argv)
 {
-	double currz,cz,redden,alpha,A,val,scaleval;
-	int i,ii,j,k,l;
+	double alpha,A,val,scaleval;
+	int i,k;
 	char filename[255],bands[5];
 	FILE *fp;
 
@@ -338,6 +334,8 @@ int main(int argc, char **argv)
 	
 	printf("Done.\n");
 	fflush(stdout);
+	
+	return(0);
 	
 } /* end main */
 

@@ -3,13 +3,16 @@
 ;   kcorrect
 ;
 ; PURPOSE:
-;   Given a set of AB magnitudes, K-correct the magnitudes to a given 
-;   redshift. (If no redshift is specified to K-correct to, just
-;   return the set of reconstructed magnitudes based on the templates
-;   used). 
+;   Given a set of AB magnitudes, returns the K-correction for each
+;   band. Allows the user to shift the bandpasses by a factor
+;   kcorrectz. If no kcorrectz is specified, the K-correction is to
+;   z=0.
+;   
+;   The /returnmag option returns the reconstructed magnitudes in the 
+;   desired bandpass (similar to v1_10 behavior of "kcorrect")
 ;
 ; CALLING SEQUENCE:
-;   kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, 
+;   kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect, 
 ;      [kcorrectz=, version=, vpath=, /maggies, rmatrix=, zvals=,
 ;       ematrix=] 
 ;      
@@ -32,7 +35,7 @@
 ;   constraints_var - variance matrix of user-specified constraint
 ;
 ; OUTPUTS:
-;   galaxy_mag0   - K-corrected AB magnitudes
+;   kcorrect   - K-correction to apply to satisfy eqn m = M + DM(z) + K(z)
 ;
 ; OPTIONAL INPUT/OUTPUTS:
 ;   ematrix       - eigentemplates [N_dim, N_template]
@@ -70,15 +73,16 @@
 ;
 ; REVISION HISTORY:
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
+;   19-Jul-2002  Major bug fix (pointed out by I. Baldry) MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, addgrgap=addgrgap, invvar=invvar, vconstraint=vconstraint, constraints_amp=constraints_amp, constraints_mean=constraints_mean, constraints_var=constraints_var, plusmag=plusmag
+pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, addgrgap=addgrgap, invvar=invvar, vconstraint=vconstraint, constraints_amp=constraints_amp, constraints_mean=constraints_mean, constraints_var=constraints_var, returnmag=returnmag
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
     print, 'Syntax - kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect, $'
     print, '        [kcorrectz=, version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=,$'
-    print, '         coeff=, /sdssfix, /invvar, /vconstraint]'
+    print, '         coeff=, /sdssfix, /invvar, /vconstraint, /returnmag]'
     return
 endif
 
@@ -155,7 +159,7 @@ endelse
 
 ; Calculate model fluxes
 if(n_elements(kcorrectz) eq 0) then begin 
-    correct_z=galaxy_z
+    correct_z=replicate(0.,n_elements(galaxy_z))
 endif else begin
     if(n_elements(kcorrectz) eq 1) then begin
         correct_z=replicate(kcorrectz,n_elements(galaxy_z))
@@ -201,15 +205,15 @@ if(NOT keyword_set(maggies)) then begin
     if(count gt 0) then $
       reconstruct_mag0[goodindx]=-2.5*alog10(reconstruct_maggies0[goodindx])
 
-    if(keyword_set(plusmag)) then $
-      kcorrect=reconstruct_mag $
+    if(keyword_set(returnmag)) then $
+      kcorrect=galaxy_mag-reconstruct_mag0+reconstruct_mag $
     else $
       kcorrect=reconstruct_mag0-reconstruct_mag
 endif else begin
-    if(keyword_set(plusmag)) then $
-      kcorrect=reconstruct_maggies $
+    if(keyword_set(returnmag)) then $
+      kcorrect=galaxy_maggies*reconstruct_maggies/reconstruct_maggies0 $
     else $
-      kcorrect=reconstruct_maggies0/reconstruct_maggies
+      kcorrect=reconstruct_maggies/reconstruct_maggies0
 endelse
 
 end

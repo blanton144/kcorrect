@@ -87,14 +87,15 @@ nz=long(n_elements(zvals))
 obs_maggies=dblarr(nk,nt,nz)
 fix_maggies=dblarr(nk,nt,nz)
 
+zero_z=replicate(0.,nz)
 fixed_z=replicate(to_z,nz)
 for t=0, nt-1 do begin
     coeff=dblarr(nt,nz)
     coeff[t,*]=1.d
     k_reconstruct_maggies,coeff,zvals,obs_maggies_temp,rmatrix=rmatrix, $
-      zvals=zvals,ematrix=ematrix
-    k_reconstruct_maggies,coeff,fixed_z,fix_maggies_temp,rmatrix=rmatrix, $
-      zvals=zvals,ematrix=ematrix
+      zvals=zvals,ematrix=ematrix,band_shift=zero_z
+    k_reconstruct_maggies,coeff,zero_z,fix_maggies_temp,rmatrix=rmatrix, $
+      zvals=zvals,ematrix=ematrix,band_shift=fixed_z
     obs_maggies[*,t,*]=obs_maggies_temp
     fix_maggies[*,t,*]=fix_maggies_temp
 endfor

@@ -60,9 +60,12 @@ galaxy_z=galaxy_z[indx]
 galaxy_maggies=galaxy_maggies[*,indx]
 coeff=coeff[*,indx]
 
-kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies, $
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,kcorrect, $
   coeff=coeff,version=version, vpath=vpath, /maggies, /invvar, $
-  addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix
+  addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix, $
+  ematrix=ematrix, rmatrix=rmatrix,zvals=zvals
+k_reconstruct_maggies,coeff,galaxy_z,galaxy_reconstruct_maggies, $
+  ematrix=ematrix, rmatrix=rmatrix,zvals=zvals
 
 if(keyword_set(psfile)) then begin
     set_plot, "PS"

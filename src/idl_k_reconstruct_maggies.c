@@ -13,7 +13,7 @@ IDL_LONG idl_k_reconstruct_maggies
   (int      argc,
    void *   argv[])
 {
-   IDL_LONG nt,nz,nk,nb,ngalaxy,*galaxy_clip,initialized_dmatrix;
+   IDL_LONG nt,nz,nk,nb,ngalaxy;
    double *ematrix,*zvals,*rmatrix,*amatrix,*reconstruct_maggies;
 	 double *galaxy_z,*band_shift;
 

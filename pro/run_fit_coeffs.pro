@@ -142,7 +142,7 @@ for k=0l,nk-1l do begin
     galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
 endfor
 
-kcorrect,galaxy_maggies,galaxy_invvar,sp.z,recmags,coeff=coeff, $
+kcorrect,galaxy_maggies,galaxy_invvar,sp.z,kcorrect,coeff=coeff, $
   version=version, vpath=vpath, addgrgap=addgrap, sdssfix=sdssfix, $
   vconstraint=vconstraint, /maggies, /invvar
 galaxy_z=sp.z

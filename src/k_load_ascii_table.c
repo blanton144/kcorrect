@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <kcorrect.h>
@@ -59,4 +60,6 @@ IDL_LONG k_load_ascii_table(double **table,
 	for(i=0;i<nelem;i++) 
 		fscanf(fp,"%lf",&((*table)[i]));
 	fclose(fp);
+
+	return(1);
 } /* end k_load_ascii_table */

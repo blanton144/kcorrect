@@ -3,9 +3,17 @@
 ;   k_reconstruct_maggies
 ;
 ; PURPOSE:
-;   Calculates the observed maggies of a bunch of galaxies at a
-;   redshift, given the coefficients and the templates, as well
-;   as the filter information.
+;   Reconstruct AB galaxy maggies given an observed redshift (galaxy_z) 
+;   and a shift to apply to the bandpasses (band_shift). To reconstruct
+;   the observed galaxy maggies:
+; 
+;      reconstruct_maggies,coeff,galaxy_z,reconstruct_maggies
+; 
+;   To construct what would be observed if the galaxy were observed 
+;   at z=0. through a bandpass blueshifted by z=0.1:
+; 
+;      reconstruct_maggies,coeff,replicate(0.,ngals),reconstruct_maggies, $
+;         band_shift=replicate(0.1,ngals)
 ;
 ; CALLING SEQUENCE:
 ;   k_reconstruct_maggies,
@@ -30,6 +38,7 @@
 ;   rmatrix       - look up table for bmatrix and filter information 
 ;                   [N_z, N_dim, N_band]
 ;   zvals         - look up table for rmatrix [N_z]
+;   band_shift    - shift to apply to bandpasses
 ;
 ; COMMENTS:
 ;   Outputs maggies in maggies. Does not calculate errors.

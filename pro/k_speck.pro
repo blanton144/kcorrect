@@ -58,11 +58,11 @@ for i=0l, n_elements(sp)-1l do begin
         mags[*,i]=-2.5*alog10(fluxes/scales)
         
 ; Look at magnitudes in z=zzero bands
-        wavescale=(1.+to_z)/(1.+sp[i].z)
+        wavescale=1./(1.+sp[i].z)
         waveimg=wavescale*waveimg
         fluxes=filter_thru(synfluxspec,waveimg=waveimg,/toair)
         mags0[*,i]=-2.5*alog10(fluxes/scales)+ $
-          2.5*alog10((1.+to_z)/(1.+sp[i].z))
+          2.5*alog10(1./(1.+sp[i].z))
     endif
 end
 

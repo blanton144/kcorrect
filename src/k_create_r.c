@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <kcorrect.h>
@@ -94,8 +95,6 @@ IDL_LONG k_create_r(double *rmatrix,
 {
 	double lammin,lammax,scale;
 	IDL_LONG i,l,k,indxoff;
-	char filename[255];
-	FILE *fp;
 
 	/* make local copies of bmatrix */
 	cr_bmatrix=(double *) malloc(nb*nl*sizeof(double));

@@ -19,7 +19,7 @@
 \newcommand{\petroradius}{{{r}_P}}
 \newcommand{\petronumber}{{{N}_P}}
 \newcommand{\petroratiolim}{{{\mathcal{R}}_{P,\mathrm{lim}}}}
-\newcommand{\band}[2]{\ensuremath{^{#1}\!{#2}}}
+\newcommand{\band}[2]{\ensuremath{^{{#1}}\!{#2}}}
 
 \newcommand{\kversion}{{\tt v1\_10}}
 
@@ -398,6 +398,7 @@ bolometric distance modulus $\mathrm{DM}(z)$ to obtain the
 relationship between the apparent magnitude $m$ and the absolute
 magnitude $M$: 
 \begin{equation}
+\label{kcorrecteqn}
 m = M + \mathrm{DM}(z) + K(z)
 \end{equation}
 Sometimes a single function has been applied regardless of the galaxy
@@ -672,61 +673,117 @@ two bands measured, and still obtain sensible results.
 
 \subsection{Calculating $K$-corrections}
 
-We here define a notation which we will use in subsequent papers for
-the effective rest-frame bandpass at any redshift in band $b$, namely:
+To characterize $K$-corrections, consider again Equation
+(\ref{kcorrecteqn}), which we here generalize to the case of relating
+an apparent magnitude observed in band $R$ to an absolute magnitude
+observed in band $Q$:
 \begin{equation}
-\band{z}{b}
+m_R = M_Q + \mathrm{DM}(z) + K_{QR}(z).
 \end{equation}
-read, ``$b$-band at redshift $z$.'' For example, if we measure the
-flux of a galaxy at $z=0.22$ using a $g$-band filter, we have obtained
-the $\band{0.22}{g}$-band magnitude of the galaxy. The goal of
-``$K$-correction'' is to convert the $ugriz$ bands at redshift $z$
-for each galaxy to $ugriz$ bands at some fixed redshift $z_0$. While
-traditionally $K$-corrections are performed to $z_0=0$, this is not
-always desirable, particularly for surveys like the SDSS for which
-most of the galaxies are not observed near $z=0$.
+The definition of an apparent AB magnitude is given by Equation
+(\ref{ABdef}). An absolute AB magnitude is defined to be the apparent
+AB magnitude which would be measured for a galaxy 10 pc distant, at
+rest.  In the restricted case of AB magnitudes, the resulting
+$K$-correction is given by:
+\begin{equation}
+K_{QR}(z) = -2.5 \log_{10} \left[
+\frac{
+\int_0^{\infty} \frac{d\nu}{\nu} f(\nu) R(\nu)
+}{
+\int_0^{\infty} \frac{d\nu}{\nu} f(\nu/(1+z))/(1+z) Q(\nu)
+}
+\right]
+\end{equation}
+A more general expression holds for other magnitude systems (such as
+the Vega-relative magnitude system) and for the case of
+$K$-corrections when $Q$ and $R$ are in different magnitude systems. 
 
-Given AB galaxy magnitudes $\band{z}{m}$ and errors for a galaxy at
-redshift $z$, one can use the method of the previous subsection to
-reconstruct the galaxy rest-frame SED.  With this reconstruction in
-hand, it is straightforward to project the SED onto any bands at any
-redshift $z_0$ ({\it cf.} Equation \ref{ABdef}):
-\begin{eqnarray}
-\band{z_0}{m_{\mathrm{rec}}} &=& -2.41 - 2.5 \log_{10}\left[
-\frac{\int_{0}^{\infty} d\lambda \frac{\lambda}{1+z_0}
-f_{\mathrm{rec}}(\frac{\lambda}{1+z_0}) R(\lambda)} {\int_{0}^{\infty}
-d\lambda \lambda^{-1} R(\lambda)}\right] \cr &=& -48.60 - 2.5
-\log_{10}\left[ \frac{\int_{0}^{\infty} d\nu \nu^{-1} (1+z_0)
-f_{\mathrm{rec}}[\nu (1+z_0)] R(\nu)} {\int_{0}^{\infty} d\nu \nu^{-1}
-R(\nu)}\right]
-\end{eqnarray}
-The simple way to remember where the factors of $(1+z)$ appear in
-these equations is to remember that $K$-corrections are defined to be
-the change in magnitude with redshift for {\it fixed bolometric flux}.
-So when the spectrum is stretched by the $(1+z_0)$ redshift factor, as
-in $f(\lambda/(1+z_0))$, the bolometric flux should be constant; that
-is, you must apply the extra multiplicative factor $1/(1+z_0)$ to
-counteract the stretching of the spectrum.
+In practice, we will be concerned here primarily with transforming the
+apparent magnitudes in band $R$ to a band $Q$ which is just the $R$
+band shifted by a factor $(1+z_0)$, which we will denote
+\begin{equation}
+\band{z_0}{R}(\nu) \equiv R(\nu/(1+z_0))  
+\end{equation}
+read, ``$R$-band shifted to $z_0$.''  
 
-Given the reconstructed magnitudes, one can calculate the fixed frame
-magnitudes in one of two ways:
+In the case of transforming $R$ to $\band{z_0}{R}$
+\begin{equation}
+K_{\band{z_0}{R}R}(z) = -2.5 \log_{10} \left[
+\frac{
+\int_0^{\infty} \frac{d\nu}{\nu} f(\nu) R(\nu)
+}{
+\int_0^{\infty} \frac{d\nu}{\nu} f(\nu/(1+z))/(1+z) R(\nu/(1+z_0))
+}
+\right]
+\end{equation}
+In the special case that $z=z_0$, one is transforming the magnitude of
+an observed galaxy at $z_0$ to its rest-frame magnitude in a band
+shifted by $z_0$. For that case
+\begin{equation}
+K_{\band{z_0}{R}R}(z_0) = -2.5 \log_{10} (1+z_0)
+\end{equation}
+independent of $f(\nu)$ (which is natural, since both magnitudes
+sample the same region of $f(\nu)$). The fact that one's uncertainties
+in $f(\nu)$ do not matter makes the use of the fixed frame magnitudes
+shifted to the redshift of the object in question useful, when it is
+possible.
+
+%Given AB galaxy magnitudes $\band{z}{m}$ and errors for a galaxy at
+%redshift $z$, one can use the method of the previous subsection to
+%reconstruct the galaxy rest-frame SED.  With this reconstruction in
+%hand, it is straightforward to project the SED onto any bands at any
+%redshift $z_0$ ({\it cf.} Equation \ref{ABdef}):
+%\begin{eqnarray}
+%\band{z_0}{m_{\mathrm{rec}}} &=& -2.41 - 2.5 \log_{10}\left[
+%\frac{\int_{0}^{\infty} d\lambda \frac{\lambda}{1+z_0}
+%f_{\mathrm{rec}}(\frac{\lambda}{1+z_0}) R(\lambda)} {\int_{0}^{\infty}
+%d\lambda \lambda^{-1} R(\lambda)}\right] \cr &=& -48.60 - 2.5
+%\log_{10}\left[ \frac{\int_{0}^{\infty} d\nu \nu^{-1} (1+z_0)
+%f_{\mathrm{rec}}[\nu (1+z_0)] R(\nu)} {\int_{0}^{\infty} d\nu \nu^{-1}
+%R(\nu)}\right]
+%\end{eqnarray}
+%The simple way to remember where the factors of $(1+z)$ appear in
+%these equations is to remember that $K$-corrections are defined to be
+%the change in magnitude with redshift for {\it fixed bolometric flux}.
+%So when the spectrum is stretched by the $(1+z_0)$ redshift factor, as
+%in $f(\lambda/(1+z_0))$, the bolometric flux should be constant; that
+%is, you must apply the extra multiplicative factor $1/(1+z_0)$ to
+%counteract the stretching of the spectrum.
+
+%We here define a notation which we will use in subsequent papers for
+%the magnitude in a band $b$ which we have shifted blueward by a factor
+%$(1+z)$, namely:
+%\begin{equation}
+%\band{z}{b}
+%\end{equation}
+%read, ``$b$-band shifted to $z$.''  The goal of ``$K$-correction'' is
+%to convert the magnitudes of a galaxy at redshift $z$ observed in the
+%$ugriz$ bands at redshift $z$ to the magnitudes which would be
+%measured if the galaxy were at redshift at $z=0$ and observed through
+%the $ugriz$ bands shifted to some fixed redshift $z_0$. While
+%traditionally $K$-corrections are performed to $z_0=0$ (that is, the
+%bands are not shifted), this is not always desirable, particularly for
+%surveys like the SDSS for which most of the galaxies are not observed
+%near $z=0$.
+
+In practice, one can calculate the fixed frame magnitudes in one of
+two ways:
 \begin{enumerate}
-\item Simply use $\band{z_0}{m_{\mathrm{rec}}}$, the reconstructed
-magnitudes at redshift $z_0$, as the fixed frame magnitudes.
-\item Use the difference
-$\band{z_0}{m_{\mathrm{rec}}}-\band{z}{m_{\mathrm{rec}}}$ as an
-estimate of the correction to apply to the observed $\band{z}{m}$.
+\item Simply reconstruct $\band{z_0}{R}$ from the model
+$f_{\mathrm{rec}}(\nu)$ 
+\item Calculate the $K$-correction above and apply it to the observed
+$R$ magnitude
 \end{enumerate}
-If the reconstructions $\band{z}{m_{\mathrm{rec}}}$ are very similar
-to the actual observations $\band{z}{m}$ (as we will show is the case
-for our fits), there is very little difference between these two
-methods. However, if the reconstructions are poor, there will be large
-differences between the methods; in particular, method (1) will yield
-a color distribution of galaxies with artificially low
-dimensionality. Having estimated $\band{z_0}{m}$, you can then
-calculate the luminosity by simply applying to the calculated
-magnitude the cosmological distance modulus (that is, the luminosity
-distance-squared law, as tabulated by, {\it e.g.},  \citealt{hogg99a}).
+If the reconstructions of the observed magnitudes $R$ are very similar
+to the actual observations (as we will show is the case for our fits),
+there is very little difference between these two methods. However, if
+the reconstructions are poor, there will be large differences between
+the methods; in particular, method (1) will yield a color distribution
+of galaxies with artificially low dimensionality. Having estimated
+$\band{z_0}{m}$, you can then calculate the luminosity by simply
+applying to the calculated magnitude the cosmological distance modulus
+(that is, the luminosity distance-squared law, as tabulated by, {\it
+e.g.}, \citealt{hogg99a}).
 
 We want to emphasize here that, while $K$-correcting to a fixed frame
 bandpass is {\it sometimes} necessary in order to achieve a scientific
@@ -1014,7 +1071,6 @@ for many purposes, as long as one $K$-corrects the magnitudes to
 $z=0.3$. In this way, one minimizes the $K$-corrections for the
 galaxies which one is least certain of.
 
-
 %It is clear from Figure \ref{lrg_colors_plot} that $z=0.3$ is a
 %special redshift regime where our fits become unphysical. In fact, it
 %is easy to demonstrate that the diagonal spur (going from the upper
@@ -1296,12 +1352,13 @@ properties found in the data.
 
 \acknowledgments
 
-MB and DWH acknowledge NASA NAG5-11669 for partial support.  MB was
-supported at the beginning of this work by the DOE and NASA grant NAG
-5-7092 at Fermilab. He is also grateful for the hospitality of the
-Department of Physics and Astronomy at the State University of New
-York at Stony Brook, who kindly provided computing facilities on his
-frequent visits there.
+Special thanks to Ivan Baldry for pointing out an error in this
+manuscript and in the distributed code.  MB and DWH acknowledge NASA
+NAG5-11669 for partial support.  MB was supported at the beginning of
+this work by the DOE and NASA grant NAG 5-7092 at Fermilab. He is also
+grateful for the hospitality of the Department of Physics and
+Astronomy at the State University of New York at Stony Brook, who
+kindly provided computing facilities on his frequent visits there.
 
 Funding for the creation and distribution of the SDSS Archive has been
 provided by the Alfred P. Sloan Foundation, the Participating
