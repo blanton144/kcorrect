@@ -31,17 +31,39 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_model_plot,savfile,version=version,vpath=vpath
+pro k_model_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample
 
 if(NOT keyword_set(version)) then version='default'
 if(NOT keyword_set(vpath)) then vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
+if(NOT keyword_set(nsig)) then nsig=4.d
 
 restore,savfile
-k_reconstruct_maggies,coeff,sp.z,reconstruct_maggies,version=version, $
-  vpath=vpath
-
+if(n_elements(sp) gt 0) then galaxy_z=sp.z
+if(n_elements(z) gt 0) then galaxy_z=z
 ngalaxy=long(n_elements(galaxy_z))
-nk=long(n_elements(galaxy_flux))/ngalaxy
+nk=long(n_elements(galaxy_maggies))/ngalaxy
+
+;if(n_elements(sp) gt 0) then begin
+    ;indx=where(sp.petrocountserr[0,*] lt 0.1 and $
+               ;sp.petrocountserr[1,*] lt 0.1 and $
+               ;sp.petrocountserr[2,*] lt 0.1 and $
+               ;sp.petrocountserr[3,*] lt 0.1 and $
+               ;sp.petrocountserr[4,*] lt 0.1)
+    ;galaxy_z=galaxy_z[indx]
+    ;galaxy_maggies=galaxy_maggies[*,indx]
+    ;coeff=coeff[*,indx]
+;endif
+
+if(n_elements(subsample) eq 0) then subsample=1l
+indx=lindgen(ngalaxy/long(subsample))*long(subsample)
+galaxy_z=galaxy_z[indx]
+galaxy_maggies=galaxy_maggies[*,indx]
+coeff=coeff[*,indx]
+
+k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,version=version, $
+  vpath=vpath
+k_reconstruct_maggies,coeff,galaxy_z,galaxy_reconstruct_maggies, $
+  version=version, vpath=vpath
 
 if(keyword_set(psfile)) then begin
     set_plot, "PS"
@@ -85,8 +107,8 @@ ncolor= n_elements(colorname)
 
 !p.multi=[nk,1,nk]
 bands=['u','g','r','i','z']
+siglim=djsig(galaxy_reconstruct_maggies[2,*]/galaxy_maggies[2,*],sigrej=5)
 for k=0l, nk-1 do begin
-    sig=djsig(galaxy_flux_model[k,*]/galaxy_flux[k,*],sigrej=5)
     !X.CHARSIZE = tiny
     !Y.CHARSIZE = 1.2*axis_char_scale
     !X.TITLE = ''
@@ -94,8 +116,9 @@ for k=0l, nk-1 do begin
     if (k eq nk-1) then !X.CHARSIZE = 1.2*axis_char_scale
     if (k eq nk-1) then !X.TITLE = 'Redshift z'
     !X.RANGE=[0.,0.5]
-    !Y.RANGE=1.+nsig*[-sig,sig]
-    djs_plot,galaxy_z,galaxy_flux_model[k,*]/galaxy_flux[k,*], $
+    !Y.RANGE=1.+nsig*[-siglim,siglim]
+    sig=djsig(galaxy_reconstruct_maggies[k,*]/galaxy_maggies[k,*],sigrej=5)
+    djs_plot,galaxy_z,galaxy_reconstruct_maggies[k,*]/galaxy_maggies[k,*], $
       psym=3,xst=1,yst=1
     xyouts,!X.RANGE[1]-0.18*(!X.RANGE[1]-!X.RANGE[0]), $
       !Y.RANGE[0]+0.08*(!Y.RANGE[1]-!Y.RANGE[0]), $

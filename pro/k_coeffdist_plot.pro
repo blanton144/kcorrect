@@ -31,17 +31,17 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_coeffdist_plot,version,vpath=vpath,basecoeff=basecoeff,subsample=subsample,nsig=nsig,psfile=psfile
+pro k_coeffdist_plot,savfile,basecoeff=basecoeff,subsample=subsample,nsig=nsig,psfile=psfile
 
-if(n_elements(vpath) eq 0) then $
-  vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
 if(n_elements(lamlim) eq 0) then lamlim=[2000.,10000.]
 if(n_elements(nsig) eq 0) then nsig=3.
 
-k_load_ascii_table,coeff,vpath+'/coeff.'+version+'.dat'
-k_load_ascii_table,ematrix,vpath+'/ematrix.'+version+'.dat'
-k_load_ascii_table,bmatrix,vpath+'/bmatrix.'+version+'.dat'
-k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
+;k_load_ascii_table,coeff,vpath+'/coeff.'+version+'.dat'
+;k_load_ascii_table,ematrix,vpath+'/ematrix.'+version+'.dat'
+;k_load_ascii_table,bmatrix,vpath+'/bmatrix.'+version+'.dat'
+;k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
+restore,savfile
+
 nt=long((size(ematrix))[2])
 if(n_elements(basecoeff) eq 0) then basecoeff=nt-1
 ngalaxy=long(n_elements(coeff))/nt
@@ -61,6 +61,7 @@ nspecs=(size(speccoeffs))[2]
 if(n_elements(subsample) eq 0) then subsample=1l
 indx=lindgen(ngalaxy/long(subsample))*long(subsample)
 coeff=coeff[*,indx]
+help,indx
 
 if(keyword_set(psfile)) then begin
     set_plot, "PS"

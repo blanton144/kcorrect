@@ -30,7 +30,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro run_fit_coeffs,version,spfile=spfile,chunksize=chunksize,zlimits=zlimits,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,vpath=vpath,savfile=savfile,nsp=nsp
+pro run_fit_coeffs,version,spfile=spfile,chunksize=chunksize,zlimits=zlimits,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,vpath=vpath,savfile=savfile,nsp=nsp, evenz=evenz, primtargetmask=primtargetmask,modelzlim=modelzlim
 
 nk=5l
 if(NOT keyword_set(version)) then version='default'
@@ -44,6 +44,9 @@ if(NOT keyword_set(errband)) then errband=[0.05,0.02,0.02,0.02,0.03]
 if(NOT keyword_set(errlimit)) then errlimit=dblarr(nk)+0.8d
 if(NOT keyword_set(maglimit)) then maglimit=dblarr(nk)+22.5d
 if(NOT keyword_set(zlimits)) then zlimits=[0.,0.5]
+if(NOT keyword_set(nz)) then nz=8l
+if(NOT keyword_set(scale)) then scale=1.d
+if(NOT keyword_set(modelzlim)) then modelzlim=0.25
 
 columns=['z','petrocounts','petrocountserr','counts_model','counts_modelerr', $
          'reddening','class', 'ra', 'dec', 'plate','tile','fiberid', 'run', $
@@ -68,6 +71,16 @@ for i = 0l, nchunks do begin
         indx=where(sptmp.class eq 'GALAXY' and $
                    sptmp.z gt zlimits[0] and $
                    sptmp.z lt zlimits[1] and $
+                   (abs(sptmp.petrocounts[0,*]) lt 50. or $
+                    abs(sptmp.petrocounts[1,*]) lt 50. or $
+                    abs(sptmp.petrocounts[2,*]) lt 50. or $
+                    abs(sptmp.petrocounts[3,*]) lt 50. or $
+                    abs(sptmp.petrocounts[4,*]) lt 50.) and $
+                   (abs(sptmp.counts_model[0,*]) lt 50. or $
+                    abs(sptmp.counts_model[1,*]) lt 50. or $
+                    abs(sptmp.counts_model[2,*]) lt 50. or $
+                    abs(sptmp.counts_model[3,*]) lt 50. or $
+                    abs(sptmp.counts_model[4,*]) lt 50.) and $
                    sptmp.petrocounts[2] gt 0.,count)
         if(count gt 0) then begin
             if(keyword_set(sp)) then begin
@@ -80,6 +93,50 @@ for i = 0l, nchunks do begin
         endif
     endif
 endfor
+
+if(keyword_set(primtargetmask)) then begin
+    indx=where((sp.primtarget and primtargetmask) gt 0,count)
+    if(count eq 0) then return
+    sp=sp[indx]
+endif
+
+if(keyword_set(evenz)) then begin
+; Cut down the sample in redshift
+    seed=100
+    num=lonarr(nz)
+    usesp=lonarr(n_elements(sp))
+    for i = 0l, nz-1l do begin
+        zlo=zlimits[0]+double(i)*(zlimits[1]-zlimits[0])/double(nz)
+        zhi=zlimits[0]+double(i+1l)*(zlimits[1]-zlimits[0])/double(nz)
+        indx=where(sp.z gt zlo and sp.z lt zhi,count)
+        num[i]=count
+        klog,num[i]
+    endfor
+    nuse=long(double(num[nz-1l])*scale)
+    for i = 0l, nz-1l do begin
+        zlo=zlimits[0]+double(i)*(zlimits[1]-zlimits[0])/double(nz)
+        zhi=zlimits[0]+double(i+1l)*(zlimits[1]-zlimits[0])/double(nz)
+        indx=where(sp.z gt zlo and sp.z lt zhi,count)
+        if(i lt nz-1l) then begin
+            indxuse=long(double(n_elements(indx))*randomu(seed,nuse))
+            sortindxuse=indxuse[sort(indxuse)]
+            uniqindxuse=sortindxuse[uniq(sortindxuse)]
+        endif else begin
+            uniqindxuse=lindgen(nuse)
+        endelse
+        usesp[indx[uniqindxuse]]=1
+        klog,total(usesp)
+    endfor
+    if(keyword_set(mustdo)) then begin
+        for i = 0l, n_elements(mustdo)-1l do begin
+            mustindx=where(sp.plate eq mustdo[i],count)
+            if(count gt 0) then usesp[mustindx]=1
+        endfor
+    endif
+    indx=where(usesp gt 0)
+    sp=sp[indx]
+    help,sp
+endif
 
 ; Find the good magnitudes, and determine the average colors in 
 ; bins of redshift; use these to reset bad determinations of the 
@@ -94,17 +151,23 @@ magserr=sp.counts_modelerr
 k_fix_mags,sp.z,mags,magserr,maglimit,errlimit,zstep
 sp.counts_model=mags
 sp.counts_modelerr=magserr
-mags=0.d
-magserr=0.d
+
+mags=sp.counts_model
+magserr=sp.counts_modelerr
+indx=where(sp.z lt modelzlim,count)
+if(count gt 0) then begin
+    mags[*,indx]=sp[indx].petrocounts
+    magserr[*,indx]=sp[indx].petrocountserr
+endif
 
 galaxy_maggies=dblarr(nk,n_elements(sp))
 galaxy_invvar=dblarr(nk,n_elements(sp))
 for k=0l,nk-1l do begin
-    galaxy_maggies[k,*]=10.d^(-0.4d*(sp.petrocounts[k]-sp.reddening[k] $
+    galaxy_maggies[k,*]=10.d^(-0.4d*(mags[k,*]-sp.reddening[k] $
                                   +shiftband[k]))
     galaxy_invvar[k,*]=galaxy_maggies[k,*]*0.4d*alog(10.d)* $
-      sp.petrocountserr[k]
-    galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2+errband[k]^2)
+      sqrt(magserr[k,*]^2+errband[k]^2)
+    galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
 endfor
 
 k_fit_coeffs,galaxy_maggies,galaxy_invvar,sp.z,coeff,version=version, $
