@@ -1,21 +1,21 @@
 ;+
 ; NAME:
-;   k_mmatrix
+;   k_nmf_mmatrix
 ; PURPOSE:
 ;   make grid of BC03 model spectra for fitting
 ; CALLING SEQUENCE:
-;   k_mmatrix [, outfile= ]
+;   k_nmf_mmatrix [, outfile= ]
 ; COMMENTS:
 ;   makes [Nobs, Nsfh] matrix where 
 ;        Nobs = nlambda + nlines + nz*nfilters
 ; BUGS:
-;   needs to include emission line predictions   
-;   smooth spectra to constant vdisp?
+;   needs to output *unsmoothed* spectra 
+;   should have better constrained emission lines
 ; REVISION HISTORY:
 ;   29-Jul-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_mmatrix, outfile=outfile
+pro k_nmf_mmatrix, outfile=outfile
 
 norm_lmin=1500.
 norm_lmax=23000.
@@ -23,13 +23,15 @@ lmin=600.
 lmax=30000.
 navloglam=8000L
 nagesmax=10
+vdisp=300.
 minzf=0.
 maxzf=1.
 nzf=100
 ;;nmets=6
 ;;mets=[0,1,2,3,4,5]
 nmets=2
-mets=[2,3]
+mets=[3,4]
+sigma=vdisp/(2.99792e+5*alog(10.))
 
 ;; 1. make stellar pops
 
@@ -91,14 +93,23 @@ sfgrid=fltarr(navloglam, nages*nmets)
 ninterloglam=20000L
 interloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
                    (dindgen(ninterloglam)+0.5)/float(ninterloglam))
-for im= 0L, nmets-1L do $
-  for ia= 0L, nages-1L do begin & $
-  splog, string(im)+string(ia) & $
-  intergrid=interpol(grid[*,ia,im], loglam, interloglam) & $
-  combine1fiber, interloglam, intergrid, fltarr(ninterloglam)+1., $
-  newloglam=avloglam, newflux=tmp1, maxiter=0 & $
-  sfgrid[*,ia+im*nages]=tmp1 & $
-  endfor
+for im= 0L, nmets-1L do begin
+    for ia= 0L, nages-1L do begin 
+        splog, string(im)+string(ia) 
+        intergrid=interpol(grid[*,ia,im], loglam, interloglam) 
+        combine1fiber, interloglam, intergrid, fltarr(ninterloglam)+1., $
+          newloglam=avloglam, newflux=tmp1, maxiter=0 
+        sfgrid[*,ia+im*nages]=tmp1 
+    endfor
+endfor
+  
+;;     e. smooth to desired vdisp
+for im= 0L, nmets-1L do begin
+    for ia= 0L, nages-1L do begin 
+        sfgrid[*,ia+im*nages]= $
+          gauss_smooth(avloglam, sfgrid[*,ia+im*nages], sigma, avloglam)
+    endfor
+endfor
 
 ;; 2. make the dusty grid
 ndusts=3L
@@ -129,18 +140,26 @@ age=fltarr(nages,nmets,ndusts)
 for i=0L, nages-1L do age[i,*,*]=ages[i]
 
 ;; now make emission lines 
-;;readcol, getenv('HOME')+'/eplusa/data/linelist.txt', f='(a,f,a)', $
-;; comment=';', elname, lambda, type
-;; ii=where(type eq 'em' OR type eq 'both' and $
-;; lambda gt 10.^(avloglam[0]) and $
-;; lambda lt 10.^(avloglam[navloglam-1L]))
-;; elname=elname[ii]
-;; lambda=lambda[ii]
-;; emgrid=fltarr(navloglam, n_elements(elname))
-;; sigma=2.
-;; for i=0L, n_elements(elname)-1L do $
-;; emgrid[*, i]= exp(-(10.^avloglam-lambda[i])^2/(sigma)^2)/ $
-;; (sqrt(2.*!DPI)*sigma)
+nel=0
+if(1) then begin
+    readcol, getenv('KCORRECT_DIR')+'/data/templates/linelist.txt', $
+      f='(a,f,a)', comment=';', elname, lambda, type
+    ii=where(type eq 'em' OR type eq 'both' and $
+             lambda gt 3700. and $
+             lambda lt 9000.)
+    elname=elname[ii]
+    lambda=lambda[ii]
+    nel=n_elements(elname)
+    emgrid=fltarr(navloglam, nel)
+    absrc=3.631*2.99792*1.e-2/10.^(avloglam*2.)
+    for i=0L, nel-1L do $
+      emgrid[*, i]= 1.e-14*exp(-(avloglam-alog10(lambda[i]))^2/(sigma)^2)/ $
+      (sqrt(2.*!DPI)*sigma)/absrc
+    tmp_spgrid=spgrid
+    spgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
+    spgrid[*,0L:nages*nmets*ndusts-1L]=tmp_spgrid
+    spgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
+endif
 
 ;; 3. now make all filters at all redshifts
 filterlist=['galex_FUV.par', $
@@ -159,17 +178,18 @@ lambda[0:navloglam-1L]=10.^(avloglam-davloglam)
 lambda[1:navloglam]=10.^(avloglam+davloglam)
 absrc=3.631*2.99792*1.e-2/10.^(avloglam*2.)
 pgrid=spgrid
-for i=0L, nages*ndusts*nmets-1L do $
+for i=0L, nages*ndusts*nmets+nel-1L do $
   pgrid[*,i]=pgrid[*,i]*absrc
-k_projection_table, rmatrix, spgrid, lambda, zf, filterlist, zmin=minzf, $
+k_projection_table, rmatrix, pgrid, lambda, zf, filterlist, zmin=minzf, $
   zmax=maxzf, nz=nzf
+rmatrix=rmatrix > 0.
   
 ;; 4. prepare output
 if(NOT keyword_set(outfile)) then outfile='k_nmf_mmatrix.fits'
 
-outgrid=fltarr(navloglam+nzf*n_elements(filterlist),nages*nmets*ndusts)
+outgrid=fltarr(navloglam+nzf*n_elements(filterlist),nages*nmets*ndusts+nel)
 outgrid[0:navloglam-1L,*]=spgrid
-for i=0L, n_elements(nages*nmets*ndusts)-1L do $
+for i=0L, (nages*nmets*ndusts)+nel-1L do $
   outgrid[navloglam:navloglam+nzf*n_elements(filterlist)-1L,i]= $
   rmatrix[*,i,*]
 
@@ -185,6 +205,8 @@ sxaddpar, hdr, 'NFILTER', n_elements(filterlist), 'number of filters'
 sxaddpar, hdr, 'NDUST', ndusts, 'number of dusts'
 sxaddpar, hdr, 'NMET', nmets, 'number of metallicities'
 sxaddpar, hdr, 'NAGE', nages, 'number of ages'
+sxaddpar, hdr, 'NEL', nel, 'number of emission lines'
+sxaddpar, hdr, 'VDISP', vdisp, 'smoothed to this velocity dispersion (km/s)'
 mwrfits, outgrid, outfile, hdr, /create
 mwrfits, outlambda,outfile 
 mwrfits, dust,outfile 
