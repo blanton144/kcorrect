@@ -84,9 +84,11 @@
 Michael R. Blanton\altaffilmark{\ref{NYU}},
 %Tamas Budavari\altaffilmark{\ref{JHU}},
 %Andrew J. Connolly\altaffilmark{\ref{Pitt}},
+J.~Brinkmann\altaffilmark{\ref{APO}},
 Istv\'an Csabai\altaffilmark{\ref{JHU}},
 Mamoru Doi\altaffilmark{\ref{Tokyo}},
 Daniel Eisenstein\altaffilmark{\ref{Arizona}},
+Masataka Fukugita\altaffilmark{\ref{CosmicRay},\ref{IAS}},
 James E. Gunn\altaffilmark{\ref{Princeton}}
 David W. Hogg\altaffilmark{\ref{NYU}}, and
 David J. Schlegel\altaffilmark{\ref{Princeton}}
@@ -99,7 +101,6 @@ David J. Schlegel\altaffilmark{\ref{Princeton}}
 %James Annis\altaffilmark{\ref{Fermilab}},
 %Neta A. Bahcall\altaffilmark{\ref{Princeton}},
 %Mariangela Bernardi\altaffilmark{\ref{Chicago}},
-%J. Brinkmann\altaffilmark{\ref{APO}},
 %Robert J. Brunner\altaffilmark{\ref{Caltech}},
 %Scott Burles\altaffilmark{\ref{Fermilab}},
 %Larry Carey\altaffilmark{\ref{UW}},
@@ -109,7 +110,6 @@ David J. Schlegel\altaffilmark{\ref{Princeton}}
 %Douglas Finkbeiner\altaffilmark{\ref{Berkeley}},
 %Scott Friedman\altaffilmark{\ref{JHU}},
 %Joshua A. Frieman\altaffilmark{\ref{Fermilab}},
-%Masataka Fukugita\altaffilmark{\ref{CosmicRay},\ref{IAS}},
 %G. S. Hennessy\altaffilmark{\ref{USNO}},
 %Robert B. Hindsley\altaffilmark{\ref{USNO}},
 %Takashi Ichikawa\altaffilmark{\ref{Tokyo}},
@@ -226,12 +226,12 @@ NJ 08544
 %Department of Astronomy,
 %Columbus, OH 43210
 %\label{Ohio}}
-%\altaffiltext{\theaddress}{
-%\stepcounter{address}
-%Apache Point Observatory,
-%2001 Apache Point Road,
-%P.O. Box 59, Sunspot, NM 88349-0059
-%\label{APO}}
+\altaffiltext{\theaddress}{
+\stepcounter{address}
+Apache Point Observatory,
+2001 Apache Point Road,
+P.O. Box 59, Sunspot, NM 88349-0059
+\label{APO}}
 %\altaffiltext{\theaddress}{
 %\stepcounter{address}
 %Department of Astronomy, California Institute of Technology,
@@ -246,16 +246,16 @@ NJ 08544
 %\stepcounter{address}
 %UC Berkeley, Dept. of Astronomy, 601 Campbell Hall, Berkeley, CA  94720-3411
 %\label{Berkeley}}
-%\altaffiltext{\theaddress}{
-%\stepcounter{address}
-%Institute for Cosmic Ray Research, University of
-%Tokyo, Midori, Tanashi, Tokyo 188-8502, Japan
-%\label{CosmicRay}}
-%\altaffiltext{\theaddress}{
-%\stepcounter{address}
-%Institute for Advanced Study, Olden Lane,
-%Princeton, NJ 08540
-%\label{IAS}}
+\altaffiltext{\theaddress}{
+\stepcounter{address}
+Institute for Cosmic Ray Research, University of
+Tokyo, Midori, Tanashi, Tokyo 188-8502, Japan
+\label{CosmicRay}}
+\altaffiltext{\theaddress}{
+\stepcounter{address}
+Institute for Advanced Study, Olden Lane,
+Princeton, NJ 08540
+\label{IAS}}
 %\altaffiltext{\theaddress}{
 %\stepcounter{address}
 %U.S. Naval Observatory,
@@ -350,7 +350,7 @@ optical observations of the Sloan Digital Sky Survey (SDSS). Linear
 combinations of four spectral templates can reproduce the five SDSS
 magnitudes of all galaxies to the precision of the
 photometry. Expressed in the appropriate coordinate system, the
-distribution of the coefficients multiplying the templates is planar,
+locus of the coefficients multiplying the templates is planar,
 and in fact nearly linear. The resulting reconstructed SEDs can be
 used to recover fixed frame magnitudes over a range of redshifts. This
 process yields consistent results, in the sense that within each
@@ -372,23 +372,23 @@ adapted to handle a wide range of galaxy observations.
 \label{motivation}
 
 In the future, observations of galaxies (and indeed of any
-astronomical sources) will be performed using integral field
-spectrographs or equivalent devices which combine high spatial
-resolution and high spectral resolution. By that time, the phenomena
-of broad band filters and the quaint terminology surrounding their
-usage --- magnitudes, $K$-corrections, color terms, {\it etc.} ---
-will have long since been forgotten. However, today, virtually all
-observations of galaxies are made through such filters, and special
-care has to be taken to recover knowledge of galaxy spectral energy
-distributions (SEDs) from these observations.  Reconstructing galaxy
-SEDs is nontrivial because SEDs of galaxies contain important
-information on scales considerably smaller than the width of typical
-broad band filters. Furthermore, SEDs of distant galaxies are
-redshifted such that the more distant the galaxy, the further the
-observed bandpass is blueshifted relative to the rest-frame spectral
-energy distribution of the object observed.  This paper focuses on a
-solution to these problems which (in the optical wavelength regime) is
-fast, robust, and consistent over a large range of redshifts.
+astronomical sources) will be performed using devices which combine
+high spatial resolution and high spectral resolution. By that time,
+the phenomena of broad band filters and the quaint terminology
+surrounding their usage --- magnitudes, $K$-corrections, color terms,
+{\it etc.} --- will have long since been forgotten. However, today,
+virtually all observations of galaxies are made through such filters,
+and special care has to be taken to recover knowledge of galaxy
+spectral energy distributions (SEDs) from these observations.
+Reconstructing galaxy SEDs is nontrivial because SEDs of galaxies
+contain important information on scales considerably smaller than the
+width of typical broad band filters. Furthermore, SEDs of distant
+galaxies are redshifted such that the more distant the galaxy, the
+further the observed bandpass is blueshifted relative to the
+rest-frame spectral energy distribution of the object observed.  This
+paper focuses on a solution to these problems which (in the optical
+wavelength regime) is fast, robust, and consistent over a large range
+of redshifts.
 
 In the past, people have accounted for these effects using
 ``$K$-corrections'' applied to the observed magnitudes. In these
@@ -415,7 +415,7 @@ $K$-corrections of galaxies. Each of these papers tabulates $K(z)$
 morphological types, based on galaxy spectrophotometry.\footnote{Note
 that the description on p. 57 of \citet{binney98a} of the meaning of
 $k(z)$ in \citet{frei94a} is incorrect; in fact, their $k(z)$ is
-exactly equivalent to our $K(z)$.}.
+exactly equivalent to our $K(z)$.}
 
 However, galaxies do not all have the same SED, nor are they selected
 from some discrete set of SEDs. For this reason, these schemes for
@@ -458,8 +458,8 @@ refereed journal article and that the version of the code used is
 specified in any such paper. The version of the code used to make the
 figures for this paper is {\tt kcorrect \kversion}.
 
-We refer throughout this paper to $AB$ magnitudes, meaning that the
-magnitudes are designed such that (\citealt{fukugita96a}):
+We refer throughout this paper to $AB$ magnitudes, first defined 
+by \citet{oke83a} such that:
 \begin{eqnarray}
 \label{ABdef}
 m_{AB} &=& -2.41 - 2.5 \log_{10}\left[
@@ -479,7 +479,7 @@ that an object with $f(\nu) = 3631\mathrm{~Jy} = 3.631 \times
 10^{-20}$ ergs cm$^{-2}$ s$^{-1}$ Hz$^{-1}$ has all its AB magnitudes
 equal to zero.  The difference in the zeropoint in the two equations
 simply corresponds to the factor of the speed of light $c$ (expressed
-in \AA\ s$^{-1}$) between the frequency and wavelength scales.
+in \AA\ s$^{-1}$) between the frequency and wavelength scales. 
 
 Section \ref{sedfit} describes our method of fitting galaxy SEDs to
 broad band photometry and how to calculate $K$-corrections. Section
@@ -501,13 +501,16 @@ photometric measurements. Since a set of broad band galaxy fluxes does
 not correspond uniquely to a particular SED, and because galaxy SEDs
 are known to have significant structure over wavelength ranges small
 compared to our bandpass, the inverse problem of reconstructing SEDs
-from broad band fluxes is ill-posed.  However, we are not completely
-ignorant about the forms which galaxy SEDs take, so we can attempt to
-use what we know about galaxy SEDs to simplify our task.  The method
-described here for doing so follows closely the method of estimating
-photometric redshifts used by \citet{csabai00a}.  It is designed to
-take advantage of what we already understand about galaxy spectral
-energy distributions.
+from broad band fluxes is ill-posed. The task is made yet more
+difficult by the fact that the separation of the fiters are large
+compared to their widths; the SEDs are thus not well-sampled in the
+Nyquist sense of that term. However, we are not completely ignorant
+about the forms which galaxy SEDs take, so we can attempt to use what
+we know about galaxy SEDs to appropriately regularize our fits.  The
+method described here for doing so follows closely the method of
+estimating photometric redshifts used by \citet{csabai00a}.  It is
+designed to take advantage of what we already understand about galaxy
+spectral energy distributions.
 %In addition, as implemented here, the method is
 %equivalent to a fit to the star-formation history of the galaxies
 %using a spectrophotometric model; we will investigate the implications
@@ -653,7 +656,7 @@ adding a term to $\chi^2$ as follows:
 The resulting $\chi^2$ can still be minimized linearly, so we have
 sacrificed very little in speed.  Note that with such a constraint,
 one can calculate $K$-corrections even for galaxies with only one or
-two bands measured, and still obtain sensible results.
+two bands measured, and still obtain sensible results. 
 
 \subsection{Calculating $K$-corrections}
 
@@ -665,7 +668,7 @@ the effective rest-frame bandpass at any redshift in band $b$, namely:
 read, ``$b$-band at redshift $z$.'' For example, if we measure the
 flux of a galaxy at $z=0.22$ using a $g$-band filter, we have obtained
 the $\band{0.22}{g}$-band magnitude of the galaxy. The goal of
-``$K$-corrections'' is to convert the $ugriz$ bands at redshift $z$
+``$K$-correction'' is to convert the $ugriz$ bands at redshift $z$
 for each galaxy to $ugriz$ bands at some fixed redshift $z_0$.
 
 Given AB galaxy magnitudes $\band{z}{m}$ and errors for a galaxy at
@@ -756,7 +759,7 @@ from theory.
 
 The version of the $K$-correction code (\kversion) implementing the
 calculations described here, along with eigentemplates and filter
-curves is publicly available on the World Wide Web at {\tt
+curves, is publicly available on the World Wide Web at {\tt
 http://physics.nyu.edu/\~\ mb144/kcorrect}.  The whole of the code can
 be used through the Research Systems, Incorporated, IDL language;
 everything except for the template-fitting also exists in stand-alone
@@ -786,7 +789,7 @@ same telescope as the imaging camera. Many of the details of the
 galaxy survey are described in a description of the galaxy target
 selection paper (\citealt{strauss02a}). Other aspects of the survey
 are described in the Early Data Release (EDR;
-\citealt{stoughton01a}). 
+\citealt{stoughton02a}). 
 
 The results of the photometric pipeline for all of the galaxies were
 extracted from the SDSS Operational Database. The photometry used here
@@ -797,8 +800,9 @@ photometry from the EDR. The versions of the SDSS pipeline PHOTO used
 for the reductions of these data ranged from {\tt v5\_0} to {\tt
 v5\_2}. The treatment of relatively small galaxies, which account for
 most of our sample, did not change substantially throughout these
-versions. The magnitudes are calibrated approximately in the $AB$
-system, described in Section \ref{motivation}.
+versions. As described in \citet{smith02a}, magnitudes are calibrated to a
+standard star network approximately in the $AB$ system, described in
+Section \ref{motivation}.
 
 The response functions $R(\lambda)$ of the filter-CCD combinations
 have been measured using a monochrometer by Mamoru Doi.  Using a model
@@ -822,7 +826,7 @@ versions provide a consistency check on the redshift
 determination. They are consistent (for galaxies) at over the 99\%
 level.\footnote{The official pipeline currently tends to work better
 for objects with unusual spectra, such as certain types of stars and
-QSOs.}.
+QSOs.}
 
 We use two types of magnitudes determined by the SDSS. First, the SDSS
 Petrosian magnitudes, a modified form of the magnitude described by
@@ -838,7 +842,7 @@ single weighted aperture; thus, the measured colors again correspond
 to an identifiable region of the galaxy, though a different one than
 would be measured by the Petrosian magnitude. The weighted aperture is
 the better fitting model (pure exponential or pure de Vaucouleurs) to
-the galaxy image in the $r$-band. In \citet{stoughton01a} we are
+the galaxy image in the $r$-band. In \citet{stoughton02a} we are
 explicitly warned not to mix Petrosian and model magnitudes in a
 single analysis, since they measure galaxies in very different
 ways. Nevertheless, for the purposes of contraining galaxy template
@@ -882,7 +886,8 @@ covariance matrix by a factor of four to weaken our constraint (which
 is appropriate, since the actual distribution of coefficients is not
 well described by a single gaussian).  Thus, we account for the
 missing information by simply requiring that the object SED have
-``reasonable'' properties.
+``reasonable'' properties. The constraint does not affect the results
+for galaxies which have well-measured magnitudes in all bands.
 
 In addition, the photometric errors for most objects in the
 spectroscopic galaxy sample of the SDSS are not dominated by the
@@ -899,13 +904,13 @@ defined by linear combinations of ten Bruzual-Charlot instantaneous
 burst models with ages ranging from $3 \times 10^7$ to $2\times
 10^{10}$ years, five with metallicity $Z=0.02$ and five with
 $Z=0.004$, all assuming a Salpeter Initial Mass Function. Since we
-cannot recover information about the SED below a certain scale, we
-smooth most of the wavelength regime of the templates using a Gaussian
-with a standard deviation of $\sigma = 300$\AA; for the region of the
-spectrum which contains the sharpest gradients, around 4000\AA, we
-smooth only with $\sigma = 150$\AA. None of our results change
-dramatically if we vary our smoothing procedure or if we add reddened
-templates to our allowed SED space.
+cannot recover information about the SED below a certain wavelength
+scale, we smooth most of the wavelength regime of the templates using
+a Gaussian with a standard deviation of $\sigma = 300$\AA; for the
+region of the spectrum which contains the sharpest gradients, around
+4000\AA, we smooth only with $\sigma = 150$\AA. None of our results
+change dramatically if we vary our smoothing procedure or if we add
+reddened templates to our allowed SED space.
 
 We choose to fit for $N_t = 4$ eigentemplates, the maximum one can use
 and still allow freedom to fit for the templates themselves.  Simply
@@ -973,7 +978,7 @@ evolution-correct the magnitudes).
 
 However, we have not tackled this approach yet. As it happens, the
 direct constraint on the coefficients described in the previous
-section is sufficient to suppress the $g$/$r$ gap problem sufficiently
+section is sufficient to suppress the $g$/$r$ gap problem 
 for many purposes, as long as one $K$-corrected the magnitudes to
 $z=0.3$. In this way, one minimizes the $K$-corrections for the
 galaxies which one is least certain of.
@@ -1041,10 +1046,11 @@ joint distributions of $a_1/a_0$, $a_2/a_0$, and $a_3/a_0$ for a
 random subset of about 10,000 of the galaxies in the SDSS sample (not
 only the ones which we used to fit the templates). In the bottom
 panel, three spectra taken from a one-dimensional sequence along the
-galay locus are shown, showing that the spectra become progressively
+galaxy locus are shown, showing that the spectra become progressively
 bluer along that sequence. Note that constraints on the SED become
 poor at the bluest and reddest edges of this diagram (the peak of the
-$z$-band response is at 8700\AA). Therefore, the odd behavior near the
+$z$-band response is at 8700~\AA restframe for a galaxy observed at
+$z=0$). Therefore, the odd behavior near the
 edges should not be taken too seriously. In addition, note the small
 spur extending from lower left to upper right through the right edge
 of the ($a_3/a_0$)-($a_2/a_0$) plane. Many of the objects in this spur are
@@ -1073,27 +1079,26 @@ test. First, we choose a set of Main Sample galaxies in the luminosity
 range $-21.5 < M_{\band{0.1}{r}} < -21.2$. Figure
 \ref{main_colors_plot.z} shows the observed-frame colors of all the
 galaxies as a function of redshift.  The right-hand panels show the
-distribution for redshifts $0.05<z<0.13$ (solid histogram) and
-$0.1<z<0.173$ (dotted histogram). A trend exists in all colors, most
+distribution for redshifts $0.05<z<0.10$ (solid histogram) and
+$0.10<z<0.17$ (dotted histogram). A trend exists in all colors, most
 strongly in $\band{z}{(g-r)}$. Figure \ref{main_colors_plot} shows the
 $K$-corrected colors $\band{0.1}{(u-g)}$, $\band{0.1}{(g-r)}$,
 $\band{0.1}{(r-i)}$, and $\band{0.1}{(i-z)}$ in the same manner.  The
 plots show a general consistency in the fixed frame color distribution
-of these objects with redshift.  The right-hand panels show the
-distribution for redshifts $0.05<z<0.13$ (solid histogram) and
-$0.1<z<0.173$ (dotted histogram) .  Small changes are discernible in
-the distributions, mostly attributable to the increased errors at
-higher redshift. Note that for $z<0.1$ the $\band{0.1}{(u-g)}$ color
-depends on an extrapolation of the SED in the blue, while for $z>0.1$
-the $\band{0.1}{(i-z)}$ color depends on an extrapolation of the SED
-in the red.
+of these objects with redshift.  Small changes are discernible in the
+distributions, mostly attributable to the increased errors at higher
+redshift. Note that for $z<0.1$ the $\band{0.1}{(u-g)}$ color depends
+on an extrapolation of the SED in the blue, while for $z>0.1$ the
+$\band{0.1}{(i-z)}$ color depends on an extrapolation of the SED in
+the red.
 
-Second, we choose a set of Cut I LRGs with $-22.8 < M_{\band{0.3}{r}}
-< -22.5$. Figure \ref{lrg_colors_plot.z} shows the observed colors as
-a functino of redshift for these objects. Again, there is a strong
-redshift dependence. Figure \ref{lrg_colors_plot} shows the colors
+Second, we choose a set of Cut I LRGs (see \citealt{eisenstein01a} for
+details) with $-22.8 < M_{\band{0.3}{r}} < -22.5$. Figure
+\ref{lrg_colors_plot.z} shows the observed colors as a function of
+redshift for these objects. Again, there is a strong redshift
+dependence. Figure \ref{lrg_colors_plot} shows the colors
 $K$-corrected to $z=0.3$, which appear approximately constant with
-redshift.  
+redshift.
 %Again, for $z<0.3$ the $\band{{0.3}}{(u-g)}$ color relies
 %on an extrapolation, which is probably responsible for the scatter in
 %that color at low redshifts. Otherwise, the distribution of colors is
@@ -1133,7 +1138,7 @@ itself:
 \begin{equation}
 \Delta K = K_{\mathrm{spec}} - K_{\mathrm{photo}}
 \end{equation}
-The agreement is now very good, suggesting that our method can
+The agreement is very good, suggesting that our method can
 indeed recover the correct $K$-corrections based only on broad band
 magnitudes.
 
@@ -1142,7 +1147,7 @@ assumptions, we compare them to other methods of calculating fixed
 frame galaxy magnitudes.  An extremely simple method is to calculate
 the flux in any desired bandpass by fitting a power-law slope and
 amplitude to the fluxes in the two adjacent bandpasses (extrapolating
-when necessary). Figure \ref{comparecibreak} shows the differences in
+when necessary). Figure \ref{compareci} shows the differences in
 the $K$-corrections inferred from this method and those inferred from
 the method of Figure \ref{k_kcorrect_plot}, as a function of
 redshift. $r$, $i$, and $z$ are all reasonably similar in either
@@ -1150,8 +1155,8 @@ method; $u$ and $g$, however, have distinct trends with redshift,
 mostly due to the non-power law nature of the template galaxy spectra
 (and probably actual galaxy spectra) in this regime. To show this
 fact, we perform a similar power-law fit, only this time including a
-break in the spectrum at 4000\AA. We use the $u$-$g$ color to fit the
-break, assuming that the slope blueward of 4000\AA\ is
+break in the spectrum at 4000 \AA. We use the $u$-$g$ color to fit the
+break, assuming that the slope blueward of 4000 \AA\ is
 $f(\lambda)\propto \lambda^{2}$.  Figure \ref{comparecibreak} shows
 the results of this fit; the redshift trend in $g$ is greatly reduced,
 as is the trend in $u$, but a large amount of scatter remains in the
@@ -1255,6 +1260,7 @@ in the data.
 
 \acknowledgments
 
+MB is partially supported by {\bf NYU grants}.
 MB was supported at the beginning of this work by the DOE and NASA
 grant NAG 5-7092 at Fermilab. He is also grateful for the hospitality
 of the Department of Physics and Astronomy at the State University of
@@ -1262,18 +1268,21 @@ New York at Stony Brook, who kindly provided computing facilities on
 his frequent visits there. 
 %MAS acknowledges the support of NSF grant AST-0071091.
 
-The Sloan Digital Sky Survey (SDSS) is a joint project of The
+Funding for the creation and distribution of the SDSS Archive has been
+provided by the Alfred P. Sloan Foundation, the Participating
+Institutions, the National Aeronautics and Space Administration, the
+National Science Foundation, the U.S. Department of Energy, the
+Japanese Monbukagakusho, and the Max Planck Society. The SDSS Web site
+is {\tt http://www.sdss.org/}.
+
+The SDSS is managed by the Astrophysical Research Consortium (ARC) for
+the Participating Institutions. The Participating Institutions are The
 University of Chicago, Fermilab, the Institute for Advanced Study, the
-Japan Participation Group, the Johns Hopkins University, the
-Max-Planck-Institute for Astronomy, New Mexico State University,
-Princeton University, the United States Naval Observatory, and the
-University of Washington. Apache Point Observatory, site of the SDSS
-telescopes, is operated by the Astrophysical Research Consortium
-(ARC).  Funding for the project has been provided by the Alfred
-P.~Sloan Foundation, the SDSS member institutions, the National
-Aeronautics and Space Administration, the National Science Foundation,
-the U.~S.~Department of Energy, Monbusho, and the Max Planck
-Society. The SDSS Web site is http://www.sdss.org/.
+Japan Participation Group, The Johns Hopkins University, Los Alamos
+National Laboratory, the Max-Planck-Institute for Astronomy (MPIA),
+the Max-Planck-Institute for Astrophysics (MPA), New Mexico State
+University, Princeton University, the United States Naval Observatory,
+and the University of Washington.
  
 \begin{thebibliography}{DUM}
 \input{bib_paper.tex}
