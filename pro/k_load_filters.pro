@@ -42,13 +42,14 @@ endif
 
 ; Read in sizes and pick maximum
 filter_n=lonarr(n_elements(filterlist))
+filter_ncolumns=lonarr(n_elements(filterlist))
+filter_default=lonarr(n_elements(filterlist))
 for i = 0l, n_elements(filterlist)-1l do begin
-    tmp=1l
-    openr,unit,filterlist[i],/get_lun
-    readf,unit,tmp
-    filter_n[i]=tmp
-    close,unit
-    free_lun,unit
+    readcol,filterlist[i],nlines,ncolumns,defaultcol, $
+      format='I,I,I',comment='#',/silent
+    filter_default[i]=defaultcol[0]
+    filter_n[i]=nlines[0]
+    filter_ncolumns[i]=ncolumns[0]
 endfor 
 maxn=max(filter_n)
 
@@ -56,15 +57,18 @@ maxn=max(filter_n)
 filter_lambda=dblarr(maxn,n_elements(filterlist))
 filter_pass=dblarr(maxn,n_elements(filterlist))
 for i = 0l, n_elements(filterlist)-1l do begin
-    openr,unit,filterlist[i],/get_lun
-    tmp=1l
-    readf,unit,tmp
-    filter_n[i]=tmp
-    tmp=dblarr(2,filter_n[i]) 
-    readf,unit,tmp
-    filter_lambda[0l:filter_n[i]-1l,i]=tmp[0,*]
-    filter_pass[0l:filter_n[i]-1l,i]=tmp[1,*]
-    close,unit
-    free_lun,unit
+    format='D'
+    for j=1, filter_default[i]-2 do format=format+',X'
+    format=format+',D'
+    readcol,filterlist[i],tmp_lambda,tmp_pass, $
+      format=format,comment='#',/silent
+    if(n_elements(tmp_lambda) eq filter_n[i]+1) then begin 
+        filter_lambda[0l:filter_n[i]-1l,i]=tmp_lambda[1L:filter_n[i]]
+        filter_pass[0l:filter_n[i]-1l,i]=tmp_pass[1L:filter_n[i]]
+    endif else begin
+        filter_lambda[0l:filter_n[i]-1l,i]=tmp_lambda
+        filter_pass[0l:filter_n[i]-1l,i]=tmp_pass
+    endelse 
 endfor 
+
 end

@@ -108,6 +108,12 @@ IDL_LONG k_write_ascii_table(double *table,
 														 IDL_LONG *sizes,
 														 char filename[]);
 
+/* get a single filter */
+IDL_LONG k_load_filter(char filename[],
+											 IDL_LONG *filter_n,
+											 double **filter_lambda,
+											 double **filter_pass);
+
 /* load the filters in their standard format */
 IDL_LONG k_load_filters(IDL_LONG **filter_n,
 												double **filter_lambda,

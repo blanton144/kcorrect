@@ -76,7 +76,7 @@
 ;   19-Jul-2002  Major bug fix (pointed out by I. Baldry) MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, addgrgap=addgrgap, invvar=invvar, vconstraint=vconstraint, constraints_amp=constraints_amp, constraints_mean=constraints_mean, constraints_var=constraints_var, returnmag=returnmag
+pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, kcorrect, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, addgrgap=addgrgap, invvar=invvar, vconstraint=vconstraint, constraints_amp=constraints_amp, constraints_mean=constraints_mean, constraints_var=constraints_var, returnmag=returnmag, bmatrix=bmatrix, lambda=lambda
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
@@ -149,12 +149,14 @@ if(n_elements(rmatrix) gt 0 AND n_elements(zvals) gt 0 AND $
     k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff, $
       filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
       ematrix=ematrix, constraints_amp=constraints_amp, $
-      constraints_var=constraints_var, constraints_mean=constraints_mean
+      constraints_var=constraints_var, constraints_mean=constraints_mean, $
+      bmatrix=bmatrix, lambda=lambda
 endif else begin
     k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff, $
       version=useversion,vpath=vpath,filterpath=filterpath,rmatrix=rmatrix, $
       zvals=zvals,ematrix=ematrix, constraints_amp=constraints_amp, $
-      constraints_var=constraints_var, constraints_mean=constraints_mean
+      constraints_var=constraints_var, constraints_mean=constraints_mean, $
+      bmatrix=bmatrix, lambda=lambda
 endelse
 
 ; Calculate model fluxes
@@ -171,9 +173,10 @@ indx=where(correct_z lt zvals[0],count)
 if(count gt 0) then correct_z[indx]=0.5*(zvals[0]+zvals[1])
 k_reconstruct_maggies,coeff,replicate(0.,n_elements(galaxy_z)), $
   reconstruct_maggies,rmatrix=rmatrix,zvals=zvals,ematrix=ematrix, $
-  band_shift=correct_z
+  band_shift=correct_z, bmatrix=bmatrix, lambda=lambda
 k_reconstruct_maggies,coeff,galaxy_z,reconstruct_maggies0,rmatrix=rmatrix, $
-  zvals=zvals,ematrix=ematrix, band_shift=replicate(0.,n_elements(galaxy_z))
+  zvals=zvals,ematrix=ematrix, band_shift=replicate(0.,n_elements(galaxy_z)), $
+  bmatrix=bmatrix, lambda=lambda
 
 ; Remove the grgap maggie if appropriate
 if(keyword_set(addgrgap)) then begin

@@ -27,7 +27,8 @@
 ;-
 ;------------------------------------------------------------------------------
 function k_project_filters,lambda,flux,filterlist=filterlist, $
-                           filterpath=filterpath,band_shift=band_shift
+                           filterpath=filterpath,band_shift=band_shift, $
+                           qa=qa
 
 if(NOT keyword_set(filterpath)) then $
   filterpath=getenv('KCORRECT_DIR')+'/data/filters'
@@ -57,10 +58,15 @@ flat=cspeed*abspec/lambda^2
 maggies=dblarr(n_elements(filterlist),nspectra)
 for i=0L, n_elements(filterlist)-1L do begin
     ; interpolate filter onto lambda
-    intfilter1=interpol(filter_pass[0:filter_n[i]-1L,i], $
-                        filter_lambda[0:filter_n[i]-1L,i], $
+    isort=sort(filter_lambda[0:filter_n[i]-1L,i])
+    intfilter1=interpol((filter_pass[0:filter_n[i]-1L,i])[isort], $
+                        (filter_lambda[0:filter_n[i]-1L,i])[isort], $
                         lambda)
-    indx=where(intfilter1 lt 0, count)
+    filtlammin=filter_lambda[0,i] < filter_lambda[filter_n[i]-1,i]
+    filtlammax=filter_lambda[0,i] > filter_lambda[filter_n[i]-1L,i]
+    indx=where(intfilter1 lt 0. or $
+               lambda gt filtlammax or $
+               lambda lt filtlammin, count)
     if(count gt 0) then intfilter1[indx]=0.
     intfilter=intfilter1#replicate(1.,nspectra)
 
@@ -73,6 +79,11 @@ for i=0L, n_elements(filterlist)-1L do begin
 
     ; now make maggies
     maggies[i,*]=abfluxes/absource
+
+    if(keyword_set(qa)) then begin
+        plot,lambda,intfilter1,xra=[filtlammin,filtlammax]
+        plot,lambda,flux,xra=[filtlammin,filtlammax]
+    endif
 endfor
 
 return,maggies

@@ -6,12 +6,12 @@
 # into the filter format used.
 #
 
-@bands=("J","H","Ks");
-$twomassdir="twomass";
+@bands=("B","V","R","I");
+$besselldir="bessell";
 foreach $band (@bands) {
-	print "$twomassdir/${band}total.html\n";
+	print "$besselldir/bessell_${band}.dat\n";
 	
-	open(ifp,"$twomassdir/${band}total.html");
+	open(ifp,"$besselldir/bessell_${band}.dat");
 	$nlines=0;
 	while(<ifp>) {
 		chop;
@@ -21,24 +21,21 @@ foreach $band (@bands) {
 		}
 	}
 	
-	open(ofp,">./twomass_$band.dat");
-	open(ifp,"twomassheader");
+	open(ofp,">./bessell_$band.dat");
+	open(ifp,"bessellheader");
 	while(<ifp>) {
 		s/\[SPECIFY\]/$band/g;	
 		print ofp;
 	}
 	close(ifp);
 	printf ofp "%d 2 2\n",$nlines;
-	open(ifp,"$twomassdir/${band}total.html");
+	open(ifp,"$besselldir/bessell_${band}.dat");
 	while(<ifp>) {
 		$line=$_;
+		chop;
 		split;
 		if($_[0]>0) {
-			chop;
-			split;
-			$lambda=$_[1]*10000.;
-			$response=$_[2];
-			printf ofp "%e %e\n",$lambda,$response;
+			print ofp "$line";
 		} else {
 			print ofp "# $line";
 		}
