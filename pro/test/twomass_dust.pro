@@ -38,7 +38,10 @@ calibobj=calibobj[ii]
 zline=zline[*,ii]
 dm=lf_distmod(kcorrect.z, omega0=0.3, omegal0=0.7) 
 absmk=22.5-2.5*alog10(kcorrect.abmaggies[7])-dm-kcorrect.kcorrect[7]
-rmk=-2.5*alog10(kcorrect.abmaggies[2]/kcorrect.abmaggies[7])
+rmk=-2.5*alog10(kcorrect.abmaggies[2]/kcorrect.abmaggies[7])- $
+  kcorrect.kcorrect[2]+kcorrect.kcorrect[7]
+gmr=-2.5*alog10(kcorrect.abmaggies[1]/kcorrect.abmaggies[2])- $
+  kcorrect.kcorrect[1]+kcorrect.kcorrect[2]
 
 ndata=n_elements(absmk)
 ndims=5
@@ -57,7 +60,10 @@ labels=['!8b/a!6', $
         '!8f_{!6dev}', $
         '!8M_{K}!6', $
         '!6H_{\alpha}!6', $
+        '!6H_{\alpha}/H_{\beta}!6', $
         '!8!u0.1!n[r-K]!6']
+
+stop
 
 jj=lindgen(ndata)
 hogg_manyd_scatterplot, fltarr(ndata)+1., data[*,jj], 'color.ps', range=range

@@ -58,9 +58,10 @@ if(keyword_set(verbose)) then begin
     endif
 endif
 
-q=err gt 0
-for i=0L, 4L do $
-  ivar[i,*]=ivar[i,*]*q/((err[i,*]^2+errband[i]^2)*q+(1-q))
+for i=0L, 4L do begin
+    q=err[i,*] gt 0
+    ivar[i,*]=ivar[i,*]*q/((err[i,*]^2+errband[i]^2)*q+(1-q))
+endfor
 
 return, ivar
 
@@ -95,6 +96,7 @@ for k=0, nk-1 do $
   abmags[k,*]=mags[k,*]+aboff[k]
 
 maggies=dblarr(nk,ngalaxy)
+maggies_ivar=dblarr(nk,ngalaxy)
 indx=where(mags_ivar ne 0.,count)
 if(count gt 0) then begin
    maggies[indx]=(10.D)^(-(0.4D)*abmags[indx])
@@ -105,7 +107,6 @@ if(count gt 0) then begin
    maggies[indx]=0.
    maggies_ivar[indx]=0.
 endif
-
 
 end
 ;------------------------------------------------------------------------------

@@ -33,20 +33,21 @@ end
 ;
 pro k_fit_avgspec, avgindx, gals, group, lambda, eigenmatrix, eigencoeffs, $
                    navg, npca, avgcoeffs, avgspec, chi2gals,chi2, mean, $
-                   median, filterlist=filterlist
+                   median, filterlist=filterlist, $
+                   avgeigencoeffs=avgeigencoeffs
 
 ;   create average spectra
     print,avgindx
     avgspec=fltarr(n_elements(lambda)-1L,navg)
+    avgeigencoeffs=fltarr(npca+1,navg)
     for i=0L, navg-1L do begin
         indx=where(group eq avgindx[i])
-        avgeigencoeffs=fltarr(npca+1)
-        avgeigencoeffs[0]=1.
-        avgeigencoeffs[1:npca]= $
+        avgeigencoeffs[0,i]=1.
+        avgeigencoeffs[1:npca,i]= $
           total(eigencoeffs[1:npca,indx]/ $
                 (replicate(1.,npca)#eigencoeffs[0,indx]),2)$
           /double(n_elements(indx))
-        avgspec[*,i]=eigenmatrix#avgeigencoeffs
+        avgspec[*,i]=eigenmatrix#avgeigencoeffs[*,i]
     endfor
 
 ;   qa plot
@@ -78,8 +79,8 @@ dontsave_navg=navg
 
 if(NOT keyword_set(npca)) then npca=5
 if(NOT keyword_set(nkmeans)) then nkmeans=10
-if(NOT keyword_set(sublmin)) then sublmin=2000.
-if(NOT keyword_set(sublmax)) then sublmax=12000.
+if(NOT keyword_set(sublmin)) then sublmin=1600.
+if(NOT keyword_set(sublmax)) then sublmax=25000.
 if(NOT keyword_set(filterlist)) then $
   filterlist=['sdss_u0.par','sdss_g0.par', $
               'sdss_r0.par','sdss_i0.par', $
@@ -148,7 +149,7 @@ compare_maggies,coeffs,gals.redshift,gals.maggies,gals.maggies_ivar, $
 
 ; find flux direction, and scale
 k_ortho_templates,coeffs,vmatrix,lambda,bcoeffs,bmatrix,bflux,bdotv=bdotv, $
-  bdotb=bdotb,sublmin=sublmin,sublmax=sublmax
+  bdotb=bdotb,sublmin=sublmin,sublmax=sublmax, vdotv=vdotv
 
 ; Scale distribution to plane of constant flux
 flux_total=bcoeffs[0,*]
@@ -222,7 +223,8 @@ for m=0L, ndistinct-1L do begin
     
     k_fit_avgspec, tmp_avgindx, gals, group, lambda, eigenmatrix, $
       eigencoeffs, navg, npca, avgcoeffs, avgspec, chi2gals,tmp_chi2, $
-      tmp_mean, tmp_median, filterlist=filterlist
+      tmp_mean, tmp_median, filterlist=filterlist, $
+      avgeigencoeffs=avgeigencoeffs
 
 ;   record results
     chi2[m]=tmp_chi2
@@ -239,7 +241,7 @@ minmean=min(mean,minm)
 tmp_avgindx=avgindx[*,minm]
 k_fit_avgspec, tmp_avgindx, gals, group, lambda, eigenmatrix, eigencoeffs, $
   navg, npca, avgcoeffs, avgspec, chi2gals,tmp_chi2, tmp_mean, tmp_median, $
-  filterlist=filterlist
+  filterlist=filterlist, avgeigencoeffs=avgeigencoeffs
 
 compare_maggies,avgcoeffs,gals.redshift,gals.maggies,gals.maggies_ivar, $
   lambda=lambda,vmatrix=avgspec, filterlist=filterlist, xra=[0.,0.8], $
@@ -271,6 +273,43 @@ end_print
 k_write_ascii_table, avgspec_tweaked, 'vmatrix.'+name+ $
   strtrim(string(navg),2)+'.dat'
 k_write_ascii_table, lambda, 'lambda.'+name+strtrim(string(navg),2)+'.dat'
+
+; finally, find for each template the galaxy that it is closest to
+print,systime()
+ntest=n_elements(gals)
+jpick=shuffle_indx(n_elements(gals),num_sub=ntest)
+chi2arr=fltarr(ntest, navg)
+for i=0L, navg-1L do $
+  for j=0L, ntest-1L do begin & $
+  currspec=vmatrix#coeffs[*,jpick[j]] & $
+  amp=total(avgspec_tweaked[*,i]*currspec, /double)/ $
+  total(currspec*currspec,/double) & $
+  chi2arr[j,i]=total((avgspec_tweaked[*,i]-amp*currspec)^2,/double) & $
+  endfor
+print,systime()
+
+jmin=lonarr(navg)
+for i=0L, navg-1L do begin & $
+  dummin=min(chi2arr[*,i],tmp_j) & $
+  jmin[i]=tmp_j & $
+  endfor
+
+finalspec=fltarr(n_elements(lambda)-1L,navg)
+for i=0L, navg-1L do $
+  finalspec[*,i]=vmatrix#coeffs[*,jpick[jmin[i]]]
+
+chi2gals=0
+rmatrix=0
+finalcoeffs=k_fit_nonneg(gals.maggies,gals.maggies_ivar, $
+                         finalspec,lambda,redshift=gals.redshift, $
+                         filterlist=filterlist, $
+                         chi2=chi2gals,rmatrix=rmatrix, $
+                         zvals=zvals, maxiter=10000)
+
+compare_maggies,finalcoeffs,gals.redshift,gals.maggies,gals.maggies_ivar, $
+  lambda=lambda,vmatrix=finalspec, filterlist=filterlist, xra=[0.,0.8], $
+  recmaggies=recmaggies, filename='compare_maggies_finalspec'+ $
+  strtrim(string(navg),2)+'.ps'
 
 save,filename='done_k_fit_sdss_training_set_'+strtrim(string(navg),2)+'.sav'
 

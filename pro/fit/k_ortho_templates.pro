@@ -63,7 +63,7 @@ end
 ;
 pro k_ortho_templates, coeffs, vmatrix, lambda, bcoeffs, bmatrix, bflux, $
                        sublmin=sublmin, sublmax=sublmax, bdotv=bdotv, $
-                       bdotb=bdotb
+                       bdotb=bdotb, vdotv=vdotv
 
 ; Need at least 3 parameters
 if (N_params() LT 4) then begin
@@ -73,8 +73,8 @@ if (N_params() LT 4) then begin
 endif
 
 ; Set defaults
-if (NOT keyword_set(sublmin)) then sublmin=3500.d
-if (NOT keyword_set(sublmax)) then sublmax=7500.d
+if (NOT keyword_set(sublmin)) then sublmin=1500.d
+if (NOT keyword_set(sublmax)) then sublmax=30000.d
 nl=long(n_elements(lambda))-1L
 nv=long(n_elements(vmatrix)/nl)
 
@@ -93,17 +93,23 @@ k_orthogonalize, lambda, bmatrix, bmatrix, bflux, subindx, subindxp1
 
 ; calculate transformation of coordinates and apply it
 bdotv=fltarr(nv,nv)
+vdotv=fltarr(nv,nv)
 bdotb=fltarr(nv,nv)
-for b = 0l, nv-1l do begin
-    for bp = 0l, nv-1l do begin
-        bdotv[b,bp]=total((lambda[subindxp1]-lambda[subindx])* $
-                          bmatrix[subindx,b]*vmatrix[subindx,bp],/double)* $
-          (sublmax-sublmin)
-        bdotb[b,bp]=total((lambda[subindxp1]-lambda[subindx])* $
-                          bmatrix[subindx,b]*bmatrix[subindx,bp],/double)* $
-          (sublmax-sublmin)
-    endfor
-endfor
+for b = 0l, nv-1l do $
+  for bp = 0l, nv-1l do $
+  bdotv[b,bp]=total((lambda[subindxp1]-lambda[subindx])* $
+                    bmatrix[subindx,b]*vmatrix[subindx,bp],/double)* $
+  (sublmax-sublmin)
+for b = 0l, nv-1l do $
+  for bp = 0l, nv-1l do $
+  vdotv[b,bp]=total((lambda[subindxp1]-lambda[subindx])* $
+                    vmatrix[subindx,b]*vmatrix[subindx,bp],/double)* $
+  (sublmax-sublmin)
+for b = 0l, nv-1l do $
+  for bp = 0l, nv-1l do $
+  bdotb[b,bp]=total((lambda[subindxp1]-lambda[subindx])* $
+                    bmatrix[subindx,b]*bmatrix[subindx,bp],/double)* $
+  (sublmax-sublmin)
 bcoeffs=bdotv#coeffs
 
 end

@@ -26,9 +26,9 @@ pro k_make_templates, nages=nages, sigscale=sigscale, maxage=maxage, $
                       minage=minage, name=name
 
 if(n_elements(name) eq 0) then name='test'
-if(n_elements(nages) eq 0) then nages=12
+if(n_elements(nages) eq 0) then nages=15
 if(n_elements(sigscale) eq 0) then sigscale=0.1
-if(n_elements(minage) eq 0) then minage=1.5e+6
+if(n_elements(minage) eq 0) then minage=1.0e+6
 if(n_elements(maxage) eq 0) then maxage=2.6e+10
 
 ; make sfh pars
@@ -45,10 +45,13 @@ endfor
 ; make dust
 dust1={dusty_str, geometry:'', dust:'', structure:'', tauv:0.}
 dust=replicate(dust1,3)
-dust.geometry=['dusty','dusty','dusty']
-dust.dust=['MW','MW','MW']
-dust.structure=['c','c','c']
-dust.tauv=[0.,3.5,8.]
+dust.geometry=['dusty', $
+               'dusty','dusty']
+dust.dust=['MW', $
+           'MW','MW']
+dust.structure=['c', $
+                'c','c']
+dust.tauv=[0.,1.,3.]
 
 ; make metallicity
 metallicity=['03','02','008','004','001']
@@ -68,5 +71,7 @@ for i=0L, ngal-1L do vmatrix[*,i]=smooth(vmatrix[*,i],5)
 ; output the appropriate files
 k_write_ascii_table,vmatrix,'vmatrix.'+name+'.dat'
 k_write_ascii_table,lambda,'lambda.'+name+'.dat'
+
+save, filename='data_make_templates.sav'
 
 end

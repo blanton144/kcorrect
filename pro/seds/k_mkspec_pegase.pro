@@ -49,7 +49,7 @@ endif
 if(NOT keyword_set(pegasepath)) then $
   pegasepath=getenv('DATA')+'/specmodels/PEGASE.2'
 if(NOT keyword_set(attime)) then attime=0.d
-if(NOT keyword_set(ntsteps)) then ntsteps=2000L
+if(NOT keyword_set(ntsteps)) then ntsteps=20000L
 if(NOT keyword_set(nl)) then nl=5000L
 if(NOT keyword_set(lmin)) then lmin=1250.
 if(NOT keyword_set(lmax)) then lmax=33333.
