@@ -136,7 +136,8 @@ postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='bsafe', $
                                post='1'), 1, nrow=28800)
 indx_photo=shuffle_indx(n_elements(postcat), num_sub=nsdss_photo, seed=seed)
 postcat=postcat[indx_photo]
-kc=mrdfits(vagc_name('kcorrect', flux='model'),1,row=postcat.object_position)
+kc=mrdfits(vagc_name('kcorrect', flux='model', collision_type='none', $
+                     band_shift='0.00'),1,row=postcat.object_position)
 sp=mrdfits(vagc_name('object_sdss_spectro'),1,row=postcat.object_position)
 vmod=mrdfits(getenv('VAGC_REDUX')+'/velmod_distance/distance_'+velmodtype+ $
              '.fits',1, row=postcat.object_position)
