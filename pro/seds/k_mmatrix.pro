@@ -191,5 +191,4 @@ mwrfits, age, outfile
 mwrfits, filterlist, outfile
 mwrfits, zf, outfile
 
-
 end
