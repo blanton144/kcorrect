@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "utils.h"
-#include "color_interp.h"
+#include <kcorrect.h>
 
 /*
  * color_interp.c
@@ -14,9 +13,13 @@
  * 6/2001
  */
 
-#ifndef ZZERO
-#define ZZERO 0.
-#endif
+#define ZZERO 0.1
+#define MAGGIEFILE "testsp.K.dat"
+#define RFFILE "testsp.K.cibreak.dat"
+#define INCLUDEBREAK
+#define NGALS 6534
+#define FILTERPATH "../data/filters"
+#define FILTERBASE "sdss_"
 
 static int band,currband,igal;
 static int band0,band1;
@@ -27,18 +30,17 @@ static double lfilt[5][300];
 static int nfilt[5];
 
 /* Galaxy properties */
-static double galaxy_mag[5][NALL];
-static double galaxy_rfmag[5][NALL];
-static double galaxy_magerr[5][NALL];
-static double galaxy_z[NALL];
-static int galaxy_use[NALL];
+static double galaxy_maggies[5][NGALS];
+static double galaxy_rfmag[5][NGALS];
+static double galaxy_invvar[5][NGALS];
+static double galaxy_z[NGALS];
 
 static double filtfunc(double lambda)
 {
 	unsigned long i,ip1;
 	double s,val;
 
-	locate(lfilt[currband], nfilt[currband], lambda, &i);
+	k_locate(lfilt[currband], nfilt[currband], lambda, &i);
 	if(i>=nfilt[currband]-1 || i<0)
 		return(0.);
 		
@@ -74,7 +76,7 @@ static double bfunc(double lambda)
 {
 	unsigned long i,ip1;
 
-	if(lambda/(1.+ci_z)<4100.)
+	if(lambda/(1.+ci_z)<4000.)
 		return(ci_break*pow(lambda/(1.+ci_z),2.)/(1.+ci_z));
 	else 
 		return(ci_A*pow(lambda/(1.+ci_z),ci_alpha)/(1.+ci_z));
@@ -98,17 +100,17 @@ double alpha_fit(double alpha)
 	ci_alpha=alpha;
 
 	currband=band0;
-	scaleval0=qromo(scalefiltfunc,lfilt[currband][0],
-									lfilt[currband][nfilt[currband]-1],midpnt);
-	val0=qromo(tempfiltfunc,lfilt[currband][0],
-						 lfilt[currband][nfilt[currband]-1],midpnt);
+	scaleval0=k_qromo(scalefiltfunc,lfilt[currband][0],
+									lfilt[currband][nfilt[currband]-1],k_midpnt);
+	val0=k_qromo(tempfiltfunc,lfilt[currband][0],
+						 lfilt[currband][nfilt[currband]-1],k_midpnt);
 	val0/=scaleval0;
 
 	currband=band1;
-	scaleval1=qromo(scalefiltfunc,lfilt[currband][0],
-									lfilt[currband][nfilt[currband]-1],midpnt);
-	val1=qromo(tempfiltfunc,lfilt[currband][0],
-						 lfilt[currband][nfilt[currband]-1],midpnt);
+	scaleval1=k_qromo(scalefiltfunc,lfilt[currband][0],
+									lfilt[currband][nfilt[currband]-1],k_midpnt);
+	val1=k_qromo(tempfiltfunc,lfilt[currband][0],
+						 lfilt[currband][nfilt[currband]-1],k_midpnt);
 	val1/=scaleval1;
 
 	diff=(mag0-mag1)-2.5*log10(val1/val0);
@@ -126,23 +128,23 @@ double balpha_fit(double alpha)
 	ci_alpha=alpha;
 
 	currband=band1;
-	scaleval1=qromo(scalefiltfunc,lfilt[currband][0],
-									lfilt[currband][nfilt[currband]-1],midpnt);
-	val1=qromo(btempfiltfunc,lfilt[currband][0],
-						 lfilt[currband][nfilt[currband]-1],midpnt);
+	scaleval1=k_qromo(scalefiltfunc,lfilt[currband][0],
+									lfilt[currband][nfilt[currband]-1],k_midpnt);
+	val1=k_qromo(btempfiltfunc,lfilt[currband][0],
+						 lfilt[currband][nfilt[currband]-1],k_midpnt);
 	val1/=scaleval1;
-	ci_A=pow(10.,-0.4*(galaxy_mag[currband][igal]-17.))/val1;
-	scaleval1=qromo(scalefiltfunc,lfilt[currband][0],
-									lfilt[currband][nfilt[currband]-1],midpnt);
-	val1=qromo(btempfiltfunc,lfilt[currband][0],
-						 lfilt[currband][nfilt[currband]-1],midpnt);
+	ci_A=galaxy_maggies[currband][igal]/val1;
+	scaleval1=k_qromo(scalefiltfunc,lfilt[currband][0],
+									lfilt[currband][nfilt[currband]-1],k_midpnt);
+	val1=k_qromo(btempfiltfunc,lfilt[currband][0],
+						 lfilt[currband][nfilt[currband]-1],k_midpnt);
 	val1/=scaleval1;
 
 	currband=band0;
-	scaleval0=qromo(scalefiltfunc,lfilt[currband][0],
-									lfilt[currband][nfilt[currband]-1],midpnt);
-	val0=qromo(btempfiltfunc,lfilt[currband][0],
-						 lfilt[currband][nfilt[currband]-1],midpnt);
+	scaleval0=k_qromo(scalefiltfunc,lfilt[currband][0],
+									lfilt[currband][nfilt[currband]-1],k_midpnt);
+	val0=k_qromo(btempfiltfunc,lfilt[currband][0],
+						 lfilt[currband][nfilt[currband]-1],k_midpnt);
 	val0/=scaleval0;
 
 	diff=(mag0-mag1)-2.5*log10(val1/val0);
@@ -154,7 +156,7 @@ int main(int argc, char **argv)
 {
 	double currz,cz,redden,alpha,A,val,scaleval;
 	int i,ii,j,k,l;
-	char filename[255];
+	char filename[255],bands[5];
 	FILE *fp;
 
 	/*
@@ -166,50 +168,29 @@ int main(int argc, char **argv)
 	 *    and whether to use it in the sample; then make the sample
 	 */
 
-	/* 1a. Read in magnitudes, and reddening-adjust if desired */
-	printf("Reading magnitudes ...\n");
+	/* 1a. Read in corrected maggies */
+	printf("Reading maggies ...\n");
 	fflush(stdout);
-	fp=fileopen(MAGFILE,"r");
-	for(i=0;i<NALL;i++) {
+	fp=k_fileopen(MAGGIEFILE,"r");
+	for(i=0;i<NGALS;i++) {
+		fscanf(fp,"%lf",&(galaxy_z[i]));
 		for(k=0;k<5;k++)
-			fscanf(fp,"%lf",&(galaxy_mag[k][i]));
+			fscanf(fp,"%lf",&(galaxy_maggies[k][i]));
 		for(k=0;k<5;k++) 
-			fscanf(fp,"%lf",&(galaxy_magerr[k][i]));
+			fscanf(fp,"%lf",&(galaxy_invvar[k][i]));
 	} /* end for i */
 	fclose(fp);
-#ifdef REDDENFILE
-	printf("Reading reddening ...\n");
-	fflush(stdout);
-	fp=fileopen(REDDENFILE,"r");
-	for(i=0;i<NALL;i++) 
-		for(k=0;k<5;k++) {
-			fscanf(fp,"%lf",&redden);
-			galaxy_mag[k][i]-=redden;
-		} /* end for k */
-	fclose(fp);
-#endif
-
-	/* 1b. Read in redshifts */
-	printf("Reading redshifts ...\n");
-	fflush(stdout);
-	fp=fileopen(POSITIONFILE,"r");
-	for(i=0;i<NALL;i++) {
-		fscanf(fp,"%*lf %*lf %lf %*d %*d",&cz);
-		galaxy_z[i]=cz/LIGHTSPEED;
-	} /* end for i */
-	fclose(fp);
-	printf("Reading use ...\n");
-	fflush(stdout);
 
 	/* 
 	 * 2. Read in filters 
 	 */
+	strcpy(bands,"ugriz");
 	for(k=0;k<5;k++) {
 		/* read in the filter */
-		sprintf(filename,"%s/%s%d.dat",FILTERPATH,FILTERBASE,k);
+		sprintf(filename,"%s/%s%c0.dat",FILTERPATH,FILTERBASE,bands[k]);
 		printf("Processing filter %s ...\n",filename);
 		fflush(stdout);
-		fp=fileopen(filename,"r");
+		fp=k_fileopen(filename,"r");
 		fscanf(fp,"%d",&(nfilt[k]));
 		printf("     (%d elements)\n",nfilt[k]);
 		fflush(stdout);
@@ -221,7 +202,7 @@ int main(int argc, char **argv)
 	/* 
 	 * 3. For each galaxy, interpolate to each restframe color 
 	 */
-	for(i=0;i<NALL;i++) {
+	for(i=0;i<NGALS;i++) {
 		igal=i;
 		for(band=0;band<5;band++) {
 #ifdef INCLUDEBREAK
@@ -233,49 +214,49 @@ int main(int argc, char **argv)
 				
 				currband=band;
 				ci_z=galaxy_z[i];
-				scaleval=qromo(scalefiltfunc,lfilt[band][0],
-											 lfilt[band][nfilt[band]-1],midpnt);
-				val=qromo(btempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
-									midpnt);
+				scaleval=k_qromo(scalefiltfunc,lfilt[band][0],
+											 lfilt[band][nfilt[band]-1],k_midpnt);
+				val=k_qromo(btempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
+									k_midpnt);
 				val/=scaleval;
-				ci_break=pow(10.,-0.4*(galaxy_mag[band][i]-17.))/val;
+				ci_break=galaxy_maggies[band][i]/val;
 				
 				ci_z=ZZERO;
 				currband=band;
-				scaleval=qromo(scalefiltfunc,lfilt[band][0],
-											 lfilt[band][nfilt[band]-1],midpnt);
-				val=qromo(btempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
-									midpnt);
+				scaleval=k_qromo(scalefiltfunc,lfilt[band][0],
+											 lfilt[band][nfilt[band]-1],k_midpnt);
+				val=k_qromo(btempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
+									k_midpnt);
 				val/=scaleval;
-				galaxy_rfmag[band][i]=17.-2.5*log10(val);
+				galaxy_rfmag[band][i]=-2.5*log10(val);
 				galaxy_rfmag[band][i]=val;
 			} else if(band==1) {
 				band0=band;
 				band1=band+1;
-				mag0=galaxy_mag[band0][i];
-				mag1=galaxy_mag[band1][i];
+				mag0=-2.5*log10(galaxy_maggies[band0][i]);
+				mag1=-2.5*log10(galaxy_maggies[band1][i]);
 				ci_A=1.;
 				ci_z=galaxy_z[i];
-				alpha=zbrent(balpha_fit,-18.,18.,1.e-6);
+				alpha=k_zbrent(balpha_fit,-18.,18.,1.e-6);
 				ci_A=1.;
 				ci_alpha=alpha;
 				currband=band1;
-				scaleval=qromo(scalefiltfunc,lfilt[band1][0],
-											 lfilt[band1][nfilt[band1]-1], midpnt);
-				val=qromo(btempfiltfunc,lfilt[band1][0],lfilt[band1][nfilt[band1]-1],
-									midpnt);
+				scaleval=k_qromo(scalefiltfunc,lfilt[band1][0],
+											 lfilt[band1][nfilt[band1]-1], k_midpnt);
+				val=k_qromo(btempfiltfunc,lfilt[band1][0],lfilt[band1][nfilt[band1]-1],
+									k_midpnt);
 				val/=scaleval;
-				A=pow(10.,-0.4*(galaxy_mag[band1][i]-17.))/val;
+				A=galaxy_maggies[band1][i]/val;
 				
 				ci_z=ZZERO;
 				ci_A=A;
 				currband=band;
-				scaleval=qromo(scalefiltfunc,lfilt[band][0],
-											 lfilt[band][nfilt[band]-1],midpnt);
-				val=qromo(btempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
-									midpnt);
+				scaleval=k_qromo(scalefiltfunc,lfilt[band][0],
+											 lfilt[band][nfilt[band]-1],k_midpnt);
+				val=k_qromo(btempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
+									k_midpnt);
 				val/=scaleval;
-				galaxy_rfmag[band][i]=17.-2.5*log10(val);
+				galaxy_rfmag[band][i]=-2.5*log10(val);
 				galaxy_rfmag[band][i]=val;
 			} else {
 				if(band<4) {
@@ -285,29 +266,29 @@ int main(int argc, char **argv)
 					band0=band-1;
 					band1=band;
 				} /* end if..else */
-				mag0=galaxy_mag[band0][i];
-				mag1=galaxy_mag[band1][i];
+				mag0=-2.5*log10(galaxy_maggies[band0][i]);
+				mag1=-2.5*log10(galaxy_maggies[band1][i]);
 				ci_A=1.;
 				ci_z=galaxy_z[i];
-				alpha=zbrent(alpha_fit,-18.,18.,1.e-6);
+				alpha=k_zbrent(alpha_fit,-18.,18.,1.e-6);
 				ci_alpha=alpha;
 				currband=band;
-				scaleval=qromo(scalefiltfunc,lfilt[band][0],
-											 lfilt[band][nfilt[band]-1], midpnt);
-				val=qromo(tempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
-									midpnt);
+				scaleval=k_qromo(scalefiltfunc,lfilt[band][0],
+											 lfilt[band][nfilt[band]-1], k_midpnt);
+				val=k_qromo(tempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
+									k_midpnt);
 				val/=scaleval;
-				A=pow(10.,-0.4*(galaxy_mag[band][i]-17.))/val;
+				A=galaxy_maggies[band][i]/val;
 				
 				ci_z=ZZERO;
 				ci_A=A;
 				currband=band;
-				scaleval=qromo(scalefiltfunc,lfilt[band][0],
-											 lfilt[band][nfilt[band]-1],midpnt);
-				val=qromo(tempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
-									midpnt);
+				scaleval=k_qromo(scalefiltfunc,lfilt[band][0],
+											 lfilt[band][nfilt[band]-1],k_midpnt);
+				val=k_qromo(tempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
+									k_midpnt);
 				val/=scaleval;
-				galaxy_rfmag[band][i]=17.-2.5*log10(val);
+				galaxy_rfmag[band][i]=-2.5*log10(val);
 				galaxy_rfmag[band][i]=val;
 			} /* end if */
 #else 
@@ -318,36 +299,36 @@ int main(int argc, char **argv)
 				band0=band-1;
 				band1=band;
 			} /* end if..else */
-			mag0=galaxy_mag[band0][i];
-			mag1=galaxy_mag[band1][i];
+			mag0=-2.5*log10(galaxy_maggies[band0][i]);
+			mag1=-2.5*log10(galaxy_maggies[band1][i]);
 			ci_A=1.;
 			ci_z=galaxy_z[i];
-			alpha=zbrent(alpha_fit,-18.,18.,1.e-6);
+			alpha=k_zbrent(alpha_fit,-18.,18.,1.e-6);
 			ci_alpha=alpha;
 			currband=band;
-			scaleval=qromo(scalefiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
-										 midpnt);
-			val=qromo(tempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
-								midpnt);
+			scaleval=k_qromo(scalefiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
+										 k_midpnt);
+			val=k_qromo(tempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
+								k_midpnt);
 			val/=scaleval;
-			A=pow(10.,-0.4*(galaxy_mag[band][i]-17.))/val;
+			A=galaxy_maggies[band][i]/val;
 
 			ci_z=ZZERO;
 			ci_A=A;
 			currband=band;
-			scaleval=qromo(scalefiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
-										 midpnt);
-			val=qromo(tempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
-								midpnt);
+			scaleval=k_qromo(scalefiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
+										 k_midpnt);
+			val=k_qromo(tempfiltfunc,lfilt[band][0],lfilt[band][nfilt[band]-1],
+								k_midpnt);
 			val/=scaleval;
-			galaxy_rfmag[band][i]=17.-2.5*log10(val);
+			galaxy_rfmag[band][i]=-2.5*log10(val);
 			galaxy_rfmag[band][i]=val;
 #endif
 		} /* end for band */
 	} /* end for i */
 	
-	fp=fileopen(RFFILE,"w");
-	for(i=0;i<NALL;i++) 
+	fp=k_fileopen(RFFILE,"w");
+	for(i=0;i<NGALS;i++) 
 		fprintf(fp,"%le %le %le %le %le\n", galaxy_rfmag[0][i], 
 						galaxy_rfmag[1][i],galaxy_rfmag[2][i],galaxy_rfmag[3][i], 
 						galaxy_rfmag[4][i]);

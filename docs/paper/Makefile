@@ -5,7 +5,7 @@ all: ${NAME}.ps
 ${NAME}.ps: ${NAME}.dvi ${HOME}/.redo
 	dvips -N0 -o ${NAME}.ps ${NAME}.dvi
 
-${NAME}.dvi: ${NAME}.tex bib_${NAME}.tex 
+${NAME}.dvi: ${NAME}.tex figures.tex bib_${NAME}.tex 
 	latex ${NAME}
 	latex ${NAME}
 	latex ${NAME}

@@ -51,13 +51,16 @@ OBJECTS = \
 	k_dscal.o   k_xerbla.o 
 
 all : $(LIB)/libkcorrect.$(SO_EXT) $(BIN)/fit_coeffs $(BIN)/fit_photoz \
-	$(BIN)/reconstruct_maggies
+	$(BIN)/reconstruct_maggies $(BIN)/color_interp
 
 $(BIN)/fit_coeffs: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) fit_coeffs.c 
 	$(CC) -g $(CFLAGS) -o $(BIN)/fit_coeffs fit_coeffs.c -lm -L$(LIB) -lkcorrect
 
 $(BIN)/fit_photoz: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) fit_photoz.c 
 	$(CC) -g $(CFLAGS) -o $(BIN)/fit_photoz fit_photoz.c -lm -L$(LIB) -lkcorrect
+
+$(BIN)/color_interp: color_interp.c $(LIB)/libkcorrect.$(SO_EXT) 
+	$(CC) -g $(CFLAGS) -o $(BIN)/color_interp color_interp.c -lm -L$(LIB) -lkcorrect
 
 $(BIN)/reconstruct_maggies: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) \
 		reconstruct_maggies.c 

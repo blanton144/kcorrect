@@ -31,7 +31,7 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_speck_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample,to_z=to_z,zrange=zrange
+pro k_speck_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample,to_z=to_z,zrange=zrange,usefiber=usefiber
 
 if(NOT keyword_set(version)) then version='default'
 if(NOT keyword_set(vpath)) then vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
@@ -60,9 +60,31 @@ nk=long(n_elements(galaxy_maggies))/ngalaxy
 if(n_elements(subsample) eq 0) then subsample=1l
 indx=lindgen(ngalaxy/long(subsample))*long(subsample)
 galaxy_z=galaxy_z[indx]
-galaxy_maggies=galaxy_maggies[*,indx]
-galaxy_invvar=galaxy_invvar[*,indx]
-coeff=coeff[*,indx]
+
+if(keyword_set(usefiber)) then begin
+    tmpmags=sp.fibercounts[*,indx]
+    tmpmagserr=sp.fibercountserr[*,indx]
+    maglimit=dblarr(5)+22.5
+    errlimit=dblarr(5)+0.8
+    k_fix_mags,galaxy_z,tmpmags,tmpmagserr,maglimit,errlimit,8l
+    galaxy_maggies=dblarr(5,n_elements(indx))
+    galaxy_invvar=dblarr(5,n_elements(indx))
+    errband=[0.05,0.02,0.02,0.02,0.03]
+    for k = 0,4 do begin
+        galaxy_maggies[k,*]=10.d^(-0.4d*(tmpmags[k,*]-sp[indx].reddening[k]))
+        galaxy_invvar[k,*]=galaxy_maggies[k,*]*0.4d*alog(10.d)* $
+          sqrt(tmpmagserr[k,*]^2+errband[k]^2)
+        galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
+    endfor
+    k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,version=version, $
+      vpath=vpath,ematrix=ematrix,bmatrix=bmatrix,lambda=lambda, $
+      filterlist=filterlist
+endif else begin
+    galaxy_maggies=galaxy_maggies[*,indx]
+    galaxy_invvar=galaxy_invvar[*,indx]
+    coeff=coeff[*,indx]
+endelse
+
 mags=mags[*,indx]
 mags0=mags0[*,indx]
 help,indx
