@@ -53,7 +53,7 @@ if(NOT keyword_set(maxiter)) then maxiter=50000
 if(NOT keyword_set(tolerance)) then tolerance=1.e-6
 
 ; Set source object name
-soname=filepath('libkcorrect.so', $
+soname=filepath('libkcorrect.'+kcorrect_so_ext(), $
                 root_dir=getenv('KCORRECT_DIR'), subdirectory='lib')
 
 ; Create rmatrix if necessary

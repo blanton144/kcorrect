@@ -81,7 +81,7 @@ nz=long(n_elements(zvals))
 nk=long(n_elements(rmatrix))/(nv*nz)
 
 ; Set source object name
-soname=filepath('libkcorrect.so', $
+soname=filepath('libkcorrect.'+kcorrect_so_ext(), $
                 root_dir=getenv('KCORRECT_DIR'), subdirectory='lib')
 
 ; Call coefficient software

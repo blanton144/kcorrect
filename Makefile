@@ -10,7 +10,7 @@ SHELL = /bin/sh
 	$(CC) -c $(CCCHK) $(CFLAGS) $*.c
 #
 #
-SUBDIRS = src pro data docs lib test src ups include bin
+SUBDIRS = src pro data docs lib test ups include bin
 
 all :
 	@ for f in $(SUBDIRS); do \

@@ -12,11 +12,11 @@ SHELL = /bin/sh
 # Install things in their proper places in $(KCORRECT_DIR)
 #
 all:
-	
+
 install :
-	- cp *.so $(KCORRECT_DIR)/lib
+	- cp *.$(SO_EXT) $(KCORRECT_DIR)/lib
 	- cp *.a $(KCORRECT_DIR)/lib
 	- cp Makefile $(KCORRECT_DIR)/lib
 #
 clean :
-	- /bin/rm -f *~ core
+	- /bin/rm -f *~ core *.$(SO_EXT)

@@ -66,7 +66,7 @@ k_load_filters,filterlist,filter_n,filter_lambda,filter_pass, $
   filterpath=filterpath
 
 ; Set source object name
-soname=filepath('libkcorrect.so', $
+soname=filepath('libkcorrect.'+kcorrect_so_ext(), $
                 root_dir=getenv('KCORRECT_DIR'), subdirectory='lib')
 
 ; Set rmatrix

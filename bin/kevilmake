@@ -41,16 +41,13 @@ case `uname` in
 		SDSS_CFLAGS=
 		X_LD_FLAGS=-shared ;;
 	"Darwin" )
-#   This creates the libraries correctly but not the stand-alone
-#   basically, the .so file is not found by the linker!! (and it 
-#   is not exactly a .dylib file anyway)
 		F77=g77
-		SO_EXT=so
+		SO_EXT=dylib
 		X_LD_FLAGS="-bundle /usr/lib/bundle1.o -L/usr/lib -lc -lcc_dynamic -flat_namespace -undefined suppress"
 # The following two lines should be equivalent to the above line
 #		LD=libtool
 #		X_LD_FLAGS="-dynamic -L/usr/lib -lc -lcc_dynamic"
-		X_CFLAGS="-Wall -dynamic"
+		X_CFLAGS="-g -Wall -dynamic"
 		SDSS_CFLAGS= ;;
 	*) echo "This system is not supported" >&2
 		exit 1;;
