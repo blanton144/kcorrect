@@ -52,8 +52,8 @@ pro k_create_r, rmatrix, bmatrix, lambda, zvals, filterlist, zmin=zmin, zmax=zma
 klog,'Creating rmatrix ...'
 
 ; Set defaults
-if (NOT keyword_set(zmin)) then zmin=1.0e-4
-if (NOT keyword_set(zmax)) then zmax=1.0e-0
+if (n_elements(zmin) eq 0) then zmin=1.0e-4
+if (n_elements(zmax) eq 0) then zmax=1.0e-0
 if (NOT keyword_set(nz)) then nz=1000l
 if(NOT keyword_set(filterpath)) then $
   filterpath=getenv('KCORRECT_DIR')+'/data/filters'
