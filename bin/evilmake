@@ -30,7 +30,7 @@ case `uname` in
 	"Linux" )
 		SO_EXT=so
 		X_CFLAGS="-fPIC -g -Wall"
-		X_FFLAGS="-extend_source"
+		X_FFLAGS="-ffixed-line-length-none"
 		X_LD_FLAGS=-shared ;;
 	*) echo "This system is not supported" >&2
 		exit 1;;
