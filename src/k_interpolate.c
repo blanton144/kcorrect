@@ -40,8 +40,10 @@ double k_interpolate_es(double currpos,
 	unsigned long i,ip1;
 	double sp,currval;
 
-	i=(unsigned long) floor((double) n*(currpos-pos[0])/(pos[n-1]-pos[0]));
-	if(i>=n-1 || i<0) return(0.);
+	i=(unsigned long) floor((double) n*(currpos-pos[0])/
+													(2*pos[n-1]-pos[n-2]-pos[0]));
+	if(i>=n || i<0) return(0.);
+	if(i==n-1) i=n-2;
 	ip1=i+1;
 	sp=currpos-pos[i];
 	currval=vals[i]+sp*(vals[ip1]-vals[i])/(pos[ip1]-pos[i]);

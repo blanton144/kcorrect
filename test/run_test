@@ -1,3 +1,57 @@
 #!/bin/csh -f
 
-echo test_all | idl
+echo creating ascii files ...
+sm <<EOF
+define table_type bintable
+table "testsp.fits"
+read table 'byname' {z counts_model[0] counts_model[1] counts_model[2] counts_model[3] counts_model[4]}
+read table 'byname' {counts_modelerr[0] counts_modelerr[1] counts_modelerr[2] counts_modelerr[3] counts_modelerr[4]}
+read table 'byname' {reddening[0] reddening[1] reddening[2] reddening[3] reddening[4]}
+set i = 0,dimen(z)-1
+set indx = i if (z>0. && counts_model0>0. && counts_model1>0. && \
+  counts_model2>0. && counts_model3>0. && counts_model4>0. && \
+  counts_modelerr0>0. && counts_modelerr1>0. && \
+  counts_modelerr2>0. && counts_modelerr3>0. && counts_modelerr4>0.)
+set z = z[indx]
+set counts_modelerr0 = sqrt(counts_modelerr0**2+0.05**2)
+set counts_modelerr1 = sqrt(counts_modelerr1**2+0.02**2)
+set counts_modelerr2 = sqrt(counts_modelerr2**2+0.02**2)
+set counts_modelerr3 = sqrt(counts_modelerr3**2+0.02**2)
+set counts_modelerr4 = sqrt(counts_modelerr4**2+0.03**2)
+set maggies0 = 10.**(-0.4*(counts_model0[indx]-reddening0[indx]))
+set maggies1 = 10.**(-0.4*(counts_model1[indx]-reddening1[indx]))
+set maggies2 = 10.**(-0.4*(counts_model2[indx]-reddening2[indx]))
+set maggies3 = 10.**(-0.4*(counts_model3[indx]-reddening3[indx]))
+set maggies4 = 10.**(-0.4*(counts_model4[indx]-reddening4[indx]))
+set err0 = 0.4*ln(10.)*counts_modelerr0[indx]*maggies0
+set err1 = 0.4*ln(10.)*counts_modelerr1[indx]*maggies1
+set err2 = 0.4*ln(10.)*counts_modelerr2[indx]*maggies2
+set err3 = 0.4*ln(10.)*counts_modelerr3[indx]*maggies3
+set err4 = 0.4*ln(10.)*counts_modelerr4[indx]*maggies4
+set invvar0 = 1./err0**2
+set invvar1 = 1./err1**2
+set invvar2 = 1./err2**2
+set invvar3 = 1./err3**2
+set invvar4 = 1./err4**2
+define print_noheader 1 
+print testsp.K.dat '%e %e %e %e %e %e %e %e %e %e %e\n' <z \
+maggies0 maggies1 maggies2 maggies3 maggies4 \
+invvar0 invvar1 invvar2 invvar3 invvar4 >
+print testsp.z.dat '%e %e %e %e %e %e %e %e %e %e\n' < \
+maggies0 maggies1 maggies2 maggies3 maggies4 \
+invvar0 invvar1 invvar2 invvar3 invvar4 >
+quit
+EOF
+
+echo testing standalone C code ...
+cat testsp.K.dat | fit_coeffs >! testsp.K.coeffs.dat
+cat testsp.K.coeffs.dat | reconstruct_maggies >! testsp.K.maggies.dat
+cat testsp.K.coeffs.dat | reconstruct_maggies 0.1 >! testsp.K.maggies.z0.1.dat
+cat testsp.z.dat | fit_photoz >! testsp.photoz.dat
+smplot -nsf testz.ps testz.sm
+
+#idl <<EOF
+#.com test_all
+#test_all
+#exit
+#EOF

@@ -31,7 +31,7 @@ IDL_LONG k_reconstruct_maggies(double *ematrix,    /* eigentemplates */
 	
 	for(i=0;i<ngalaxy;i++) {
 		for(k=0;k<nk;k++) {
-			reconstruct_maggies[k]=0.;
+			reconstruct_maggies[k+i*nk]=0.;
 			for(b=0;b<nb;b++) {
 				for(j=0;j<nt;j++) 
 					reconstruct_maggies[k+i*nk]+=coeffs[i*nt+j]*ematrix[j*nb+b]*

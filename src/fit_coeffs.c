@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <kcorrect.h>
@@ -34,20 +35,32 @@ static double *coeffs=NULL;
 int main(int argc,
 				 char **argv)
 {
-	IDL_LONG i,j,k,*sizes=NULL,ndim,nchunk;
+	IDL_LONG i,j,k,*sizes=NULL,ndim,nchunk,ncurrchunk;
 	char ematrixfile[2000],bmatrixfile[2000],filterlist[2000],lambdafile[2000];
+	char version[1000],versionpath[2000];
+
+	/* set defaults */
+	strcpy(version,"default");
+	strcpy(versionpath,".");
+	if(getenv("KCORRECT_DIR")!=NULL) {
+		sprintf(versionpath,"%s/data/etemplates",getenv("KCORRECT_DIR"));
+	} /* end if */
 
 	/* read arguments */
-	if(argc<5) {
-		fprintf(stderr,"Usage: cat <galaxy file> | fit_coeffs <ematrix file> <bmatrix file> <lambdafile> <filterlist> [zmin] [zmax] [nz]\n");
+	if(argc<0) {
+		fprintf(stderr,"Usage: cat <galaxy file> | fit_coeffs [version [version path]]\n");
 		exit(1);
 	} /* end if */
 	i=1;
-	strcpy(ematrixfile,argv[i]); i++;
-	strcpy(bmatrixfile,argv[i]); i++;
-	strcpy(lambdafile,argv[i]); i++;
-	strcpy(filterlist,argv[i]); i++;
-	/* have not implemented optional parameters yet */
+	if(argc>=2) 
+		strcpy(version,argv[i]); i++;
+	if(argc>=3) 
+		strcpy(versionpath,argv[i]); i++;
+
+	sprintf(ematrixfile,"%s/ematrix.%s.dat",versionpath,version);
+	sprintf(bmatrixfile,"%s/bmatrix.%s.dat",versionpath,version);
+	sprintf(lambdafile,"%s/lambda.%s.dat",versionpath,version);
+	sprintf(filterlist,"%s/filterlist.%s.dat",versionpath,version);
 
 	/* load the ematrix; this gives the eigentemplates in terms of the
 	 * basis set */
@@ -92,23 +105,29 @@ int main(int argc,
 
 	/* get the coefficients; sequentially calls k_fit_coeffs to get the
      coefficients */
-	nchunk=1;
-	galaxy_z=(double *) malloc(nchunk*sizeof(double));
-	galaxy_maggies=(double *) malloc(nchunk*nk*sizeof(double));
-	galaxy_invvar=(double *) malloc(nchunk*nk*sizeof(double));
-	coeffs=(double *) malloc(nchunk*nt*sizeof(double));
+	nchunk=20;
+	galaxy_z=(double *) malloc((nchunk+1)*sizeof(double));
+	galaxy_maggies=(double *) malloc((nchunk+1)*nk*sizeof(double));
+	galaxy_invvar=(double *) malloc((nchunk+1)*nk*sizeof(double));
+	coeffs=(double *) malloc((nchunk+1)*nt*sizeof(double));
 	fscanf(stdin,"%lf",&(galaxy_z[0]));
 	while(!feof(stdin)) {
-		for(k=0;k<nk;k++)
-			fscanf(stdin,"%lf",&(galaxy_maggies[k]));
-		for(k=0;k<nk;k++)
-			fscanf(stdin,"%lf",&(galaxy_invvar[k]));
+		for(i=0;i<nchunk && !feof(stdin);i++) {
+			for(k=0;k<nk;k++)
+				fscanf(stdin,"%lf",&(galaxy_maggies[i*nk+k]));
+			for(k=0;k<nk;k++)
+				fscanf(stdin,"%lf",&(galaxy_invvar[i*nk+k]));
+			fscanf(stdin,"%lf",&(galaxy_z[i+1]));
+		} /* end for i */
+		ncurrchunk=i;
 		k_fit_coeffs(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_maggies,
-								 galaxy_invvar,galaxy_z,nchunk);
-		for(j=0;j<nt;j++)
-			fprintf(stdout,"%e ",coeffs[j]);
-		fprintf(stdout,"%e\n",galaxy_z[0]);
-		fscanf(stdin,"%lf",&(galaxy_z[0]));
+								 galaxy_invvar,galaxy_z,ncurrchunk);
+		for(i=0;i<ncurrchunk;i++) {
+			for(j=0;j<nt;j++)
+				fprintf(stdout,"%e ",coeffs[i*nt+j]);
+			fprintf(stdout,"%e\n",galaxy_z[i]);
+		} /* end for i */
+		galaxy_z[0]=galaxy_z[ncurrchunk];
 	}
 	
 	FREEVEC(zvals);

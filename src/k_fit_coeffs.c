@@ -111,7 +111,7 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 #else
 				if(info!=0) {
 #endif
-				fprintf(stderr,"at galaxy %d, info=%d\n",i,info);
+				fprintf(stderr,"at galaxy %d, info=%d, %le\n",i,info,galaxy_z[i]);
 				for(k=0;k<nk;k++) 
 					fprintf(stderr,"%e\n",galaxy_maggies[k+i*nk]);
 				for(k=0;k<nk;k++) 

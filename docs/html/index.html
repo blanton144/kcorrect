@@ -38,7 +38,9 @@ again. </p>
 that people can incorporate the K-correction routines directly into
 their code.  We also provide an interface to the identical library
 through IDL. Users of Fortran might want to communicate with me about
-how to accommodate their needs.  </p>
+how to accommodate their needs. It is possible in principle to link
+the C libraries into code based on SM or TCL/Tk, and I would be
+interested in helping interested parties to do this.</p>
 
 <p> One can imagine using the results of this code to calculate the
 evolution of the luminosity function, the distribution of galaxy
@@ -160,10 +162,9 @@ since no objects have a flat spectrum. There is a tension between
 these two needs --- similar to other tensions throughout astronomy
 between making precise measurements and making interpretable ones.</p>
 
-<p>
-The units of the template spectra created are in ergs cm^{-2} s^{-1}
-A^{-1}. The first coefficient of each object is the ergs cm^{-2}
-s^{-1} within the range 3500 to 7500 Angstroms.</p>
+<p> The units of the template spectra created are in ergs cm^{-2}
+s^{-1} A^{-1}. The first coefficient of each object is the number of
+ergs cm^{-2} s^{-1} within the range 3500 to 7500 Angstroms.</p>
 
 <h3> Using the IDL Code</h3>
 
@@ -234,10 +235,7 @@ magnitudes.
 <p>
 <b>fit_coeffs</b> is called in the following way:
 <pre>
-cat maggies.dat | fit_coeffs $KCORRECT_DIR/data/etemplates/ematrix.default.dat \
-   $KCORRECT_DIR/data/etemplates/bmatrix.default.dat \
-   $KCORRECT_DIR/data/etemplates/lambda.default.dat \
-   $KCORRECT_DIR/data/etemplates/filterlist.default.dat 
+cat maggies.dat | fit_coeffs 
 </pre>
 where each line of "maggies.dat" has the form:
 <pre>
@@ -262,13 +260,10 @@ will be clear soon. </p>
 
 <p> Once you have the coefficients, you can calculate the
 reconstructed maggies at any redshift, using
-<b>reconstruct_maggies</b>. The call to <b>reconstruct_maggies</b> is similar to
-that of <b>fit_coeffs</b>:
+<b>reconstruct_maggies</b>. The call to <b>reconstruct_maggies</b> is
+
 <pre>
-cat coeffs.dat | reconstruct_maggies $KCORRECT_DIR/data/etemplates/ematrix.default.dat \
-   $KCORRECT_DIR/data/etemplates/bmatrix.default.dat \
-   $KCORRECT_DIR/data/etemplates/lambda.default.dat \
-   $KCORRECT_DIR/data/etemplates/filterlist.default.dat [to_z]
+cat coeffs.dat | reconstruct_maggies [to_z]
 </pre>
 where coeffs.dat is in the same format as the output to
 <b>fit_coeffs</b>:
@@ -288,8 +283,7 @@ in the original maggy units.
 <p> To summarize with an example, if you wanted to reconstruct a set
 of maggies, all at redshift 0.1, you could call the code as follows:
 <pre>
-kargs="$KCORRECT_DIR/data/etemplates/ematrix.default.dat $KCORRECT_DIR/data/etemplates/bmatrix.default.dat $KCORRECT_DIR/data/etemplates/lambda.default.dat $KCORRECT_DIR/data/etemplates/filterlist.default.dat"
-cat maggies.dat | fit_coeffs $kargs | reconstruct_maggies $kargs 0.1 > recmaggies.dat
+cat maggies.dat | fit_coeffs | reconstruct_maggies 0.1 > recmaggies.dat
 </pre>
 The results would be put into recmaggies.dat. </p>
 

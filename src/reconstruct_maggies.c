@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <kcorrect.h>
@@ -33,19 +34,34 @@ int main(int argc,
 				 char **argv)
 {
 	double to_z=-1.;
-	IDL_LONG i,j,k,*sizes=NULL,ndim,nchunk;
+	IDL_LONG i,j,k,*sizes=NULL,ndim,nchunk,ncurrchunk;
 	char ematrixfile[2000],bmatrixfile[2000],filterlist[2000],lambdafile[2000];
+	char version[1000],versionpath[2000];
 
-	if(argc<5) {
-		fprintf(stderr,"Usage: cat <coeff file> | reconstruct_maggies <ematrix file> <bmatrix file> <lambdafile> <filterlist> [to_z] [zmin] [zmax] [nz]\n");
+	/* set defaults */
+	strcpy(version,"default");
+	strcpy(versionpath,".");
+	if(getenv("KCORRECT_DIR")!=NULL) {
+		sprintf(versionpath,"%s/data/etemplates",getenv("KCORRECT_DIR"));
+	} /* end if */
+
+	/* read arguments */
+	if(argc<0) {
+		fprintf(stderr,"Usage: cat <coeff file> | reconstruct_maggies [to_z] [version [version path]]\n");
 		exit(1);
 	} /* end if */
 	i=1;
-	strcpy(ematrixfile,argv[i]); i++;
-	strcpy(bmatrixfile,argv[i]); i++;
-	strcpy(lambdafile,argv[i]); i++;
-	strcpy(filterlist,argv[i]); i++;
-	if(argc>=6) { to_z=atof(argv[i]); i++; }
+	if(argc>=2) 
+		to_z=atof(argv[i]); i++; 
+	if(argc>=3) 
+		strcpy(version,argv[i]); i++;
+	if(argc>=4) 
+		strcpy(versionpath,argv[i]); i++;
+
+	sprintf(ematrixfile,"%s/ematrix.%s.dat",versionpath,version);
+	sprintf(bmatrixfile,"%s/bmatrix.%s.dat",versionpath,version);
+	sprintf(lambdafile,"%s/lambda.%s.dat",versionpath,version);
+	sprintf(filterlist,"%s/filterlist.%s.dat",versionpath,version);
 
 	/* load the ematrix; this gives the eigentemplates in terms of the
 	 * basis set */
@@ -92,22 +108,28 @@ int main(int argc,
      could put the call to k_reconstruct_maggies directly after k_fit_coeffs
      in fit_coeffs.c; this is what you would do if you wanted to
      calculate K-corrections within a C code of your own */
-	nchunk=1;
-	reconstruct_maggies=(double *) malloc(nk*nchunk*sizeof(double));
-	galaxy_z=(double *) malloc(nchunk*sizeof(double));
-	coeffs=(double *) malloc(nchunk*nt*sizeof(double));
+	nchunk=2;
+	reconstruct_maggies=(double *) malloc(nk*(nchunk+1)*sizeof(double));
+	galaxy_z=(double *) malloc((nchunk+1)*sizeof(double));
+	coeffs=(double *) malloc((nchunk+1)*nt*sizeof(double));
 	fscanf(stdin,"%lf",&(coeffs[0]));
 	while(!feof(stdin)) {
-		for(j=1;j<nt;j++)
-			fscanf(stdin,"%lf",&(coeffs[j]));
-		fscanf(stdin,"%lf",&(galaxy_z[0]));
-		if(to_z!=-1.) galaxy_z[0]=to_z;
+		for(i=0;i<nchunk && !feof(stdin);i++) {
+			for(j=1;j<nt;j++)
+				fscanf(stdin,"%lf",&(coeffs[i*nt+j]));
+			fscanf(stdin,"%lf",&(galaxy_z[i]));
+			if(to_z!=-1.) galaxy_z[i]=to_z;
+			fscanf(stdin,"%lf",&(coeffs[(i+1)*nt+0]));
+		} /* end for i */
+		ncurrchunk=i;
 		k_reconstruct_maggies(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_z,
-												 reconstruct_maggies,nchunk);
-		for(k=0;k<nk;k++)
-			fprintf(stdout,"%e ",reconstruct_maggies[k]);
-		fprintf(stdout,"\n");
-		fscanf(stdin,"%lf",&(coeffs[0]));
+													reconstruct_maggies,ncurrchunk);
+		for(i=0;i<ncurrchunk;i++) {
+			for(k=0;k<nk;k++)
+				fprintf(stdout,"%e ",reconstruct_maggies[i*nk+k]);
+			fprintf(stdout,"\n");
+		} /* end for i */
+		coeffs[0]=coeffs[ncurrchunk*nt+0];
 	}
 	
 	FREEVEC(zvals);
