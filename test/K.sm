@@ -1,6 +1,6 @@
-data testsp.K.maggies.scale.dat
+data testsp.K.maggies.dat
 read <u 1 g 2 r 3 i 4 z 5>
-data testsp.K.maggies.z0.1.scale.dat
+data testsp.K.maggies.z0.1.dat
 read <u0 1 g0 2 r0 3 i0 4 z0 5>
 data testsp.K.dat
 read <zz 1>		
@@ -12,31 +12,31 @@ set Ki = -2.5*lg(i/i0)
 set Kz = -2.5*lg(z/z0)
 
 hvfracsep 1 5 1. 1 1 1.
-limits 0. 0.5 -1. 2.5
+limits 0. 0.5 -1. 0.5
 putbox 0 2 0 0
 ptype 1 1
 points zz Ku		
 
 hvfracsep 2 5 1. 1 1 1.
-limits 0. 0.5 -1. 2.5
+limits 0. 0.5 -1. 0.5
 putbox 0 2 0 0
 ptype 1 1
 points zz Kg		
 
 hvfracsep 3 5 1. 1 1 1.
-limits 0. 0.5 -1. 2.5
+limits 0. 0.5 -1. 0.5
 putbox 0 2 0 0
 ptype 1 1
 points zz Kr		
 
 hvfracsep 4 5 1. 1 1 1.
-limits 0. 0.5 -1. 2.5
+limits 0. 0.5 -1. 0.5
 putbox 0 2 0 0
 ptype 1 1
 points zz Ki		
 
 hvfracsep 5 5 1. 1 1 1.
-limits 0. 0.5 -1. 2.5
+limits 0. 0.5 -1. 0.5
 putbox 1 2 0 0
 ptype 1 1
 points zz Kz		

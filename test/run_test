@@ -44,20 +44,6 @@ quit
 EOF
 
 echo testing standalone C code ...
-cat testsp.K.dat | fit_coeffs >! testsp.K.coeffs.scale.dat
-cat testsp.K.coeffs.scale.dat | reconstruct_maggies >! testsp.K.maggies.dat
-cat testsp.K.coeffs.scale.dat | reconstruct_maggies 0.1 >! testsp.K.maggies.z0.1.dat
-exit
 cat testsp.K.dat | fit_coeffs >! testsp.K.coeffs.dat
 cat testsp.K.coeffs.dat | reconstruct_maggies >! testsp.K.maggies.dat
-cat testsp.K.coeffs.dat | reconstruct_maggies 0.1 >! testsp.K.maggies.z0.1.dat
-#cat testsp.z.dat | fit_photoz >! testsp.photoz.dat
-cat testsp.z.dat | fit_photoz defaultpzlrg >! testsp.photozlrg.dat
-#smplot -nsf testz.ps testz.sm
-smplot -nsf testzlrg.ps testzlrg.sm
-
-#idl <<EOF
-#.com test_all
-#test_all
-#exit
-#EOF
+cat testsp.K.coeffs.dat | reconstruct_maggies 0.1 0. >! testsp.K.maggies.z0.1.dat
