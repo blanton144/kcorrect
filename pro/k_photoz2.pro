@@ -28,7 +28,7 @@
 ;   25-April-2003 Nikhil Padmanabhan (Pton), Mike Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_photoz2, maggies, maggie_ivar, z, template_matrix, $
+pro k_photoz2, maggies, maggies_ivar, z, lambda, template_matrix, $
 	       fit, chi2, $
 	       filterlist = filterlist, filterpath=filterpath
 
@@ -45,9 +45,9 @@ foo = size(maggies)
 n_gal = n_elements(maggies)/foo[1]
 
 ; Define some basic arrays
-fit = dblarr(n_template, ngal)
-chi2 = dblarr(ngal)
-template_maggies = dblarr(foo[1],n_template)
+fit = dblarr(n_template, n_gal)
+chi2 = dblarr(n_gal)
+template_maggies = dblarr(foo[1],n_template+1)
 
 ; Shift lambda to the appropriate redshift
 
@@ -55,8 +55,12 @@ lambdas = lambda*(1.+z)
 
 ; Project the templates onto the filter curves....
 
-template_maggies = k_project_filters,lambdas,template_matrix, $
-		   filterlist=filterlist, filterpath=filterpath
+template_maggies = k_project_filters(lambdas,template_matrix, $
+                                     filterlist=filterlist, $
+                                     filterpath=filterpath)
+template_maggies[*,1]= $
+  template_maggies[*,1]+template_maggies[*,0]
+template_maggies[*,0]=0.
 
 ; Solve for the best fit using normal equations - Press et al
 
@@ -68,15 +72,15 @@ for igal = 0L, n_gal-1L do begin
 ; Construct design matrix
   design = dblarr(foo[1],n_template) 
   for j = 1L,n_template do begin
-   design[*,j-1] = $
-	template_maggies[*,j]*sqrt(maggie_ivar[*,igal])
+      design[*,j-1] = $
+        template_maggies[*,j]*sqrt(maggies_ivar[*,igal])
   endfor
 ; Renormalize fluxes
-  dmaggies = dmaggies*sqrt(maggie_ivar[*,igal])
+  dmaggies = dmaggies*sqrt(maggies_ivar[*,igal])
   dmaggies1 = transpose(design)#dmaggies
   dm  = transpose(design)#design
   fit[*,igal] = invert(dm)#dmaggies1
-  chi2[igal] =  total(design#fit[*,igal])-dmaggies)^2)
+  chi2[igal] =  total((design#fit[*,igal]-dmaggies)^2,/double)
 endfor
 
 ; All done

@@ -24,7 +24,7 @@ flux_lmax=7500.
 savfile='data_k_fit_training_set.sav'
 
 if(not file_test(savfile)) then begin
-    gals=(mrdfits('training_set.test.fits',1))[0:2999]
+    gals=(mrdfits('training_set.test.fits',1))
 ;   HACK to rid of bad u-band (bad uband!)
     indx=where(gals.redshift gt 0.25,count)
     if(count gt 0) then gals[indx].mag_err[0]=5.
@@ -233,11 +233,10 @@ coeffs=eigencoeffs[0:2,*]
 maggies_ivar=1./maggies_err^2
 k_tweak_templates, maggies, maggies_ivar, gals.redshift, $
   coeffs, vmatrix, lambda, filterlist=filterlist, $
-  maggies_factor=maggies_factor
+  maggies_factor=maggies_factor, vmatrix_tweaked=vmatrix_tweaked
 
-nuse=npca-2L
-k_reconstruct_maggies,eigencoeffs[0:nuse+1,*],gals[*].redshift,rec_maggies, $
-  zvals=zvals,lambda=lambda,bmatrix=bmatrix,ematrix=newematrix[*,0:nuse+1], $
+k_reconstruct_maggies,coeffs,gals[*].redshift,rec_maggies, $
+  zvals=zvals,lambda=lambda,bmatrix=vmatrix_tweaked,ematrix=identity(3), $
   filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
 for i=0L, 4L do $
   rec_maggies[i,*]=rec_maggies[i,*]/maggies_factor[i]
@@ -260,8 +259,49 @@ plot,gals[*].redshift,umg_model-umg_obs,psym=3,yra=[-0.8,0.8]
 plot,gals[*].redshift,gmr_model-gmr_obs,psym=3,yra=[-0.8,0.8]
 plot,gals[*].redshift,rmi_model-rmi_obs,psym=3,yra=[-0.8,0.8]
 plot,gals[*].redshift,imz_model-imz_obs,psym=3,yra=[-0.8,0.8]
-end_print
 
+!P.MULTI=[0,1,2]
+ecoeff=[1.,1.,-0.5]
+spec=vmatrix#ecoeff
+plot,lambda,spec,xra=[1000.,13000.],yra=max(spec)*[-0.1,1.1], $
+  color=djs_icolor('black')
+for i=0, 9 do begin & $
+    cc=-0.5+0.64*(i+1.)/10. & $
+    ecoeff=[1.,1.,cc] & $
+    spec=vmatrix#ecoeff & $
+    oplot,lambda,spec,color=i & $
+endfor
+
+ecoeff=[1.,1.,-0.5]
+spec=vmatrix_tweaked#ecoeff
+plot,lambda,spec,xra=[1000.,13000.],yra=max(spec)*[-0.1,1.1], $
+  color=djs_icolor('black')
+for i=0, 9 do begin & $
+  cc=-0.5+0.64*(i+1.)/10. & $
+  ecoeff=[1.,1.,cc] & $
+  spec=vmatrix_tweaked#ecoeff & $
+  oplot,lambda,spec,color=i & $
+  endfor
+
+plot,lambda,vmatrix_tweaked[*,0]/vmatrix[*,0],xra=[2000.,12000.],/xlog,/ylog
+end_print
+stop
+
+chi2=dblarr(100,n_elements(indx))
+for i=0L, 99L do begin & $
+    redshift=0.+1.*(double(i)+0.5)/100. & $
+    k_photoz2, maggies, 1./maggies_err^2, redshift, lambda, vmatrix_tweaked, $
+      tmp_fit, tmp_chi2 & $
+    chi2[i,*]=tmp_chi2 & $
+  endfor
+
+photoz=dblarr(n_elements(indx))
+minchi2=dblarr(n_elements(indx))
+for i=0L, n_elements(indx)-1L do begin & $
+  minchi2[i]=min(chi2[*,i],iminchi2) & $
+  photoz[i]=0.+1.*(double(iminchi2)+0.5)/100. & $
+  endfor    
+    
 stop
 
 end

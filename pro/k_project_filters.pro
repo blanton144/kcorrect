@@ -43,7 +43,7 @@ filter_lambda=filter_lambda/(1.+band_shift)
 
 ; calculate differential for each point
 nlambda=n_elements(lambda)
-nspectra=n_elements(flux)/nlambda
+nspectra=n_elements(flux)/(nlambda-1)
 dlambda1=dblarr(nlambda)
 dlambda1[0]=0.5*(lambda[1]-lambda[0])
 dlambda1[nlambda-1]=0.5*(lambda[nlambda-1]-lambda[nlambda-2])

@@ -28,31 +28,56 @@
 ;   24-Apr-2003  Written by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-function k_tt_func, params
+function k_tt_tweak_vmatrix, lambda, vmatrix, alpha, beta, gamma, delta, $
+                             epsilon
+vmatrix_tweaked=vmatrix
+nv=n_elements(vmatrix)/(n_elements(lambda)-1L)
+logl=alog(0.5*(lambda[0:n_elements(lambda)-2]+ $
+               lambda[1:n_elements(lambda)-1]))
+difflogl=((logl)-alog(7000.))
+for i=0L, nv-1L do begin
+    vmatrix_tweaked[*,i]=vmatrix_tweaked[*,i]* $
+      exp(difflogl*alpha+ $
+          difflogl^2*beta+ $
+          difflogl^3*gamma+ $
+          difflogl^4*delta+ $
+          difflogl^5*epsilon)
+endfor
+return,vmatrix_tweaked
+end
+; 
+pro k_tt_params_interpret, params, maggies_factor, alpha, beta, gamma, $
+                           delta,epsilon
 
 common k_tt_com, k_tt_maggies, k_tt_maggies_ivar, k_tt_coeffs, $
   k_tt_vmatrix, k_tt_lambda, k_tt_filterlist, k_tt_redshift
 
 nk=n_elements(k_tt_filterlist)
-nt=n_elements(k_tt_vmatrix)/(n_elements(k_tt_lambda)-1L)
-maggies_factor=exp(params[0:nk-1])
-alpha=params[nk:nk+nt-1]
-beta=params[nk+nt:nk+nt+nt-1]
-gamma=params[nk+2*nt:nk+2*nt+nt-1]
-
 nv=n_elements(k_tt_vmatrix)/(n_elements(k_tt_lambda)-1L)
+maggies_factor=dblarr(nk)
+maggies_factor[0:1]=exp(params[0:1])
+maggies_factor[3:4]=exp(params[2:3])
+maggies_factor[2]=exp(0.)
+alpha=params[nk-1+0]
+beta=params[nk-1+1]
+gamma=params[nk-1+2]
+delta=params[nk-1+3]
+epsilon=params[nk-1+4]
+end
+;
+function k_tt_func, params
+
+common k_tt_com
+
+nk=n_elements(k_tt_filterlist)
+nv=n_elements(k_tt_vmatrix)/(n_elements(k_tt_lambda)-1L)
+k_tt_params_interpret, params, maggies_factor, alpha, beta, gamma, $
+  delta, epsilon
 
 ; multiply in tweak
-vmatrix_tweaked=k_tt_vmatrix
-logl=alog(0.5*(lambda[0:n_elements(lambda)-2]+lambda[1:n_elements(lambda)-1]))_
-logl0=logl[n_elements(ll)/2]
-difflogl=logl-logl0
-for i=0L, nt-1L do begin
-    vmatrix_tweaked[*,i]=vmatrix_tweaked* $
-      exp(difflogl*alpha[i]+ $
-          difflogl^2*beta[i]+ $
-          difflogl^3*gamma[i])
-endfor
+vmatrix_tweaked= $
+  k_tt_tweak_vmatrix(k_tt_lambda, k_tt_vmatrix, alpha, beta, gamma, $
+                     delta, epsilon)
 
 k_reconstruct_maggies,k_tt_coeffs,k_tt_redshift,maggies_model, $
   lambda=k_tt_lambda,bmatrix=vmatrix_tweaked,ematrix=identity(nv), $
@@ -78,7 +103,9 @@ end
 ; 
 pro k_tweak_templates, maggies, maggies_ivar, redshift, coeffs, vmatrix, $
                        lambda, filterlist=filterlist, $
-                       maggies_factor=maggies_factor
+                       maggies_factor=maggies_factor, alpha=alpha, $
+                       beta=beta, gamma=gamma, delta=delta, epsilon=epsilon, $
+                       vmatrix_tweaked=vmatrix_tweaked
 
 common k_tt_com
 
@@ -93,11 +120,14 @@ k_tt_vmatrix=vmatrix
 k_tt_lambda=lambda
 k_tt_filterlist=filterlist
 
-nt=n_elements(k_tt_vmatrix)/(n_elements(k_tt_lambda)-1L)
-start=replicate(0.,n_elements(filterlist)+3*nt)
+nv=n_elements(k_tt_vmatrix)/(n_elements(k_tt_lambda)-1L)
+start=replicate(0.,n_elements(filterlist)-1L+5)
 params=mpfit('k_tt_func',start)
 
-maggies_factor=exp(params[0:n_elements(k_tt_filterlist)-1L])
+k_tt_params_interpret, params, maggies_factor, alpha, beta, gamma, delta, $
+  epsilon
+vmatrix_tweaked= $
+  k_tt_tweak_vmatrix(lambda, vmatrix, alpha, beta, gamma, delta, epsilon)
 
 end
 ;------------------------------------------------------------------------------
