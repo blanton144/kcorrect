@@ -1,9 +1,0 @@
-data "ssp_salp_z008.flux.0220.dat"
-read <lam 1 template 2>
-limits 1000. 12000. template
-putbox
-connect lam template		
-
-data "ssp_salp_z008.flux.0220.red4.5.dat"
-read <lam 1 template 2>
-connect lam template
