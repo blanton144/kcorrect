@@ -523,6 +523,26 @@ I wasn't sure how many people would use the pure C versions. If there
 is a need to do this, I might be convinced to -- or if YOU do it, we
 could include your stuff in the library. </p>
 
+<h3> Filter Curves</h3>
+
+<p> It is of course necessary to have filter responses to do any of
+this work. It turns out that the SDSS filters do not have the
+responses they were designed to have, but <a
+href="http://www.ioa.s.u-tokyo.ac.jp/~doi/"> Mamoru Doi</a> has done
+the hard work of measuring them. Jim Gunn then took these, ran them
+through models of the telescope and the atmosphere. Daniel Eisenstein
+deserves special mention for the extensive testing he has done on
+these. We have a <a href="filters"> repository</a> of these and other
+curves. For <b>kcorrect</b> we use the files:
+<pre>
+sdss_u0.dat
+sdss_g0.dat
+sdss_r0.dat
+sdss_i0.dat
+sdss_z0.dat
+</pre>
+The other SDSS files refer to the responses for each camcol.</p>
+
 <h3> A Note on Photometric Errors</h3>
 
 The photometric errors in the SDSS are not dominated by Poisson noise,

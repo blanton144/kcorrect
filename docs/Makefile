@@ -15,6 +15,7 @@ all :
 		(cd $$f ; echo In $$f; $(MAKE) $(MFLAGS) all ); \
 	done
 	cp -f paper/paper.ps html
+	ln -sf ../../data/filters html/filters
 
 #
 # Install things in their proper places in $(IDLUTILS_DIR)
