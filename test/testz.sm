@@ -11,7 +11,7 @@ ylab		z_{photoz}
 
 define sig (sqrt(sum((zm-za)**2)/dimen(zm)))
 set i = 0, dimen(zm)-1
-set indx = i if (abs(zm-za)<3*$sig)
+set indx = i if (abs(zm-za)<0.2)
 define sig (sqrt(sum((zm[indx]-za[indx])**2)/dimen(indx)))
 startline 20000 10000
 makeline \sigma = $sig		
