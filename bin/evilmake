@@ -4,27 +4,33 @@ case `uname` in
 	"SunOS") if [  -d /proc ]; then
 			SO_EXT=so
 			X_CFLAGS="-KPIC"
+		  X_FFLAGS="-extend_source"
 			X_LD_FLAGS=-G
 		fi
 	;;
 	"HP-UX")
 		SO_EXT=sl
 		X_CFLAGS="+z -Aa -D_HPUX_SOURCE"
+		X_FFLAGS="-extend_source"
 		X_LD_FLAGS=-b;;
 	"IRIX" )
 		SO_EXT=so
 		X_CFLAGS="-32 -KPIC"
+		X_FFLAGS="-32 -extend_source"
 		X_LD_FLAGS="-shared -32";;
 	"IRIX64" )
 		SO_EXT=so
 		X_CFLAGS="-32 -KPIC"
+		X_FFLAGS="-32 -extend_source -KPIC"
 		X_LD_FLAGS="-shared -32";;
 	"OSF1" )
 		SO_EXT=so
+		X_FFLAGS="-extend_source"
 		X_LD_FLAGS="-S -shared";;
 	"Linux" )
 		SO_EXT=so
 		X_CFLAGS="-fPIC -g -Wall"
+		X_FFLAGS="-extend_source"
 		X_LD_FLAGS=-shared ;;
 	*) echo "This system is not supported" >&2
 		exit 1;;
@@ -34,8 +40,8 @@ esac
 # Our Makefile's always build with $(SDSS_CFLAGS), so we can use that
 # variable to set optimization.
 # Comment this out since it seems to fail on an SGI platform...
-SDSS_CFLAGS=-O3
+SDSS_CFLAGS=-O2
 
-export SO_EXT X_CFLAGS X_LD_FLAGS SDSS_CFLAGS
+export SO_EXT X_CFLAGS X_FFLAGS X_LD_FLAGS SDSS_CFLAGS
 
 make "$@"
