@@ -1,0 +1,95 @@
+% AASTEXUG.STY -- Style modifications for AASTeX user guide.
+%
+% This file establishes style customizations for the AASTeX user
+% guide.  It is used in v5.x via \usepackage{aastexug}.  In v4.x,
+% it is invoked with \documentstyle[aastexug]{article}.
+%
+% Chris Biemesderfer, May 1999
+
+\textwidth=7.3in
+\textheight=9.0in
+%\columnsep=0.5in	
+\hoffset=-0.4in
+\voffset=-0.4in
+\def\baselinestretch{0.96}
+
+\def\aastex{AAS\TeX}
+
+% Create "symbolapp" page style for the symbols appendix.
+
+\def\ps@symbolapp{\let\@mkboth\@gobbletwo
+    \def\@oddfoot{\rm\hfil\ps@folioprefix\thepage\hfil}
+    \def\@oddhead{\sl\rightmark\hfil}
+    \let\@evenfoot\@oddhead
+    \def\@evenhead{\hfil\sl\leftmark}}
+
+\def\symbolappfolioprefix#1{\gdef\ps@folioprefix{#1}} \def\ps@folioprefix{}
+
+% Here's a bunch of stuff that got put in from the dtx file
+% that we don't want authors to see.
+
+\let\o@verbatim\verbatim
+\def\verbatim{%
+  \ifhmode\unskip\par\fi
+  \ifx\@currsize\normalsize
+     \small
+  \fi
+  \o@verbatim
+}
+
+\renewcommand \verbatim@font {%
+  \normalfont \ttfamily
+  \catcode`\<=\active
+  \catcode`\>=\active
+}
+
+\RequirePackage{shortvrb}
+\MakeShortVerb{\|}
+
+\begingroup
+  \catcode`\<=\active
+  \catcode`\>=\active
+  \gdef<{\@ifnextchar<\@lt\@meta}
+  \gdef>{\@ifnextchar>\@gt\@gtr@err}
+  \gdef\@meta#1>{\m{#1}}
+  \gdef\@lt<{\char`\<}
+  \gdef\@gt>{\char`\>}
+\endgroup
+\def\@gtr@err{%
+   \ClassError{ltxguide}{%
+      Isolated \protect>%
+   }{%
+      In this document class, \protect<...\protect>
+      is used to indicate a parameter.\MessageBreak
+      I've just found a \protect> on its own.
+      Perhaps you meant to type \protect>\protect>?
+   }%
+}
+\def\verbatim@nolig@list{\do\`\do\,\do\'\do\-}
+
+\newcommand{\mwithangles}[1]{\mbox{$\langle$\it #1\/$\rangle$}}
+\newcommand{\m}[1]{\mbox{\it #1\/}}
+\renewcommand{\arg}[1]{{\tt\string{}\m{#1}{\tt\string}}}
+\newcommand{\oarg}[1]{{\tt[%]
+}\m{#1}{\tt%[
+]}}
+\def\cmd#1{\cs{\expandafter\cmd@to@cs\string#1}}
+\def\cmd@to@cs#1#2{\char\number`#2\relax}
+\DeclareRobustCommand\cs[1]{\texttt{\char`\\#1}}
+\newcommand*{\file}[1]{\texttt{#1}}%
+
+ % end of code stolen from ltxguide.cls. Thanks, Alan.
+
+ % code stolen from doc.dtx:
+\def\GetFileInfo#1{%
+  \def\filename{#1}%
+  \def\@tempb##1 ##2 ##3\relax##4\relax{%
+    \def\filedate{##1}%
+    \def\fileversion{##2}%
+    \def\fileinfo{##3}}%
+  \edef\@tempa{\csname ver@#1\endcsname}%
+  \expandafter\@tempb\@tempa\relax? ? \relax\relax}
+
+ % end of code stolen from doc.dtx. Thanks FMi.
+
+\expandafter\GetFileInfo\expandafter{\jobname.tex}
