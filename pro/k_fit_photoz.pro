@@ -46,7 +46,7 @@
 ;   13-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_photoz, galaxy_flux, galaxy_invvar, galaxy_photoz, coeff, ematrix=ematrix, zvals=zvals, filterlist=filterlist, bmatrix=bmatrix, lambda=lambda, rmatrix=rmatrix, version=version, vpath=vpath, filterpath=filterpath
+pro k_fit_photoz, galaxy_flux, galaxy_invvar, galaxy_photoz, coeff, ematrix=ematrix, zvals=zvals, filterlist=filterlist, bmatrix=bmatrix, lambda=lambda, rmatrix=rmatrix, version=version, vpath=vpath, filterpath=filterpath, fixatunity=fixatunity
 
 ; Need at least 4 parameters
 if (N_params() LT 4) then begin
@@ -99,11 +99,13 @@ nt=long(n_elements(ematrix)/nb)
 ; Call coefficient software
 coeff=dblarr(nt,ngalaxy)
 galaxy_photoz=dblarr(ngalaxy)
+if(n_elements(fixatunity) eq 0) then $
+  fixatunity=-1
 retval=call_external(soname, 'idl_k_fit_photoz', double(ematrix), $
                      long(nt), double(zvals), long(nz), double(rmatrix), $
                      long(nk), long(nb), double(coeff), $
                      double(galaxy_flux), double(galaxy_invvar), $
-                     double(galaxy_photoz), long(ngalaxy) )
+                     double(galaxy_photoz), long(ngalaxy))
 
 end
 ;------------------------------------------------------------------------------

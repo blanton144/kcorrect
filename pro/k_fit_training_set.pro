@@ -168,7 +168,7 @@ var=mean(dist2)
 use_indx=where(dist2 lt 25.*var)
 
 ; Pull out the eigencomponents
-npca=3
+npca=2
 em_pca,centered_coeffs[*,use_indx],npca,tmp_eigenvec,eigencoeffs_indx, $
   maxiter=100
 eigenvec=dblarr(nv,npca+1L)
@@ -183,7 +183,7 @@ eigencoeffs[1,*]=newcoeffs[0,*]
 eigencoeffs[2:npca+1,*]=transpose(tmp_eigenvec)#centered_coeffs
 
 ; Output QA 
-nuse=npca
+nuse=npca-1L
 k_reconstruct_maggies,eigencoeffs[0:nuse+1,*],gals[*].redshift,rec_maggies, $
   zvals=zvals,lambda=lambda,bmatrix=bmatrix,ematrix=newematrix[*,0:nuse+1], $
   filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
@@ -224,6 +224,9 @@ for i=0, 9 do begin & $
 endfor
 !P.MULTI=[1,1,1]
 end_print
+
+kphotoz, maggies, maggies_err, photoz, coeffs=coeffs, /maggies, $
+  ematrix=newematrix[*,0:nuse+1], rmatrix=rmatrix, zvals=zvals
 
 stop
 
