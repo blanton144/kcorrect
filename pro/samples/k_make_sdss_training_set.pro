@@ -29,6 +29,25 @@
 ;   18-Jan-2003  Written by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
+pro k_stack_south, ra, dec, modelflux, modelflux_ivar
+;   on southern equator, stack runs
+    runs=sdss_runlist(/science)
+    southern_runs=runs[where(runs.stripe eq 82 and runs.comments eq '')]
+    nsouth=n_elements(southern_runs)
+    modelflux=fltarr(5,n_elements(tostack),nsouth)
+    modelflux_ivar=fltarr(5,n_elements(tostack),nsouth)
+    for i=0L, nsouth-1L do begin 
+        obj=sdss_findobj(ra, dec, run=southern_runs[i].run, rerun=137, $
+                         childobj=childobj) 
+        imatch=where(obj.matchdist*3600. lt 2. and obj.matchdist gt 0., $
+                     nmatch) 
+        if(nmatch gt 0) then begin 
+            modelflux[*,imatch,i]=childobj[imatch].modelflux 
+            modelflux_ivar[*,imatch,i]=childobj[imatch].modelflux_ivar 
+        endif 
+    endfor
+end
+;
 pro k_make_sdss_training_set,modelzlim=modelzlim,zlimits=zlimits, $
                              nzchunks=nzchunks, shiftband=shiftband, $
                              errband=errband, errlimit=errlimit, $
@@ -48,6 +67,21 @@ if(NOT keyword_set(name)) then name='test'
 savfile='sdss_training_set.'+name+'.sav'
 if(NOT file_test(savfile)) then begin
     
+; add CNOC2 data 
+    cnoc2=mrdfits(getenv('KCORRECT_DIR')+'/data/redshifts/cnoc2/cnoc2.fits',1) ;
+    cnoc2_obj=mrdfits(getenv('KCORRECT_DIR')+ $
+                      '/data/redshifts/cnoc2/cnoc2-obj.fits',1)
+    cnoc2_childobj=mrdfits(getenv('KCORRECT_DIR')+ $
+                           '/data/redshifts/cnoc2/cnoc2-childobj.fits',1)
+    cnoc2_indx=where(cnoc2_obj.matchdist*3600. lt 10. and $
+                     cnoc2_childobj.modelflux_ivar[2] gt 0.)
+    cnoc2=cnoc2[cnoc2_indx]
+    cnoc2_obj=cnoc2_obj[cnoc2_indx]
+    cnoc2_childobj=cnoc2_childobj[cnoc2_indx]
+    k_stack_south,cnoc2_childobj.ra, cnoc2_childobj.dec, $
+      cnoc2_stack_mf, cnoc2_stack_mf_ivar
+    save,filename=savfile
+    
 ;   get redshifts for all spectra
     sp=hogg_mrdfits(getenv('SPECTRO_DATA')+'/spAll.fits', 1, $
                     columns=['specprimary','plug_ra','plug_dec','z','plate', $
@@ -59,6 +93,12 @@ if(NOT file_test(savfile)) then begin
                   sp.z gt zlimits[0] and $
                   sp.z le zlimits[1] and $
                   sp.zwarning eq 0, sp_count) 
+    sp=sp[sp_indx]
+
+    tostack=where(sp.plug_dec gt -1.5 and sp.plug_dec lt 1.5 and $
+                  sp.plug_ra gt 300. or sp.plug_ra lt 100.)
+    k_stack_south,sp[tostack].plug_ra,sp[tostack].plug_dec, $
+      stack_mf, stack_mf_ivar
     
 ; get twomass photometry
     columns=['ra','decl', $
@@ -77,7 +117,7 @@ if(NOT file_test(savfile)) then begin
     twomass=[oldtwomass_a,oldtwomass_b]
     oldtwomass_a=0
     oldtwomass_b=0
-
+    
 ; match em
     spherematch, sp.plug_ra, sp.plug_dec, twomass.ra, twomass.decl, $
       2./3600., m1, m2, d12, chunksize=0.05
@@ -85,7 +125,7 @@ if(NOT file_test(savfile)) then begin
     struct_assign,{junk:0},tm
     tm[m1]=twomass[m2]
     help,tm,sp
-    save,sp,tm,filename=savfile 
+    save,filename=savfile 
     stop
 endif else begin
     restore,savfile
@@ -164,18 +204,6 @@ for i=0L, n_elements(errband)-1L do $
 indx=where(mag[0,*]-mag[1,*] lt 1.6 and $
            mag[1,*]-mag[2,*] gt 1.4,count)
 if(count gt 0) then mag_err[0,indx]=-9999.
-
-; add CNOC2 data 
-cnoc2=mrdfits(getenv('KCORRECT_DIR')+'/data/redshifts/cnoc2/cnoc2.fits',1);
-cnoc2_obj=mrdfits(getenv('KCORRECT_DIR')+ $
-                  '/data/redshifts/cnoc2/cnoc2-obj.fits',1)
-cnoc2_childobj=mrdfits(getenv('KCORRECT_DIR')+ $
-                       '/data/redshifts/cnoc2/cnoc2-childobj.fits',1)
-cnoc2_indx=where(cnoc2_obj.matchdist*3600. lt 10. and $
-                 cnoc2_childobj.modelflux_ivar[2] gt 0.)
-cnoc2=cnoc2[cnoc2_indx]
-cnoc2_obj=cnoc2_obj[cnoc2_indx]
-cnoc2_childobj=cnoc2_childobj[cnoc2_indx]
 
 ; now output 
 outfile='sdss_training_set.'+name+'.fits'

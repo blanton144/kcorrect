@@ -16,7 +16,7 @@
  *
  *  Uses the method of Sha, Saul, & Lee (2002), "Multiplicative
  *  updates for nonnegative quadratic programming in support vector
- *  machines" (UPenn Tech Report MS-CIS-02-19).
+ *  machines" (UPenn Tech Report MS-CIS-02-19). Look on google.
  *
  *  It requires the user to supply a matrix A (called invcovar in the
  *  code), which gets turned into A+ and A- where:
@@ -26,6 +26,19 @@
  *
  *     A-_ij = |A_ij|  for A_ij<0.
  *             0.      otherwise
+ *
+ * Inputs are:
+ *   invcovar  --> "A" (square matrix)
+ *   bb        --> "b"
+ *   offset    --> offset term to convert F(v) to a reasonable chi^2
+ *   nn        --> number params in "b"
+ *   tolerance --> convergence criterion in chi^2
+ *   maxiter   --> maximum number of iters
+ *   verbose   --> make noise?
+ * Output are:
+ *   xx        --> best fit "v"
+ *   niter     --> number of iters
+ *   chi2      --> chi^2 of output
  *
  * Mike Blanton
  * 5/2003 */
