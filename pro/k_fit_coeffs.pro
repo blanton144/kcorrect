@@ -7,8 +7,9 @@
 ;   a galaxy.
 ;
 ; CALLING SEQUENCE:
-;   k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, 
-;      [ematrix=, zvals=, filterlist=, bmatrix=, lambda=, rmatrix=, /default]
+;   k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, $
+;      [ematrix=, zvals=, filterlist=, bmatrix=, lambda=, rmatrix=, $
+;       constraints_amp=, constraints_mean=, constraints_var= ]
 ;
 ; INPUTS:
 ;   galaxy_maggies   - maggies in each band for each galaxy [N_band, N_gal]
@@ -23,12 +24,14 @@
 ;   zvals         - look up table for rmatrix [N_z]
 ;
 ; OPTIONAL INPUTS:
+;   constraints_amp - amplitude of constraints to use
+;   constraints_mean - mean value of constraints to use
+;   constraints_var - variance of constraints to use
 ;
 ; OUTPUTS:
 ;   coeff    - output coefficients [N_template, N_gal]
 ;
 ; OPTIONAL INPUT/OUTPUTS:
-;   default  - set to use the default templates
 ;
 ; COMMENTS:
 ;   galaxy_maggies is in maggies (f=10.^{-0.4*mag}). galaxy_invvar is in 
@@ -40,7 +43,7 @@
 ; EXAMPLES:
 ;   To get the coefficients using the standard templates:
 ; 
-;   IDL> k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z, coeff, /default
+;   IDL> k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z, coeff
 ; 
 ;   Then you can pass "coeff" into k_reconstruct_maggies
 ;
@@ -56,13 +59,14 @@
 ;   04-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, ematrix=ematrix, zvals=zvals, filterlist=filterlist, bmatrix=bmatrix, lambda=lambda, rmatrix=rmatrix, version=version, vpath=vpath, filterpath=filterpath
+pro k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, ematrix=ematrix, zvals=zvals, filterlist=filterlist, bmatrix=bmatrix, lambda=lambda, rmatrix=rmatrix, version=version, vpath=vpath, filterpath=filterpath, constraints_amp=constraints_amp, constraints_mean=constraints_mean, constraints_var=constraints_var
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
     print, 'Syntax - k_fit_coeffs, galaxy_maggies, galaxy_invvar, galaxy_z, coeff, $'  
-    print, '         [ematrix=, zvals=, filterlist=, bmatrix=, lambda=, rmatrix=, $'
-    print, '          version=, vpath=, filterpath=]'
+    print, '        [ematrix=, zvals=, filterlist=, bmatrix=, lambda=, rmatrix=, $'
+    print, '         version=, vpath=, filterpath=, constraints_amp=, constraints_mean= $'
+    print, '         constraints_var=]'
     return
 endif
 
@@ -106,13 +110,34 @@ nz=long(n_elements(zvals))
 nb=long(n_elements(rmatrix)/(nz*nk)) 	 
 nt=long(n_elements(ematrix)/nb)
 
+; deal with constraints
+nconstraints=n_elements(constraints_amp) 
+if(nconstraints gt 0) then begin
+  if(n_elements(constraints_mean) ne nt-1L OR $
+		 n_elements(constraints_var) ne (nt-1L)*(nt-1L)) then begin
+	   klog,'Require constraints_mean and constraints_var to be set correctly'
+	   return
+  endif
+  constraints_mean=reform(constraints_mean,nt-1L,nconstraints)
+  constraints_var=reform(constraints_var,nt-1L,nt-1L,nconstraints)
+	constraints_invvar=dblarr(nt-1L,nt-1L,nconstraints)
+	for i=0L, nconstraints-1L do $
+    constraints_invvar[*,*,i]=invert(constraints_var[*,*,i])
+endif else begin
+  constraints_amp=0.d
+  constraints_mean=0.d
+  constraints_invvar=0.001d
+endelse
+
 ; Call coefficient software
 coeff=dblarr(nt,ngalaxy)
 retval=call_external(soname, 'idl_k_fit_coeffs', double(ematrix), $
                      long(nt), double(zvals), long(nz), double(rmatrix), $
                      long(nk), long(nb), double(coeff), $
                      double(galaxy_maggies), double(galaxy_invvar), $
-                     double(galaxy_z), long(ngalaxy) )
+                     double(galaxy_z), double(constraints_amp), $
+										 double(constraints_mean), double(constraints_invvar), $
+										 long(nconstraints), long(ngalaxy))
 
 end
 ;------------------------------------------------------------------------------

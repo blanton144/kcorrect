@@ -36,7 +36,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim,subsmoothlimits=subsmoothlimits,subsmoothtemplate=subsmoothtemplate,etemplatepath=etemplatepath
+pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim,subsmoothlimits=subsmoothlimits,subsmoothtemplate=subsmoothtemplate,etemplatepath=etemplatepath,plotmaggies=plotmaggies
 
 if(NOT keyword_set(nophotozplates)) then mustdo=[669,670,671,672] 
 
@@ -57,30 +57,18 @@ if(NOT keyword_set(templatelist)) then $
                  'ssp_salp_z008.flux.0123.dat', $
                  'ssp_salp_z008.flux.0154.dat', $
                  'ssp_salp_z008.flux.0093.dat' $
-                 'ssp_salp_z02.flux.0220.red0.1.dat', $
-                 'ssp_salp_z02.flux.0104.red0.1.dat', $
-                 'ssp_salp_z02.flux.0123.red0.1.dat', $
-                 'ssp_salp_z02.flux.0154.red0.1.dat', $
-                 'ssp_salp_z02.flux.0093.red0.1.dat', $
-                 'ssp_salp_z008.flux.0220.red0.1.dat', $
-                 'ssp_salp_z008.flux.0104.red0.1.dat', $
-                 'ssp_salp_z008.flux.0123.red0.1.dat', $
-                 'ssp_salp_z008.flux.0154.red0.1.dat', $
-                 'ssp_salp_z008.flux.0093.red0.1.dat' $
-                ]
+               ]
 if(NOT keyword_set(nk)) then nk=5L
 if(NOT keyword_set(nl)) then nl=500L
 if(NOT keyword_set(lambdalim)) then lambdalim=[1000.,12000.]
 if(NOT keyword_set(smoothtemplate)) then smoothtemplate=300.d
-if(NOT keyword_set(subsmoothtemplate)) then subsmoothtemplate=150.d
-if(NOT keyword_set(subsmoothlimits)) then subsmoothlimits=[3000.,5000.]
 if(NOT keyword_set(nt)) then nt=3L
 if(NOT keyword_set(fraction)) then fraction=1.
 if(NOT keyword_set(spfile)) then spfile='/data/sdss/spectro/spAll.fits'
 if(NOT keyword_set(shiftband)) then shiftband=dblarr(nk)
 if(NOT keyword_set(errband)) then errband=[0.05,0.02,0.02,0.02,0.03]
-if(NOT keyword_set(errlimit)) then errlimit=dblarr(nk)+0.8d
-if(NOT keyword_set(maglimit)) then maglimit=dblarr(nk)+22.5d
+if(NOT keyword_set(errlimit)) then errlimit=dblarr(nk)+2.0d
+if(NOT keyword_set(maglimit)) then maglimit=dblarr(nk)+24.0d
 if(NOT keyword_set(scale)) then scale=1.d
 if(NOT keyword_set(modelzlim)) then modelzlim=0.25
 if(NOT keyword_set(nozlim)) then nozlim=[0.28,0.32]
@@ -112,29 +100,16 @@ close,unit
 free_lun,unit
 hdr=hdr2struct(hdrstr)
 if (NOT keyword_set(nsp)) then nsp=hdr.naxis2
-nchunks=nsp/chunksize
-for i = 0l, nchunks do begin
-    nlo=i*chunksize
-    nhi=(i+1l)*chunksize-1l
-    if(nlo lt nsp) then begin
-        if(nhi ge nsp) then nhi=nsp-1
-        klog,nlo,nhi
-        sptmp=mrdfits(spfile, 1, range=[nlo,nhi], columns=columns)
-        indx=where(sptmp.class eq 'GALAXY' and $
-                   sptmp.z gt zlimits[0] and $
-                   sptmp.z lt zlimits[1] and $
-                   sptmp.petrocounts[2] gt 0.,count)
-        if(count gt 0) then begin
-            if(keyword_set(sp)) then begin
-                sp=[sp,sptmp[indx]]
-                sptmp=0l
-            endif else begin 
-                sp=sptmp[indx]
-                help,/struct,sp
-            endelse 
-        endif
-    endif
-endfor
+sp=hogg_mrdfits(spfile,1,range=[0,nsp-1],nrowchunk=10000,columns=columns)
+indx=where(sp.class eq 'GALAXY' and $
+           sp.z gt zlimits[0] and $
+           sp.z lt zlimits[1] and $
+           sp.petrocounts[2] gt 0.,count)
+if(count gt 0) then begin
+    sp=sp[indx]
+endif else begin
+    return
+endelse
 
 ; Cut down the sample in redshift
 num=lonarr(nz)
@@ -209,7 +184,7 @@ galaxy_maggies=dblarr(nk,n_elements(sp))
 galaxy_invvar=dblarr(nk,n_elements(sp))
 for k=0l,nk-1l do begin
     galaxy_maggies[k,*]=10.d^(-0.4d*(sp.petrocounts[k]-sp.reddening[k] $
-                                  +shiftband[k]))
+                                     +shiftband[k]))
     galaxy_invvar[k,*]=galaxy_maggies[k,*]*0.4d*alog(10.d)* $
       sqrt(sp.petrocountserr[k]^2+errband[k]^2)
     galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
@@ -217,10 +192,17 @@ endfor
 
 k_fit_sed,galaxy_maggies,galaxy_invvar,sp.z,templatelist, $
   filterlist, coeff, ematrix, bmatrix, bflux, lambda, nt=nt, $
-  reconstruct_maggies=reconstruct_maggies, /plotmaggies, $
-  smoothtemplate=smoothtemplate, maxiter=maxiter, $
-  subsmoothtemplate=subsmoothtemplate, subsmoothlimits=subsmoothlimits
+  reconstruct_maggies=reconstruct_maggies, plotmaggies=plotmaggies, $
+  smoothtemplate=smoothtemplate, maxiter=maxiter
 z=sp.z
+
+; get the ellipse of coeffs
+ngals=n_elements(z)
+scaled=coeff[1:nt-1L,*]/(replicate(1.,nt-1)#coeff[0,*])
+meanscaled=total(scaled,2,/double)/double(ngals)
+varscaled= 0d
+for i=0L, n_elements(z)-1L do begin & delta=scaled[*,i]-meanscaled & varscaled= varscaled+delta#delta & endfor
+varscaled=varscaled/double(ngals)
 
 k_write_ascii_table,ematrix,outpath+'/ematrix.'+outname+'.dat'
 k_write_ascii_table,bmatrix,outpath+'/bmatrix.'+outname+'.dat'
@@ -228,13 +210,18 @@ k_write_ascii_table,bflux,outpath+'/bflux.'+outname+'.dat'
 k_write_ascii_table,lambda,outpath+'/lambda.'+outname+'.dat'
 k_write_ascii_table,coeff,outpath+'/coeff.'+outname+'.dat'
 k_write_ascii_table,z,outpath+'/z.'+outname+'.dat'
+k_write_ascii_table,varscaled,outpath+'/scaledvar.'+outname+'.dat'
+k_write_ascii_table,meanscaled,outpath+'/scaledmean.'+outname+'.dat'
 
 savfile=outname+'.sav'
 save,galaxy_maggies,galaxy_invvar,z,coeff,ematrix,bmatrix,bflux,lambda,nt, $
-  filename=savfile
+  sp,filename=savfile
 
+
+; output points
 outpts=outname+'.pts'
 out=fltarr(nt-1l,n_elements(sp.z))
+help,out
 for i=0, nt-2l do $
   out[i,*]=coeff[i+1l,*]/coeff[0,*]
 openw,11,outpath+'/'+outpts
@@ -243,6 +230,6 @@ close,11
 out=0d
 
 ;k_coeffdist_plot,'default',vpath='.',psfile='k_coeffdist_plot.ps',basecoeff=1
-    
+
 end
 ;------------------------------------------------------------------------------

@@ -120,8 +120,9 @@ int main(int argc,
 			fscanf(stdin,"%lf",&(galaxy_z[i+1]));
 		} /* end for i */
 		ncurrchunk=i;
+		/* no direct constraints on the coeffs are included in this fit */
 		k_fit_coeffs(ematrix,nt,zvals,nz,rmatrix,nk,nb,coeffs,galaxy_maggies,
-								 galaxy_invvar,galaxy_z,ncurrchunk);
+								 galaxy_invvar,galaxy_z,NULL,NULL,NULL,0,ncurrchunk);
 		for(i=0;i<ncurrchunk;i++) {
 			for(j=0;j<nt;j++)
 				fprintf(stdout,"%e ",coeffs[i*nt+j]);

@@ -19,7 +19,7 @@
 \newcommand{\petroradius}{{{r}_P}}
 \newcommand{\petronumber}{{{N}_P}}
 \newcommand{\petroratiolim}{{{\mathcal{R}}_{P,\mathrm{lim}}}}
-\newcommand{\band}[2]{\ensuremath{^{#1}{#2}}}
+\newcommand{\band}[2]{\ensuremath{^{#1}\!{#2}}}
 
 \setlength{\footnotesep}{9.6pt}
 
@@ -888,6 +888,115 @@ $\lambda_{\mathrm{max}}=7500$\AA, since this range is included for
 almost all galaxies in the sample. We refer here and in other papers
 to the flux and luminosity in this range as the ``visual flux'' $f_v$
 and the ``visual luminosity'' $L_v$.
+
+\subsection{The $g$/$r$ Gap}
+\label{grgap}
+
+In Figure \ref{response_sdss}, there is clearly a gap between the $g$
+and $r$ bands. Linear fits to the data allow considerable freedom in
+the resulting reconstructed SEDs. As it happens, one of the directions
+in our best fit coefficient space $a_i/a_0$ corresponds to a large
+spike at around 4000 \AA; that this direction is important is not
+surprising, since one of the most variable qualities of galaxy SEDs is
+the size of the 4000 \AA\ break. However, the gap between the $g$ and
+$r$ bands corresponds to the 4000 \AA\ break at around $z=0.3$. The
+existence of this spike in one direction in our four-dimensional space
+means that galaxies at $z=0.3$ can vary along this direction in order
+to better fit $u$, $i$, and $z$, with little effect on the $g-r$ color
+of the fit. This results in unphysical SED fits to galaxies near
+$z=0.3$. 
+
+To demonstrate this degeneracy, Figure \ref{spur} shows the spectrum
+corresponding to the direction represented by the vector $-0.6
+\vv{e}_1(\lambda) + \vv{e}_3$. We overplot the \band{0.3}{g} and
+\band{0.3}{r} bands. This direction has a strong peak in the gap
+between the two bands at $z=0.3$.  This difficulty is why, in Section
+\ref{data}, we exclude the regime around $z\sim 0.3$; otherwise the
+templates became distracted by the degeneracies in this range.
+
+We have explored using a larger set of input spectrum, by including
+reddenned versions of all our templates, to test whether a more
+complete space of SEDs would cause our fit to choose a more realistic
+subspace. In addition, we have tried removing the increased resolution
+of the template SEDs around the 4000 \AA break. Neither of these tests
+yielded better results. 
+
+Our view is that the ideal solution to this problem would be to
+minimize $\chi^2$ under the constraint that none of the original
+Bruzual-Charlot spectra defining our SED space contribute negatively
+to the SED fit. Such a solution would almost certainly have better
+properties than our linear approach here: it would almost certainly
+avoid the degeneracies, it would yield reasonable fit SED over a
+larger wavelength range, it would associate a reasonable
+star-formation history with each object (which could be used to
+evolution-correct the magnitudes).
+
+However, we have not tackled this approach yet. We have implemented
+(and used for the figures shown here) a temporary fix for those
+interested in galaxies at $z=0.3$, which is to artificially constrains
+the fit as follows. We pretend that there is an extra band between $g$
+and $r$, which has a FWHM of 2000 \AA\ and a center of 5500 \AA. The
+``measured'' value we use in this band is the mean of the $g$ and $r$
+fluxes, and is given $4\sigma$ significance. This extra constraint
+changes the K-corrections for galaxies outside the range $0.27 < z <
+0.33$ by far less than 1 percent. The constraint helps to clean up the
+fits but it is not sufficient; the coefficients are still clearly
+wrong around $z=0.3$. It helps considerably to $K$-correct to $z=0.3$,
+which we recommend for the moment for studies of LRGs; this minimizes
+the corrections which are performed using our most unphysical fits.
+
+Remember, you really only need to worry about this effect in the SDSS
+when you are dealing with the LRGs, for galaxies in the range about
+0.27 < z < 0.33. The Main Sample results are not significantly
+affected at all.  Furthermore, one can still observe a galaxy at
+$z=0.1$ and reliably infer what it would look like at $z=0.3$; it is
+only the reverse process which is difficult.
+
+%It is clear from Figure \ref{lrg_colors_plot} that $z=0.3$ is a
+%special redshift regime where our fits become unphysical. In fact, it
+%is easy to demonstrate that the diagonal spur (going from the upper
+%left to the lower right) around the red dot in the upper right panel
+%of Figure \ref{k_coeffdist_plot} is due almost completely to galaxies
+%at $z\sim 0.3$. The spur arises because the 4000 \AA\ break lies in
+%the gap between $g$ and $r$ at $z=0.3$, visible in Figure
+%\ref{response_sdss}. Our algorithm has strong gradients in the
+%spectrum around the 4000\AA\ break, which is necessary to properly
+%model galaxy spectra. In the presence of these sharp gradients, the
+%gap in the bands causes certain combinations of the template spectra
+%to be degenerate at around $z=0.3$.
+
+
+%The question arises of what to do about this problem. One solution is
+%to simply work around it. It is clear we cannot use the fits presented
+%here to $K$-correct galaxies which are at $z=0.3$ to other redshifts
+%reliably --- their coefficients $a_k$ are unusual and probably
+%unphysical. However, nothing prevents one from $K$-correcting galaxies
+%at other redshifts {\it to} $z=0.3$. If you are considering the LRG
+%sample, the median redshift is close to $z=0.3$ anyway, so this is a
+%viable solution (and the one adopted in Figure \ref{lrg_colors_plot}).
+
+%A second solution is to place extra constraints on the fit which
+%prevent the spur in the coefficients. One can imagine fitting the
+%distribution in the $(a_1/a_0)$-$(a_3/a_0)$ plane with a simple model,
+%such as a multigaussian fit, and using the resulting fit as a prior in
+%one's fit (with gaussians, the extra constraints would be linear and
+%thus easily accounted for). One could design these constraints to be
+%strong enough (at least near the redshifts in question) to prevent the
+%spur. However, the disadvantage of this solution is that for some
+%scientific projects the change in the galaxy SED is exactly what one
+%is trying to measure. In these cases, it may be inappropriate to be
+%putting explicit {\it a priori} constraints on exactly what one is
+%trying to measure.
+
+%A third solution, not adopted here, is to place stronger constraints
+%in the SED fit on the form of the 4000 \AA\ break. One obvious way of
+%doing this is to use the spectra to constrain the size of the break
+%(making it a weak constraint to prevent biases). This constraint could
+%be applied in a linear fashion to retain the speed of our method ---
+%except for the fact that you would have to read in the spectra to
+%apply the $K$-correction. For simplicity, and because the aforemention
+%work-around is so easy to obey, we have not implemented this solution
+%here.
 
 \subsection{Results}
 

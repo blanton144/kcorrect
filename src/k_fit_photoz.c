@@ -49,10 +49,10 @@ double pz_fit_coeffs(double z)
 	double chi2,az,bz,cz;
 	IDL_LONG i,k;
 	
-	/* fit coeffs */
+	/* fit coeffs; no direct constraints are put on the coeffs in this case */
 	k_fit_coeffs(pz_ematrix,pz_nt,pz_zvals,pz_nz,pz_rmatrix,
 							 pz_nk,pz_nb,pz_coeffs,pz_galaxy_maggies,pz_galaxy_invvar,
-							 &z,1);
+							 &z,NULL,NULL,NULL,0,1);
 	
 	chi2=pz_calc_chi2(z);
 	return(chi2);

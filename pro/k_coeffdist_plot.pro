@@ -31,17 +31,22 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_coeffdist_plot,savfile,basecoeff=basecoeff,subsample=subsample,nsig=nsig,psfile=psfile
+pro k_coeffdist_plot,savfile,basecoeff=basecoeff,subsample=subsample,nsig=nsig,psfile=psfile,version=version,vpath=vpath,addgrgap=addgrgap,dots=dots
 
 if(n_elements(lamlim) eq 0) then lamlim=[2000.,10000.]
 if(n_elements(nsig) eq 0) then nsig=3.
+if(NOT keyword_set(dots)) then dots=[-0.20,-0.06,0.10]
 
-version='addgrgap'
-vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
+if(NOT keyword_set(vpath)) then vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
 k_load_ascii_table,ematrix,vpath+'/ematrix.'+version+'.dat'
 k_load_ascii_table,bmatrix,vpath+'/bmatrix.'+version+'.dat'
 k_load_ascii_table,lambda,vpath+'/lambda.'+version+'.dat'
 restore,savfile
+if(n_elements(sp) gt 0) then galaxy_z=sp.z
+
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies, $
+  version=version,vpath=vpath,/maggies,/invvar,addgrgap=addgrgap,/sdssfix, $
+  coeff=coeff
 
 nt=long((size(ematrix))[2])
 if(n_elements(basecoeff) eq 0) then basecoeff=nt-1
@@ -54,7 +59,7 @@ for i=0, nt-3 do $
   coeffmean[i]=djs_avsigclip(coeff[coeffindx[i],*]/coeff[0,*])
 speccoeffs=dblarr(nt,3)
 speccoeffs[0,*]=1.
-speccoeffs[basecoeff,*]=[-0.20,-0.06,0.10]
+speccoeffs[basecoeff,*]=dots
 for i=0, nt-3 do $
   speccoeffs[coeffindx[i],*]=coeffmean[i]
 nspecs=(size(speccoeffs))[2]
@@ -118,7 +123,7 @@ for i=0, n_elements(coeffindx)-1 do begin
     ymean=mean(yrat)
     !X.CHARSIZE= tiny
     !Y.CHARSIZE= tiny
-    !X.RANGE= xmean+nsig*[-0.7*xsig,1.3*xsig]
+    !X.RANGE= xmean+nsig*[-1.3*xsig,0.7*xsig]
     !Y.RANGE= ymean+nsig*[-xsig,xsig]
     djs_plot,xrat,yrat,psym=3,xst=1,yst=1
     axis,!X.RANGE[0],!Y.RANGE[1],xaxis=1,xcharsize=axis_char_scale, $

@@ -79,7 +79,7 @@ endif else begin
 endelse
 
 kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies,kcorrectz=to_z, $
-  version=version,vpath=vpath,/maggies,/invvar,/addgrgap
+  version=version,vpath=vpath,/maggies,/invvar
 
 dm=2.5*alog10((2.99792e+8*lumdis(galaxy_z,omega0,omegal0))^2)
 lum=-2.5*alog10(recmaggies[2,*])-dm

@@ -54,27 +54,27 @@ endif
 
 if (n_elements(usesample) eq 0) then usesample=lindgen(ngalaxy)
 ascale=dblarr(nt-1,ngalaxy)
-amean=dblarr(nt-1,ngalaxy)
+amean=dblarr(nt-1)
 for j = 1,nt-1 do begin
     ascale[j-1,*]=coeff[j,*]/coeff[0l,*]
 endfor
 currusesample=usesample
 for clip=0l, niter-1l do begin
     for j = 1,nt-1 do begin
-        amean[j-1,usesample]=total(ascale[j-1,usesample],/double) $
+        amean[j-1]=total(ascale[j-1,usesample],/double) $
           /double(n_elements(usesample))
     endfor
     covar=dblarr(nt-1l,nt-1l)
-		for i=0, nt-2l do $	
-		    for j=0, nt-2l do $	
-				   covar[i,j]=total((ascale[i,currusesample]-amean[i])* $
-														(ascale[j,currusesample]-amean[j]),/double)
+    for i=0, nt-2l do $	
+      for j=0, nt-2l do $	
+      covar[i,j]=total((ascale[i,currusesample]-amean[i])* $
+                       (ascale[j,currusesample]-amean[j]),/double)
     covar=covar/n_elements(currusesample)
     i=lindgen(nt-1l)
     cliplimit=nclip^2*(total(covar(i,i),/double)/double(nt-1l))
     klog,cliplimit
     icurrusesample=where(total((ascale[*,usesample]-amean[*,usesample])^2,1, $
-                              /double) lt cliplimit,count)
+                               /double) lt cliplimit,count)
     if(count eq 0) then begin
         klog,'all objects clipped! resetting.'
         usesample=lindgen(ngalaxy)
@@ -86,6 +86,14 @@ endfor
 i=lindgen(nt-1l)
 trired,covar,eval, tmp, /double
 triql,eval,tmp,covar
+
+; set mean to zero
+for i = 0l, nb-1l do begin
+    ematrix[i,0]=ematrix[i,0]+total(amean*ematrix[i,1:nt-1],/double)
+endfor
+for i = 0l, nt-2l do begin
+    ascale[i,*]=ascale[i,*]-amean[i]
+endfor
 
 ; rotate
 ascale=transpose(transpose(ascale)#covar)

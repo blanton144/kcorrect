@@ -24,6 +24,10 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 											double *galaxy_maggies, /* galaxy maggies */
 											double *galaxy_invvar,
 											double *galaxy_z,
+											double *constraints_amp,
+											double *constraints_mean,
+											double *constraints_invvar,
+											int nconstraints,
 											IDL_LONG ngalaxy);
 
 /* finds best fit eigentemplates, given the galaxy properties and 

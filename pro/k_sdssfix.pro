@@ -34,7 +34,7 @@
 ;   07-Feb-2002  Written by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_sdssfix,mags,magserr,galaxy_z=galaxy_z, errlimit=errlimit, maglimit=maglimit, errband=errband, defaultcoeff=defaultcoeff, defaultmags=defaultmags, defaultz=defaultz, version=version, vpath=vpath, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, filterpath=filterpath, defaultzlimits=defaultzlimits, maggies=maggies, invvar=invvar
+pro k_sdssfix,mags,magserr,galaxy_z=galaxy_z, errlimit=errlimit, maglimit=maglimit, errband=errband, defaultcoeff=defaultcoeff, defaultmags=defaultmags, defaultz=defaultz, version=version, vpath=vpath, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, filterpath=filterpath, defaultzlimits=defaultzlimits, maggies=maggies, invvar=invvar, errorsonly=errorsonly
 
 nk=5
 ngalaxy=n_elements(mags)/nk
@@ -61,9 +61,9 @@ outzlimits=where(to_z lt defaultzlimits[0],count)
 if(count gt 0) then to_z[outzlimits]=defaultzlimits[0]
 outzlimits=where(to_z gt defaultzlimits[1],count)
 if(count gt 0) then to_z[outzlimits]=defaultzlimits[1]
-if(n_elements(errlimit) eq 0) then errlimit=[0.8,0.8,0.8,0.8,0.8]
+if(n_elements(errlimit) eq 0) then errlimit=[2.0,2.0,2.0,2.0,2.0]
 if(n_elements(errband) eq 0) then errband=[0.05,0.02,0.02,0.02,0.03]
-if(n_elements(maglimit) eq 0) then maglimit=[23.0,23.0,23.0,23.0,23.0]
+if(n_elements(maglimit) eq 0) then maglimit=[25.0,25.0,25.0,25.0,25.0]
 
 ; Make sure we are working in magnitudes; negative or zero maggies
 ; are just errors so we set them to the limits
@@ -107,16 +107,17 @@ if(count eq 0) then return
 for k=0, nk-1l do begin
   badindx=where(badband[k,*] gt 0,count)
 	if(count gt 0) then begin
-     magserr[k,badindx]=errlimit[k]
+     magserr[k,badindx]=sqrt(magserr[k,badindx]^2+errlimit[k]^2)
   endif
 endfor 
 
+if(NOT keyword_set(errorsonly)) then begin
 ; Fourth, set the "reasonable" coeffs -- the coefficients for a typical 
 ; galaxy SED (based on its z=0.1 SDSS colors); we wait to do this until
 ; now just in case there are no bad objects
 if(n_elements(defaultz) eq 0) then defaultz=0.1
 if(n_elements(defaultmags) eq 0) then $
-  defaultmags=[-10.155465,-11.563362,-12.356318,-12.749081,-13.017499]
+defaultmags=[-10.155465,-11.563362,-12.356318,-12.749081,-13.017499]
 if(n_elements(defaultcoeff) eq 0) then begin
   defaultmaggies=10.^(-0.4*(defaultmags))
   defaultinvvar=1./(defaultmaggies*0.02)^2
@@ -196,6 +197,7 @@ if(count gt 0) then begin
     if(k ne 2) then $
       mags[k,stillbad]=fixmags[k,stillbad]-fixmags[2,stillbad]+mags[2,stillbad]
   endfor
+endif
 endif
 
 ; Finally, convert back to maggies if desired

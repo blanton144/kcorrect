@@ -72,12 +72,12 @@ endif
 if (NOT keyword_set(maxiter)) then maxiter=100l
 if (NOT keyword_set(sublmin)) then sublmin=3500.d
 if (NOT keyword_set(sublmax)) then sublmax=7500.d
-if (NOT keyword_set(cutlmin)) then cutlmin=1800.d
-if (NOT keyword_set(cutlmax)) then cutlmax=13000.d
+if (NOT keyword_set(cutlmin)) then cutlmin=2000.d
+if (NOT keyword_set(cutlmax)) then cutlmax=10500.d
 
 ; Find vmatrix and bmatrix
 k_load_templates,getenv('KCORRECT_DIR')+'/data/seds/'+templatelist,vmatrix, $
-  lambda
+  lambda,cutlmin=cutlmin,cutlmax=cutlmax
 nl=long(n_elements(lambda))-1l
 nb=long(n_elements(vmatrix))/nl
 if(keyword_set(smoothtemplate)) then begin

@@ -30,7 +30,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro run_fit_coeffs,version,spfile=spfile,chunksize=chunksize,zlimits=zlimits,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,vpath=vpath,savfile=savfile,nsp=nsp, evenz=evenz, primtargetmask=primtargetmask,modelzlim=modelzlim, nprimtargetmask=nprimtargetmask
+pro run_fit_coeffs,version,spfile=spfile,chunksize=chunksize,zlimits=zlimits,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,vpath=vpath,savfile=savfile,nsp=nsp, evenz=evenz, primtargetmask=primtargetmask,modelzlim=modelzlim, nprimtargetmask=nprimtargetmask, outpts=outpts, addgrgap=addgrap, sdssfix=sdssfix, vconstraint=vconstraint
 
 nk=5l
 ;if(NOT keyword_set(version)) then version='default'
@@ -61,46 +61,24 @@ close,unit
 free_lun,unit
 hdr=hdr2struct(hdrstr)
 if(NOT keyword_set(nsp)) then nsp=hdr.naxis2
-nchunks=nsp/chunksize
-for i = 0l, nchunks do begin
-    nlo=i*chunksize
-    nhi=(i+1l)*chunksize-1l
-    if(nlo lt nsp) then begin
-        if(nhi ge nsp) then nhi=nsp-1
-        klog,nlo,nhi
-        sptmp=mrdfits(spfile, 1, range=[nlo,nhi], columns=columns)
-        indx=where(sptmp.class eq 'GALAXY' and $
-                   sptmp.z gt zlimits[0] and $
-                   sptmp.z lt zlimits[1] and $
-                   (abs(sptmp.petrocounts[0,*]) lt 50. or $
-                    abs(sptmp.petrocounts[1,*]) lt 50. or $
-                    abs(sptmp.petrocounts[2,*]) lt 50. or $
-                    abs(sptmp.petrocounts[3,*]) lt 50. or $
-                    abs(sptmp.petrocounts[4,*]) lt 50.) and $
-                   (abs(sptmp.counts_model[0,*]) lt 50. or $
-                    abs(sptmp.counts_model[1,*]) lt 50. or $
-                    abs(sptmp.counts_model[2,*]) lt 50. or $
-                    abs(sptmp.counts_model[3,*]) lt 50. or $
-                    abs(sptmp.counts_model[4,*]) lt 50.) and $
-                   sptmp.petrocounts[2] gt 0.,count)
-        if(count gt 0) then begin
-            if(keyword_set(sp)) then begin
-                sp=[sp,sptmp[indx]]
-                sptmp=0l
-            endif else begin 
-                sp=sptmp[indx]
-                help,/struct,sp
-            endelse 
-        endif
-    endif
-endfor
+sp=hogg_mrdfits(spfile,1,range=[0,nsp-1],nrowchunk=10000,columns=columns)
+indx=where(sp.class eq 'GALAXY' and $
+					 sp.z gt zlimits[0] and $
+					 sp.z lt zlimits[1] and $
+					 sp.petrocounts[2] gt 0.,count)
+if(count gt 0) then begin
+    sp=sp[indx]
+endif else begin
+    return
+endelse
+help,/struct,sp
 
+; select only certain targets
 if(keyword_set(primtargetmask)) then begin
     indx=where((sp.primtarget and primtargetmask) gt 0,count)
     if(count eq 0) then return
     sp=sp[indx]
 endif
-
 if(keyword_set(nprimtargetmask)) then begin
     indx=where((sp.primtarget and nprimtargetmask) eq 0,count)
     if(count eq 0) then return
@@ -145,20 +123,7 @@ if(keyword_set(evenz)) then begin
     help,sp
 endif
 
-; Find the good magnitudes, and determine the average colors in 
-; bins of redshift; use these to reset bad determinations of the 
-; flux to something more sensible
-mags=sp.petrocounts
-magserr=sp.petrocountserr
-k_fix_mags,sp.z,mags,magserr,maglimit,errlimit,zstep
-sp.petrocounts=mags
-sp.petrocountserr=magserr
-mags=sp.counts_model
-magserr=sp.counts_modelerr
-k_fix_mags,sp.z,mags,magserr,maglimit,errlimit,zstep
-sp.counts_model=mags
-sp.counts_modelerr=magserr
-
+; set the appropriate magnitudes to model mags or petromags
 mags=sp.counts_model
 magserr=sp.counts_modelerr
 indx=where(sp.z lt modelzlim,count)
@@ -167,18 +132,8 @@ if(count gt 0) then begin
     magserr[*,indx]=sp[indx].petrocountserr
 endif
 
-galaxy_maggies=dblarr(nk,n_elements(sp))
-galaxy_invvar=dblarr(nk,n_elements(sp))
-for k=0l,nk-1l do begin
-    galaxy_maggies[k,*]=10.d^(-0.4d*(mags[k,*]-sp.reddening[k] $
-                                  +shiftband[k]))
-    galaxy_invvar[k,*]=galaxy_maggies[k,*]*0.4d*alog(10.d)* $
-      sqrt(magserr[k,*]^2+errband[k]^2)
-    galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
-endfor
-
-kcorrect,galaxy_maggies,galaxy_invvar,sp.z,recmags,coeff=coeff, $
-  version=version, vpath=vpath, /maggies, /invvar, /addgrgap
+kcorrect,mags,magserr,sp.z,recmags,coeff=coeff, version=version, $
+  vpath=vpath, addgrgap=addgrap, sdssfix=sdssfix, vconstraint=vconstraint
 galaxy_z=sp.z
 galaxy_petrocounts=sp.petrocounts
 galaxy_petrocountserr=sp.petrocountserr
@@ -189,10 +144,11 @@ save,galaxy_maggies,galaxy_invvar,sp,coeff,ematrix,bmatrix,lambda, $
   filterlist,filename=savfile
 
 if(keyword_set(outpts)) then begin
+    nt=n_elements(coeff)/n_elements(sp.z)
     out=fltarr(nt-1l,n_elements(sp.z))
     for i=0, nt-2l do $
       out[i,*]=coeff[i+1l,*]/coeff[0,*]
-    openw,11,outpath+'/'+outpts
+    openw,11,outpts
     writeu,11,out
     close,11
     out=0d

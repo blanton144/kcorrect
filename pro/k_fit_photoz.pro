@@ -7,7 +7,7 @@
 ;   and redshift of a galaxy
 ;
 ; CALLING SEQUENCE:
-;   k_fit_coeffs, galaxy_flux, galaxy_invvar, galaxy_z, coeff, ematrix, zvals,$
+;   k_fit_photz, galaxy_flux, galaxy_invvar, galaxy_z, coeff, ematrix, zvals,$
 ;      [filterlist=filterlist, bmatrix=bmatrix, lambda=lambda $
 ;       | rmatrix=rmatrix]
 ;

@@ -34,9 +34,13 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 																							redshifts */
 											double *galaxy_invvar,
 											double *galaxy_z,
+											double *constraints_amp,
+											double *constraints_mean,
+											double *constraints_invvar,
+											int nconstraints,
 											IDL_LONG ngalaxy)
 {
-	double currz;
+	double currz,a0scale;
 	char uplo;
 	IDL_LONG i,j,jp,k,b,indx,unity,info;
 	
@@ -76,7 +80,7 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 	rhs=(double *) malloc(nt*sizeof(double));
 	for(i=0;i<ngalaxy;i++) {
 
-		/* 2b. Create A */
+		/* 2b. Create A based on data */
 		for(j=0;j<nt;j++)
 			for(jp=0;jp<nt;jp++) {
 				covar[j*nt+jp]=0.;
@@ -84,7 +88,7 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 					covar[j*nt+jp]+=cmatrix[i*nk*nt+k*nt+j]
 						*cmatrix[i*nk*nt+k*nt+jp]*galaxy_invvar[k+i*nk];
 			} /* end for j jp */
-																		
+
 		/* 2c. Create b */
 		for(j=0;j<nt;j++) {
 			rhs[j]=0.;
@@ -92,6 +96,28 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 				rhs[j]+=galaxy_maggies[k+i*nk]*cmatrix[i*nk*nt+k*nt+j]
 						*galaxy_invvar[k+i*nk];
 		} /* end for j */
+		
+		/* 2d. Add constraints to A and b */
+		if(nconstraints>0) {
+			/* first find appropriate a0 */
+			a0scale=rhs[0]/covar[0];
+			
+			/* then add each constraint */
+			for(k=0;k<nconstraints;k++) {
+				for(j=1;j<nt;j++)
+					for(jp=1;jp<nt;jp++) 
+						covar[j*nt+jp]+=constraints_amp[k]* 
+							constraints_invvar[k*(nt-1)*(nt-1)+(j-1)*(nt-1)+(jp-1)]/
+							(a0scale*a0scale);
+				
+				for(j=1;j<nt;j++) 
+					for(jp=1;jp<nt;jp++) 
+						rhs[j]+=constraints_amp[k]* 
+							constraints_invvar[k*(nt-1)*(nt-1)+(j-1)*(nt-1)+(jp-1)]*
+							constraints_mean[k*(nt-1)+(jp-1)]/(a0scale);
+			} /* end for k */
+		} /* end if */
+																		
 
 #if 0
 		for(j=0;j<nt;j++) 

@@ -26,6 +26,10 @@
 ;   invvar        - if maggies is set, this means that magerr is
 ;                   actually invvar
 ;   sdssfix       - uses k_sdssfix to "fix" the SDSS magnitudes
+;   vconstraint   - use the standard constraints for the version 
+;   constraints_amp - amplitude of user-specified constraint
+;   constraints_mean - mean of user-specified constraint
+;   constraints_var - variance matrix of user-specified constraint
 ;
 ; OUTPUTS:
 ;   galaxy_mag0   - K-corrected AB magnitudes
@@ -68,13 +72,13 @@
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, addgrgap=addgrgap, invvar=invvar
+pro kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, kcorrectz=kcorrectz, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, coeff=coeff, sdssfix=sdssfix, addgrgap=addgrgap, invvar=invvar, vconstraint=vconstraint, constraints_amp=constraints_amp, constraints_mean=constraints_mean, constraints_var=constraints_var
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
     print, 'Syntax - kcorrect, galaxy_mag, galaxy_magerr, galaxy_z, galaxy_mag0, $'
     print, '        [kcorrectz=, version=, vpath=, /maggies, rmatrix=, zvals=, ematrix=,$'
-    print, '         coeff=, /sdssfix, /invvar]'
+    print, '         coeff=, /sdssfix, /invvar, /vconstraint]'
     return
 endif
 
@@ -92,25 +96,15 @@ if(NOT keyword_set(version)) then $
 tmp_galaxy_mag=galaxy_mag
 tmp_galaxy_magerr=galaxy_magerr
 if(keyword_set(sdssfix)) then begin
-   if(n_elements(rmatrix) gt 0 AND n_elements(zvals) gt 0 AND $
-      n_elements(ematrix) gt 0) then begin
-       k_sdssfix,tmp_galaxy_mag,tmp_galaxy_magerr,galaxy_z=galaxy_z, $
-         filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
-         ematrix=ematrix,maggies=maggies,invvar=invvar
-   endif else begin
-       k_sdssfix,tmp_galaxy_mag,tmp_galaxy_magerr,galaxy_z=galaxy_z, $
-	       version=version,vpath=vpath,filterpath=filterpath, $
-         rmatrix=tmprmatrix, zvals=tmpzvals,ematrix=tmpematrix, $
-         maggies=maggies,invvar=invvar
-   endelse
-   if(NOT keyword_set(addgrgap)) then begin
-       rmatrix=tmprmatrix
-       zvals=tmpzvals
-       ematrix=tmpematrix
-   endif
-   tmprmatrix=0l
-   tmpzvals=0l
-   tmpematrix=0l
+   k_sdssfix,tmp_galaxy_mag,tmp_galaxy_magerr,galaxy_z=galaxy_z, $
+      maggies=maggies, invvar=invvar, /errorsonly
+endif
+
+; set constraints for this version if necessary
+if(keyword_set(vconstraint)) then begin
+   constraints_amp=1.d
+   k_load_ascii_table,constraints_var,vpath+'/scaledvar.'+version+'.dat'
+   k_load_ascii_table,constraints_mean,vpath+'/scaledmean.'+version+'.dat'
 endif
   
 ; Calculate maggies if necessary
@@ -128,8 +122,9 @@ tmp_galaxy_mag=0l
 tmp_galaxy_magerr=0l
 
 ; Set the grgap maggie if appropriate
+useversion=version
 if(keyword_set(addgrgap)) then begin
-    version='addgrgap'
+    useversion='addgrgap'
     tmp_galaxy_maggies=dblarr(nk+1,ngalaxy)
     tmp_galaxy_invvar=dblarr(nk+1,ngalaxy)
     tmp_galaxy_maggies[0:nk-1,*]=galaxy_maggies
@@ -148,13 +143,14 @@ if(n_elements(rmatrix) gt 0 AND n_elements(zvals) gt 0 AND $
    n_elements(ematrix) gt 0) then begin
     k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff, $
       filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
-      ematrix=ematrix
+      ematrix=ematrix, constraints_amp=constraints_amp, $
+      constraints_var=constraints_var, constraints_mean=constraints_mean
 endif else begin
-    k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,version=version, $
-      vpath=vpath,filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
-      ematrix=ematrix
+    k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff, $
+      version=useversion,vpath=vpath,filterpath=filterpath,rmatrix=rmatrix, $
+      zvals=zvals,ematrix=ematrix, constraints_amp=constraints_amp, $
+      constraints_var=constraints_var, constraints_mean=constraints_mean
 endelse
-
 ; Calculate model fluxes
 if(n_elements(kcorrectz) eq 0) then begin 
     correct_z=galaxy_z
@@ -182,7 +178,7 @@ endif
 galaxy_mag0=dblarr(nk,ngalaxy)
 if(NOT keyword_set(maggies)) then begin
     negindx=where(reconstruct_maggies le 0.d,count)
-    if(count gt 0) then galaxy_mag0[negindx]=0.d
+    if(count gt 0) then galaxy_mag0[negindx]=1000.d
     goodindx=where(reconstruct_maggies gt 0.d,count)
     if(count gt 0) then $
       galaxy_mag0[goodindx]=-2.5*alog10(reconstruct_maggies[goodindx])

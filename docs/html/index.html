@@ -467,6 +467,41 @@ other systematic effects, which are poorly known. I usually add errors
 of [0.05,0.02,0.02,0.02,0.03] in ugriz in quadrature to the estimated
 errors from PHOTO, which makes things considerably better behaved.
 
+<h3> A Note on the g/r Gap</h3>
+
+As noted in the <a href="paper.ps"> kcorrection paper</a>, there is a
+troublesome gap between the g and r bands in the SDSS filter
+system. Linear fits such as the one used by <b>kcorrect</b> tend to
+allow unphysical solutions very easily --- that is, we have not
+sufficiently constrained our fits. The result in this case is that
+some directions in the space correspond to big spikes right between g
+and r at z=0.3; these directions are necessary because they help
+characterize the 4000 angstrom break. Thus, we are stuck with very
+unphysical fits to the galaxy SEDs near z=0.3. 
+
+The correct fix is to impose non-negative contributions of each of the
+original templates to any fit to a galaxy. We have not implemented
+this yet, and instead have the following hack available to deal with
+galaxies around z=0.3. If you specify the <b>/addgrgap</b> flag in
+your call to <b>kcorrect</b>, it artificially adds an extra band
+between g and r, which has a FWHM of 2000 angstroms and a center of
+5500 angstroms. The "measured" value is the mean of the g and r
+maggies, and is given 4 sigma significance. This extra constraint
+changes the K-corrections for galaxies outside the range 0.27 < z <
+0.33 by far less than 1 percent. The constraint helps to clean up the
+fits but it is not sufficient; the coefficients are still clearly
+messed up around z=0.3. It helps considerably if one is K-correcting
+to z=0.3, which we recommend for the moment for studies of LRGs; this
+minimizes the corrections which are performed using our most
+unphysical fits.
+
+Remember, you really only need to worry about this effect in the SDSS
+when you are dealing with the LRGs, for galaxies in the range about
+0.27 < z < 0.33. The Main Sample results are not significantly
+affected at all.  Furthermore, one can still observe a galaxy at z=0.1
+and reliably infer what it would look like at z=0.3; it is only the
+reverse process which is difficult.
+
 <hr> 
 
 <address>

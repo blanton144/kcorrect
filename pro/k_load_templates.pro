@@ -49,8 +49,8 @@ endif
 if (NOT keyword_set(nl)) then nl=500l
 if (NOT keyword_set(lmin)) then lmin=1000.d
 if (NOT keyword_set(lmax)) then lmax=12000.d
-if (NOT keyword_set(cutlmin)) then cutlmin=2000.d
-if (NOT keyword_set(cutlmax)) then cutlmax=10500.d
+if (NOT keyword_set(cutlmin)) then cutlmin=0.d
+if (NOT keyword_set(cutlmax)) then cutlmax=1.d+30
 lambda=lmin+(lmax-lmin)*dindgen(nl+1l)/double(nl)
 lint=0.5*(lambda[0l:nl-1l]+lambda[1l:nl])
 
@@ -65,7 +65,7 @@ for i = 0l, n_elements(templatelist)-1l do begin
     free_lun,unit
     indx=lindgen(nltmp[0]-1)
     for j = 0l, nl-1l do begin
-        llo=where(vtmp[0l,indx] lt lint[j] and vtmp[0l,indx+1] ge lint[j])
+        llo=where(vtmp[0l,indx] le lint[j] and vtmp[0l,indx+1] gt lint[j])
         lhi=llo+1l
         sl=lint[j]-vtmp[0l,llo]
         vmatrix[j,i]=vtmp[1l,llo]+(vtmp[1l,lhi]-vtmp[1l,llo])*sl/ $
