@@ -49,7 +49,7 @@
 ;   04-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro kphotoz, galaxy_mag, galaxy_magerr, photoz, coeffs=coeffs, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix
+pro kphotoz, galaxy_mag, galaxy_magerr, photoz, coeffs=coeffs, version=version, vpath=vpath, maggies=maggies, rmatrix=rmatrix, zvals=zvals, ematrix=ematrix, invvar=invvar
 
 ; Need at least 6 parameters
 if (N_params() LT 3) then begin
@@ -74,7 +74,10 @@ if(NOT keyword_set(maggies)) then begin
     galaxy_invvar=1./(galaxy_flux*0.4*alog(10.)*galaxy_magerr)^2
 endif else begin
     galaxy_flux=galaxy_mag
-    galaxy_invvar=1./galaxy_magerr^2
+    if(NOT keyword_set(invvar)) then $
+      galaxy_invvar=1./galaxy_magerr^2
+    if(keyword_set(invvar)) then $
+      galaxy_invvar=galaxy_magerr
 endelse 
 
 ; Calculate coeffs
