@@ -23,7 +23,7 @@
 ;------------------------------------------------------------------------------
 pro k_mkspec_gissel, vmatrix, lambda, metallicity, dust, sfhtype, sfhpars, $
                      gisselpath=gisselpath, attime=attime, maxage=maxage, $
-                     minage=minage
+                     minage=minage, lmin=lmin, lmax=lmax, nl=nl
 
 ; Need at least 6 parameters
 if (N_params() LT 5) then begin
@@ -39,7 +39,7 @@ s2yr=1./3600./24./365.25
 hubble_time=s2yr/(littleh*100.*km2Mpc)
 
 if(NOT keyword_set(gisselpath)) then $
-  gisselpath='/data/specmodels/gissel/data'
+  gisselpath=getenv('DATA')+'/specmodels/gissel/data'
 if(NOT keyword_set(attime)) then attime=0.d
 if(NOT keyword_set(nl)) then nl=3000L
 if(NOT keyword_set(lmin)) then lmin=1250.
