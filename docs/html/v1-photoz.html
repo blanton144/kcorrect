@@ -1,0 +1,117 @@
+<HTML>
+<BODY>
+
+<H1> Photometric Redshifts</H1>
+ 
+<p> Once one has constructed the SED templates, it is trivial to use
+them to calculate photometric redshifts. </p>
+
+<p> Fitting photometric redshifts just requires fitting the
+coefficients for a number of redshifts and minimizing the chi^2
+residuals for the fits. I provide routines here to do so. They take
+about 70 ms an object on a 1GHz Pentium III and are reasonably
+accurate -- the 5-sigma clipped estimate of the redshift errors is
+about 0.05. </p>
+
+<p> A piece of advice on the *type* of magnitudes to use for
+photometric redshifts. For modern versions of PHOTO (v5_4 and later)
+it is best to simply use the model magnitudes for all galaxies. </p>
+
+<p> The IDL routine <b>kphotoz</b> works in a way which is extremely
+similar to the <b>kcorrect</b> routine.
+<pre>
+IDL> kphotoz
+Syntax - kphotoz, maggies, maggies_ivar, photoz [ , $
+             /magnitude, /stddev, lfile=, zmin=, zmax=, nz=, $
+             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $
+             zvals=, lambda=, vmatrix=, coeffs=, /verbose, $
+             lprior=, zprior=, /noprior, /sdssfix ]
+</pre>
+For example, one might do the following:
+<pre>
+kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
+         [1100., 28., 7.7, 4.4, 2.5], $
+         photoz
+</pre>
+</p>
+Again, there is large overhead, so one-at-a-time is not the way to
+call <b>kphotoz</b>. As for <b>kcorrect</b>, you can avoid spending
+this overhead more than once either by feeding it lists of objects or
+as follows:
+<pre>
+kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
+         [1100., 28., 7.7, 4.4, 2.5], $
+         photoz, rmatrix=rmatrix, zvals=zvals
+kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
+         [1100., 28., 7.7, 4.4, 2.5], $
+         photoz, rmatrix=rmatrix, zvals=zvals
+</pre>
+Finally, the /sdssfix option fixes SDSS magnitudes in the same way as
+for <b>kcorrect</b>.
+
+<p>By default, <b>kphotoz</b> uses a very simple prior (equal to the
+redshift z) to push the fits away from z=0. You can turn this off with
+the flag /noprior, or specify your own prior using the inputs zprior
+(which indicates the redshift grid) and lprior (which indicates the
+natural log of the prior). </p>
+
+<p> The stand-alone program <b>fit_photoz</b> works in the same way as
+<b>fit_coeffs</b>: 
+<pre>
+apeiron.[v3_1].27 % fit_photoz --help
+Usage: cat <maggies file> | fit_photoz [--vfile <vfile> --lfile <lfile>
+            --ffile <ffile> ]
+</pre>
+As in:
+<pre>
+cat maggies.dat | fit_photoz 
+</pre>
+where in this case each line of "maggies.dat" has the form:
+<pre>
+umaggies gmaggies rmaggies imaggies zmaggies uinvvar ginvvar rinvvar iinvvar zinvvar
+</pre>
+The output is again to standard out and is of the form:
+<pre>
+photoz coeff0 coeff1 coeff2
+</pre>
+The same rules apply here as to the IDL code: call the code for many
+objects at a time, or else the overhead (about 3 seconds) will kill
+you.
+</p>
+
+<p> The photo-z code can also be accessed through the C library
+libkcorrect.so. Follow the directions in the <a href="index.html">
+main page</a> for using this library. Instead of <b>k_fit_coeffs</b>,
+you will be calling <b>k_fit_photoz</b>, as in:
+<pre>
+k_fit_photoz(photoz, coeffs, rmatrix, nk, nv, zprior, lprior, nprior, 
+             zvals, nz, maggies, maggies_ivar, ngalaxy, tolerance,
+             maxiter, niter, chi2, verbose)
+</pre>
+zprior, lprior, and nprior should contain the prior grid to use.
+</p>
+
+<p> Please note that the photometric redshifts resulting from this
+code are not in any sense "official" SDSS photometric redshifts. They
+have not been subject to the care and scrutiny given to the official
+photometric redshifts. In addition, they should be used with due
+regard to the correlations between errors in type and errors in
+redshift, as well as the systematic errors associated with photometric
+redshifts. </p>
+
+<p> Finally, this code can be (almost) trivially adapted to any
+optical photometry results for galaxies in the redshift range 0 to
+0.5. All you need to do is to specify a different set of filters, make
+sure your magnitudes are AB, and plug away!</p>
+
+<hr> 
+
+<address>
+Snail Mail: <a href="../address.html"
+>
+Michael Blanton</a>;
+Email: <a href="mailto:mb144@nyu.edu"> mb144@nyu.edu</a> 
+</address>
+
+</BODY>
+</HTML>

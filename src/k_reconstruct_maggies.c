@@ -21,7 +21,7 @@ IDL_LONG k_reconstruct_maggies(float *zvals,      /* z interpolation */
 															 IDL_LONG nk,     /* number of bandpasses */
 															 IDL_LONG nv,     /* number of templates */
 															 float *coeffs, /* coefficients */
-															 float *galaxy_z,
+															 float *redshift,
 															 float *reconstruct_maggies,
 															 IDL_LONG ngalaxy)
 {
@@ -32,7 +32,7 @@ IDL_LONG k_reconstruct_maggies(float *zvals,      /* z interpolation */
 			reconstruct_maggies[k+i*nk]=0.;
 			for(j=0;j<nv;j++) 
 				reconstruct_maggies[k+i*nk]+=coeffs[i*nv+j]*
-					k_interpolate_es(galaxy_z[i],&(rmatrix[k*nv*nz+j*nz]),zvals,nz);
+					k_interpolate_es(redshift[i],&(rmatrix[k*nv*nz+j*nz]),zvals,nz);
 		} /* end for k */
 	} /* end for i */
 	

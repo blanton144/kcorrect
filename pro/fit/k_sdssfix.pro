@@ -19,6 +19,7 @@
 ; COMMENTS:
 ; EXAMPLES:
 ; BUGS:
+;   Doesn't use lups2maggies
 ; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   07-Feb-2002  Written by Mike Blanton, NYU

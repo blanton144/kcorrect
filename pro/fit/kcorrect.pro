@@ -14,11 +14,11 @@
 ;        maxiter=, zmin=, zmax=, nz=, /verbose ]
 ;      
 ; INPUTS:
-;   maggies    - AB maggies of galaxies [N_band, N_gal] (magnitudes if
-;                /magnitude set)
-;   maggies_ivar - inverse variance in maggies (magnitudes if
-;                  /magnitude set, std. dev. if /stddev set)
-;   redshift      - redshifts of galaxies [N_gal]
+;   maggies    - [nk, ngals] AB maggies of galaxies (magnitudes if
+;                /magnitude or /sdssfix set)
+;   maggies_ivar - [nk, ngals] inverse variance in maggies (magnitudes if
+;                  /magnitude set, std. dev. if /stddev or /sdssifx set)
+;   redshift      - [ngals] redshifts of galaxies 
 ;
 ; OPTIONAL INPUTS:
 ;   band_shift    - blueshift of bandpasses to apply (to get ^{z}b
@@ -28,45 +28,39 @@
 ;   lfile         - wavelength file for vmatrix [default lambda.default.dat]
 ;   vfile         - vmatrix file [default vmatrix.default.dat]
 ;   vpath         - path to templates [default $KCORRECT_DIR/data/templates]
-;   filterlist    - list of filters [default
-;                                    ['sdss_u0.par', 'sdss_g0.par',
-;                                     'sdss_r0.par', 'sdss_i0.par',
-;                                     'sdss_z0.par']]
+;   filterlist    - [nk] list of filters [default
+;                                         ['sdss_u0.par', 'sdss_g0.par',
+;                                          'sdss_r0.par', 'sdss_i0.par',
+;                                          'sdss_z0.par']]
 ;   filterpath    - path to filters [default $KCORRECT_DIR/data/filters]
 ;   /sdssfix      - uses k_sdssfix to "fix" input SDSS magnitudes and 
 ;                   standard deviations (treats as if /magnitude and
 ;                   /stddev are also set)
 ;   /verbose      - call k_fit_nonneg verbosely
-;   maxiter       - maximum number of iterations for fit [default
-;                   3000]
+;   maxiter       - maximum number of iterations for fit [default 3000]
 ; OUTPUTS:
-;   kcorrect   - linear K-correction:
-;                   k(z) = f_{^{band_shift}b}(z=0)/f_b(z=z_obs) 
-;                if /magnitude is set then K(z)=-2.5*alog10(k(z)) is returned,
-;                satisfying
+;   kcorrect   - [nk, ngals] K-corrections satisfying
 ;                   m = M + DM(z) + K(z)
+;                based on the best fit sum of templates
 ;   coeffs     - coefficients fit to each template
 ;   chi2       - chi^2 of fit
 ;
 ; OPTIONAL INPUT/OUTPUTS:
-;   lambda        - wavelengths for templates (to use)/(which were used)
-;   vmatrix       - templates (to use)/(which were used)
+;   lambda        - [nl+1] wavelengths for templates (to use)/(which were used)
+;                   (pixel edges)
+;   vmatrix       - [nl, nv] templates (to use)/(which were used)
 ;   rmatrix       - look up table for bmatrix and filter information 
-;                   [N_z, N_dim, N_band]
+;                   [nz, nv, nk]
 ;   zvals         - look up redshift table for rmatrix [N_z]
 ;
 ; COMMENTS:
 ;
-;   Be careful when sending SDSS "photo" outputs directly into this program.
+;   Be careful when sending SDSS tsObj outputs directly into this program.
 ;   Eg. occasionally the magnitudes or the errors have crazy values,
 ;   such as -9999. The normal "garbage in, garbage out" rules
 ;   apply. However, I have supplied the /sdssfix flag, which does a
 ;   reasonable job in most cases of identifying problem cases and
-;   doing something OK about it. If you really care about the u
-;   magnitudes of every single object, you will have to think harder,
-;   but if all you want is to K-correct gri magnitudes well, this 
-;   will probably do just fine. /sdssfix also adds photometric
-;   zeropoint errors (0.05,0.02,0.02,0.02,0.03) to the fit.
+;   doing something OK about it. 
 ;
 ; EXAMPLES:
 ;
@@ -143,8 +137,6 @@ k_reconstruct_maggies,coeffs,redshift,reconstruct_maggies0, $
 
 ; get kcorrection
 kcorrect=reconstruct_maggies/reconstruct_maggies0
-if(keyword_set(magnitude)) then begin
-    kcorrect=2.5*alog10(kcorrect)
-endif
+kcorrect=2.5*alog10(kcorrect)
 
 end

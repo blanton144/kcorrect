@@ -63,12 +63,7 @@ soname=filepath('libkcorrect.so', $
                 root_dir=getenv('KCORRECT_DIR'), subdirectory='lib')
 
 ; Create rmatrix if necessary
-ndim=(size(maggies))[0]
-if(ndim eq 1) then begin
-    nk=1
-endif else begin
-    nk=(size(maggies,/dimens))[0]
-endelse
+nk=n_elements(filterlist)
 ngalaxy=long(n_elements(maggies))/nk
 if (keyword_set(vmatrix) AND keyword_set(filterlist) AND keyword_set(lambda)) $
   then begin

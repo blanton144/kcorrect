@@ -8,43 +8,41 @@
 ;       band_shift=, zvals=, rmatrix=, vmatrix=, lambda=, $
 ;       filterpath=, filterlist=, zmin=, zmax=, nz= ]
 ; INPUTS:
-;   coeff    - coefficients [N_template, N_gal]
-;   redshift      - redshift for each galaxy (where you want to
-;                   calculate maggies in model) [N_gal]
+;   coeffs        - [nv, ngals] coefficients 
+;   redshift      - [ngals] redshift for each galaxy (where you want to
+;                   calculate maggies in model) 
 ; OPTIONAL INPUTS:
 ; OUTPUTS:
 ; OPTIONAL INPUT/OUTPUTS:
-;   filterlist    - list of files with filter information [N_band]
-;   vmatrix       - templates spanning SED space [N_lambda, N_dim]
-;   lambda        - wavelengths for orthogonal templates [N_lambda+1]
-;   rmatrix       - look up table for bmatrix and filter information 
-;                   [N_z, N_dim, N_band]
-;   zvals         - look up table for rmatrix [N_z]
+;   filterlist    - [nk] list of files with filter information 
+;   vmatrix       - [nl,nk] templates spanning SED space 
+;   lambda        - [nl+1] wavelengths for templates 
+;   rmatrix       - [nz, nv, nk] look up table for bmatrix and filter 
+;                   information 
+;   zvals         - [nz] look up table for rmatrix 
 ;   band_shift    - shift to apply to bandpasses (default 0.)
 ; COMMENTS:
-;   Outputs maggies in maggies. Does not calculate errors. 
-; 
 ;   Reconstruct AB galaxy maggies given an observed redshift and a
 ;   shift to apply to the bandpasses (band_shift). To reconstruct the
 ;   observed galaxy maggies:
 ; 
-;      k_reconstruct_maggies,coeff,redshift,reconstruct_maggies
+;      k_reconstruct_maggies,coeffs,redshift,reconstruct_maggies
 ; 
-;   To construct what would be observed if the galaxy were observed 
+;   To construct what would be observed if the galaxies were observed 
 ;   at z=0. through a bandpass blueshifted by z=0.1:
 ; 
-;      k_reconstruct_maggies,coeff,replicate(0.,ngals),reconstruct_maggies, $
+;      k_reconstruct_maggies,coeffs,replicate(0.,ngals),reconstruct_maggies, $
 ;         band_shift=replicate(0.1,ngals)
 ; EXAMPLES:
-;   Given coeffs from a call to k_fit_coeff, create reconstructed maggies
-;   for each galaxy using default templates
+;   Given coeffs from a call to k_fit_coeff or kcorrect, create 
+;   reconstructed maggies for each galaxy using default templates
 ; 
-;   IDL> k_reconstruct_maggies,coeffs,redshift,reconstruct_maggies,/default
+;   IDL> k_reconstruct_maggies,coeffs,redshift,reconstruct_maggies
 ;  
 ;   To K-correct all the maggies to the same redshift (0.1):
 ;
 ;   IDL> k_reconstruct_maggies, coeffs,replicate(0.1,n_elements(redshift)), $
-;        reconstruct_maggies, /default
+;        reconstruct_maggies
 ; BUGS:
 ; PROCEDURES CALLED:
 ; REVISION HISTORY:

@@ -72,16 +72,11 @@ if (N_params() LT 3) then begin
     return
 endif
 
-ndim=(size(maggies))[0]
-if(ndim eq 1) then begin
-    nk=1
-endif else begin
-    nk=(size(maggies,/dimens))[0]
-endelse
-ngalaxy=long(n_elements(maggies))/nk
 if(NOT keyword_set(filterlist)) then $
   filterlist=['sdss_u0.par','sdss_g0.par','sdss_r0.par','sdss_i0.par', $
               'sdss_z0.par']
+nk=n_elements(filterlist)
+ngalaxy=long(n_elements(maggies))/nk
 if(NOT keyword_set(maxiter)) then maxiter=3000L
 
 ; Fix SDSS mags if desired
