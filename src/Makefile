@@ -8,7 +8,7 @@
 SHELL = /bin/sh
 #
 CFLAGS  = -I$(IDL_DIR)/external -I$(KCORRECT_DIR)/include \
-	$(X_CFLAGS) $(SDSS_CFLAGS) -DCHECK_LEAKS
+	-I$(KCORRECT_DIR)/src $(X_CFLAGS) $(SDSS_CFLAGS) -DCHECK_LEAKS
 #
 .c.o : $(KCORRECT_DIR)/include/kcorrect.h export.h
 	$(CC) -c $(CCCHK) $(CFLAGS) $(IDL_FLAG) $*.c
