@@ -236,10 +236,8 @@ outstr[icnoc2].ra=cnoc2_childobj.ra
 outstr[icnoc2].dec=cnoc2_childobj.dec
 outstr[icnoc2].redshift=cnoc2.z
 ; AB shifts
-for i=0, 4 do begin
-    outstr[icnoc2].maggies[i]=sdssflux2ab(cnoc_stacked)
-    outstr[icnoc2].maggies_ivar[i]=sdssflux2ab(cnoc_stacked_ivar,/ivar)
-endfor
+outstr[icnoc2].maggies[0:4]=sdssflux2ab(cnoc_stacked)
+outstr[icnoc2].maggies_ivar[0:4]=sdssflux2ab(cnoc_stacked_ivar,/ivar)
 
 ; now reddening correct all
 euler,outstr.ra,outstr.dec,ll,bb,1
