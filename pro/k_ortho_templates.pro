@@ -80,7 +80,8 @@ if(arg_present(bdotv)) then begin
     for b = 0l, nb-1l do begin
         for bp = 0l, nb-1l do begin
             bdotv[b,bp]=total((lambda[subindxp1]-lambda[subindx])* $
-                              bmatrix[subindx,b]*vmatrix[subindx,bp],/double)
+                              bmatrix[subindx,b]*vmatrix[subindx,bp],/double)*$
+              (sublmax-sublmin)
         endfor
     endfor
 endif

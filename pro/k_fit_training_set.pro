@@ -135,7 +135,7 @@ order=[0,5,10,1+lindgen(4),6+lindgen(4),11+lindgen(62)]
 vmatrix=vmatrix[*,order]
 coeffs=coeffs[order,*]
 k_ortho_templates,vmatrix,lambda,bmatrix,bflux,bdotv=bdotv, $
-  sublmin=1800.,sublmax=12000.
+  sublmin=2000.,sublmax=12000.
 bcoeffs=bdotv#coeffs
 
 ; find flux direction and rotation to those coordinates
@@ -145,9 +145,9 @@ k_ortho_etemplates,ematrix,bflux
 ; Scale distribution to plane of constant flux
 newcoeffs=transpose(ematrix)#bcoeffs
 flux_total=newcoeffs[0,*]
-for i=0L, nv-1L do $
-  newcoeffs[i,*]=newcoeffs[i,*]/flux_total
-pcacoeffs=newcoeffs[1:nv-1,*]
+pcacoeffs=dblarr(nv-1,n_elements(indx))
+for i=0L, nv-2L do $
+  pcacoeffs[i,*]=newcoeffs[i+1,*]/flux_total
 
 ; Find center of the distribution and get "centered" coeffs
 center=dblarr(nv-1L)
@@ -168,7 +168,7 @@ var=mean(dist2)
 use_indx=where(dist2 lt 25.*var)
 
 ; Pull out the eigencomponents
-npca=2
+npca=3
 em_pca,centered_coeffs[*,use_indx],npca,tmp_eigenvec,eigencoeffs_indx, $
   maxiter=100
 eigenvec=dblarr(nv,npca+1L)
@@ -179,14 +179,17 @@ newematrix[*,1L:npca+1L]=ematrix#eigenvec
 newematrix[*,0]=ematrix#[0.,center]
 eigencoeffs=dblarr(npca+2L,n_elements(indx))
 eigencoeffs[0,*]=1.
-eigencoeffs[1,*]=newcoeffs[0,*]
+eigencoeffs[1,*]=1.
 eigencoeffs[2:npca+1,*]=transpose(tmp_eigenvec)#centered_coeffs
+for i=0,npca+1 do $
+  eigencoeffs[i,*]=eigencoeffs[i,*]*flux_total
 
 ; Output QA 
-nuse=npca-1L
+nuse=npca-2L
 k_reconstruct_maggies,eigencoeffs[0:nuse+1,*],gals[*].redshift,rec_maggies, $
   zvals=zvals,lambda=lambda,bmatrix=bmatrix,ematrix=newematrix[*,0:nuse+1], $
   filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
+plot,maggies[2,*],maggies[2,*]/rec_maggies[2,*],psym=3
 set_print,filename='qa_k_fit_training_set_pca_coeffs.ps'
 umg_model=-2.5*alog10(rec_maggies[0,*]/rec_maggies[1,*])
 umg_obs=gals[*].mag[0]-gals[*].mag[1]
@@ -225,8 +228,39 @@ endfor
 !P.MULTI=[1,1,1]
 end_print
 
-kphotoz, maggies, maggies_err, photoz, coeffs=coeffs, /maggies, $
-  ematrix=newematrix[*,0:nuse+1], rmatrix=rmatrix, zvals=zvals
+vmatrix=bmatrix#newematrix[*,0:2]
+coeffs=eigencoeffs[0:2,*]
+maggies_ivar=1./maggies_err^2
+k_tweak_templates, maggies, maggies_ivar, gals.redshift, $
+  coeffs, vmatrix, lambda, filterlist=filterlist, $
+  maggies_factor=maggies_factor
+
+nuse=npca-2L
+k_reconstruct_maggies,eigencoeffs[0:nuse+1,*],gals[*].redshift,rec_maggies, $
+  zvals=zvals,lambda=lambda,bmatrix=bmatrix,ematrix=newematrix[*,0:nuse+1], $
+  filterlist=['sdss_u0','sdss_g0','sdss_r0','sdss_i0','sdss_z0']+'.dat'
+for i=0L, 4L do $
+  rec_maggies[i,*]=rec_maggies[i,*]/maggies_factor[i]
+set_print,filename='qa_k_fit_training_set_tweak_coeffs.ps'
+umg_model=-2.5*alog10(rec_maggies[0,*]/rec_maggies[1,*])
+umg_obs=gals[*].mag[0]-gals[*].mag[1]
+gmr_model=-2.5*alog10(rec_maggies[1,*]/rec_maggies[2,*])
+gmr_obs=gals[*].mag[1]-gals[*].mag[2]
+rmi_model=-2.5*alog10(rec_maggies[2,*]/rec_maggies[3,*])
+rmi_obs=gals[*].mag[2]-gals[*].mag[3]
+imz_model=-2.5*alog10(rec_maggies[3,*]/rec_maggies[4,*])
+imz_obs=gals[*].mag[3]-gals[*].mag[4]
+plot,umg_obs,gmr_obs,psym=3,xra=[0.,3.2],yra=[-0.3,2.2]
+oplot,umg_model,gmr_model,psym=4,color=djs_icolor('red')
+plot,gmr_obs,rmi_obs,psym=3,xra=[-0.3,2.2],yra=[-0.1,1.0]
+oplot,gmr_model,rmi_model,psym=4,color=djs_icolor('red')
+plot,rmi_obs,imz_obs,psym=3,xra=[-0.1,1.0],yra=[-0.2,0.6]
+oplot,rmi_model,imz_model,psym=4,color=djs_icolor('red')
+plot,gals[*].redshift,umg_model-umg_obs,psym=3,yra=[-0.8,0.8]
+plot,gals[*].redshift,gmr_model-gmr_obs,psym=3,yra=[-0.8,0.8]
+plot,gals[*].redshift,rmi_model-rmi_obs,psym=3,yra=[-0.8,0.8]
+plot,gals[*].redshift,imz_model-imz_obs,psym=3,yra=[-0.8,0.8]
+end_print
 
 stop
 
