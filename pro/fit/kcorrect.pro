@@ -34,8 +34,9 @@
 ;                                          'sdss_z0.par']]
 ;   filterpath    - path to filters [default $KCORRECT_DIR/data/filters]
 ;   /sdssfix      - uses k_sdssfix to "fix" input SDSS magnitudes and 
-;                   standard deviations (treats as if /magnitude and
-;                   /stddev are also set)
+;                   standard deviations; this applies the AB fix to
+;                   the SDSS magnitudes; it treats as if /magnitude and
+;                   /stddev are also set 
 ;   /verbose      - call k_fit_nonneg verbosely
 ;   maxiter       - maximum number of iterations for fit [default 3000]
 ; OUTPUTS:

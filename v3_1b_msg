@@ -9,13 +9,13 @@ the main improvement is a move to non-negative linear combinations of
 templates, which is a better behaved constraint on the fits. this has
 the consequences:
 
-  1. degeneracies (such as that at z=0.3) that afflicted old versions
-     are now gone
+  1. degeneracies that afflicted old versions are now gone
   2. photo-z outliers are greatly reduced 
   3. extrapolations of the fit are less dangerous
-  4. eventually, this will provide us the tools to return physical
-     parameters to associate with the photometry and simple evolution
-     estimates
+
+eventually, this will provide us the tools to return physical
+parameters to associate with the photometry and simple evolution
+estimates.
 
 the second improvement is a simpler mechanism for including other
 filter systems, so that you can easily run kcorrect on (for example)

@@ -5,7 +5,8 @@
 ;   Take a set of SDSS pipeline magnitudes and errors and "fixes" them, in the
 ;   sense that for "bad" measurements or errors you assign values
 ;   which are not absurd. Not necessary for Princeton-style input
-;   (which sets ivar to zero as appropriate). 
+;   (which sets ivar to zero as appropriate). Also applies
+;   sdss-calib/845 tweaks to the AB system
 ; CALLING SEQUENCE:
 ;   k_sdssfix, mags, mags_stddev, maggies, maggies_ivar 
 ; INPUTS:
@@ -17,6 +18,12 @@
 ;   maggies_ivar - best inverse variance to use
 ; OPTIONAL INPUT/OUTPUTS:
 ; COMMENTS:
+;   Uses the conversions posted by D.Hogg (sdss-calib/845)
+;     u(AB,2.5m) = u(2.5m) - 0.042
+;     g(AB,2.5m) = g(2.5m) + 0.036
+;     r(AB,2.5m) = r(2.5m) + 0.015
+;     i(AB,2.5m) = i(2.5m) + 0.013
+;     z(AB,2.5m) = z(2.5m) - 0.002
 ; EXAMPLES:
 ; BUGS:
 ;   Doesn't use lups2maggies
@@ -82,11 +89,16 @@ if(count gt 0) then begin
     mags_ivar[indx]=0.
 endif
 
+aboff=[-0.042, 0.036, 0.015, 0.013, -0.002]
+abmags=fltarr(nk,ngalaxy)
+for k=0, nk-1 do $
+  abmags[k,*]=mags[k,*]+aboff[k]
+
 maggies=dblarr(nk,ngalaxy)
 indx=where(mags_ivar ne 0.,count)
 if(count gt 0) then begin
-   maggies[indx]=(10.D)^(-(0.4D)*mags)
-   maggies_ivar[indx]=mags_ivar/(0.4*alog(10.)*maggies)^2.
+   maggies[indx]=(10.D)^(-(0.4D)*abmags[indx])
+   maggies_ivar[indx]=mags_ivar[indx]/(0.4*alog(10.)*maggies[indx])^2.
 endif
 indx=where(mags_ivar eq 0.,count)
 if(count gt 0) then begin
