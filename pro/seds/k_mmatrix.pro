@@ -2,7 +2,7 @@
 ; NAME:
 ;   k_bc03_grid
 ; PURPOSE:
-;   make grid of BC03 models
+;   make grid of BC03 model spectra
 ; CALLING SEQUENCE:
 ;   k_bc03_grid
 ; REVISION HISTORY:
@@ -11,13 +11,26 @@
 ;------------------------------------------------------------------------------
 pro k_mmatrix
 
+norm_lmin=1500.
+norm_lmax=23000.
+lmin=1300.
+lmax=25000.
+navloglam=8000L
+nagesmax=10
+minzf=0.
+maxzf=1.
+;;nmets=6
+;;mets=[0,1,2,3,4,5]
+nmets=2
+mets=[2,3]
+
 ;; make stellar pops
 bc03= k_im_read_bc03()
-iwave=where(bc03.wave gt 3000. and bc03.wave lt 10000., nwave)
+iwave=where(bc03.wave gt norm_lmin and bc03.wave lt norm_lmax, nwave)
 
-nages=3000L
+nages=3000L + nagesmax
 tol=5.
-while(nages gt 50) do begin
+while(nages gt nagesmax) do begin
     iuse=n_elements(bc03.age)-1L 
     i=iuse
     while i ge 1 do begin
@@ -46,9 +59,6 @@ while(nages gt 50) do begin
     help,tol, nages
 endwhile
 
-nmets=6
-mets=[0,1,2,3,4,5]
-
 tmp_bc03= k_im_read_bc03(age=1.)
 nl=n_elements(tmp_bc03.flux)
 
@@ -59,13 +69,12 @@ grid=fltarr(nl, nages, nmets)
 for im= 0L, nmets-1L do $
   grid[*,*,im]= (k_im_read_bc03(met=mets[im])).flux[*,iuse]
 
-navloglam=4000L
-avloglam=double(alog10(3500.)+(alog10(9500.)-alog10(3500.))* $
+avloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
                 (dindgen(navloglam)+0.5)/float(navloglam))
 sfgrid=fltarr(navloglam, nages*nmets)
 
 ninterloglam=20000L
-interloglam=double(alog10(3500.)+(alog10(9500.)-alog10(3500.))* $
+interloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
                    (dindgen(ninterloglam)+0.5)/float(ninterloglam))
 
 for im= 0L, nmets-1L do $
@@ -117,6 +126,26 @@ sigma=2.
 for i=0L, n_elements(name)-1L do $
   emgrid[*, i]= exp(-(10.^avloglam-lambda[i])^2/(sigma)^2)/ $
   (sqrt(2.*!DPI)*sigma)
+
+;; now make all filters at all redshifts
+filterlist=['galex_FUV.par', $
+            'galex_NUV.par', $
+            'sdss_u0.par', $
+            'sdss_g0.par', $
+            'sdss_r0.par', $
+            'sdss_i0.par', $
+            'sdss_z0.par', $
+            'twomass_J.par', $
+            'twomass_H.par', $
+            'twomass_Ks.par']
+zf=minzf+(maxzf-minzf)*(findgen(nzf)+0.5)/float(nzf)
+lambda=fltarr(navloglam+1L)
+davloglam=avloglam[1]-avloglam[0]
+lambda[0:navloglam-2L]=10.^(avloglam-davloglam)
+lambda[1:navloglam-1L]=10.^(avloglam+davloglam)
+k_projection_table, rmatrix, spgrid, lambda, zf, filterlist
+
+stop
 
 ;; output
 outgrid=fltarr(navloglam,nages*nmets*ndust+n_elements(name))
