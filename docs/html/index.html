@@ -104,11 +104,10 @@ In order to compile the code follow these directions:
 <pre>
 KCORRECT_DIR=/usr/local/kcorrect
 IDL_PATH=$IDL_PATH:+$KCORRECT_DIR/pro
-IDL_FLAG="-DLINKTOIDL"
 MAKE_FTNLIB="-lg2c"
 KCORRECT_LD_LIB="/usr/lib"
 PATH=$KCORRECT_DIR/bin:$PATH
-export KCORRECT_LD_LIB IDL_FLAG MAKE_FTNLIB KCORRECT_DIR 
+export KCORRECT_LD_LIB MAKE_FTNLIB KCORRECT_DIR 
 </pre>
 These default settings may need to be changed on your system as
 follows:
@@ -122,9 +121,6 @@ Fortran objects. As implied above, "-lg2c" is appropriate for Red Hat
 Linux. 
 <li>
 <b>IDL_PATH</b>: Set only if you are using IDL
-<li>
-<b>IDL_FLAG</b>: Set to "-DLINKTOIDL" only if you are using IDL;
-otherwise set it to ""
 <li>
 <b>KCORRECT_LD_LIB</b>: Should be a location which is in your
 LD_LIBRARY_PATH, in which we will put the shared object library when

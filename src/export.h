@@ -1,5 +1,4 @@
 /* export.h */
-sdsfadsfdfadsf dsaf
 
 /*
  *  Copyright (c) 1992-1998, Research Systems Inc.  All rights reserved.
