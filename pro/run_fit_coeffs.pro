@@ -132,16 +132,26 @@ if(count gt 0) then begin
     magserr[*,indx]=sp[indx].petrocountserr
 endif
 
-kcorrect,mags,magserr,sp.z,recmags,coeff=coeff, version=version, $
-  vpath=vpath, addgrgap=addgrap, sdssfix=sdssfix, vconstraint=vconstraint
+galaxy_maggies=dblarr(nk,n_elements(sp))
+galaxy_invvar=dblarr(nk,n_elements(sp))
+for k=0l,nk-1l do begin
+    galaxy_maggies[k,*]=10.d^(-0.4d*(mags[k,*]-sp.reddening[k] $
+                                  +shiftband[k]))
+    galaxy_invvar[k,*]=galaxy_maggies[k,*]*0.4d*alog(10.d)* $
+      sqrt(magserr[k,*]^2+errband[k]^2)
+    galaxy_invvar[k,*]=1.d/(galaxy_invvar[k,*]^2)
+endfor
+
+kcorrect,galaxy_maggies,galaxy_invvar,sp.z,recmags,coeff=coeff, $
+  version=version, vpath=vpath, addgrgap=addgrap, sdssfix=sdssfix, $
+  vconstraint=vconstraint, /maggies, /invvar
 galaxy_z=sp.z
 galaxy_petrocounts=sp.petrocounts
 galaxy_petrocountserr=sp.petrocountserr
 galaxy_counts_model=sp.counts_model
 galaxy_counts_modelerr=sp.counts_modelerr
 
-save,galaxy_maggies,galaxy_invvar,sp,coeff,ematrix,bmatrix,lambda, $
-  filterlist,filename=savfile
+save,galaxy_maggies,galaxy_invvar,sp,coeff,filename=savfile
 
 if(keyword_set(outpts)) then begin
     nt=n_elements(coeff)/n_elements(sp.z)

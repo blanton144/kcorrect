@@ -35,7 +35,8 @@ pro k_colors_plot,savfile,version=version,vpath=vpath,psfile=psfile, $
                   to_z=to_z,omega0=omega0, omegal0=omegal0,lumlim=lumlim, $
                   zrange=zrange,nsig=nsig, zsplit=zsplit, $
                   nprimtargetmask=nprimtargetmask, colorlimits=colorlimits, $
-                  subsample=subsample
+                  subsample=subsample, addgrgap=addgrgap, sdssfix=sdssfix, $
+                  vconstraint=vconstraint
 
 if(n_elements(vpath) eq 0) then $
   vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
@@ -73,13 +74,21 @@ galaxy_invvar=galaxy_invvar[*,indx]
 coeff=coeff[*,indx]
 
 if(keyword_set(to_z)) then begin
+    to_z_str=strtrim(string(to_z,format='(f3.1)'),2)
     to_z=galaxy_z-galaxy_z+to_z
 endif else begin
     to_z=galaxy_z
+    to_z_str='z'
 endelse
 
 kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies,kcorrectz=to_z, $
-  version=version,vpath=vpath,/maggies,/invvar
+  version=version,vpath=vpath,/maggies,/invvar,addgrgap=addgrgap, $
+  vconstraint=vconstraint, sdssfix=sdssfix
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies0, $
+  version=version,vpath=vpath,/maggies,/invvar,addgrgap=addgrgap, $
+  vconstraint=vconstraint, sdssfix=sdssfix
+kcorrect_val=recmaggies/recmaggies0
+recmaggies=galaxy_maggies*kcorrect_val
 
 dm=2.5*alog10((2.99792e+8*lumdis(galaxy_z,omega0,omegal0))^2)
 lum=-2.5*alog10(recmaggies[2,*])-dm
@@ -90,7 +99,6 @@ if(count eq 0) then begin
     klog,'No objects.'
     return
 endif
-
 
 if(keyword_set(psfile)) then begin
     set_plot, "PS"
@@ -144,7 +152,7 @@ for k=0l, nk-2 do begin
     !X.CHARSIZE = 1.*axis_char_scale
     !Y.CHARSIZE = 1.*axis_char_scale
     !X.TITLE = ''
-    !Y.TITLE = '!u'+strtrim(string(to_z[0],format='(d3.1)'),2)+'!n('+ $
+    !Y.TITLE = '!u'+to_z_str+'!n('+ $
       bands[k]+'-'+bands[k+1]+')'
     if (k eq nk-2) then !X.CHARSIZE = 1.*axis_char_scale
     if (k eq nk-2) then !X.TITLE = 'Redshift z'
@@ -192,7 +200,7 @@ for k=0l, nk-2 do begin
     djs_plot,colorvals,colorhistlo,psym=10,xst=1,yst=1
     djs_oplot,colorvals,colorhisthi,psym=10,linestyle=1
     axis,!X.RANGE[1],!Y.RANGE[0],yaxis=1,ycharsize=axis_char_scale, $
-      ytitle='N!dgal!n (Normalized)'
+      ytitle='N!dgal!n'
     if(k eq 1) then begin
         xyouts,!X.RANGE[0]+(!X.RANGE[1]-!X.RANGE[0])*0.03, $
           !Y.RANGE[1]-(!Y.RANGE[1]-!Y.RANGE[0])*0.15, $

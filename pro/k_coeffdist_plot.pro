@@ -31,7 +31,7 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_coeffdist_plot,savfile,basecoeff=basecoeff,subsample=subsample,nsig=nsig,psfile=psfile,version=version,vpath=vpath,addgrgap=addgrgap,dots=dots
+pro k_coeffdist_plot,savfile,basecoeff=basecoeff,subsample=subsample,nsig=nsig,psfile=psfile,version=version,vpath=vpath,addgrgap=addgrgap,dots=dots, sdssfix=sdssfix, vconstraint=vconstraint, scalespec=scalespec
 
 if(n_elements(lamlim) eq 0) then lamlim=[2000.,10000.]
 if(n_elements(nsig) eq 0) then nsig=3.
@@ -45,8 +45,8 @@ restore,savfile
 if(n_elements(sp) gt 0) then galaxy_z=sp.z
 
 kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies, $
-  version=version,vpath=vpath,/maggies,/invvar,addgrgap=addgrgap,/sdssfix, $
-  coeff=coeff
+  version=version,vpath=vpath,/maggies,/invvar,addgrgap=addgrgap, $
+  sdssfix=sdssfix, vconstraint=vconstraint, coeff=coeff 
 
 nt=long((size(ematrix))[2])
 if(n_elements(basecoeff) eq 0) then basecoeff=nt-1
@@ -57,7 +57,7 @@ coeffindx=(lindgen(nt-1)+1)[where(lindgen(nt-1)+1 ne basecoeff)]
 coeffmean=dblarr(nt-2)
 for i=0, nt-3 do $
   coeffmean[i]=djs_avsigclip(coeff[coeffindx[i],*]/coeff[0,*])
-speccoeffs=dblarr(nt,3)
+speccoeffs=dblarr(nt,n_elements(dots))
 speccoeffs[0,*]=1.
 speccoeffs[basecoeff,*]=dots
 for i=0, nt-3 do $
@@ -151,10 +151,11 @@ djs_plot,lam,out,xst=1,yst=1,yra=[-0.1,1.1],xra=[2000.,11000.],/nodata, $
 xout=lam[n_elements(lam)/9]
 for i = 0, nt-3 do begin
     yout=0.95-double(i)*0.1
+    outval=floor(speccoeffs[coeffindx[i],0]*(100.d)+0.5)/100.d
     xyouts,xout,yout,'a!d'+strtrim(string(coeffindx[i]),2)+'!n/a!d0!n='+ $
-      strtrim(string(speccoeffs[coeffindx[i],0],format='(f5.2)'),2)
+      strtrim(string(outval,format='(f5.2)'),2)
 endfor
-scalespec=[1.,2.,1.5]
+if(NOT keyword_set(scalespec)) then scalespec=dblarr(n_elements(dots))+1.
 for j=0, nspecs-1 do begin
     out=scalespec[j]*spec[*,j]/max(spec[*,0])* $
        interpolate(spec[*,0], $

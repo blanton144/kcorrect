@@ -31,7 +31,7 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_speck_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample,to_z=to_z,zrange=zrange,usefiber=usefiber,lumlim=lumlim, primtargetmask=primtargetmask,fitfib=fitfib,ylimits=ylimits
+pro k_speck_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample,to_z=to_z,zrange=zrange,usefiber=usefiber,lumlim=lumlim, primtargetmask=primtargetmask,fitfib=fitfib,ylimits=ylimits,addgrgap=addgrgap,vconstraint=vconstraint,sdssfix=sdssfix
 
 if(NOT keyword_set(version)) then version='default'
 if(NOT keyword_set(vpath)) then vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
@@ -63,8 +63,8 @@ help,indx
 if(n_elements(lumlim) gt 0) then begin
     galaxy_z_k=replicate(to_z,n_elements(galaxy_z))
     kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,recmaggies,coeff=coeff, $
-      version=version, vpath=vpath, /maggies, /invvar, /addgrgap, $
-      kcorrectz=galaxy_z_k
+      version=version, vpath=vpath, /maggies, /invvar, kcorrectz=galaxy_z_k, $
+      addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix
 
     omega0=0.3
     omegal0=0.7
@@ -102,10 +102,11 @@ endif
 
 galaxy_z_k=replicate(to_z,n_elements(galaxy_z))
 kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies, $
-  coeff=coeff,version=version,vpath=vpath,/maggies,/invvar,/addgrgap, $
-  kcorrectz=to_z
+  coeff=coeff,version=version,vpath=vpath,/maggies,/invvar, $
+  kcorrectz=to_z, addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix
 kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies0, $
-  coeff=coeff,version=version,vpath=vpath,/maggies,/invvar,/addgrgap
+  coeff=coeff,version=version,vpath=vpath,/maggies,/invvar, $
+  addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix
 
 if(keyword_set(psfile)) then begin
     set_plot, "PS"

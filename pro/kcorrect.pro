@@ -104,6 +104,7 @@ endif
 if(keyword_set(vconstraint)) then begin
    constraints_amp=1.d
    k_load_ascii_table,constraints_var,vpath+'/scaledvar.'+version+'.dat'
+   constraints_var=4.*constraints_var
    k_load_ascii_table,constraints_mean,vpath+'/scaledmean.'+version+'.dat'
 endif
   

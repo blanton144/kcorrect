@@ -57,7 +57,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_sed, galaxy_maggies, galaxy_invvar, galaxy_z, templatelist, filterlist, coeff, ematrix, bmatrix, bflux, lambda, smoothtemplate=smoothtemplate, sublmin=sublmin, sublmax=sublmax, vmatrix=vmatrix, preset_ematrix=preset_ematrix, maxiter=maxiter, nt=nt, reconstruct_maggies=reconstruct_maggies, plotmaggies=plotmaggies, cutlmin=cutlmin, cutlmax=cutlmax, subsmoothtemplate=subsmoothtemplate, subsmoothlimits=subsmoothlimits
+pro k_fit_sed, galaxy_maggies, galaxy_invvar, galaxy_z, templatelist, filterlist, coeff, ematrix, bmatrix, bflux, lambda, smoothtemplate=smoothtemplate, sublmin=sublmin, sublmax=sublmax, vmatrix=vmatrix, preset_ematrix=preset_ematrix, maxiter=maxiter, nt=nt, reconstruct_maggies=reconstruct_maggies, plotmaggies=plotmaggies, cutlmin=cutlmin, cutlmax=cutlmax, subsmoothtemplate=subsmoothtemplate, subsmoothlimits=subsmoothlimits, useconstraint=useconstraint
 
 ; Need at least 10 parameters
 if (N_params() LT 10) then begin
@@ -157,8 +157,21 @@ for i=0l, maxiter-1l do begin
       endfor
   endif
   k_ortho_etemplates,ematrix,bflux
+	if(keyword_set(useconstraint)) then begin
+		constraints_amp=1.d
+	  ngals=n_elements(galaxy_z)
+		scaled=coeff[1:nt-1L,*]/(replicate(1.,nt-1)#coeff[0,*])
+		constraints_mean=total(scaled,2,/double)/double(ngals)
+		constraints_var= 0d
+		for j=0L, ngals-1L do begin 
+      delta=scaled[*,j]-constraints_mean 
+      constraints_var= constraints_var+delta#delta 
+    endfor
+		constraints_var=8.*constraints_var/double(ngals)
+  endif
   k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,ematrix=ematrix, $
-     zvals=zvals, rmatrix=rmatrix
+     zvals=zvals, rmatrix=rmatrix, constraints_amp=constraints_amp, $
+     constraints_mean=constraints_mean, constraints_var=constraints_var
   k_pca_etemplates,coeff,ematrix,bflux
 endfor
 

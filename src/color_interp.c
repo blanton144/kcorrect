@@ -15,11 +15,13 @@
 
 #define ZZERO 0.1
 #define MAGGIEFILE "testsp.K.dat"
-#define RFFILE "testsp.K.cibreak.dat"
+#define RFFILE "testsp.K.ci.dat"
 #define INCLUDEBREAK
+#undef INCLUDEBREAK
 #define NGALS 6534
 #define FILTERPATH "../data/filters"
 #define FILTERBASE "sdss_"
+
 
 static int band,currband,igal;
 static int band0,band1;

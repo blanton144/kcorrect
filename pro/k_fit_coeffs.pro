@@ -116,17 +116,19 @@ if(nconstraints gt 0) then begin
   if(n_elements(constraints_mean) ne nt-1L OR $
 		 n_elements(constraints_var) ne (nt-1L)*(nt-1L)) then begin
 	   klog,'Require constraints_mean and constraints_var to be set correctly'
+	   stop
 	   return
   endif
-  constraints_mean=reform(constraints_mean,nt-1L,nconstraints)
-  constraints_var=reform(constraints_var,nt-1L,nt-1L,nconstraints)
-	constraints_invvar=dblarr(nt-1L,nt-1L,nconstraints)
+  use_constraints_amp=reform([constraints_amp],nconstraints)
+  use_constraints_mean=reform([constraints_mean],nt-1L,nconstraints)
+  use_constraints_var=reform([constraints_var],nt-1L,nt-1L,nconstraints)
+	use_constraints_invvar=dblarr(nt-1L,nt-1L,nconstraints)
 	for i=0L, nconstraints-1L do $
-    constraints_invvar[*,*,i]=invert(constraints_var[*,*,i])
+    use_constraints_invvar[*,*,i]=invert(constraints_var[*,*,i])
 endif else begin
-  constraints_amp=0.d
-  constraints_mean=0.d
-  constraints_invvar=0.001d
+  use_constraints_amp=0.d
+  use_constraints_mean=0.d
+  use_constraints_invvar=0.001d
 endelse
 
 ; Call coefficient software
@@ -135,9 +137,10 @@ retval=call_external(soname, 'idl_k_fit_coeffs', double(ematrix), $
                      long(nt), double(zvals), long(nz), double(rmatrix), $
                      long(nk), long(nb), double(coeff), $
                      double(galaxy_maggies), double(galaxy_invvar), $
-                     double(galaxy_z), double(constraints_amp), $
-										 double(constraints_mean), double(constraints_invvar), $
-										 long(nconstraints), long(ngalaxy))
+                     double(galaxy_z), double(use_constraints_amp), $
+										 double(use_constraints_mean),  $
+                     double(use_constraints_invvar), long(nconstraints), $
+                     long(ngalaxy))
 
 end
 ;------------------------------------------------------------------------------

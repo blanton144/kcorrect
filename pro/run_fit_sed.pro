@@ -36,7 +36,7 @@
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim,subsmoothlimits=subsmoothlimits,subsmoothtemplate=subsmoothtemplate,etemplatepath=etemplatepath,plotmaggies=plotmaggies
+pro run_fit_sed,outname,spfile=spfile,nophotozplates=nophotozplates,chunksize=chunksize,zlimits=zlimits,nz=nz,templatelist=templatelist,filtfile=filtfile,nl=nl,lambdalim=lambdalim,smoothtemplate=smoothtemplate,nt=nt,fraction=fraction,shiftband=shiftband,errband=errband,errlimit=errlimit,maglimit=maglimit,outpath=outpath, savfile=savfile, nk=nk,scale=scale, nsp=nsp,maxiter=maxiter, nozlim=nozlim,subsmoothlimits=subsmoothlimits,subsmoothtemplate=subsmoothtemplate,etemplatepath=etemplatepath,plotmaggies=plotmaggies,useconstraint=useconstraint
 
 if(NOT keyword_set(nophotozplates)) then mustdo=[669,670,671,672] 
 
@@ -62,6 +62,8 @@ if(NOT keyword_set(nk)) then nk=5L
 if(NOT keyword_set(nl)) then nl=500L
 if(NOT keyword_set(lambdalim)) then lambdalim=[1000.,12000.]
 if(NOT keyword_set(smoothtemplate)) then smoothtemplate=300.d
+if(NOT keyword_set(subsmoothtemplate)) then subsmoothtemplate=150.d
+if(NOT keyword_set(subsmoothlimits)) then subsmoothlimits=[3000.,5000.]
 if(NOT keyword_set(nt)) then nt=3L
 if(NOT keyword_set(fraction)) then fraction=1.
 if(NOT keyword_set(spfile)) then spfile='/data/sdss/spectro/spAll.fits'
@@ -193,7 +195,8 @@ endfor
 k_fit_sed,galaxy_maggies,galaxy_invvar,sp.z,templatelist, $
   filterlist, coeff, ematrix, bmatrix, bflux, lambda, nt=nt, $
   reconstruct_maggies=reconstruct_maggies, plotmaggies=plotmaggies, $
-  smoothtemplate=smoothtemplate, maxiter=maxiter
+  smoothtemplate=smoothtemplate, subsmoothtemplate=subsmoothtemplate, $
+  subsmoothlimits=subsmoothlimits, maxiter=maxiter, useconstraint=useconstraint
 z=sp.z
 
 ; get the ellipse of coeffs

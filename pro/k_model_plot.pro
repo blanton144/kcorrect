@@ -31,7 +31,7 @@
 ;   23-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_model_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample
+pro k_model_plot,savfile,version=version,vpath=vpath,psfile=psfile,nsig=nsig, subsample=subsample, sdssfix=sdssfix, vconstraint=vconstraint, addgrgap=addgrgap
 
 if(NOT keyword_set(version)) then version='default'
 if(NOT keyword_set(vpath)) then vpath=getenv('KCORRECT_DIR')+'/data/etemplates'
@@ -60,10 +60,9 @@ galaxy_z=galaxy_z[indx]
 galaxy_maggies=galaxy_maggies[*,indx]
 coeff=coeff[*,indx]
 
-k_fit_coeffs,galaxy_maggies,galaxy_invvar,galaxy_z,coeff,version=version, $
-  vpath=vpath
-k_reconstruct_maggies,coeff,galaxy_z,galaxy_reconstruct_maggies, $
-  version=version, vpath=vpath
+kcorrect,galaxy_maggies,galaxy_invvar,galaxy_z,galaxy_reconstruct_maggies, $
+  coeff=coeff,version=version, vpath=vpath, /maggies, /invvar, $
+  addgrgap=addgrgap, vconstraint=vconstraint, sdssfix=sdssfix
 
 if(keyword_set(psfile)) then begin
     set_plot, "PS"

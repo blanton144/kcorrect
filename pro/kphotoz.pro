@@ -74,16 +74,7 @@ if(NOT keyword_set(version)) then $
 
 ; Fix SDSS mags if desired
 if(keyword_set(sdssfix)) then begin
-   if(n_elements(rmatrix) gt 0 AND n_elements(zvals) gt 0 AND $
-      n_elements(ematrix) gt 0) then begin
-       k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
-         filterpath=filterpath,rmatrix=rmatrix,zvals=zvals, $
-         ematrix=ematrix,maggies=maggies,invvar=invvar
-   endif else begin
-       k_sdssfix,galaxy_mag,galaxy_magerr,galaxy_z=galaxy_z, $
-	       version=version,vpath=vpath,filterpath=filterpath,rmatrix=rmatrix, $
-	       zvals=zvals,ematrix=ematrix,maggies=maggies,invvar=invvar
-   endelse
+   k_sdssfix,galaxy_mag,galaxy_magerr,maggies=maggies,invvar=invvar
 endif
 
 ; Calculate maggies if necessary
