@@ -2,11 +2,18 @@
 
 # re-format Spitzer bandpass files to .par format
 
-@bands=("1", "2", "3", "4");
+@bands=("1", "2", "3", "4", "24", "70", "160");
 $jegdir="spitzer";
 foreach $band (@bands) {
-    $filename="$jegdir/irac_tr$band.dat";
-    $outfilename="./spitzer_irac_ch$band.par";
+    if ($band =~ /^\d$/){
+	$instrument= "IRAC";
+	$filename= "$jegdir/irac_tr$band.dat";
+	$outfilename= "./spitzer_irac_ch$band.par";
+    }else{
+	$instrument= "MIPS";
+	$filename= "$jegdir/MIPSfiltsumm\_$band.txt";
+	$outfilename= "./spitzer_mips\_$band.par";
+    }
     print "$filename -> $outfilename\n";
     open(ofp,">$outfilename");
 
@@ -17,7 +24,7 @@ foreach $band (@bands) {
     print ofp "# Bandpass Name:\n";
     print ofp "#   ch$band\n";
     print ofp "# Instrument:\n";
-    print ofp "#   Spitzer IRAC\n";
+    print ofp "#   Spitzer $instrument\n";
     print ofp "# Notes:\n";
     print ofp "#   - Original data from\n";
     print ofp "#     \"http://ssc.spitzer.caltech.edu/irac/spectral_response.html\"\n";
