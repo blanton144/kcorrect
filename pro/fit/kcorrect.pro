@@ -107,7 +107,7 @@ if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
     k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
       vpath=vpath
     k_projection_table,rmatrix,vmatrix,lambda,zvals,filterlist, $ 
-      zmin=zmin,zmax=zmax,nz=nz,band_shift=band_shift,filterpath=filterpath
+      zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath
 endif
 
 ; Calculate the coefficients if needed
