@@ -10,8 +10,8 @@
 ;   filterlist - list of filter names (default
 ;                ['sdss_u0.par','sdss_g0.par', 'sdss_r0.par',
 ;                'sdss_i0.par', 'sdss_z0.par'])
-;   filterpath - path for filter files 
-;   band_shift - blueshift to apply to bandpass
+;   filterpath - path for filter files; default to kcorrect repository
+;   band_shift - blueshift to apply to bandpass; default to 0.0
 ; OUTPUTS:
 ; OPTIONAL INPUT/OUTPUTS:
 ; COMMENTS:
