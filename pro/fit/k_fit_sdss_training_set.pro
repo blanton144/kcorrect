@@ -102,10 +102,11 @@ if(not file_test(savfile)) then begin
     gals.maggies_ivar=gals.maggies_ivar/1.e+18
 
 ;   fit nonnegative model
-    use_indx=shuffle_indx(n_elements(gals),num_sub=5000)
-    add_indx=where(gals.redshift gt 0.5 OR $
-                   gals.sdss_spectro_tag eq -1)
-    use_indx=[use_indx,add_indx]
+    use_indx=shuffle_indx(n_elements(gals),num_sub=200)
+    ;add_indx=where(gals.redshift gt 0.5 OR $
+                   ;gals.sdss_spectro_tag eq -1)
+    ;use_indx=[use_indx,add_indx]
+    ;use_indx=lindgen(n_elements(gals))
     coeffs=k_fit_nonneg(gals[use_indx].maggies, $
                         gals[use_indx].maggies_ivar,vmatrix, $
                         lambda,redshift=gals[use_indx].redshift, $
