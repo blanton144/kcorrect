@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 
-$ra0=36.6247917;
+$ra0=35.8748;
 $dec0=0.08691666666;
 
 system("wget http://www.astro.utoronto.ca/~cnoc/cnoc2_0223_20010213.tar.gz");
@@ -99,8 +99,9 @@ typedef struct {
 
 EOF
 for($i=0;$i<$num;$i++) {
-	printf fp "CNOC2STR %e %e %e %e %d ", $z[$i], $ra0+$oRa[$i]/3600., 
-	$dec0+$oDec[$i]/3600., $Rval[$i], $Sc[$i];
+	$dec=$dec0+$oDec[$i]/3600.;
+	$ra=$ra0-$oRa[$i]/3600./cos($dec*3.14159265/180.);
+	printf fp "CNOC2STR %e %e %e %e %d ", $z[$i], $ra, $dec, $Rval[$i], $Sc[$i];
 	printf fp " { %e %e %e %e %e } ", $Umag[$i], $Bmag[$i], $Vmag[$i], 
 	$Rmag[$i], $Imag[$i];
 	$Umag_ivar=1./($Ume[$i]*0.01)/($Ume[$i]*0.01);
