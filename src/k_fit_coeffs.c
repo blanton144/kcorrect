@@ -57,7 +57,7 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 				cmatrix[indx]=0.;
 				for(b=0;b<nb;b++) {
 					cmatrix[indx]+=ematrix[j*nb+b]*
-						k_interpolate(currz,&(rmatrix[k*nb*nz+b*nz]),zvals,nz);
+						k_interpolate_es(currz,&(rmatrix[k*nb*nz+b*nz]),zvals,nz);
 				}
 			} /* end for k j */
 	} /* end for i */
@@ -93,12 +93,24 @@ IDL_LONG k_fit_coeffs(double *ematrix,    /* eigentemplates */
 						*galaxy_invvar[k+i*nk];
 		} /* end for j */
 
+#if 0
+		for(j=0;j<nt;j++) 
+			for(jp=0;jp<nt;jp++) 
+				fprintf(stderr,"%e\n",covar[j*nt+jp]);
+		for(j=0;j<nt;j++) 
+			fprintf(stderr,"%e\n",rhs[j]);
+#endif
+
 		if(nt==1) {
 			amatrix[i]=rhs[0]/covar[0];
 		} else {
 			/* 2d. Solve for x */
 			k_dposv__(&uplo,&nt,&unity,covar,&nt,rhs,&nt,&info);
-			if(info!=0) {
+#if 0
+			if(info!=info+1) {
+#else
+				if(info!=0) {
+#endif
 				fprintf(stderr,"at galaxy %d, info=%d\n",i,info);
 				for(k=0;k<nk;k++) 
 					fprintf(stderr,"%e\n",galaxy_flux[k+i*nk]);

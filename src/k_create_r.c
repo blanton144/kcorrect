@@ -20,9 +20,9 @@
 
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 
-/* factor of 10^(0.4*48.60) which converts flux in based on 
+/* factor of 10^(0.4*2.41) which converts flux in based on 
  * f_lambda=erg/cm^2/s/A into maggies */
-#define ABSCALE 2.75423e+19
+#define ABSCALE 9.20450
 
 static double *cr_bmatrix=NULL;
 static double *cr_lambda=NULL;
