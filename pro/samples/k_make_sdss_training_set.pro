@@ -94,7 +94,7 @@ if(NOT file_test(savfile)) then begin
     sp=sp[sp_indx]
 
     tostack=where(sp.plug_dec gt -1.5 and sp.plug_dec lt 1.5 and $
-                  sp.plug_ra gt 300. or sp.plug_ra lt 100.)
+                  (sp.plug_ra gt 300. or sp.plug_ra lt 100.))
     k_stack_south,sp[tostack].plug_ra,sp[tostack].plug_dec, $
       stack_mf, stack_mf_ivar
     
@@ -131,7 +131,6 @@ endif else begin
     restore,savfile
 endelse
 
-stop
 ; now equalize the redshift bins (but include all mustdo plates)
 sp[tostack].modelflux=stacked
 sp[tostack].modelflux_ivar=stacked_ivar
@@ -175,35 +174,27 @@ endif
 tm=tm[include_indx]
 sp=sp[include_indx]
 help,sp,tm
-stop
 
-goodindx=where(abs(mag_err[0,*]) lt errlimit[0] and $
-               abs(mag_err[1,*]) lt errlimit[1] and $
-               abs(mag_err[2,*]) lt errlimit[2] and $
-               abs(mag_err[3,*]) lt errlimit[3] and $
-               abs(mag_err[4,*]) lt errlimit[4] and $
-               abs(mag[0,*]) lt maglimit[0] and $
-               abs(mag[1,*]) lt maglimit[1] and $
-               abs(mag[2,*]) lt maglimit[2] and $
-               abs(mag[3,*]) lt maglimit[3] and $
-               abs(mag[4,*]) lt maglimit[4])
+goodindx=where(sp.modelflux[0] gt 0. and $
+               sp.modelflux[1] gt 0. and $
+               sp.modelflux[2] gt 0. and $
+               sp.modelflux[3] gt 0. and $
+               sp.modelflux[4] gt 0. and $
+               sp.modelflux_ivar[0] gt 0. and $
+               sp.modelflux_ivar[1] gt 0. and $
+               sp.modelflux_ivar[2] gt 0. and $
+               sp.modelflux_ivar[3] gt 0. and $
+               sp.modelflux_ivar[4] gt 0.)
 sp=sp[goodindx]
-im=im[goodindx]
-twomass=twomass[goodindx]
-mag=mag[*,goodindx]
-mag_err=mag_err[*,goodindx]
-help,im
-
-; finally, shift the bands, add errors in quadrature
-for i=0L, n_elements(shiftband)-1L do $
-  mag[i,*]=mag[i,*]+shiftband[i]
-for i=0L, n_elements(errband)-1L do $
-  mag_err[i,*]=sqrt(mag_err[i,*]^2+errband[i]^2)
+tm=tm[goodindx]
+help,sp,tm
 
 ;   HACK to rid of bad u-band (bad uband!)
-indx=where(mag[0,*]-mag[1,*] lt 1.6 and $
-           mag[1,*]-mag[2,*] gt 1.4,count)
-if(count gt 0) then mag_err[0,indx]=-9999.
+umg=-2.5*alog10(sp.modelflux[0]/sp.modelflux[1])
+gmr=-2.5*alog10(sp.modelflux[1]/sp.modelflux[2])
+indx=where(umg lt 1.6 and gmr gt 1.4,count)
+if(count gt 0) then sp[indx].modelflux_ivar[0]=0.
+stop
 
 ; now output 
 outfile='sdss_training_set.'+name+'.fits'
