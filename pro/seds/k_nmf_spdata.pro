@@ -50,7 +50,7 @@ pro k_nmf_spdata, mmatrix=mmatrix, sample=sample
 
 if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
-if(NOT keyword_set(sample)) then sample='drtwo14'
+if(NOT keyword_set(sample)) then sample='sample15'
 if(NOT keyword_set(nsdss_photo)) then nsdss_photo=100L
 if(NOT keyword_set(nsdss_spec)) then nsdss_spec=100L
 if(NOT keyword_set(ngalex)) then ngalex=160L
