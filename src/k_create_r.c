@@ -34,7 +34,7 @@ static IDL_LONG cr_filter_n;
 static double *cr_filter_lambda=NULL;
 static double *cr_filter_pass=NULL;
 
-double filter(double lambda) 
+double cr_filter(double lambda) 
 {
 	double sl,rflambda,filt,spectrum;
 	unsigned long i,ip1,indxoff;
@@ -58,7 +58,7 @@ double filter(double lambda)
 	return(filt);
 } /* end filter */
 
-double scalefilter(double lambda) 
+double cr_scalefilter(double lambda) 
 {
 	double sl,filt;
 	unsigned long i,ip1;
@@ -97,9 +97,9 @@ IDL_LONG k_create_r(double *rmatrix,
 	cr_lambda=(double *) malloc((nl+1)*sizeof(double));
 	cr_nb=nb;
 	cr_nl=nl;
-	for(i=0;i<nb*nl;i++)
+	for(i=0;i<nb*nl;i++) 
 		cr_bmatrix[i]=bmatrix[i];
-	for(i=0;i<=nl;i++)
+	for(i=0;i<=nl;i++) 
 		cr_lambda[i]=lambda[i];
 	
 	/* make r matrix */
@@ -114,7 +114,7 @@ IDL_LONG k_create_r(double *rmatrix,
 		} /* end for l */
 
 		/* create scale factor for filter */
-		scale=ABSCALE/k_qromo(scalefilter,cr_filter_lambda[0],
+		scale=ABSCALE/k_qromo(cr_scalefilter,cr_filter_lambda[0],
 													cr_filter_lambda[cr_filter_n-1],k_midpnt);
 
 		/* loop over redshifts */
@@ -124,7 +124,7 @@ IDL_LONG k_create_r(double *rmatrix,
 			lammin=cr_filter_lambda[0];
 			lammax=cr_filter_lambda[cr_filter_n-1];
 			for(cr_b=0;cr_b<nb;cr_b++) 
-				rmatrix[indxoff+cr_b*nz]=scale*k_qromo(filter,lammin,lammax,k_midpnt)/
+				rmatrix[indxoff+cr_b*nz]=scale*k_qromo(cr_filter,lammin,lammax,k_midpnt)/
 					(1.+cr_z);
 		} /* end for i */
 
