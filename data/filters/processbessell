@@ -6,7 +6,7 @@
 # into the filter format used.
 #
 
-@bands=("B","V","R","I");
+@bands=("U","B","V","R","I");
 $besselldir="bessell";
 foreach $band (@bands) {
 	print "$besselldir/bessell_${band}.dat\n";

@@ -32,7 +32,12 @@
 ;   04-Jan-2002  Written by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_load_filters, filterlist, filter_n, filter_lambda, filter_pass
+pro k_load_filters, filterlist, filter_n, filter_lambda, filter_pass, $
+                    filterpath=filterpath, defaultpath=defaultpath
+
+if(NOT keyword_set(filterpath)) then filterpath=''
+if(keyword_set(defaultpath)) then $
+  filterpath=getenv('KCORRECT_DIR')+'/data/filters/'
 
 ; Need at least 4 parameters
 if (N_params() LT 4) then begin
@@ -45,7 +50,7 @@ filter_n=lonarr(n_elements(filterlist))
 filter_ncolumns=lonarr(n_elements(filterlist))
 filter_default=lonarr(n_elements(filterlist))
 for i = 0l, n_elements(filterlist)-1l do begin
-    readcol,filterlist[i],nlines,ncolumns,defaultcol, $
+    readcol,filterpath+filterlist[i],nlines,ncolumns,defaultcol, $
       format='I,I,I',comment='#',/silent
     filter_default[i]=defaultcol[0]
     filter_n[i]=nlines[0]
@@ -60,7 +65,7 @@ for i = 0l, n_elements(filterlist)-1l do begin
     format='D'
     for j=1, filter_default[i]-2 do format=format+',X'
     format=format+',D'
-    readcol,filterlist[i],tmp_lambda,tmp_pass, $
+    readcol,filterpath+filterlist[i],tmp_lambda,tmp_pass, $
       format=format,comment='#',/silent
     if(n_elements(tmp_lambda) eq filter_n[i]+1) then begin 
         filter_lambda[0l:filter_n[i]-1l,i]=tmp_lambda[1L:filter_n[i]]
