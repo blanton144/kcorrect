@@ -1,0 +1,70 @@
+hayespretty	#	plot entire Hayes spectrum
+		hayes 3300 10500
+		toplabel Hayes (1985) absolute spectrum of Vega
+
+hayes 2		#	plot part of Hayes spectrum
+		setup 1
+		location 4500 31000 3500 31000
+		xlabel \gl  (\gA)
+		ylabel log(\gl f\d\gl)  (W m\u-\u2)
+		data hayes.txt
+		read {lambda 1 mag 2}
+		set lam= lambda if(lambda>=$1 && lambda<=$2)
+		#	add -8.333 for normalization at 5000 Angstroms
+		#	add -3 for conversion from ergs cm^-2 to Joules m^-2
+		set lglambdaflambda= lg(lambda)-0.4*mag-8.333-3.0 if(lambda>=$1 && lambda<=$2)
+		limits $1 $2 lglambdaflambda
+		box
+		connect lam lglambdaflambda
+
+testjeg 0	#	test scan by comparing with JEG's typed-in version
+		setup 1
+		location 4500 31000 3500 31000
+		data hayes.txt
+		read {a 1 b 2}
+		data hayes.jeg.txt
+		read {c 1 d 2}
+		window 1 2 1 2
+		limits a -100 100
+		box
+		xlabel \gl  (\gA, Hogg)
+		ylabel \gD\gl  (\gA, Hogg-Gizis)
+		connect a (a-c)
+		window 1 2 1 1
+		limits a -0.01 0.01
+		box
+		xlabel \gl  (\gA, Hogg)
+		ylabel \gDm  (mag, Hogg-Gizis)
+		connect a (b-d)
+		set bad = a if(abs(b-d)>0.00001)
+		print {bad}
+
+testlam 0	#	test wavelengths
+		setup 1
+		data hayes.txt
+		read {lambda 1 mag 2}
+		limits lambda -1 1
+		box
+		set theory= 3300,10500,25
+		connect lambda (lambda-theory)		
+
+setup	1	#	general setup, $1=1 for date label
+		window 1 1 1 1
+		ticksize 0 0 0 0
+		ltype 0
+		angle 0
+		ptype 0 0
+		relocate (0 32767)
+		expand 0.8
+		lweight 1
+		if($1) {putlabel 3 $date}
+		expand 1.3
+		lweight 2
+		lines 1 100001
+		limits 0 1 0 1
+
+snap	1	#	make hardcopy
+		device postencap $1.eps
+		$1
+		hardcopy
+		device x11
