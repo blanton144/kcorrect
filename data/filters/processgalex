@@ -1,0 +1,48 @@
+#!/usr/bin/perl 
+
+#
+# Give the directory with the JEG results, and it 
+# extracts the 1.3 airmass results, putting them
+# into the filter format used.
+#
+
+@bands=("FUV","NUV");
+$galexdir="galex";
+foreach $band (@bands) {
+	print "$galexdir/${band}.pb\n";
+	
+	open(ifp,"$galexdir/${band}.pb");
+	$nlines=0;
+	while(<ifp>) {
+		chomp;
+		split;
+		if($_[0]>0) {
+			$nlines++;	
+		}
+	}
+	
+	open(ofp,">./galex_$band.par");
+	open(ifp,"galexheader");
+	while(<ifp>) {
+		s/\[SPECIFY\]/$band/g;	
+		print ofp;
+	}
+	close(ifp);
+	print ofp "\ntypedef struct {\n";
+	print ofp "  double lambda;\n";
+	print ofp "  double pass;\n";
+	print ofp "} KFILTER;\n\n";
+	open(ifp,"$galexdir/${band}.pb");
+	while(<ifp>) {
+		$line=$_;
+		chomp;
+		split;
+		if($_[0]>0) {
+			if(!($line=~/^\#/)) {
+				print ofp "KFILTER $line";
+			}
+		}
+	}
+	close(ifp);
+	close(ofp);
+}
