@@ -1,0 +1,30 @@
+#!/usr/local/bin/perl
+
+$factor=shift;
+if($factor==0.) {
+	$factor=1.;
+}
+@bands=("u","g","r","i","z");
+
+foreach $band (@bands) {
+	open(ifp,"<sdss_$band"."0.dat");
+	open(ofp,">scale_$band"."0.dat");
+	while(<ifp>) {
+		chop;
+		split;
+		if($.==1) {
+			$nfilt=$_[0];
+			printf ofp "%d\n", $nfilt;
+	  } else {
+			if($band eq "r") {
+				printf ofp "%e %e\n", 1.0025*$_[0],$_[1];
+			} elsif ($band eq "g") {
+				printf ofp "%e %e\n", $factor*$_[0],$_[1];
+			} else {
+				printf ofp "%e %e\n", $_[0],$_[1];
+			}
+    }
+	}
+  close(ifp);
+  close(ofp);
+}
