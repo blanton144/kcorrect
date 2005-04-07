@@ -1,14 +1,22 @@
 ;+
 ; NAME:
-;   lf_schechter_mden
+;   lf_schechter_mden_plus
 ; PURPOSE:
+;   calculate total luminosity density from schechter function
+; USAGE:
+;   mden= lf_schechter_mden_plus(schechter_plus [, limits=, bin=])
 ; INPUTS:
+;   schechter_plus - structure containing double schechter pars 
+;                    (.PHISTAR, .MSTAR, .ALPHA, .PHISTAR_PLUS, .ALPHA_PLUS)
 ; OPTIONAL INPUTS:
-; KEYWORDS:
+;   limits - [2] limits of integration (default to [MSTAR-5., MSTAR+10.])
+;   bin - binning of integration (default to 0.02)
 ; OUTPUTS:
-; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   mden - total luminosity density in magnitude units
+; COMMENTS:
+;   The double Schechter function is the sum of two Schechter
+;   functions with the same MSTAR but different PHISTAR and ALPHA
+;   values.
 ; REVISION HISTORY:
 ;   2002-7-04  written - Blanton
 ;-

@@ -4,8 +4,9 @@
 ; PURPOSE:
 ;   calculate vmax for an object, given the flux and redshift limits
 ; USAGE:
-;   lf_calc_vmax,appm, absm,coeffs,filtername,marea,mmin,mmax,sample_zmin,
-;   sample_zmax, [, band_shift=, im=, omega0=, omegal0=, vmax= ]
+;   lf_calc_vmax,appm,
+;   absm,coeffs,filtername,marea,mmin,mmax,sample_zmin, $
+;     sample_zmax, [, band_shift=, im=, omega0=, omegal0=, vmax= ]
 ; INPUTS:
 ;   absm             [N] absolute magnitudes
 ;   coeffs           [NT, N] K-correction coeffs for each galaxy
@@ -24,7 +25,6 @@
 ;   zmin             [N] local zmin of each
 ;   zmax             [N] local zmax of each
 ;   vmax             [N] vmax of each integrated over all mag limit regions
-; OPTIONAL INPUTS/OUTPUTS:
 ; COMMENTS:
 ;   vmax is returned in h^{-3} Mpc^3 comoving
 ; DEPENDENCIES:

@@ -2,7 +2,7 @@
 ; NAME:
 ;   k_interp_pegase
 ; PURPOSE:
-;   Interpolate a set of PEGASE spectra to a specific time
+;   interpolate a set of PEGASE spectra to a specific time
 ; CALLING SEQUENCE:
 ;   k_interp_pegase, peg, time [,nl=, lmin=, lmax=, /nolines, $
 ;      /nocontinuum]

@@ -27,24 +27,8 @@
 ;     sigma(ugriz) = [0.05, 0.02, 0.02, 0.02, 0.03]
 ;   to account for calibration uncertainties.
 ;
-;   Uses the AB conversions posted by D. Eisenstein (sdss-calib/???)
-;     u(AB,2.5m) = u(database, 2.5m) - 0.036
-;     g(AB,2.5m) = g(database, 2.5m) + 0.012
-;     r(AB,2.5m) = r(database, 2.5m) + 0.010
-;     i(AB,2.5m) = i(database, 2.5m) + 0.028
-;     z(AB,2.5m) = z(database, 2.5m) - 0.040
-;   You can specify your own with the "aboff" input.
-;
-;   Note that older versions (v3_2 and previous) used a different set
-;   of corrections: 
-;     u(AB,2.5m) = u(database, 2.5m) - 0.042   (NOT WHAT WE DO HERE)
-;     g(AB,2.5m) = g(database, 2.5m) + 0.036   (NOT WHAT WE DO HERE)
-;     r(AB,2.5m) = r(database, 2.5m) + 0.015   (NOT WHAT WE DO HERE)
-;     i(AB,2.5m) = i(database, 2.5m) + 0.013   (NOT WHAT WE DO HERE)
-;     z(AB,2.5m) = z(database, 2.5m) - 0.002   (NOT WHAT WE DO HERE)
-;
-;   If for whatever reason you have regular magnitudes (rather than
-;   asinh), use /standard. 
+; BUGS:
+;   Needs better tracking of Eisenstein numbers
 ;
 ; REVISION HISTORY:
 ;   07-Feb-2002  Written by Mike Blanton, NYU
@@ -53,7 +37,6 @@
 ;------------------------------------------------------------------------------
 function k_sdss_err2ivar, err, verbose=verbose
 
-errband=[0.05,0.02,0.02,0.02,0.03]
 
 ivar=fltarr(5,n_elements(err)/5L)+1.E
 
@@ -85,11 +68,10 @@ return, ivar
 
 end
 ;
-pro k_sdssfix, mags, mags_err, maggies, maggies_ivar, standard=standard, $
-               aboff=aboff
+pro k_sdssfix, mags, mags_err, maggies, maggies_ivar, standard=standard
 
 bvalues=[1.4D-10, 0.9D-10, 1.2D-10, 1.8D-10, 7.4D-10]
-if(NOT keyword_set(aboff)) then aboff=[-0.036, 0.012, 0.010, 0.028, -0.040]
+errband=[0.05,0.02,0.02,0.02,0.03]
 
 if((size(mags))[0] eq 1) then begin
     nk=5
@@ -105,6 +87,7 @@ if(nk ne 5) then begin
 endif
 
 mags_ivar=reform(k_sdss_err2ivar(mags_err),nk,ngalaxy)
+k_minerror, maggies, maggies_ivar, errband
 
 indx=where(mags eq -9999 and mags_ivar ne 0.,count)
 if(count gt 0) then begin
@@ -121,11 +104,10 @@ for k=0L, nk-1L do begin
             err=1./sqrt(mags_ivar[k,indx])
             maggies[k,indx]=k_lups2maggies(mags[k, indx], err, $
                                            maggies_err=merr, $
-                                           bvalues=bvalues[k])* $
-              10.^(-0.4*aboff[k])
-            maggies_ivar[k,indx]=1./(merr*10.^(-0.4*aboff[k]))^2
+                                           bvalues=bvalues[k])
+            maggies_ivar[k,indx]=1./(merr^2) 
         endif else begin
-            maggies[k,indx]=(10.D)^(-(0.4D)*(mags[k,indx]+aboff[k]))
+            maggies[k,indx]=(10.D)^(-(0.4D)*(mags[k,indx]])
             maggies_ivar[k,indx]= $
               mags_ivar[k,indx]/(0.4*alog(10.)*maggies[k,indx])^2.
         endelse
@@ -136,6 +118,8 @@ if(count gt 0) then begin
    maggies[indx]=0.
    maggies_ivar[indx]=0.
 endif
+
+k_abfix, maggies, maggies_ivar, aboff=aboff
 
 end
 ;------------------------------------------------------------------------------

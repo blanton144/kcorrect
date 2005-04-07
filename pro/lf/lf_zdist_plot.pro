@@ -2,13 +2,25 @@
 ; NAME:
 ;   lf_zdist_plot
 ; PURPOSE:
+;   plot distribution of distance in bins of absmag, along with model
+; CALLING_SEQUENCe:
+;   lf_zdist_plot,zz_data,am_data,zz_model,am_model, filename= [ ,fadjust=, $
+;                 amlimits=, sample_zmin=, sample_zmax=, nbins=, $
+;                 band=, /ylog ]
 ; INPUTS:
+;   zz_data - redshifts of data
+;   am_data - absmags  of data
+;   zz_model - redshifts of model
+;   am_model - absmags  of model
+;   filename - output postscript file name
 ; OPTIONAL INPUTS:
+;   fadjust - adjust for sampling fraction (default 1.)
+;   amlimits - [2] limiting abs, mag. limits of plot
+;   sample_zmin, sample_zmax - z limits to use
+;   nbins - number of redshift bins 
+;   band - 0-4 corresponds to ugriz
 ; KEYWORDS:
-; OUTPUTS:
-; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   /ylog - plot on log scale
 ; REVISION HISTORY:
 ;   2002-5-22  written - Blanton
 ;-

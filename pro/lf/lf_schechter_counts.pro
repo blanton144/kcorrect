@@ -1,14 +1,21 @@
 ;+
 ; NAME:
 ;   lf_schechter_counts
-; PURPOSE: Predicts magnitude counts from Schechter fn.
+; PURPOSE: 
+;   Predicts magnitude counts from Schechter fn.
+; USAGE:
+;   counts=lf_schechter_counts(mmin, mmax, schechter, q, p, kcorrect, $
+;             zvals [, omega0=, omegal0=, zzero=, integrand= ]
 ; INPUTS:
+;   mmin, mmax - flux range to consider
+;   schechter, q, p - description of evolving schechter function
+;   kcorrect, zvals - grid of typical K-corrections
 ; OPTIONAL INPUTS:
-; KEYWORDS:
-; OUTPUTS:
+;   zzero - reference redshift for q and p evolution (default 0.1)
+;   omega0 - matter density (default 0.3)
+;   omegal0 - vacuum energy density (default 0.7)
 ; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   integrand - redshift counts
 ; REVISION HISTORY:
 ;   2002-8-25  written - Blanton
 ;-

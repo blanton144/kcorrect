@@ -6,7 +6,7 @@
 ; USAGE:
 ;   lf_eep,zz,absmag,kcorrect,mmin,mmax,sample_absmmin,sample_absmmax,
 ;       absmk, phi, phi_err, [ nbin=, q0=, q1=, qz0=, $
-;       absmagdep=, ref_absmagdep=, omega0=, omegal0=, /calc_err ]
+;       omega0=, omegal0=, /calc_err ]
 ; INPUTS:
 ;   zz               [N] redshifts
 ;   absmag           [N] absolute magnitudes (kcorrected, unevolved)
@@ -16,6 +16,7 @@
 ;   sample_absmmin   observed absolute magnitude minimum of sample
 ;   sample_absmmax   observed absolute magnitude maximum of sample
 ; OPTIONAL INPUTS:
+;   q0, q1, qz0      evolution model (pass to k_evolve())
 ;   omega0           omega_matter to use (default: 0.3)
 ;   omegal0          omega_lambda to use (default: 0.7)
 ; KEYWORDS:

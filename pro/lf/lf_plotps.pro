@@ -4,18 +4,19 @@
 ; PURPOSE:
 ;   plot a luminosity function
 ; INPUTS:
-;   nphi             number of "bins"
-;   sample_absmmin   minimum abs mag for the sample
-;   sample_absmmax   maximum abs mag for the sample
-;   sigabsmag        width of gaussian
-;   phi              amplitude of bin 
+;   absmk, phi, sigabsmag - description of npgauss l.f.
+;   sample_absmmin - minimum abs mag for the sample
+;   sample_absmmax - maximum abs mag for the sample
 ; OPTIONAL INPUTS:
-;   subsample        how much to subsample for plot
-; KEYWORDS:
-; OUTPUTS:
+;   subsample - sample the function at this sampling (default 10)
+;   filename - output file name (default 'npgauss_lf.ps')
+;   schecter - structure with .PHISTAR, .MSTAR, .ALPHA to show for
+;              comparison (default none)
+; OPTIONAL KEYWORDS:
+;   /noclose - do not close file
 ; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   pold, xold, yold - saved !P, !X, !Y before any changes
+;   phivals, amvals - l.f. values at the output abs. mags. 
 ; REVISION HISTORY:
 ;   2002-5-22  written - Blanton
 ;-

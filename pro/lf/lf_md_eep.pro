@@ -1,14 +1,30 @@
 ;+
 ; NAME:
-;   lf_mean_density
+;   lf_md_eep
 ; PURPOSE:
+;   calculate normalization of EEP fit from lf_eep
+; USAGE:
+;   lf_md_eep, marea, zz, sel, zvals, selfunc, fraclimits, n1, n1err [, $
+;        j3=, /simple, weight=, omega0=, omegal0=]
 ; INPUTS:
+;   marea - [Nm] completeness-weight area of each region with a
+;           constant flux limit
+;   zz - [Ngals] redshift of each galaxy
+;   sel - [Ngals] selection function for each galaxy
+;   zvals - [Nz] redshift grid 
+;   selfunc - [Nz, Nm] selection function grid in each region 
+;   fraclimits - fraction of area in each region
 ; OPTIONAL INPUTS:
-; KEYWORDS:
+;   j3 - J_3 value of Davis&Huchra (1983) for optimal weighting scheme
+;        (default to 10000.)
+;   weight - weight to apply to each galaxy (default to 1.)
+;   omega0 - matter density (default 0.3)
+;   omegal0 - vacuum energy density (default 0.7)
+; OPTIONAL KEYWORDS:
+;   /simple - don't do optimal weighting, do simple weighting
 ; OUTPUTS:
-; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   n1 - normalization of EEP fit
+;   n1err - uncertainty in normalization
 ; REVISION HISTORY:
 ;   2002-5-22  written - Blanton
 ;-

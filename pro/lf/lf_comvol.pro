@@ -4,19 +4,15 @@
 ; PURPOSE:
 ;   Calculate the comoving volume out to a certain redshift
 ; CALLING SEQUENCE:
-;   comvol=lf_comvol(z [, omega0=, omegal0= ]
+;   comvol=lf_comvol(z [, omega0=, omegal0= ])
 ; INPUTS:
 ;   z - redshift
 ; OPTIONAL INPUTS:
-;   omega0 - matter density
-;   omegal0 - cosmological constant
-; KEYWORDS:
-; OUTPUTS:
-; OPTIONAL OUTPUTS:
+;   omega0 - matter density (default 0.3)
+;   omegal0 - vacuum energy density (default 0.7)
 ; COMMENTS:
+;   Uses the ztransform routines
 ;   returns R^3 in equation V=4*PI*R^3/3.
-; BUGS:
-; DEPENDENCIES:
 ; REVISION HISTORY:
 ;   2002-5-22  written - Blanton
 ;-

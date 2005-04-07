@@ -2,13 +2,17 @@
 ; NAME:
 ;   lf_schechter_mden
 ; PURPOSE:
+;   calculate total luminosity density from schechter function
+; USAGE:
+;   mden= lf_schechter_mden(schechter [, limits=, bin=])
 ; INPUTS:
+;   schechter - structure containing schechter pars 
+;               (.PHISTAR, .MSTAR, .ALPHA)
 ; OPTIONAL INPUTS:
-; KEYWORDS:
+;   limits - [2] limits of integration (default to [MSTAR-5., MSTAR+10.])
+;   bin - binning of integration (default to 0.02)
 ; OUTPUTS:
-; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   mden - total luminosity density in magnitude units
 ; REVISION HISTORY:
 ;   2002-7-04  written - Blanton
 ;-

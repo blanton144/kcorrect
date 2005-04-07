@@ -5,7 +5,6 @@
 ;   Return the version name for the product kcorrect
 ; CALLING SEQUENCE:
 ;   vers = k_version()
-; INPUTS:
 ; OUTPUTS:
 ;   vers       - Version name for the product kcorrect
 ; COMMENTS:
@@ -14,8 +13,6 @@
 ;   $KCORRECT_DIR.  For example, if you are using a version of the code
 ;   in the directory '/u/schlegel/kcorrect/v0_0', then this returns
 ;   'NOCVS:v0_0'.
-; BUGS:
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   01-Dec-1999  Written by D. Schlegel, Princeton.
 ;-

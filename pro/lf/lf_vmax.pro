@@ -6,8 +6,8 @@
 ; USAGE:
 ;   lf_vmax,absmag,kcorrect,ikcorrect,uniqkcorrect, $
 ;     nzvals,mmin,mmax,sample_absmmin,sample_absmmax, $
-;     sample_zmin,sample_zmax, absmk, phi [, omega0=, $
-;     omegal0=, vmax=]
+;     sample_zmin,sample_zmax, absmk, phi, phierr [, omega0=, $
+;     omegal0=, vmax=, imeankcorrect= ]
 ; INPUTS:
 ;   absmag           [N] absolute magnitudes
 ;   kcorrect         [N] K-correction for each galaxy
@@ -23,14 +23,15 @@
 ; OPTIONAL INPUTS:
 ;   omega0           omega_matter to use (default: 0.3)
 ;   omegal0          omega_lambda to use (default: 0.7)
-; KEYWORDS:
+;   imeankcorrect    mean index for K-correction to use for
+;                    uncertainties in 0-bins (default mean of given
+;                    ikcorrect)
 ; OUTPUTS:
 ;   absmk            center of each abs mag bin
 ;   phi              density in each abs mag bin, in # per cubic Mpc per mag
+;   phierr           error in phi
 ; OPTIONAL INPUTS/OUTPUTS:
 ;   vmax             vmax used for each object
-; BUGS:
-; DEPENDENCIES:
 ; REVISION HISTORY:
 ;   2002-11-17  written - Blanton
 ;-

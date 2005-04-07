@@ -2,13 +2,30 @@
 ; NAME:
 ;   lf_sample_npgauss
 ; PURPOSE:
+;   create a sampling in redshift and absolute magnitude based on npgauss lf
+; USAGE:
+;   lf_sample_npgauss, ndesired, absmk, phi, p, q, sigabsmag, model_absmmin, $
+;      model_absmmax, sample_zmin, sample_zmax [ , absmout=, zzout=, $
+;      fpadjust=, omega0=, omegal0=, zzero=, nzvals=, rhozpars=, $
+;      rhozfunc=, zvals=, sample_nzvals=]
 ; INPUTS:
+;   ndesired - number of samples wanted 
+;   absmk, phi, p, q, sigabsmag - description of npgauss lf
+;   model_absmmin, model_absmmax - abs. mag. limits of model
+;   sample_zmin, sample_zmax - redshift limits for sampling
 ; OPTIONAL INPUTS:
-; KEYWORDS:
-; OUTPUTS:
+;   nzvals - number of redshift in kcorrect templates (default 50)
+;   zvals - [nzvals] redshift grid
+;   zzero - reference redshift for q and p evolution (default 0.1)
+;   omega0 - matter density (default 0.3)
+;   omegal0 - vacuum energy density (default 0.7)
+;   rhozpars, rhozfunc - if we have fit out the radial density function
 ; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   absmout - [nout] abs. mag. of final galaxies
+;   zzout - [nout] redshifts of final galaxies
+;   fadjust - ratio of number in actual universion to from number
+;             gotten in mock to number in actual (to compare redshift
+;             histograms, say)
 ; REVISION HISTORY:
 ;   2002-5-22  written - Blanton
 ;-

@@ -2,26 +2,33 @@
 ; NAME:
 ;   lf_selfunc_npgauss
 ; PURPOSE:
-;   calculate selection function at a given redshift using
-;   an npgauss model
+;   calculate selection function at given redshift with npgauss lf
+; USAGE:
+;   sel= lf_selfunc_npgauss(zz, kcorrect, mmin, mmax, sample_absmmin, $
+;                           sample_absmmax, model_absmmin, model_absmmax, $
+;                           phi, absmk, sigabsmag, q, p [, $
+;                           zzero=, omega0=, omegal0=, rhozpars=, $
+;                           rhozfunc=, zvals=, sample_zmin=, $
+;                           sample_zmax=, absmmin=, absmmax=])
 ; INPUTS:
-;   zz               [N] redshifts
-;   mmin
-;   mmax
-;   sample_absmmin   minimum abs mag for the sample
-;   sample_absmmax   maximum abs mag for the sample
-;   phi
-;   absmk
-;   sigabsmag        
-;   q
-;   p
+;   zz - [N] redshifts
+;   kcorrect - [N] kcorrections at each redshift
+;   mmin, mmax - [N] bright and faint flux limits for each object
+;   sample_absmmin - minimum abs mag for the sample
+;   sample_absmmax - maximum abs mag for the sample
+;   model_absmmin - minimum abs mag for the model
+;   model_absmmax - maximum abs mag for the model
+;   phi, absmk, sigabsmag, q, p - description of npgauss lf model
 ; OPTIONAL INPUTS:
-;   zzero            zeropoint in redshift (default 0.1)
-; KEYWORDS:
+;   zzero - zeropoint in redshift (default 0.1)
+;   omega0           omega_matter to use (default: 0.3)
+;   omegal0          omega_lambda to use (default: 0.7)
+;   rhospars, rhosfunc, zvals, 
+;     sample_zmin, sample_zmax - radial density field description
 ; OUTPUTS:
+;   sel - [N] selection function
 ; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   absmmin, absmmax - [N] limits used on absolute mags 
 ; REVISION HISTORY:
 ;   2002-5-22  written - Blanton
 ;-

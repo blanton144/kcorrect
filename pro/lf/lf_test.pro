@@ -3,13 +3,6 @@
 ;   lf_test
 ; PURPOSE:
 ;   test luminosity function fit
-; INPUTS:
-; OPTIONAL INPUTS:
-; KEYWORDS:
-; OUTPUTS:
-; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
 ; REVISION HISTORY:
 ;   2002-5-23  written - Blanton
 ;-

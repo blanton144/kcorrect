@@ -1,5 +1,10 @@
 test sdssfix version on database output 
 clean up AB fix part
+write:
+   sdss_kcorrect
+   deep_kcorrect
+   galex_kcorrect
+   twomass_kcorrect
 get DEEP redshifts/photometry
 check z-band
 check metallicities
@@ -10,6 +15,15 @@ make sure vmatrix/lambda stuff works fine
 run on full
 
 clean up TODO:
+  remove lf_create_mock.pro
+  remove lf_plotlf.pro
+  remove lf_qaplot.pro
+  remove lf_poisson_sample.pro
+  remove lf_vals.pro
+  remove seds/k_make_templates
+  remove seds/k_prepare_fit
+  remove seds/plot_templates
+  remove utils/plot_kspec.pro
 
 new docs:
   which calib for eisenstein k_sdssfix

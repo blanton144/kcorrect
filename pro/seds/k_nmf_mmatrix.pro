@@ -4,7 +4,7 @@
 ; PURPOSE:
 ;   make grid of BC03 model spectra for fitting
 ; CALLING SEQUENCE:
-;   k_nmf_mmatrix [, prefix=, back=, lmin=, lmax= ]
+;   k_nmf_mmatrix [, prefix=, back=, lmin=, lmax=, dusts= ]
 ; OPTIONAL INPUTS:
 ;   prefix - prefix to use for output files (default 'k_nmf')
 ;   back - # of Gyrs in the past to use for 'early' file
@@ -28,13 +28,14 @@
 ; BUGS:
 ;   needs to output *unsmoothed* spectra 
 ;   should have better constrained emission lines
+;   make sure DEEP filters are fixed 
 ;   include Draine & Li templates
 ; REVISION HISTORY:
 ;   29-Jul-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
 pro k_nmf_mmatrix, prefix=prefix, back=back, lmin=lmin, lmax=lmax, $
-                   dusts=dusts
+                   dusts=dusts 
 
 if(NOT keyword_set(back)) then back=0.5  ;; how many Gyrs earlier?
 if(NOT keyword_set(lmin)) then lmin=600.

@@ -10,12 +10,8 @@
 ; OPTIONAL INPUTS:
 ;   omega0           omega_matter to use (default: 0.3)
 ;   omegal0          omega_lambda to use (default: 0.7)
-; KEYWORDS:
 ; OUTPUTS:
-; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
-;   cosmography  product
+;   dm - distance modulus
 ; REVISION HISTORY:
 ;   2002-11-17  written - Blanton
 ;-

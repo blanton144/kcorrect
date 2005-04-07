@@ -22,8 +22,6 @@
 ;          lambda
 ;          pass
 ;   This code caches the filters it reads in. 
-; EXAMPLES:
-; BUGS:
 ; PROCEDURES CALLED:
 ;   yanny_readone (idlutils)
 ; REVISION HISTORY:

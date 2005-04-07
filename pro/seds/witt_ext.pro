@@ -12,17 +12,11 @@
 ;                   structure - 'c' (clumpy) or 'h' (homogeneous)
 ;   tauv - optical depth in V
 ;   lambda - wavelengths (in Angstroms) where A is desired
-; OPTIONAL INPUTS:
 ; OUTPUTS:
 ;   att - extinction at each lambda
-; OPTIONAL INPUT/OUTPUTS:
-; COMMENTS:
 ; EXAMPLES:
 ;   A spectrum spec should have att applied as follows:
 ;     dusty_spec = spec * exp(-att)
-; BUGS:
-;   Not rigorously tested
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   04-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;   29-Apr-2003  Common block added for speed

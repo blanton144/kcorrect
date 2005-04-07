@@ -6,7 +6,6 @@
 ; CALLING SEQUENCE:
 ;   solar_magnitudes= k_solar_magnitudes([band_shift=, filterlist=, $
 ;                       filterpath=, solarname=]) 
-; INPUTS:
 ; OPTIONAL INPUTS:
 ;   filterlist - list of filters (default
 ;                ['sdss_u0.par','sdss_g0.par','sdss_r0.par','sdss_i0.par', $
@@ -15,8 +14,7 @@
 ;   band_shift - shift to apply to band passes
 ;   solarname - name of solar model
 ; OUTPUTS:
-; OPTIONAL INPUT/OUTPUTS:
-; COMMENTS:
+;   solar_magnitudes - absolute magnitude of sun in specified bands
 ; EXAMPLES:
 ;   IDL> print,k_solar_magnitudes()
 ;    K_READ_BASEL: 1 block(s) of spectra
@@ -28,8 +26,6 @@
 ;     K_PROJECTION_TABLE: Creating rmatrix ...
 ;     K_PROJECTION_TABLE: Done.
 ;          6.7792312       5.4336204       4.7553857       4.5749466       4.5155073
-; BUGS:
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   17-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-

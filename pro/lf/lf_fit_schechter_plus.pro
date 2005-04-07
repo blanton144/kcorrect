@@ -2,13 +2,32 @@
 ; NAME:
 ;   lf_fit_schechter_plus
 ; PURPOSE:
+;   fit "double" schechter function to set of points
+; USAGE:
+;   lf_fit_schechter_plus, absmag, phi, phierr, schechter_plus [, mden=]
 ; INPUTS:
-; OPTIONAL INPUTS:
-; KEYWORDS:
+;   absmag - absolute magnitude at center of each bin
+;   phi - luminosity function at each bin
+;   phierr - error in l.f. at each bin
 ; OUTPUTS:
+;   schechter - structure with
+;                  .MSTAR 
+;                  .PHISTAR 
+;                  .ALPHA 
+;                  .PHIPLUS 
+;                  .ALPHAPLUS 
+;                  .MSTAR_ERR
+;                  .PHISTAR_ERR
+;                  .ALPHA_ERR
+;                  .PHIPLUS_ERR
+;                  .ALPHAPLUS_ERR
 ; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   mden - total luminosity density in magnitudes of fit
+; COMMENTS:
+;   The version of the double schechter function we use here is the
+;   sum of two Schecter functions with the same exponential cutoff but
+;   different normalizations and faint-end slopes. Returns the steeper
+;   faint end slope term in PHIPLUS and ALPHAPLUS. 
 ; REVISION HISTORY:
 ;   2002-7-04  written - Blanton
 ;-

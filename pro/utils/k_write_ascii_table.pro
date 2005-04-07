@@ -44,9 +44,6 @@
 ;        4.1908366349717002e-04
 ;     IDL> $wc bmatrix.default.dat   
 ;        5001    5003  130037 bmatrix.default.dat
-;     
-; BUGS:
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   17-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-

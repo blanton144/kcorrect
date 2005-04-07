@@ -1,5 +1,18 @@
-;; formulae from Bullock et al. (1999) astro-ph/9908159
-;; only implemented for z=0; input mass is mass/h
+;+
+; NAME:
+;   m2vmax
+; USAGE:
+;   vmax= m2vmax(mass)
+; INPUTS:
+;   mass - mass of halo (in Msolar/h)
+; OUTPUTS:
+;   vmax - maximum circular velocity (in km/s)
+; COMMENTS:
+;   Formulae from Bullock et al. (1999) astro-ph/9908159
+;   Only implemented for z=0; input mass is mass/h
+; REVISION HISTORY:
+;   2002-11-01  written - Blanton
+;-
 function m2vmax, in_mass
 
 littleh=0.7

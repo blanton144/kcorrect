@@ -2,13 +2,23 @@
 ; NAME:
 ;   lf_fit_schechter
 ; PURPOSE:
+;   fit schechter function to set of points
+; USAGE:
+;   lf_fit_schechter, absmag, phi, phierr, schechter [, mden=]
 ; INPUTS:
-; OPTIONAL INPUTS:
-; KEYWORDS:
+;   absmag - absolute magnitude at center of each bin
+;   phi - luminosity function at each bin
+;   phierr - error in l.f. at each bin
 ; OUTPUTS:
+;   schechter - structure with
+;                  .PHISTAR 
+;                  .MSTAR 
+;                  .ALPHA 
+;                  .PHISTAR_ERR
+;                  .MSTAR_ERR
+;                  .ALPHA_ERR
 ; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   mden - total luminosity density in magnitudes of fit
 ; REVISION HISTORY:
 ;   2002-7-04  written - Blanton
 ;-

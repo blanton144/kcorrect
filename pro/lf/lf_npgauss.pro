@@ -12,7 +12,8 @@
 ;              limit_precision=, error_precision=, error_min=, $
 ;              error_max=, iabsmerr=, immin=, immax=, uniqabsmerr=, $
 ;              uniqmmin=, uniqmmax=, maxiter=, fixp=, fixq=, $
-;              nborder=, qaplot=, qaschechter=]
+;              nborder=, qaplot=, qaschechter=, rhozfunc=, rhozcovar=, $
+;              lssfix=, lnlike=, init_power= ]
 ; INPUTS:
 ;   zz               [N] redshifts
 ;   absmag           [N] absolute magnitudes
@@ -29,30 +30,24 @@
 ;   sample_absmmax   observed absolute magnitude maximum of sample
 ;   sample_zmin      minimum redshift of sample
 ;   sample_zmax      maximum redshift of sample
+; OPTIONAL KEYWORDS:
+;   /lssfix          fit for rhoz functions
 ; OPTIONAL INPUTS:
 ;   omega0           omega_matter to use (default: 0.3)
 ;   omegal0          omega_lambda to use (default: 0.7)
 ;   zzero            redshift to center fit on (default: 0.1)
 ;   limit_precision  limit t
-; KEYWORDS:
+;   rhozfunc, rhozcovar - radial density functions
 ; OUTPUTS:
 ;   absmk            peak of each gaussian
 ;   phi              amplitude of each gaussian
 ;   q                evolution of lum
 ;   p                evolution of num
 ;   rhozpars         parameters multiplying the radial density functions
-; OPTIONAL OUTPUTS:
-; BUGS:
-;   TODO: 
-;         finish construction of likelihood
-;         create test set of data
-;         test the data ...
-; DEPENDENCIES:
+;   lnlike           output likelihood
 ; REVISION HISTORY:
 ;   2002-5-22  written - Blanton
 ;-
-;
-;
 ;
 ; Calculate likelihood function and its derivs
 function lf_npgauss_func, params, dparams

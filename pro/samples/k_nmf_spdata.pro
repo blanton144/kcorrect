@@ -6,6 +6,8 @@
 ; CALLING SEQUENCE:
 ;   k_nmf_spdata
 ; COMMENTS:
+;   Assumes k_nmf_mmatrix has been run.
+;
 ;   Takes data from sources:
 ;     1. SDSS photometric survey
 ;             ugrizJHK magnitudes
@@ -13,6 +15,7 @@
 ;             optical spectrum smoothed to 300 km/s resolution
 ;     3. GALEX-SDSS matrix
 ;             FNugriz magnitudes
+; 
 ;   Creates a file k_nmf_spdata.fits of the following form:
 ;     HDU0: NULL
 ;     HDU1: single-element structure of the form:
@@ -37,12 +40,7 @@
 ;     HDU6: [Ngals]; distance (in redshift units) to each object
 ;     HDU7: [Ngals]; heliocentric redshift of each object
 ;   This file is readable by k_nmf_run.pro
-; BUGS:
-;   AB corrections need updated
-;   tweak spectra to match fluxes??
-;   what about filter curves?
-;   smooth spectra to constant vdisp?
-; COMMENTS:
+;   
 ;   assumes kcorrect files used:
 ;     correction = [-0.042,  0.036,  0.015, 0.013, -0.002]
 ;   and we want:

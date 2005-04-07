@@ -7,17 +7,12 @@
 ;   k_read_basel, lambda, flux, filename [, teff=, logg=, mh=, vturb=, xh= ]
 ; INPUTS:
 ;   filename - file containing Basel format spectrum
-; OPTIONAL INPUTS:
 ; OUTPUTS:
 ;   lambda - wavelengths at pixel centers
 ;   flux - flux at each pixel
 ;   teff, logg, mh, vturb, xh - basel parameters in file
-; OPTIONAL INPUT/OUTPUTS:
 ; COMMENTS:
 ;   1221 elements *hard-coded*
-; EXAMPLES:
-; BUGS:
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   17-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-

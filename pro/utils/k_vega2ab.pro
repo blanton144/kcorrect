@@ -16,9 +16,9 @@
 ;   /kurucz - use the Kurucz 1991 model spectrum 
 ;   /hayes - use the Hayes spectrophotometry
 ; OUTPUTS:
-; OPTIONAL INPUT/OUTPUTS:
+;   vega2ab - term to add to a Vega magnitude in given band to convert
+;             to an AB magnitude
 ; COMMENTS:
-;
 ;   We can compare the results of this conversion with the results of
 ;   Bessell (1993) in IAU Colloq. 136: Stellar Photometry - Current
 ;   Techniques and Future Developments for the Bessell bandpasses:
@@ -39,8 +39,6 @@
 ;   distribution (ADC: J/A+AS/125/229); the second the Hayes 
 ;   spectrophotometry, as transcribed by Hogg (see details in the 
 ;   data/filters/hoggraw/hayes directory). 
-; EXAMPLES:
-; BUGS:
 ; PROCEDURES CALLED:
 ;    k_load_filters
 ;    k_project_filters

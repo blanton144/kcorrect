@@ -14,12 +14,8 @@
 ;   filterpath - paths to look for filters in
 ;   band_shift - blueward shift of bandpasses
 ; COMMENTS:
-;   More or less a wrapper on k_create_r.
+;   More or less a wrapper on k_projection_table.
 ;   Outputs are in maggies (10.^(-0.4*magnitude)). 
-; EXAMPLES:
-; BUGS:
-; PROCEDURES CALLED:
-;   k_load_filters 
 ; REVISION HISTORY:
 ;   17-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-

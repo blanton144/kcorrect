@@ -16,11 +16,6 @@
 ; OUTPUTS:
 ;   vmatrix   - [nl,nv] template
 ;   lambda    - [nl+1] pixel edges of template
-; OPTIONAL INPUT/OUTPUTS:
-; COMMENTS:
-; EXAMPLES:
-; BUGS:
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   04-Jun-2003  Written by Mike Blanton, NYU
 ;-

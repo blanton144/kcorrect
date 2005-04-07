@@ -5,6 +5,10 @@
 ;   calculate transformations between filter systems
 ; CALLING SEQUENCE:
 ;   k_linear_tranforms
+; COMMENTS:
+;   Creates plots in k_linear_transforms.ps
+;   Prints .tex format linear equations to screen for input into
+;   linear.tex 
 ; REVISION HISTORY:
 ;   10-Feb-2004  Translated to IDL by Mike Blanton, NYU
 ;-

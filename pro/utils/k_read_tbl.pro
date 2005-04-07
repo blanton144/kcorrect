@@ -7,13 +7,8 @@
 ;   tbl= k_read_tbl(filename)
 ; INPUTS:
 ;   filename - file name
-; OPTIONAL INPUTS:
-; OUTPUTS:
-; OPTIONAL INPUT/OUTPUTS:
-; COMMENTS:
-; EXAMPLES:
 ; BUGS:
-; PROCEDURES CALLED:
+;   not well commented
 ; REVISION HISTORY:
 ;   Spring 2003, Written Malcolm Britton
 ;-
@@ -32,8 +27,7 @@ else $
   message, 'No registered type '+type
 
 end
-
-
+;
 FUNCTION k_read_tbl,file,chunksize=chunksize
 
 ; defaults

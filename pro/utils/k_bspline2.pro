@@ -7,15 +7,10 @@
 ;   vals= k_bspline2(x)
 ; INPUTS:
 ;   x - [N] positions
-; OPTIONAL INPUTS:
 ; OUTPUTS:
 ;   vals - [N] value of basis function at positions
-; OPTIONAL OUTPUTS:
 ; COMMENTS:
 ;   A very specialized function. 
-; EXAMPLES:
-; BUGS:
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   26-Feb-2003  Written by M. Blanton, NYU
 ;-  

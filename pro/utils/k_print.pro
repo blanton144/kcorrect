@@ -1,3 +1,26 @@
+;+
+; NAME:
+;   k_print
+; PURPOSE:
+;   set up a postscript file output
+; CALLING SEQUENCE:
+;   k_print, filename= [, tiny=, axis_char_scale=, pold=, xold=, $
+;       yold=, colorname=, xsize=, ysize= ]
+; INPUTS:
+;   filename - postscript file name for output
+; OPTIONAL INPUTS:
+;   xsize, ysize - size (inches) of output file
+; OPTIONAL INPUT/OUTPUTS:
+;   axis_char_scale - scaling of fonts
+;   tiny - value for tiny numbers
+; OPTIONAL OUTPUTS:
+;   colorname - names of available colors
+;   pold, xold, yold - if these exist, sets to old values of !P, !X, !Y 
+;                      (for input into k_end_print)
+; REVISION HISTORY:
+;   26-Feb-2003  Written by M. Blanton, NYU
+;-  
+;------------------------------------------------------------------------------
 pro k_print,filename=filename,axis_char_scale=axis_char_scale, $
             tiny=tiny,pold=pold,xold=xold,yold=yold,colorname=colorname, $
             xsize=xsize,ysize=ysize

@@ -2,7 +2,7 @@
 ; NAME:
 ;   lf_vals
 ; PURPOSE:
-;   plot a luminosity function
+;   return values of the luminosity function
 ; INPUTS:
 ;   nphi             number of "bins"
 ;   sample_absmmin   minimum abs mag for the sample

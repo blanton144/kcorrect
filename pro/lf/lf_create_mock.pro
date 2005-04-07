@@ -2,9 +2,24 @@
 ; NAME:
 ;   lf_create_mock
 ; PURPOSE:
-;   Given an evolving Schechter function luminosity function, creates
-;   a catalog in the following way:
-; 
+;   create mock of evolving luminosity function with npgauss model
+; CALLING SEQUENCE:
+;   lf_create_mock, nsample, mmin, mmax, sample_absmmin, $
+;      sample_absmmax, sample_zmin, sample_zmax, zvals_kcorrect, $
+;      uniq_kcorrect, zzout=zzout [, omega0=, omegal0=]
+; INPUTS:
+;    nsample - number of galaxies to draw
+;    schechter - structure with {mstar, alpha, q, p}
+;    mmin, mmax - flux limits
+;    sample_absmmin, sample_absmmax - absolute mag limits
+;    sample_zmin, sample_zmax - redshift limits
+;    zvals_kcorrect, uniq_kcorrect - kcorrect parameters
+; OUTPUTS:
+;    zzout - output redshifts
+; OPTIONAL INPUTS:
+;    omega0 - matter density (default 0.3)
+;    omegal0 - vacuum energy density (default 0.7)
+; COMMENTS:
 ;     0) Create the selection function for the most favorable
 ;        K-corrections
 ;     1) Sample a Gaussian random field on a large grid out past the
@@ -12,21 +27,6 @@
 ;     2) Now choose luminosities and K-corrections for the galaxies. 
 ;     3) Apply uncertainties
 ;     4) Select the final sample
-;
-; INPUTS:
-;    nsample - number of galaxies to draw
-;    schechter - structure with {mstar, alpha, q, p}
-;    mmin, mmax - flux limits
-;    sample_absmmin, sample_absmmax - absolute mag limits
-;    zvals_kcorrect, uniq_kcorrect - kcorrect parameters
-; OPTIONAL INPUTS:
-;    omega0 - matter density
-;    omegal0 - vacuum energy density
-; KEYWORDS:
-; OUTPUTS:
-; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
 ; REVISION HISTORY:
 ;   2003-01-18  written - Blanton
 ;-
@@ -43,7 +43,6 @@ pi=!DPI
 if(n_elements(omega0) eq 0) then omega0=0.3
 if(n_elements(omegal0) eq 0) then omegal0=0.7
 if(n_elements(nzvals) eq 0) then nzvals=100
-
 
 ; create the selection function for ikcorrect=0 (assumed to be most
 ; favorable) 

@@ -15,13 +15,15 @@
 ;   mmax             [N] maximum apparent mag for each galaxy
 ;   sample_absmmin   observed absolute magnitude minimum of sample
 ;   sample_absmmax   observed absolute magnitude maximum of sample
+;   absmk            [nbin] center of each bin
+;   phi              [nbin] amplitude of each bin
 ; OPTIONAL INPUTS:
 ;   omega0           omega_matter to use (default: 0.3)
 ;   omegal0          omega_lambda to use (default: 0.7)
-;   q0,q1          evolution
-;   qz0              pivot for redshift evolution
-;   absmk            center of each bin
-;   phi              amplitude of each bin
+;   q0,q1            evolution (default 0.)
+;   qz0              pivot for redshift evolution (default 0.)
+; OUTPUTS:
+;   sel              [N] selection function
 ; REVISION HISTORY:
 ;   2003-10-20  written - Blanton
 ;-

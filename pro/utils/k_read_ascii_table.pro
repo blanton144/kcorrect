@@ -45,8 +45,6 @@
 ;    IDL> help,bmatrix
 ;    BMATRIX         DOUBLE    = Array[500, 10]
 ;
-; BUGS:
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   17-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;-

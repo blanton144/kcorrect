@@ -2,33 +2,15 @@
 ; NAME:
 ;   lf_normalize
 ; PURPOSE:
-;   For each galaxy, calculate the probability of it being in the
-;   observable range
+;   normalize npgauss function so integral is unity
 ; INPUTS:
-;   zz               [N] redshifts
-;   absmag           [N] absolute magnitudes
-;   absmerr          [N] absolute magnitude errors
-;   absmmin          [N] minimum abs mag for each object
-;   absmmax          [N] maximum abs mag for each object
-;   nphi             number of "bins"
-;   sample_absmmin   minimum abs mag for the sample
-;   sample_absmmax   maximum abs mag for the sample
-;   sigabsmag        width of gaussian (recommended to be
-;                    0.7*(sample_absmmax-sample_absmmin)/nphi)
-; OPTIONAL INPUTS:
-;   zzero            zeropoint in redshift (default 0.1)
-; KEYWORDS:
-; OUTPUTS:
-;   phi              amplitude of bin
-;   q                evolution of lum
-;   p                evolution of num
-; OPTIONAL OUTPUTS:
-; BUGS:
-;   TODO: 
-;         finish construction of likelihood
-;         create test set of data
-;         test the data ...
-; DEPENDENCIES:
+;   absmk - centers of gaussians
+;   phi - heights of gaussians (changed on output)
+;   sample_absmmin, sample_absmmax - abs. mag. limits
+;   sigabsmag - width of gaussian (recommended to be
+;               0.7*(sample_absmmax-sample_absmmin)/nphi)
+; COMMENTS:
+;   Changes phi to make integral unity.
 ; REVISION HISTORY:
 ;   2002-5-22  written - Blanton
 ;-

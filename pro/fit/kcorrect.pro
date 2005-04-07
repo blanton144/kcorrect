@@ -2,17 +2,15 @@
 ; NAME:
 ;   kcorrect
 ; PURPOSE:
-;   Given a set of AB maggies, returns the K-correction for each
-;   band. Allows the user to shift the bandpasses by a factor
-;   band_shift. If no band_shift is specified, the K-correction is to
-;   z=0.
+;   Given a set of AB maggies, returns the K-correction for each band.
+;   Allows the user to shift the bandpasses by a factor band_shift. 
+;   If no band_shift is specified, the K-correction is to z=0.
 ; CALLING SEQUENCE:
 ;   kcorrect, maggies, maggies_ivar, redshift, kcorrect [ , $
 ;        band_shift=, /magnitude, /stddev, lfile=, $
 ;        vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $
 ;        zvals=, lambda=, vmatrix=, /sdssfix, coeffs=, chi2=, $
 ;        maxiter=, zmin=, zmax=, nz=, /verbose ]
-;      
 ; INPUTS:
 ;   maggies    - [nk, ngals] AB maggies of galaxies (magnitudes if
 ;                /magnitude or /sdssfix set)
@@ -33,6 +31,9 @@
 ;                                          'sdss_r0.par', 'sdss_i0.par',
 ;                                          'sdss_z0.par']]
 ;   filterpath    - path to filters [default $KCORRECT_DIR/data/filters]
+;   minerrors     - [nk] add this set of errors (in magnitude units)
+;                   in quadrature to all uncertainties
+;   /abfix        - uses k_abfix to fix input SDSS maggies to AB 
 ;   /sdssfix      - uses k_sdssfix to "fix" input SDSS magnitudes and 
 ;                   standard deviations; this applies the AB fix to
 ;                   the SDSS magnitudes; it treats as if /magnitude and
@@ -61,6 +62,10 @@
 ;
 ; COMMENTS:
 ;
+;   Defaults to AB magnitudes from the SDSS.  Use /sdssfix flag for 
+;   sending Archive Server magnitudes and errors. Use /abfix flag for
+;   sending photoop maggies. 
+;
 ;   Be careful when sending SDSS tsObj outputs directly into this
 ;   program.  Eg. occasionally the magnitudes or the errors have crazy
 ;   values, such as -9999. The normal "garbage in, garbage out" rules
@@ -85,7 +90,7 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               rmatrix=rmatrix, zvals=zvals, lambda=lambda, $
               vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
               chi2=chi2, maxiter=maxiter, verbose=verbose, nz=nz, $
-              zmin=zmin, zmax=zmax
+              zmin=zmin, zmax=zmax, abfix=abfix
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
@@ -134,6 +139,10 @@ if(n_elements(maggies) gt 0) then begin
             if(keyword_set(stddev)) then $
               use_maggies_ivar=1./use_maggies_ivar^2
         endelse
+        if(keyword_set(abfix)) then $
+          k_abfix, use_maggies, use_maggies_ivar
+        if(keyword_set(minerrors)) then $
+          k_minerrors, use_maggies, use_maggies_ivar, minerrors
     endelse 
     
 ; Calculate coeffs

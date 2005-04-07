@@ -17,11 +17,6 @@
 ; OUTPUTS:
 ;   spec - [nl] output spectrum
 ;   lambda - [nl+1] pixel edges
-; OPTIONAL INPUT/OUTPUTS:
-; COMMENTS:
-; EXAMPLES:
-; BUGS:
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   25-Jul-2002  Translated to IDL by Mike Blanton, NYU
 ;-

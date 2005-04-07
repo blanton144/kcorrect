@@ -2,11 +2,47 @@
 ; NAME:
 ;   lf_mean_density
 ; PURPOSE:
+;   calculate mean density given npgauss luminosity function
+; USAGE:
+;   lf_mean_density, zz, sf, fraclimits, iabsmerr, immin, immax, $
+;     ikcorrect, uniqabsmerr, uniqmmin, uniqmmax, uniqkcorrect, $
+;     sample_absmmin, sample_absmmax, model_absmmin, model_absmmax, $
+;     sample_zmin, sample_zmax, phi, absmk, sigabsmag, q, p, n1, n1err $
+;     [, zzero=, nzvals=, omega0=, omegal0=, j3=, /simple, rhozpars=, $
+;     rhozfunc=, zvals= ]
 ; INPUTS:
+;   zz - [N] redshifts
+;   sf - [N] selection function for each galaxy
+;   fraclimits - [Nm] fraction of area in each region with constant
+;                flux limit 
+;   iabsmerr - [N] index indicating which discrete value of error to
+;              use from uniqabsmerr
+;   immin - [N] index indicating which discrete value of bright flux
+;           limit to use from uniqmmin
+;   immax - [N] index indicating which discrete value of faint flux
+;           limit to use from uniqmmax
+;   ikcorrect - [N] index indicating which kcorrect template to
+;               use from uniqkcorrect
+;   uniqabsmerr - [Nerr] discrete values of error 
+;   uniqmmin - [Nmin] discrete values of bright flux limit
+;   uniqmmax - [Nmin] discrete values of faint flux limit
+;   uniqkcorrect - [nzvals, Nk] kcorrections as a function of
+;                  redshiift for each template
+;   sample_absmmin, sample_absmmax - sample limits on absolute mag
+;   sample_zmin, sample_zmax - sample limits on redshift
+;   phi, absmk, sigabsmag, q, p - description of l.f.
 ; OPTIONAL INPUTS:
-; KEYWORDS:
+;   nzvals - number of redshift in kcorrect templates (default 50)
+;   zzero - reference redshift for q and p evolution (default 0.1)
+;   omega0 - matter density (default 0.3)
+;   omegal0 - vacuum energy density (default 0.7)
+;   rhozpars, rhozfunc - if we have fit out the radial density function
+; OPTIONAL KEYWORDS:
+;   /simple - do simple weighting 
 ; OUTPUTS:
+;   n1, n1err - mean density and error
 ; OPTIONAL OUTPUTS:
+;   zvals - redshift steps
 ; BUGS:
 ; DEPENDENCIES:
 ; REVISION HISTORY:

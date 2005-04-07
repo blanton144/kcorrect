@@ -9,8 +9,6 @@
 ;  peg_file      - output file of the pegase program
 ;OUTPUTS:
 ;  peg           - an array of structures (one for each timestep)
-;COMMENTS:
-;BUGS:
 ;REVISION HISTORY:
 ;  2002-Aug-28 written by Quintero
 ;_

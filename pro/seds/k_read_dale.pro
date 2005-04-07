@@ -4,12 +4,14 @@
 ;PURPOSE:
 ;  reads the Dale SEDs
 ;CALLING SEQUENCE:
-;  read_peg, peg_file
-;INPUTS:
+;  dale=k_read_dale()
 ;OUTPUTS:
-;  dale
-;COMMENTS:
+;  dale - structure with 
+;             .LAMBDA - wavelength in angstroms
+;             .FLUX - flux 
 ;BUGS:
+;  What units are fluxes in?
+;  Untested?
 ;REVISION HISTORY:
 ;  2004-Dec-20  started by Hogg
 ;_

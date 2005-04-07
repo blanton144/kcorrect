@@ -4,12 +4,22 @@
 ; PURPOSE:
 ;   run the nmf fitting code to get basis spectra
 ; CALLING SEQUENCE:
-;   k_run_nmf
+;   k_run_nmf [, nt=, niter= ]
+; OPTIONAL INPUTS:
+;   nt - number of templates to fit for (default 6)
+;   niter - number of iterations of fit (default 1000)
+; COMMENTS:
+;   Requires k_nmf_mmatrix and k_nmf_spdata to have been run. 
+;   Uses nmf_sparse for fitting. Puts results in k_nmf_soln.fits.
+;   Checks for existing k_nmf_soln.fits to use as starting
+;   point. Otherwise nmf_sparse chooses random starting point.
 ; REVISION HISTORY:
 ;   29-Nov-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_run_nmf
+pro k_run_nmf, niter=niter, nt=nt
+
+if(NOT keyword_set(niter)) then niter=1000L
 
 mmatrix=mrdfits('k_nmf_mmatrix.fits')
 datastr=mrdfits('k_nmf_spdata.fits',1)
@@ -38,10 +48,12 @@ if(file_test('k_nmf_soln.fits')) then begin
     templates=mrdfits('k_nmf_soln.fits',0)
     coeffs=mrdfits('k_nmf_soln.fits',1)
 endif 
-nmf_sparse, data, data_ivar, 6, mmatrix, 100L, coeffs=coeffs, $
+nmf_sparse, data, data_ivar, nt, mmatrix, niter, coeffs=coeffs, $
   templates=templates
 
 mwrfits, templates, 'k_nmf_soln.fits', /create
 mwrfits, coeffs, 'k_nmf_soln.fits'
+
+k_qa_nmf
 
 end

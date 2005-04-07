@@ -2,14 +2,43 @@
 ; NAME:
 ;   lf_mock_schechter
 ; PURPOSE:
-;   Given the parameters 
+;   create mock catalog given schechter luminosity function
+; USAGE:
+;   lf_mock_npgauss, ntotal, mmin, mmax, fgot, area, schechter, p, q, $
+;      sigabsmag, sample_absmmin, sample_absmmax, model_absmmin, $
+;      model_absmmax, sample_zmin,sample_zmax, ikcorrect, $
+;      uniqkcorrect, absmerr [, absmout=, zzout=, appmout=, absmerrout=, $
+;      ikcorrectout=, kcorrectout=, fadjust=, omega0=, omegal0=, $
+;      nzvals=, zzero=, rhozpars=, rhozfunc=,zvals=,sample_nzvals= ]
 ; INPUTS:
+;   ntotal - total number of galaxies in volume (not total output!)
+;   mmin, mmax - [ntotal] flux limits of each galaxy
+;   fgot - [ntotal] chances of observing each galaxy
+;   area - total area of sample
+;   schechter, p, q - description of schechter l.f. + evolution
+;   sample_absmmin, sample_absmmax - abs. mag. limits of sample
+;   model_absmmin, model_absmmax - abs. mag. limits to model
+;   sample_zmin, sample_zmax - redshift limits of sample
+;   ikcorrect - [ngals] available kcorrections to choose from
+;   uniqkcorrect - [nzvals, nk] available k-correction functions
+;   absmerr - [ngals] available uncertainties to choose from
 ; OPTIONAL INPUTS:
-; KEYWORDS:
-; OUTPUTS:
-; OPTIONAL OUTPUTS:
-; BUGS:
-; DEPENDENCIES:
+;   nzvals - number of redshift in kcorrect templates (default 50)
+;   zvals - [nzvals] redshift grid
+;   zzero - reference redshift for q and p evolution (default 0.1)
+;   omega0 - matter density (default 0.3)
+;   omegal0 - vacuum energy density (default 0.7)
+;   rhozpars, rhozfunc - if we have fit out the radial density function
+; OPTIONAL OUPUTS:
+;   absmout - [nout] abs. mag. of final galaxies
+;   zzout - [nout] redshifts of final galaxies
+;   appmout - [nout] apparent mag of final galaxies
+;   absmerrout - [nout] uncertainties on abs. mag. of final galaxies
+;   ikcorrectout - [nout] which kcorrection functions for final galaxies
+;   kcorrectout - [nout] actual kcorrections for final galaxies
+;   fadjust - ratio of number in actual universion to from number
+;             gotten in mock to number in actual (to compare redshift
+;             histograms, say)
 ; REVISION HISTORY:
 ;   2002-5-22  written - Blanton
 ;-

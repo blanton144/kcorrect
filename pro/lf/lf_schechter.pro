@@ -15,14 +15,6 @@
 ;    alpha - alpha parameter ('faint end slope') in schechter defn
 ;   OR:
 ;   schechter - structure with phistar, mstar, alpha entries
-; OPTIONAL INPUTS:
-; OUTPUTS:
-; OPTIONAL INPUT/OUTPUTS:
-; DATA DEPENDENCIES:
-; COMMENTS:
-; EXAMPLES:
-; BUGS:
-; PROCEDURES CALLED:
 ; REVISION HISTORY:
 ;   20-Oct-2003  Written by Mike Blanton, NYU
 ;-
