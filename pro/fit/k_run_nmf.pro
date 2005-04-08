@@ -38,7 +38,7 @@ data_ivar=create_struct(datastr, $
                         'x', fltarr(n_elements(vals)))
 data_ivar.val=ivar
 data_ivar.x=xx
-ngals=n_elements(data)
+ngals=n_elements(data.rowstart)
 
 ilez=where(data.val le 0., nlez)
 if(nlez gt 0) then begin
