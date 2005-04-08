@@ -74,10 +74,10 @@ kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0., 0., 0., 0., 0., 0.]
 seed=seed1
 
 ;; relative weights
-galex_weight=5.
+galex_weight=1.
 sdss_spec_weight=0.03
-sdss_photo_weight=5.
-deep_weight=5.
+sdss_photo_weight=1.
+deep_weight=1.
 
 ;; figure out what form we need the data in
 hdr=headfits(mmatrix)
