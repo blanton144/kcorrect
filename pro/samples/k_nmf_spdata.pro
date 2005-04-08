@@ -295,17 +295,20 @@ deep_dm=lf_distmod(deep.zhelio)
 zdist[ideep]=deep.zhelio
 zhelio[ideep]=deep.zhelio
 iz=long(floor((nzf-1.)*(zhelio[ideep]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
+sigmbase=0.05
 for i=0L, n_elements(deep)-1L do begin
     datastr.rowstart[ideep[i]]=currx
 
     ngood=0L
 
     iband=10L
+    mbase=24.0
     if(deep[i].magb lt 25.) then begin
         datastr.nxrow[ideep[i]]=datastr.nxrow[ideep[i]]+1L
         extinction=deep[i].sfd_ebv*4.32
+        deep_err2=0.02^2+(sigmbase*10.^(-0.4*(mbase-deep[i].magb)))^2
         maggies=10.^(-0.4*(deep[i].magb-extinction-deep_dm[i]))
-        maggies_ivar=1./((0.03^2)*(0.4*alog(10.)*maggies)^2)
+        maggies_ivar=1./(deep_err2*(0.4*alog(10.)*maggies)^2)
         new_xx=iz[i]+(iband)*nzf+nspec
         if(keyword_set(data)) then begin
             data=[data, maggies]
@@ -321,11 +324,13 @@ for i=0L, n_elements(deep)-1L do begin
     endif 
 
     iband=11L
+    mbase=24.0
     if(deep[i].magr lt 25.) then begin
         datastr.nxrow[ideep[i]]=datastr.nxrow[ideep[i]]+1L
         extinction=deep[i].sfd_ebv*2.63
         maggies=10.^(-0.4*(deep[i].magr-extinction-deep_dm[i]))
-        maggies_ivar=1./((0.03^2)*(0.4*alog(10.)*maggies)^2)
+        deep_err2=0.02^2+(sigmbase*10.^(-0.4*(mbase-deep[i].magr)))^2
+        maggies_ivar=1./(deep_err2*(0.4*alog(10.)*maggies)^2)
         new_xx=iz[i]+(iband)*nzf+nspec
         if(keyword_set(data)) then begin
             data=[data, maggies]
@@ -341,11 +346,13 @@ for i=0L, n_elements(deep)-1L do begin
     endif 
 
     iband=12L
+    mbase=24.0
     if(deep[i].magi lt 25.) then begin
         datastr.nxrow[ideep[i]]=datastr.nxrow[ideep[i]]+1L
         extinction=deep[i].sfd_ebv*1.96
         maggies=10.^(-0.4*(deep[i].magi-extinction-deep_dm[i]))
-        maggies_ivar=1./((0.03^2)*(0.4*alog(10.)*maggies)^2)
+        deep_err2=0.02^2+(sigmbase*10.^(-0.4*(mbase-deep[i].magi)))^2
+        maggies_ivar=1./(deep_err2*(0.4*alog(10.)*maggies)^2)
         new_xx=iz[i]+(iband)*nzf+nspec
         if(keyword_set(data)) then begin
             data=[data, maggies]
