@@ -52,7 +52,8 @@
 ;   23-Nov-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_nmf_spdata, mmatrix=mmatrix, sample=sample, flux=flux
+pro k_nmf_spdata, mmatrix=mmatrix, sample=sample, flux=flux, $
+                  galexblue=galexblue
 
 if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
@@ -259,7 +260,10 @@ for i=0L, n_elements(galex)-1L do begin
         currx=currx+1L
     endif 
 
-    igood=where(galex_kc[i].abmaggies gt 0., ngood) 
+    if(keyword_set(galexblue)) then $
+      igood=where(galex_kc[i].abmaggies[0:1] gt 0., ngood) $
+    else $
+      igood=where(galex_kc[i].abmaggies gt 0., ngood) 
     new_data=1.e-9*galex_kc[i].abmaggies[igood]*10.^(0.4*galex_dm[i])* $
       10.^(-0.4*kc2ab[igood])
     new_ivar=1.e+18/ $
