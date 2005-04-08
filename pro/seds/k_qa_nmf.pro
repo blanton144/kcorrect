@@ -84,6 +84,7 @@ splog, t_age
 mwrfits, t_mass, 'k_nmf_derived.fits', hdr, /create
 mwrfits, t_metallicity, 'k_nmf_derived.fits'
 mwrfits, t_age, 'k_nmf_derived.fits'
+stop
 
 ;; make vmatrix and lambda
 outvmatrix=mmatrix[0:nspec-1L,*]#templates

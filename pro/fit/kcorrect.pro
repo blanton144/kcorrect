@@ -3,26 +3,26 @@
 ;   kcorrect
 ; PURPOSE:
 ;   Given a set of AB maggies, returns the K-correction for each band.
-;   Allows the user to shift the bandpasses by a factor band_shift. 
-;   If no band_shift is specified, the K-correction is to z=0.
 ; CALLING SEQUENCE:
 ;   kcorrect, maggies, maggies_ivar, redshift, kcorrect [ , $
 ;        band_shift=, /magnitude, /stddev, lfile=, $
 ;        vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $
-;        zvals=, lambda=, vmatrix=, /sdssfix, coeffs=, chi2=, $
-;        maxiter=, zmin=, zmax=, nz=, /verbose ]
+;        zvals=, lambda=, vmatrix=, /sdssfix, /abfix, minerrors=, $
+;        coeffs=, chi2=, maxiter=, zmin=, zmax=, nz=, /verbose ]
 ; INPUTS:
 ;   maggies    - [nk, ngals] AB maggies of galaxies (magnitudes if
-;                /magnitude or /sdssfix set)
+;                /magnitude set, asinh magnitudes if /sdssfix set)
 ;   maggies_ivar - [nk, ngals] inverse variance in maggies (magnitudes if
-;                  /magnitude set, std. dev. if /stddev or /sdssifx set)
+;                  /magnitude set, std. dev. if /stddev set; if
+;                  /sdssfix set, is std. dev. of asinh magnitudes)
 ;   redshift      - [ngals] redshifts of galaxies 
-;
 ; OPTIONAL INPUTS:
 ;   band_shift    - blueshift of bandpasses to apply (to get ^{z}b
 ;                   type bands) [default 0]
 ;   magnitude     - set if input and output in -2.5 log_10(maggies)
 ;   stddev        - maggies_ivar actual contains standard dev.
+;   minerrors     - [nk] add this set of errors (in magnitude units)
+;                   in quadrature to all uncertainties
 ;   lfile         - wavelength file for vmatrix [default lambda.default.dat]
 ;   vfile         - vmatrix file [default vmatrix.default.dat]
 ;   vpath         - path to templates [default $KCORRECT_DIR/data/templates]
@@ -31,21 +31,20 @@
 ;                                          'sdss_r0.par', 'sdss_i0.par',
 ;                                          'sdss_z0.par']]
 ;   filterpath    - path to filters [default $KCORRECT_DIR/data/filters]
-;   minerrors     - [nk] add this set of errors (in magnitude units)
-;                   in quadrature to all uncertainties
-;   /abfix        - uses k_abfix to fix input SDSS maggies to AB 
-;   /sdssfix      - uses k_sdssfix to "fix" input SDSS magnitudes and 
-;                   standard deviations; this applies the AB fix to
-;                   the SDSS magnitudes; it treats as if /magnitude and
-;                   /stddev are also set 
 ;   /verbose      - call k_fit_nonneg verbosely
 ;   maxiter       - maximum number of iterations for fit [default 3000]
+; DEPRECATED INPUTS:
+;   /abfix        - uses k_abfix to fix input SDSS maggies to AB
+;                   (better to just call with 'sdss_kcorrect')
+;   /sdssfix      - uses k_sdssfix to "fix" input SDSS asinh magnitudes and 
+;                   standard deviations; treats as if /abfix, and
+;                   minerrors=[0.05,0.02,0.02,0.02,0.03] are all set
+;                   (better to just call with 'sdss_kcorrect')
 ; OUTPUTS:
 ;   kcorrect   - [nk, ngals] K-corrections satisfying
 ;                   m = M + DM(z) + K(z)
 ;                based on the best fit sum of templates
 ;   chi2       - chi^2 of fit
-;
 ; OPTIONAL INPUT/OUTPUTS:
 ;   coeffs        - coefficients fit to each template (if maggies
 ;                   input are nonexistent, just use these input
@@ -59,24 +58,22 @@
 ;   zmin,zmax     - minimum and maximum redshifts for lookup table
 ;                   (default 0., 2.)
 ;   nz            - number of redshifts in lookup table (default 1000)
-;
 ; COMMENTS:
+;   If you just want to do SDSS kcorrections, it is better to use the
+;   wrapper 'sdss_kcorrect'. 
+; 
+;   If you want to do GALEX kcorrections (perhaps including matched
+;   SDSS data) use the wrapper 'galex_kcorrect'.
+; 
+;   If you want to do 2MASS kcorrections (perhaps including matched
+;   SDSS data) use the wrapper 'twomass_kcorrect'.
+; 
+;   If you want to do DEEP kcorrections use the wrapper 'deep_kcorrect'.
 ;
-;   Defaults to AB magnitudes from the SDSS.  Use /sdssfix flag for 
-;   sending Archive Server magnitudes and errors. Use /abfix flag for
-;   sending photoop maggies. 
-;
-;   Be careful when sending SDSS tsObj outputs directly into this
-;   program.  Eg. occasionally the magnitudes or the errors have crazy
-;   values, such as -9999. The normal "garbage in, garbage out" rules
-;   apply. However, I have supplied the /sdssfix flag, which does a
-;   reasonable job in most cases of identifying problem cases and
-;   doing something OK about it. When /sdssfix is set, deals with SDSS
-;   database-style input, including wacky values for magnitude errors,
-;   adding zeropoint uncertainties, converting to our best estimate of
-;   the AB system, and dealing with asinh magnitudes. Uses k_sdssfix
-;   for this.
-;
+;   Allows the user to shift the bandpasses by a factor band_shift. 
+;   If no band_shift is specified, the K-correction is to z=0.
+; 
+;   Defaults to SDSS filters.  
 ; REVISION HISTORY:
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;   19-Jul-2002  Major bug fix (pointed out by I. Baldry) MRB, NYU
@@ -98,7 +95,7 @@ if (N_params() LT 4) then begin
     print, '             band_shift=, /magnitude, /stddev, lfile=, $'
     print, '             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $'
     print, '             zvals=, zmin=, zmax= lambda=, vmatrix=, coeffs=, $'
-    print, '             /verbose, /sdssfix ]'
+    print, '             /verbose, /sdssfix, /abfix ]'
     return
 endif
 

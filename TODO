@@ -1,10 +1,16 @@
+get test data:
+   spSpec example
+   spAll example for same
+   deep subsample
+   galex subsample
+   galex+SDSS subsample
+   twomass+SDSS subsample
+   synthesized across all z?
 write and test:
    sdss_kcorrect
    deep_kcorrect
    galex_kcorrect
    twomass_kcorrect
-get DEEP redshifts/photometry
-check z-band
 check metallicities
 check stellar masses
 create many primer data sets

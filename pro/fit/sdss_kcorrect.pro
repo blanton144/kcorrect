@@ -34,34 +34,45 @@
 ;   band_shift    - blueshift of bandpasses to apply (to get ^{z}b
 ;                   type bands) [default 0.]
 ; OUTPUTS:
-;   kcorrect   - [5, ngals] K-corrections satisfying
-;                   m = M + DM(z) + K(z)
-;                based on the best fit sum of templates
+;   kcorrect - [5, ngals] K-corrections satisfying
+;                m = M + DM(z) + K(z)
+;              based on the best fit sum of templates
 ; OPTIONAL OUTPUTS:
-;   chi2       - chi^2 of fit
+;   coeffs - coefficients of fit
+;   chi2 - chi^2 of fit
 ; COMMENTS:
 ;   This is a simple wrapper on kcorrect.pro which is almost always
 ;   just what you want. It keeps a version of rmatrix and zvals in
 ;   memory to save time, recalculating them each time you change
 ;   band_shift.
 ;
-;   You must specify nmgy,ivar OR mag,err OR calibobj OR tsobj.  This
-;   code ALWAYS assumes you are inputting pipeline quantities and
-;   converts them to AB quantities! It also ALWAYS applies a minimum
-;   error of [0.05, 0.02, 0.02, 0.02, 0.03] in ugriz respectively.
+;   You must specify nmgy,ivar OR mag,err OR calibobj OR tsobj.  
+;
+;   This code ALWAYS assumes you are inputting pipeline quantities and
+;   converts them to AB quantities!
+;
+;   It also ALWAYS applies a minimum error of [0.05, 0.02, 0.02, 0.02,
+;   0.03] in ugriz respectively.
+;
 ;   calibobj will be interpreted as a photoop-style SDSS structure.
-;   tsobj will be interpreted as a opdb-style SDSS structure.  In either
-;   the case of calibobj or tsobj, the Petrosian flux will be used by
-;   default --- or you can specify flux="model" or flux="psf".  In
-;   addition, in the case of calibobj or tsobj, this code uses the
-;   Galactic extinction values in those structures to correct the fluxes.
+;
+;   tsobj will be interpreted as a opdb-style SDSS structure.
+;
+;   In either the case of calibobj or tsobj, the Petrosian flux will
+;   be used by default --- or you can specify flux="model" or
+;   flux="psf".
+;
+;   In addition, in the case of calibobj or tsobj, this code uses the
+;   Galactic extinction values in those structures to correct the
+;   fluxes. If you specify nmgy,ivar or mag,err yourself, you should
+;   have already corrected these values for Galactic extinction.
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
 function sdss_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         calibobj=calibobj, tsobj=tsobj, flux=flux, $
-                        band_shift=in_band_shift, chi2=chi2
+                        band_shift=in_band_shift, chi2=chi2, coeffs=coeffs
 
 common com_sdss_kcorrect, rmatrix, zvals, band_shift
 
@@ -193,7 +204,7 @@ endelse
 
 ;; call kcorrect
 kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
-  rmatrix=rmatrix, zvals=zvals
+  rmatrix=rmatrix, zvals=zvals, coeffs=coeffs
 
 return, kcorrect
 

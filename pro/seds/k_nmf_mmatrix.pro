@@ -46,18 +46,18 @@ if(NOT keyword_set(nagesmax)) then nagesmax=30
 if(NOT keyword_set(vdisp)) then vdisp=300.
 if(NOT keyword_set(minzf)) then minzf=0.
 if(NOT keyword_set(maxzf)) then maxzf=2.
-if(NOT keyword_set(nzf)) then nzf=500
+if(NOT keyword_set(nzf)) then nzf=1000
 if(n_tags(dusts) eq 0) then begin
     dusts1={geometry:'', dust:'', structure:'', tauv:0.}
-    dusts=replicate(dusts1,3)
-    dusts.geometry=['dusty', 'dusty','dusty']
-    dusts.dust=['MW','MW','MW']
-    dusts.structure=['c','c','c']
-    dusts.tauv=[0.,1.,3.]
+    dusts=replicate(dusts1,4)
+    dusts.geometry=['dusty', 'dusty','dusty','dusty']
+    dusts.dust=['MW','MW','MW','MW']
+    dusts.structure=['c','c','c','c']
+    dusts.tauv=[0.,1.,3.,6.]
 endif 
 ndusts=n_elements(dusts)
 
-norm_lmin=1500. ;; limits when testing whether two BC03 models are similar
+norm_lmin=800. ;; limits when testing whether two BC03 models are similar
 norm_lmax=23000.
 nmets=6   ;; metallicities to use
 mets=[0,1,2,3,4,5]
