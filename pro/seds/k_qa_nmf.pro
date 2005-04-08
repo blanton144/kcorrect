@@ -146,6 +146,10 @@ djs_plot, stmass, metallicity, psym=4, xtitle='stellar mass (M_\odot)', $
   ytitle='metallicity',/xlog, xcharsize=0.0001
 djs_plot, stmass, age, psym=4, xtitle='stellar mass (M_\odot)', $
   ytitle='mean stellar age', /xlog, /ylog
+djs_plot, zhelio, metallicity, psym=4, xtitle='redshift' , $
+  ytitle='metallicity', xcharsize=0.0001
+djs_plot, zhelio, age, psym=4, xtitle='redshift' , $
+  ytitle='mean stellar age', /ylog
 
 ;; color and residuals vs. redshift
 !P.MULTI=[0,1,2]
