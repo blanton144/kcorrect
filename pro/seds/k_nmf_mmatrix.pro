@@ -46,7 +46,7 @@ if(NOT keyword_set(nagesmax)) then nagesmax=40
 if(NOT keyword_set(vdisp)) then vdisp=300.
 if(NOT keyword_set(minzf)) then minzf=0.
 if(NOT keyword_set(maxzf)) then maxzf=2.
-if(NOT keyword_set(nzf)) then nzf=1000
+if(NOT keyword_set(nzf)) then nzf=400
 if(n_tags(dusts) eq 0) then begin
     dusts1={geometry:'', dust:'', structure:'', tauv:0.}
     dusts=replicate(dusts1,4)
