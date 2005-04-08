@@ -291,7 +291,6 @@ deep_dm=lf_distmod(deep.zhelio)
 zdist[ideep]=deep.zhelio
 zhelio[ideep]=deep.zhelio
 iz=long(floor((nzf-1.)*(zhelio[ideep]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
-stop
 for i=0L, n_elements(deep)-1L do begin
     datastr.rowstart[ideep[i]]=currx
 
