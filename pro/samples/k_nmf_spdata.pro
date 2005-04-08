@@ -60,7 +60,7 @@ if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
 if(NOT keyword_set(sample)) then sample='sample15'
 if(NOT keyword_set(flux)) then flux='model'
 if(NOT keyword_set(nsdss_photo)) then nsdss_photo=250L
-if(NOT keyword_set(nsdss_spec)) then nsdss_spec=5L
+if(NOT keyword_set(nsdss_spec)) then nsdss_spec=250L
 if(NOT keyword_set(ngalex)) then ngalex=250L
 if(NOT keyword_set(ndeep)) then ndeep=250L
 if(NOT keyword_set(seed1)) then seed1=1000L
@@ -75,7 +75,7 @@ seed=seed1
 
 ;; relative weights
 galex_weight=1.
-sdss_spec_weight=0.03
+sdss_spec_weight=0.05
 sdss_photo_weight=1.
 deep_weight=1.
 
