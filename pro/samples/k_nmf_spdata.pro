@@ -59,7 +59,7 @@ if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
 if(NOT keyword_set(sample)) then sample='sample15'
 if(NOT keyword_set(flux)) then flux='model'
-if(NOT keyword_set(nsdss_photo)) then nsdss_photo=5L
+if(NOT keyword_set(nsdss_photo)) then nsdss_photo=250L
 if(NOT keyword_set(nsdss_spec)) then nsdss_spec=5L
 if(NOT keyword_set(ngalex)) then ngalex=250L
 if(NOT keyword_set(ndeep)) then ndeep=250L
@@ -76,7 +76,7 @@ seed=seed1
 ;; relative weights
 galex_weight=5.
 sdss_spec_weight=0.03
-sdss_photo_weight=1.
+sdss_photo_weight=5.
 deep_weight=5.
 
 ;; figure out what form we need the data in
