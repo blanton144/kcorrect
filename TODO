@@ -1,6 +1,4 @@
-test sdssfix version on database output 
-clean up AB fix part
-write:
+write and test:
    sdss_kcorrect
    deep_kcorrect
    galex_kcorrect
@@ -15,7 +13,6 @@ make sure vmatrix/lambda stuff works fine
 run on full
 
 clean up TODO:
-  lf/lf_create_mock.pro lf/lf_plotlf.pro lf/lf_qaplot.pro lf/lf_poisson_sample.pro lf/lf_vals.pro seds/k_make_templates.pro seds/k_prepare_fit.pro seds/plot_templates.pro utils/plot_kspec.pro
 
 new docs:
   which calib for eisenstein k_sdssfix

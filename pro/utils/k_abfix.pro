@@ -28,6 +28,7 @@
 ;     r(AB,2.5m) = r(database, 2.5m) + 0.015   (NOT WHAT WE DO HERE)
 ;     i(AB,2.5m) = i(database, 2.5m) + 0.013   (NOT WHAT WE DO HERE)
 ;     z(AB,2.5m) = z(database, 2.5m) - 0.002   (NOT WHAT WE DO HERE)
+;   You can use these if you set the /ab02 flag
 ; BUGS:
 ;   Needs better tracking of Eisenstein numbers
 ; REVISION HISTORY:

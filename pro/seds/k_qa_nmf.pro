@@ -136,6 +136,16 @@ for i=0L, nt-1L do begin
     djs_oplot, age[*,0,0], sfh_dust, psym=4
 endfor
 
+;; derived quantities
+stmass=total(coeffs,1)
+age=(t_age#coeffs)/stmass
+metallicity=(t_metallicity#coeffs)/stmass
+!P.MULTI=[0,1,2]
+djs_plot, stmass, metallicity, psym=4, xtitle='stellar mass (M_\odot)', $
+  ytitle='metallicity',/xlog, xcharsize=0.0001
+djs_plot, stmass, age, psym=4, xtitle='stellar mass (M_\odot)', $
+  ytitle='mean stellar age', /xlog, /ylog
+
 ;; color and residuals vs. redshift
 !P.MULTI=[0,1,2]
 ngals=n_elements(data.rowstart)
@@ -204,7 +214,7 @@ for i=0L, nsubsp-1L do begin
     xcurr=data.x[icurr]
     yra=minmax(data.val[icurr])*[0.7,1.3]
     djs_plot, lambda[xcurr], model.val[icurr], color='red', $
-      xra=[3000., 10000.], /xlog, yra=yra
+      xra=[1000., 10000.], /xlog, yra=yra
     djs_oplot, lambda[xcurr], data.val[icurr], psym=4, /xlog, symsize=0.3
     djs_oplot, lambda[xcurr], data.val[icurr], /xlog
 endfor

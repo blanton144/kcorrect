@@ -21,7 +21,7 @@
 ;   07-Feb-2002  Written by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-function k_minerror, maggies, maggies_ivar, minerrors
+pro k_minerror, maggies, maggies_ivar, minerrors
 
 if(n_elements(minerrors) eq 0) then $
   minerrors=[0.05, 0.02, 0.02, 0.02, 0.03]
@@ -30,10 +30,10 @@ nk=n_elements(minerrors)
 for k=0L, nk-1L do begin
     igood=where(maggies_ivar[k,*] gt 0, ngood)
     if(ngood gt 0) then begin
-        factor=0.4*alog(10.)
+        factor=(2.5/alog(10.))
         err=factor/sqrt(maggies_ivar[k,igood])/maggies[k,igood]
         err2=err^2+minerrors[k]^2
-        maggies_ivar[k,igood]=maggies[k,igood]^2/err2/factor^2
+        maggies_ivar[k,igood]=factor^2/(maggies[k,igood]^2*err2)
     endif
 endfor
 

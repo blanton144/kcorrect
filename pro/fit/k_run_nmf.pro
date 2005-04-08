@@ -20,6 +20,7 @@
 pro k_run_nmf, niter=niter, nt=nt
 
 if(NOT keyword_set(niter)) then niter=1000L
+if(NOT keyword_set(nt)) then nt=6
 
 mmatrix=mrdfits('k_nmf_mmatrix.fits')
 datastr=mrdfits('k_nmf_spdata.fits',1)

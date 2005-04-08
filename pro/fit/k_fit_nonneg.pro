@@ -47,7 +47,7 @@ function k_fit_nonneg, maggies, maggies_ivar, vmatrix, lambda, $
                        band_shift=band_shift, tolerance=tolerance, $
                        verbose=verbose, niter=niter
                   
-if(n_params() lt 4 OR n_elements(redshift) eq 0) then begin
+if(n_params() lt 2 OR n_elements(redshift) eq 0) then begin
     print,'Syntax - coeffs= k_fit_nonneg(maggies, maggies_ivar [, vmatrix, lambda, $'
     print,'          redshift=, filterlist=, chi2=, rmatrix=, zvals=, maxiter=, filterpath=, ]'
     print,'          zmin=, zmax=, nz=, band_shift=, /verbose ])'
