@@ -60,8 +60,8 @@ if(NOT keyword_set(sample)) then sample='sample15'
 if(NOT keyword_set(flux)) then flux='model'
 if(NOT keyword_set(nsdss_photo)) then nsdss_photo=5L
 if(NOT keyword_set(nsdss_spec)) then nsdss_spec=5L
-if(NOT keyword_set(ngalex)) then ngalex=5L
-if(NOT keyword_set(ndeep)) then ndeep=450L
+if(NOT keyword_set(ngalex)) then ngalex=250L
+if(NOT keyword_set(ndeep)) then ndeep=250L
 if(NOT keyword_set(seed1)) then seed1=1000L
 if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
@@ -73,7 +73,7 @@ kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0., 0., 0., 0., 0., 0.]
 seed=seed1
 
 ;; relative weights
-galex_weight=1.
+galex_weight=5.
 sdss_spec_weight=0.03
 sdss_photo_weight=1.
 deep_weight=5.
