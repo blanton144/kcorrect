@@ -38,6 +38,7 @@ data_ivar=create_struct(datastr, $
                         'x', fltarr(n_elements(vals)))
 data_ivar.val=ivar
 data_ivar.x=xx
+ngals=n_elements(data)
 
 ilez=where(data.val le 0., nlez)
 if(nlez gt 0) then begin
@@ -48,6 +49,7 @@ endif
 if(file_test('k_nmf_soln.fits')) then begin
     templates=mrdfits('k_nmf_soln.fits',0)
     coeffs=mrdfits('k_nmf_soln.fits',1)
+    if((size(coeffs,/dim))[1] ne ngals) then coeffs=0
 endif 
 nmf_sparse, data, data_ivar, nt, mmatrix, niter, coeffs=coeffs, $
   templates=templates
