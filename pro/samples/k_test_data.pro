@@ -15,7 +15,7 @@
 ; COMMENTS:
 ;   Creates in $KCORRECT_DIR/data/test:
 ;     spall_test.fits
-;     spspec_test.fits
+;     spobj_test.fits
 ;     galex_test.fits
 ;     deep_test.fits
 ;     twomass_test.fits
@@ -30,10 +30,12 @@ pro k_test_data, sdss=sdss, deep=deep, galex=galex, twomass=twomass, $
                  synth=synth, all=all
 
 if(keyword_set(sdss) gt 0 OR keyword_set(all) gt 0) then begin
-    
+  spawn, 'curl http://das.sdss.org/dr3/data/spectro/ss_23/0385/spObj-0385-51877-23.fit >! '+getenv('KCORRECT_DIR')+'/data/test/spobj_test.fits'
+  spawn, 'scp blanton@spectro.princeton.edu:/u/dss/spectro/calibobj/calibPlateP-0385.fits '+getenv('KCORRECT_DIR')+'/data/test/calibplate_test.fits'
+  spawn, 'scp blanton@spectro.princeton.edu:/u/dss/spectro/0385/spZbest-0385-51877.fits '+getenv('KCORRECT_DIR')+'/data/test/zbest_test.fits'
 endif
 
-if(keyword_set(sdss) gt 0 OR keyword_set(all) gt 0) then begin
+if(keyword_set(deep) gt 0 OR keyword_set(all) gt 0) then begin
     spawn, getenv('KCORRECT_DIR')+'/data/redshifts/deep/get_deep'
     deep=mrdfits(getenv('KCORRECT_DIR')+ $
                  '/data/redshifts/deep/zcat.dr1.uniq.fits.gz',1)

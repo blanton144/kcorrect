@@ -63,7 +63,7 @@ iz=long(floor((nzf-1.)*(zhelio-zf[0])/(zf[nzf-1]-zf[0])+0.5))
 ;; read in the results
 templates=mrdfits('k_nmf_soln.fits')
 coeffs=mrdfits('k_nmf_soln.fits',1)
-nt=(size(templates, /dim))[1]
+nt=n_elements(coeffs)/n_elements(zhelio)
 model=data
 early=data
 mcoeffs=templates#coeffs

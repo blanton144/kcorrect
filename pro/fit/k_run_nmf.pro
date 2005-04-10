@@ -8,6 +8,9 @@
 ; OPTIONAL INPUTS:
 ;   nt - number of templates to fit for (default 6)
 ;   niter - number of iterations of fit (default 1000)
+; OPTIONAL KEYWORDS:
+;   /qa - make qa plots at end
+;   /reset - ignore k_nmf_soln file if it exists
 ; COMMENTS:
 ;   Requires k_nmf_mmatrix and k_nmf_spdata to have been run. 
 ;   Uses nmf_sparse for fitting. Puts results in k_nmf_soln.fits.
@@ -17,10 +20,10 @@
 ;   29-Nov-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_run_nmf, niter=niter, nt=nt
+pro k_run_nmf, niter=niter, nt=nt, qa=qa, reset=reset
 
 if(NOT keyword_set(niter)) then niter=1000L
-if(NOT keyword_set(nt)) then nt=6
+if(NOT keyword_set(nt)) then nt=4
 
 mmatrix=mrdfits('k_nmf_mmatrix.fits')
 datastr=mrdfits('k_nmf_spdata.fits',1)
@@ -46,10 +49,12 @@ if(nlez gt 0) then begin
     data_ivar.val[ilez]=0.
 endif
 
-if(file_test('k_nmf_soln.fits')) then begin
+if(file_test('k_nmf_soln.fits') eq 1 and $
+   keyword_set(reset) eq 0) then begin
     templates=mrdfits('k_nmf_soln.fits',0)
     coeffs=mrdfits('k_nmf_soln.fits',1)
-    if((size(coeffs,/dim))[1] ne ngals) then coeffs=0
+    if(keyword_set(coeffs)) then $
+      if((size(coeffs,/dim))[1] ne ngals) then coeffs=0
 endif 
 nmf_sparse, data, data_ivar, nt, mmatrix, niter, coeffs=coeffs, $
   templates=templates
@@ -57,6 +62,7 @@ nmf_sparse, data, data_ivar, nt, mmatrix, niter, coeffs=coeffs, $
 mwrfits, templates, 'k_nmf_soln.fits', /create
 mwrfits, coeffs, 'k_nmf_soln.fits'
 
-k_qa_nmf
+if(keyword_set(qa)) then $
+  k_qa_nmf
 
 end
