@@ -87,7 +87,7 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               rmatrix=rmatrix, zvals=zvals, lambda=lambda, $
               vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
               chi2=chi2, maxiter=maxiter, verbose=verbose, nz=nz, $
-              zmin=zmin, zmax=zmax, abfix=abfix
+              zmin=zmin, zmax=zmax, abfix=abfix, minerrors=minerrors
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
@@ -139,7 +139,7 @@ if(n_elements(maggies) gt 0) then begin
         if(keyword_set(abfix)) then $
           k_abfix, use_maggies, use_maggies_ivar
         if(keyword_set(minerrors)) then $
-          k_minerrors, use_maggies, use_maggies_ivar, minerrors
+          k_minerror, use_maggies, use_maggies_ivar, minerrors
     endelse 
     
 ; Calculate coeffs

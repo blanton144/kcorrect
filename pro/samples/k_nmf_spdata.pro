@@ -15,6 +15,8 @@
 ;             optical spectrum smoothed to 300 km/s resolution
 ;     3. GALEX-SDSS matrix
 ;             FNugriz magnitudes
+;     4. DEEP data
+;     5. GOODS redshift sample data
 ; 
 ;   Creates a file k_nmf_spdata.fits of the following form:
 ;     HDU0: NULL
@@ -67,10 +69,10 @@ if(NOT keyword_set(seed1)) then seed1=1000L
 if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
 if(NOT keyword_set(velmodtype)) then velmodtype='sigv150'
-; min errors in FNugrizJHKBRI
+; min errors in FNugrizJHKBRIBV
 minerrors=[0.05, 0.05, 0.05, 0.02, 0.02, 0.02, 0.03, $
-           0.05, 0.05, 0.05, 0.02, 0.02, 0.02]
-kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0., 0., 0., 0., 0., 0.]
+           0.05, 0.05, 0.05, 0.02, 0.02, 0.02, 0.02, 0.02]
+kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0., 0., 0., 0., 0., 0., 0., 0.]
 seed=seed1
 
 ;; relative weights

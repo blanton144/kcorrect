@@ -231,7 +231,14 @@ filterlist=['galex_FUV.par', $
             'twomass_Ks.par', $
             'deep_B.par', $
             'deep_R.par', $
-            'deep_I.par']
+            'deep_I.par', $
+            'J_ISAAC.par', $
+            'H_ISAAC.par', $
+            'Ks_ISAAC.par', $
+            'acs_f435w.par', $
+            'acs_f606w.par', $
+            'acs_f775w.par', $
+            'acs_f850lp.par']
 lambda=fltarr(navloglam+1L)
 davloglam=avloglam[1]-avloglam[0]
 lambda[0:navloglam-1L]=10.^(avloglam-davloglam)

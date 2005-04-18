@@ -38,30 +38,34 @@ pro k_run_tests
 
 k_print, filename='k_run_tests.ps'
 
-spspec=mrdfits(getenv('KCORRECT_DIR')+'/data/test/spspec_test.fits',1)
-kc_spspec1=sdss_kcorrect(spspec.z, tsobj=spspec)
-petrocounts=spspec.petrocounts-spspec.reddening
-kcorrect, spspec.z, petrocounts, spspec.petrocountserr, kc_spspec2, $
-  /sdssfix
-for i=0L, 4L do $
-  djs_plot, spspec.z, kc_spspec1[i,*]-kc_spspec2[i,*], psym=4, $
-  xra='z', yra='kc1-kc2 (spspec, band='+strtrim(string(i),2)+')'
+calibplate=mrdfits(getenv('KCORRECT_DIR')+'/data/test/calibplate_test.fits',1)
+zbest=mrdfits(getenv('KCORRECT_DIR')+'/data/test/zbest_test.fits',1)
 
-spall=mrdfits(getenv('KCORRECT_DIR')+'/data/test/spall_test.fits',1)
-kc_spall1=sdss_kcorrect(spall.z, tsobj=spall)
-petroflux=spall.petroflux*10.^(0.4*spspec.extinction)
-petroflux_ivar=spall.petroflux_ivar*10.^(-0.8*spspec.extinction)
-kcorrect, spall.z, petroflux, petroflux_ivar, kc_spall2, $
+;; need to spherematch!!?
+kc_spall1=sdss_kcorrect(zbest.z, calibobj=calibplate)
+petroflux=calibplate.petroflux*10.^(0.4*calibplate.extinction)
+petroflux_ivar=calibplate.petroflux_ivar*10.^(-0.8*calibplate.extinction)
+kcorrect, petroflux, petroflux_ivar, zbest.z, kc_spall2, $
   /abfix, minerrors=[0.05,0.02,0.02,0.02,0.03]
 for i=0L, 4L do $
-  djs_plot, spspec.z, kc_spall1[i,*]-kc_spall2[i,*], psym=4, $
-  xra='z', yra='kc1-kc2 (spall, band='+strtrim(string(i),2)+')'
+  djs_plot, zbest.z, kc_spall1[i,*]-kc_spall2[i,*], psym=4, $
+  xti='z', yti='kc1-kc2 (spall, band='+strtrim(string(i),2)+')'
+
+spspec=mrdfits(getenv('KCORRECT_DIR')+'/data/test/spobj_test.fits',1)
+kc_spspec1=sdss_kcorrect(zbest.z, tsobj=spspec)
+petrocounts=spspec.petrocounts-spspec.reddening
+kcorrect, petrocounts, spspec.petrocountserr, zbest.z, kc_spspec2, $
+  /sdssfix
+for i=0L, 4L do $
+  djs_plot, zbest.z, kc_spspec1[i,*]-kc_spspec2[i,*], psym=4, $
+  xti='z', yti='kc1-kc2 (spspec, band='+strtrim(string(i),2)+')'
 
 for i=0L, 4L do $
-  djs_plot, spspec.z, kc_spall1[i,*]-kc_spspec1[i,*], psym=4, $
-  xra='z', yra='kcall-kcspec (band='+strtrim(string(i),2)+')'
-
+  djs_plot, zbest.z, kc_spall1[i,*]-kc_spspec1[i,*], psym=4, $
+  xti='z', yti='kcall-kcspec (band='+strtrim(string(i),2)+')'
 k_end_print
+
+save
 
 
 end

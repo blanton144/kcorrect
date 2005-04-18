@@ -104,7 +104,7 @@ if(NOT keyword_set(flux)) then flux='petro'
 if(n_tags(tsobj) gt 0) then begin
     if(flux ne 'model') then begin
         magname=flux+'counts'
-        errname=fluxname+'err'
+        errname=magname+'err'
     endif else begin
         magname='counts_model'
         errname='counts_modelerr'
@@ -178,19 +178,18 @@ if(n_tags(calibobj) gt 0) then begin
     ivar=ivar*10.^(-0.8*calibobj.extinction)
 endif
 
+;; interpret band_shift
+if(NOT keyword_set(in_band_shift)) then in_band_shift=0.
+
 ;; need to reset rmatrix if band_shift changes
 if(n_elements(band_shift) ne 0) then begin
     if(band_shift ne in_band_shift) then begin
        rmatrix=0
        zvals=0
     endif
-endif
-
-;; interpret band_shift
-if(keyword_set(in_band_shift)) then $
-  band_shift=in_band_shift $
-else $
-  band_shift=0.
+endif else begin
+    band_shift=in_band_shift
+endelse 
 
 ;; if you are using SDSS Archive values, fix em
 if(n_elements(mag) gt 0) then begin
