@@ -31,8 +31,14 @@ pro k_test_data, sdss=sdss, deep=deep, galex=galex, twomass=twomass, $
 
 if(keyword_set(sdss) gt 0 OR keyword_set(all) gt 0) then begin
   spawn, 'curl http://das.sdss.org/dr3/data/spectro/ss_23/0385/spObj-0385-51877-23.fit >! '+getenv('KCORRECT_DIR')+'/data/test/spobj_test.fits'
-  spawn, 'scp blanton@spectro.princeton.edu:/u/dss/spectro/calibobj/calibPlateP-0385.fits '+getenv('KCORRECT_DIR')+'/data/test/calibplate_test.fits'
-  spawn, 'scp blanton@spectro.princeton.edu:/u/dss/spectro/0385/spZbest-0385-51877.fits '+getenv('KCORRECT_DIR')+'/data/test/zbest_test.fits'
+  spspec=mrdfits(getenv('KCORRECT_DIR')+'/data/test/spobj_test.fits',1)
+  im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)
+  spherematch, spspec.ra, spspec.dec, im.ra, im.dec, 2./3600., m1, m2, d12
+  obj1=im[0]
+  struct_assign, {junk:0}, obj1
+  obj=replicate(obj1, n_elements(spspec))
+  obj[m1]=im[m2]
+  mwrfits, obj, getenv('KCORRECT_DIR')+'/data/test/obj_test.fits',/create
 endif
 
 if(keyword_set(deep) gt 0 OR keyword_set(all) gt 0) then begin

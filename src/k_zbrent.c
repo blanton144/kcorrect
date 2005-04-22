@@ -11,7 +11,7 @@
 float k_zbrent(float (*func)(float), float x1, float x2, float tol)
 {
 	int iter;
-	float a=x1,b=x2,c=x2,d,e,min1,min2;
+	float a=x1,b=x2,c=x2,d=0.,e=0.,min1,min2;
 	float fa=(*func)(a),fb=(*func)(b),fc,p,q,r,s,tol1,xm;
 
 	if ((fa > 0.0 && fb > 0.0) || (fa < 0.0 && fb < 0.0)) {

@@ -173,7 +173,7 @@ IDL_LONG lf_eep(float *in_redshift,
 float eepfit_fit(float zdep)
 {
 	int i;
-	float like,likeoff,curr_zdep;
+	float like,likeoff;
 	for(i=0;i<ngals;i++) {
 		factor[i]=1.;
 		galaxy_lum[i]=pow(10.,-0.4*(galaxy_absmag[i]+20.));

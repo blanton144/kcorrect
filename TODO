@@ -1,3 +1,46 @@
+FOLLOW THROUGH UNITS!
+test SDSS data:
+   compare all versions of photometry XX
+   check volume limited sample consistency XX
+   make residual plots vs redshift XX
+   plot actual K-correctiosn
+test GALEX data:
+   make galex_kcorrect XX
+   make residual plots XX 
+   check volume limited sample consistency XX
+   test predictability of GALEX fluxes XX
+   plot actual K-corrections
+test 2MASS data:
+   make twomass_kcorrect XX
+   make residual plots XX 
+   check volume limited sample consistency XX 
+   test predictability of 2MASS fluxes XX 
+   plot actual K-corrections
+test SDSS spectroscopy
+   code to fit single, aligned spectrum
+   code to fit an sdss fiber
+   take random set and plot: spectrum, model, residuals, fractional residuals
+   median smooth differences 
+   make sdss_continuum
+   make sdss_measure_lines
+   measure D4000 (on spectrum and model)
+   measure Hbeta absorption(?) (on spectrum and model)
+make templates plot XX
+make plot of representative set of objects
+test DEEP data:
+   make deep_kcorrect
+   make residual plot 
+   make sdss2deep 
+   make deep2sdss 
+   make deep2bessell 
+   make deep-like sample
+   run deep_kcorrect and sdss_kcorrect, check consistency
+other
+   make bessell2sdss 
+   make sdss2bessell 
+   
+   
+
 check consistency of fit across redshiift at low z
 check predictability of FNKs
 get test data:
@@ -13,8 +56,6 @@ write and test:
    twomass_kcorrect
 check metallicities
 check stellar masses
-create many primer data sets
-create the full data set
 make sure vmatrix/lambda stuff works fine
 run on full
 

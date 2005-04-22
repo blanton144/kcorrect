@@ -23,8 +23,10 @@
 ;   stddev        - maggies_ivar actual contains standard dev.
 ;   minerrors     - [nk] add this set of errors (in magnitude units)
 ;                   in quadrature to all uncertainties
-;   lfile         - wavelength file for vmatrix [default lambda.default.dat]
-;   vfile         - vmatrix file [default vmatrix.default.dat]
+;   vname         - name of fit to us (default 'default')
+;   lfile         - wavelength file for vmatrix [default
+;                   lambda.[vname].dat]
+;   vfile         - vmatrix file [default vmatrix.[vname].dat]
 ;   vpath         - path to templates [default $KCORRECT_DIR/data/templates]
 ;   filterlist    - [nk] list of filters [default
 ;                                         ['sdss_u0.par', 'sdss_g0.par',
@@ -45,6 +47,7 @@
 ;                   m = M + DM(z) + K(z)
 ;                based on the best fit sum of templates
 ;   chi2       - chi^2 of fit
+;   rmaggies      - reconstructed maggies from the fit
 ; OPTIONAL INPUT/OUTPUTS:
 ;   coeffs        - coefficients fit to each template (if maggies
 ;                   input are nonexistent, just use these input
@@ -87,7 +90,8 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               rmatrix=rmatrix, zvals=zvals, lambda=lambda, $
               vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
               chi2=chi2, maxiter=maxiter, verbose=verbose, nz=nz, $
-              zmin=zmin, zmax=zmax, abfix=abfix, minerrors=minerrors
+              zmin=zmin, zmax=zmax, abfix=abfix, minerrors=minerrors, $
+              rmaggies=rmaggies
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
@@ -110,7 +114,7 @@ if(NOT keyword_set(maxiter)) then maxiter=3000L
 if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
     if(NOT keyword_set(vmatrix) OR NOT keyword_set(lambda)) then $
       k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
-      vpath=vpath
+      vpath=vpath, vname=vname
     k_projection_table,rmatrix,vmatrix,lambda,zvals,filterlist, $ 
       zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath
 endif
@@ -158,11 +162,11 @@ endelse
 k_reconstruct_maggies,coeffs,replicate(band_shift,n_elements(redshift)), $
   reconstruct_maggies,rmatrix=rmatrix,zvals=zvals
 reconstruct_maggies=reconstruct_maggies/(1.+band_shift)
-k_reconstruct_maggies,coeffs,redshift,reconstruct_maggies0, $
+k_reconstruct_maggies,coeffs,redshift,rmaggies, $
   rmatrix=rmatrix,zvals=zvals
 
 ; get kcorrection
-kcorrect=reconstruct_maggies/reconstruct_maggies0
+kcorrect=reconstruct_maggies/rmaggies
 kcorrect=2.5*alog10(kcorrect)
 
 end

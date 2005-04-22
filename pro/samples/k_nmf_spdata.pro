@@ -222,7 +222,7 @@ iz=long(floor((nzf-1.)*(zhelio[igalex]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
 for i=0L, n_elements(galex)-1L do begin
     datastr.rowstart[igalex[i]]=currx
 
-    if(galex[i].fuv_mag ne -99.) then begin
+    if(galex[i].fuv_mag ne -999. AND galex[i].fuv_mag ne -99.) then begin
         datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+1L
         maggies=10.^(-0.4*(galex[i].fuv_mag-galex[i].fuv_extinction- $
                                galex_dm[i]))
@@ -242,7 +242,7 @@ for i=0L, n_elements(galex)-1L do begin
         currx=currx+1L
     endif 
 
-    if(galex[i].nuv_mag ne -99.) then begin
+    if(galex[i].nuv_mag ne -999. AND galex[i].nuv_mag ne -99.) then begin
         datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+1L
         maggies=10.^(-0.4*(galex[i].nuv_mag-galex[i].nuv_extinction- $
                                galex_dm[i]))

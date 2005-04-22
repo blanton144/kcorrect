@@ -28,6 +28,10 @@ IDL_LONG k_nonneg_solve(float *xx, float *invcovar, float *bb,
 												float offset, IDL_LONG nn, float tolerance, 
 												IDL_LONG maxiter, IDL_LONG *niter, float *chi2, 
 												IDL_LONG verbose);
+IDL_LONG k_fit_spec(float *coeffs, float *flux, float *ivar, float *templates,
+                    IDL_LONG nt, IDL_LONG nl, float tolerance,
+                    IDL_LONG maxiter, IDL_LONG *niter, float *chi2,
+                    IDL_LONG verbose);
 
 /* photo-z */
 IDL_LONG k_fit_photoz(float *photoz, float *coeffs, float *rmatrix, 

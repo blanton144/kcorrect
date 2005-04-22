@@ -4,15 +4,16 @@
 ; PURPOSE:
 ;   Load the template information 
 ; CALLING SEQUENCE:
-;   k_load_vmatrix, vmatrix, lambda [, vfile=, vpath=, lfile= ]
-; INPUTS:
+;   k_load_vmatrix, vmatrix, lambda [, vfile=, vpath=, lfile=, vname= ]
 ; OPTIONAL INPUTS:
-;   vfile      - ascii format file with vmatrix in it [default
-;                vmatrix.default.dat]
+;   vname - name of fit (default 'default')
+;   vfile - ascii format file with vmatrix in it (default
+;           vmatrix.[vname].dat)
 ;   lfile - ascii format file with wavelengths in it (in Angstroms)
-;   vpath      - path to use for vfile if it does not exist 
-;                (if this has more than one element they are checked in order)
-;                [default $KCORRECT_DIR/data/templates]
+;           (default lambda.[vname].dat)
+;   vpath - path to use for vfile if it does not exist 
+;           (if this has more than one element they are checked in order)
+;           [default $KCORRECT_DIR/data/templates]
 ; OUTPUTS:
 ;   vmatrix   - [nl,nv] template
 ;   lambda    - [nl+1] pixel edges of template
@@ -38,18 +39,20 @@ return, curr_path
 end
 ;
 pro k_load_vmatrix, vmatrix, lambda, lfile=lfile, vfile=vfile, $
-                    vpath=vpath
+                    vpath=vpath, vname=vname
 
 ; Need at least 4 parameters
 if (N_params() LT 2) then begin
-    print, 'Syntax - k_load_vmatrix, vmatrix, lambda [, vfile=, vpath=, lfile= ]'
+    print, 'Syntax - k_load_vmatrix, vmatrix, lambda [, vfile=, vpath=, lfile=, vname= ]'
     return
 endif
 
+if(NOT keyword_set(vname)) then $
+  vname='default'
 if(NOT keyword_set(vfile)) then $
-  vfile='vmatrix.default.dat'
+  vfile='vmatrix.'+vname+'.dat'
 if(NOT keyword_set(lfile)) then $
-  lfile='lambda.default.dat'
+  lfile='lambda.'+vname+'.dat'
 
 curr_path=k_load_vmatrix_path(vfile,vpath=vpath)
 k_read_ascii_table,vmatrix,curr_path+'/'+vfile
