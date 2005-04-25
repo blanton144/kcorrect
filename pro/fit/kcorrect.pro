@@ -52,6 +52,12 @@
 ;   coeffs        - coefficients fit to each template (if maggies
 ;                   input are nonexistent, just use these input
 ;                   coeffs)
+;   mass          - model mass derived from the coeffs
+;   absmag        - absolute magnitude (for missing data, substitutes
+;                   model fit)
+;   amivar        - absolute magnitude invvar (for missing data = 0)
+;   mtol          - model mass-to-light in each *final* bandpass (the
+;                   bandpass you are kcorrecting *to*) in SOLAR UNITS!
 ;   lambda        - [nl+1] wavelengths for templates (to use)/(which were used)
 ;                   (pixel edges)
 ;   vmatrix       - [nl, nv] templates (to use)/(which were used)
@@ -62,6 +68,12 @@
 ;                   (default 0., 2.)
 ;   nz            - number of redshifts in lookup table (default 1000)
 ; COMMENTS:
+;   For v4_0b templates and later, coefficients are in units of:
+;     1 solar mass / (D/10pc)^2
+;   That is, sum the coefficients and multiply by (D/10pc)^2 to get
+;   masses. (In fact, for Omega0=0.3 and OmegaL0=0.7, this is what the
+;   "mass" keyword returns).
+;
 ;   If you just want to do SDSS kcorrections, it is better to use the
 ;   wrapper 'sdss_kcorrect'. 
 ; 
@@ -91,7 +103,8 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
               chi2=chi2, maxiter=maxiter, verbose=verbose, nz=nz, $
               zmin=zmin, zmax=zmax, abfix=abfix, minerrors=minerrors, $
-              rmaggies=rmaggies
+              rmaggies=rmaggies, mass=mass, mtol=mtol, vname=vname, $
+              absmag=absmag, amivar=amivar
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
@@ -99,7 +112,7 @@ if (N_params() LT 4) then begin
     print, '             band_shift=, /magnitude, /stddev, lfile=, $'
     print, '             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $'
     print, '             zvals=, zmin=, zmax= lambda=, vmatrix=, coeffs=, $'
-    print, '             /verbose, /sdssfix, /abfix ]'
+    print, '             /verbose, /sdssfix, /abfix, mass=, mtol=]'
     return
 endif
 
@@ -162,11 +175,35 @@ endelse
 k_reconstruct_maggies,coeffs,replicate(band_shift,n_elements(redshift)), $
   reconstruct_maggies,rmatrix=rmatrix,zvals=zvals
 reconstruct_maggies=reconstruct_maggies/(1.+band_shift)
-k_reconstruct_maggies,coeffs,redshift,rmaggies, $
-  rmatrix=rmatrix,zvals=zvals
+k_reconstruct_maggies,coeffs,redshift,rmaggies,rmatrix=rmatrix,zvals=zvals
+
+if(arg_present(mass)) then $
+  mass=total(coeffs,1)*10.^(0.4*lf_distmod(redshift))
+smaggies=10.^(-0.4*k_solar_magnitudes(filterlist=filterlist))
+mtol=fltarr(n_elements(filterlist), n_elements(redshift))
+mm=total(coeffs,1)
+for i=0L, n_elements(filterlist)-1L do $
+  mtol[i,*]=mm/reconstruct_maggies[i,*]*smaggies[i]
 
 ; get kcorrection
 kcorrect=reconstruct_maggies/rmaggies
 kcorrect=2.5*alog10(kcorrect)
+
+if(arg_present(absmag)) then begin
+    absmag=fltarr(n_elements(filterlist), n_elements(redshift))
+    amivar=fltarr(n_elements(filterlist), n_elements(redshift))
+    for i=0L, n_elements(filterlist)-1L do $
+      absmag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])-lf_distmod(redshift)- $
+      kcorrect[i,*]
+    for i=0L, n_elements(filterlist)-1L do begin
+        ig=where(use_maggies_ivar[i,*] gt 0. AND use_maggies[i,*] gt 0., ng)
+        if(ng gt 0) then begin
+            absmag[i,ig]=-2.5*alog10(use_maggies[i,ig])- $
+              lf_distmod(redshift[ig])-kcorrect[i,ig]
+            amivar[i,ig]=use_maggies[i,ig]^2*use_maggies_ivar[i,ig]* $
+              (0.4*alog(10.))^2
+        endif 
+    endfor
+endif
 
 end

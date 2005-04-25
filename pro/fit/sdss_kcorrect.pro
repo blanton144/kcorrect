@@ -6,8 +6,8 @@
 ; CALLING SEQUENCE:
 ;   kcorrect= sdss_kcorrect(redshift [, nmgy=, ivar=, mag=, err=, $
 ;                           calibobj=, tsobj=, flux=, band_shift=,
-;                           chi2=, rmaggies=, omaggies=,
-;                           oivar=])
+;                           chi2=, rmaggies=, omaggies=, vname=, 
+;                           oivar=, mass=, mtol=, absmag=, amivar= ])
 ; INPUTS:
 ;   redshift - [N] redshifts
 ;   calibobj - [N] photoop-style structure, containing:
@@ -41,6 +41,12 @@
 ;   kcorrect - [5, ngals] K-corrections in ugriz satisfying
 ;                m = M + DM(z) + K(z)
 ;              based on the best fit sum of templates
+;   mtol - [5, ngals] mass-to-light ratios from model in each band
+;   mass - [ngals] total mass from model in each band
+;   absmag - [5, ngals] absolute magnitude (for missing data, substitutes
+;            model fit)
+;   amivar - [5, ngals] inverse variance of absolute magnitude (for
+;            missing data = 0)
 ; OPTIONAL OUTPUTS:
 ;   coeffs - coefficients of fit
 ;   chi2 - chi^2 of fit
@@ -60,6 +66,12 @@
 ;   Uses sdss_to_maggies to convert tsobj or calibobj structure to
 ;   AB, Galactic extinction corrected maggies. Passes optional
 ;   argument "flux" to sdss_to_maggies.
+;
+;   For v4_0b templates and later, coefficients are in units of:
+;     1 solar mass / (D/10pc)^2
+;   That is, sum the coefficients and multiply by (D/10pc)^2 to get
+;   masses. (In fact, for Omega0=0.3 and OmegaL0=0.7, this is what the
+;   "mass" keyword returns).
 ; EXAMPLE:
 ;   For using with photoop system:
 ; 
@@ -85,7 +97,8 @@ function sdss_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         calibobj=calibobj, tsobj=tsobj, flux=flux, $
                         band_shift=in_band_shift, chi2=chi2, coeffs=coeffs, $
                         rmaggies=rmaggies, omaggies=omaggies, $
-                        oivar=oivar, vname=vname
+                        oivar=oivar, vname=vname, mass=mass, mtol=mtol, $
+                        absmag=absmag, amivar=amivar
 
 common com_sdss_kcorrect, rmatrix, zvals, band_shift
 
@@ -117,7 +130,7 @@ sdss_to_maggies, mgy, mgy_ivar, calibobj=calibobj, tsobj=tsobj, flux=flux
 ;; call kcorrect
 kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, rmaggies=rmaggies, $
-  vname=vname
+  vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar
 
 if(arg_present(omaggies)) then $
   omaggies=mgy

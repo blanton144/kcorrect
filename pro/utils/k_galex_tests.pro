@@ -9,7 +9,7 @@
 ;   2005-04-07 MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_galex_tests
+pro k_galex_tests, vname=vname
 
 galex=hogg_mrdfits(getenv('VAGC_REDUX')+'/galex/galex_catalog.fits', 1, $
                    nrow=28800)
@@ -29,9 +29,11 @@ im=im[ii]
 galex=galex[ii]
 objs=objs[ii]
 
-kc1=galex_kcorrect(sp.z, calibobj=im, band_shift=0.1, rmaggies=rmaggies1)
+kc1=galex_kcorrect(sp.z, calibobj=im, band_shift=0.1, rmaggies=rmaggies1, $
+                   vname=vname)
 kc0=galex_kcorrect(sp.z, galex=galex, calibobj=im, band_shift=0.1, $
-                   rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar)
+                   rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar, $
+                   vname=vname)
 
 cresid=fltarr(6, n_elements(sp))
 for i=0L, 5L do $

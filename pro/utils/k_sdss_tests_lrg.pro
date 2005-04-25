@@ -9,7 +9,7 @@
 ;   2005-04-07 MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_sdss_tests_lrg
+pro k_sdss_tests_lrg, vname=vname
 
 im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1,nrow=28800)
 ti=hogg_mrdfits(vagc_name('object_sdss_tiling'),1,nrow=28800)
@@ -20,7 +20,7 @@ im=im[ii]
 sp=sp[ii]
 help,im
 kc=sdss_kcorrect(sp.z, calibobj=im, band_shift=0.3, rmaggies=rmaggies, $
-                 omaggies=omaggies, oivar=oivar)
+                 omaggies=omaggies, oivar=oivar, vname=vname)
 cresid=fltarr(4, n_elements(sp))
 for i=0L, 3L do $
   cresid[i,*]=(-2.5*alog10(rmaggies[i,*]/rmaggies[i+1,*]))- $

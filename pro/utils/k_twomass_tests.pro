@@ -9,7 +9,7 @@
 ;   2005-04-07 MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_twomass_tests
+pro k_twomass_tests, vname=vname
 
 twomass=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_twomass.fits',1, $
                      nrow=28800)
@@ -21,9 +21,11 @@ sp=sp[ii]
 im=im[ii]
 twomass=twomass[ii]
 
-kc1=twomass_kcorrect(sp.z, calibobj=im, band_shift=0.1, rmaggies=rmaggies1)
+kc1=twomass_kcorrect(sp.z, calibobj=im, band_shift=0.1, rmaggies=rmaggies1, $
+                     vname=vname)
 kc0=twomass_kcorrect(sp.z, twomass=twomass, calibobj=im, band_shift=0.1, $
-                     rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar)
+                     rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar, $
+                     vname=vname)
 
 cresid=fltarr(7, n_elements(sp))
 for i=0L, 6L do $

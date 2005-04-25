@@ -1,9 +1,8 @@
-FOLLOW THROUGH UNITS!
 test SDSS data:
    compare all versions of photometry XX
    check volume limited sample consistency XX
    make residual plots vs redshift XX
-   plot actual K-correctiosn
+   plot actual K-corrections
 test GALEX data:
    make galex_kcorrect XX
    make residual plots XX 
@@ -17,12 +16,12 @@ test 2MASS data:
    test predictability of 2MASS fluxes XX 
    plot actual K-corrections
 test SDSS spectroscopy
-   code to fit single, aligned spectrum
-   code to fit an sdss fiber
-   take random set and plot: spectrum, model, residuals, fractional residuals
-   median smooth differences 
-   make sdss_continuum
+   code to fit single, aligned spectrum XX
+   code to fit an sdss fiber XX
+   median smooth differences  XX
+   make sdss_continuum XX
    make sdss_measure_lines
+   take random set and plot: spectrum, model, residuals, fractional residuals
    measure D4000 (on spectrum and model)
    measure Hbeta absorption(?) (on spectrum and model)
 make templates plot XX
@@ -39,6 +38,13 @@ other
    make bessell2sdss 
    make sdss2bessell 
    
+
+For next fitting:
+  ask Daniel about u band
+  include LRGs
+  ask Lexi about Ks
+  fix ACS filters
+  limit ages to < 14 billion years in model!
    
 
 check consistency of fit across redshiift at low z

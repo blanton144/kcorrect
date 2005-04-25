@@ -5,7 +5,8 @@
 ;   Reconstruct galaxy rest-frame spectrum given a fit
 ; CALLING SEQUENCE:
 ;   k_reconstruct_spec, coeffs, loglam, flux [, vname=, vdisp=, $
-;        /nolines, /noextinct, /init, nt= ]
+;        /nolines, /noextinct, /init, nt=, mass=, age=, metallicity=, $
+;        b300=]
 ; INPUTS:
 ;   coeffs - [NT, NGALS] coefficients 
 ; OUTPUTS:
@@ -21,7 +22,13 @@
 ;   vdisp - smooth with this velocity dispersion
 ; OPTIONAL OUTPUTS:
 ;   nt - total number of templates
+;   mass, age, metallicity - properties of template fit;
+;                            mass is in units of 
+;                            1 solar mass / (D/10pc)^2
+;   b300 - star-formation within last 300Myrs relative to total
+;          star-formation rate
 ; COMMENTS:
+;   If coeffs are standard, returns units of erg/cm^2/s/A
 ;   If vdisp, /nolines, and /noextinct 
 ;   If lines are included, they are always smoothed at 300 km/s vdisp
 ;   Bases fit on file:
@@ -36,11 +43,12 @@
 ;------------------------------------------------------------------------------
 pro k_reconstruct_spec,coeffs, ologlam, flux, vname=in_vname, vdisp=vdisp, $
                        nolines=nolines, noextinct=noextinct, nt=out_nt, $
-                       init=init, reset=reset
+                       init=init, reset=reset, mass=mass, age=age, $
+                       metallicity=metallicity, b300=b300
 
-common com_krs, vname, nt, loglam, lspec_v300, $
+common com_krs, vname, nt, loglam, lspec_v300, tmass, tage, tmetallicity, $
   tspec_v300, tspec_v300_nl, tspec_v300_nl_nd, tspec_v300_nd, $
-  tspec_v0,   tspec_v0_nl,   tspec_v0_nl_nd,   tspec_v0_nd
+  tspec_v0,   tspec_v0_nl,   tspec_v0_nl_nd,   tspec_v0_nd, tmass300
 
 ; Need at least 3 parameters
 if (N_params() LT 1) then begin
@@ -59,15 +67,24 @@ if(newname) then begin
     tspecfile=getenv('KCORRECT_DIR')+'/data/templates/k_nmf_spec.'+ $
       vname+'.fits'
     if(file_test(tspecfile) eq 0 OR keyword_set(reset) eq 1) then begin
+        metallicities=[0.0001, 0.0004, 0.004, 0.008, 0.02, 0.05]
+
         spec=mrdfits(getenv('KCORRECT_DIR')+'/data/templates/k_nmf_mmatrix.'+ $
                      vname+'.fits', 0, hdr)
         nel=long(sxpar(hdr,'NEL'))
         nspec=long(sxpar(hdr,'NSPEC'))
+        ndusts=long(sxpar(hdr, 'NDUST'))
+        nmets=long(sxpar(hdr, 'NMET'))
+        nages=long(sxpar(hdr, 'NAGE'))
         lambda=mrdfits(getenv('KCORRECT_DIR')+ $
                        '/data/templates/k_nmf_mmatrix.'+ $
                        vname+'.fits', 1)
         dust=mrdfits(getenv('KCORRECT_DIR')+'/data/templates/k_nmf_mmatrix.'+ $
                      vname+'.fits', 2)
+        met=mrdfits(getenv('KCORRECT_DIR')+'/data/templates/k_nmf_mmatrix.'+ $
+                    vname+'.fits', 3)
+        age=mrdfits(getenv('KCORRECT_DIR')+'/data/templates/k_nmf_mmatrix.'+ $
+                     vname+'.fits', 4)
         rawspec=mrdfits(getenv('KCORRECT_DIR')+ $
                         '/data/templates/k_nmf_rawspec.'+ $
                         vname+'.fits', 0)
@@ -106,6 +123,17 @@ if(newname) then begin
         tspec_v300_nd=tspec_v300_nl_nd+lspec_v300
         tspec_v0_nd=tspec_v0_nl_nd+lspec_v300
 
+        tmass=total(templates[0:nages*nmets*ndusts-1L,*], 1)
+        i300=where(age lt 3.e+8, n300)
+        tmass300=total(templates[i300, *], 1)
+        tmetallicity= $
+          total((reform(metallicities[met], nages*nmets*ndusts, 1)# $
+                 replicate(1., nt))* $
+                templates[0:nages*nmets*ndusts-1L,*], 1)/tmass
+        tage=total((reform(age, nages*nmets*ndusts, 1)# $ 
+                     replicate(1., nt))* $
+                    templates[0:nages*nmets*ndusts-1L,*], 1)/tmass
+        
         hdr=['']
         sxaddpar, hdr, 'NT', nt, 'number of templates'
         mwrfits, loglam, tspecfile, hdr, /create
@@ -118,6 +146,10 @@ if(newname) then begin
         mwrfits, tspec_v300_nd, tspecfile
         mwrfits, tspec_v300_nl_nd, tspecfile
         mwrfits, lspec_v300, tspecfile
+        mwrfits, tmass, tspecfile
+        mwrfits, tmetallicity, tspecfile
+        mwrfits, tage, tspecfile
+        mwrfits, tmass300, tspecfile
     endif else begin
         loglam=mrdfits(tspecfile, 0, hdr)
         nt=long(sxpar(hdr,'NT'))
@@ -130,6 +162,10 @@ if(newname) then begin
         tspec_v300_nd=mrdfits(tspecfile, 7)
         tspec_v300_nd_nl=mrdfits(tspecfile, 8)
         lspec_v300=mrdfits(tspecfile, 9)
+        tmass=mrdfits(tspecfile, 10)
+        tmetallicity=mrdfits(tspecfile, 11)
+        tage=mrdfits(tspecfile, 12)
+        tmass300=mrdfits(tspecfile, 13)
     endelse
 endif
 
@@ -137,6 +173,11 @@ out_nt=nt
 ologlam=loglam
 
 if(keyword_set(init)) then return
+
+mass=total(tmass*coeffs)
+b300=total(tmass300*coeffs)/total(tmass*coeffs)
+age=total(tmass*tage*coeffs)/mass
+metallicity=total(tmass*tmetallicity*coeffs)/mass
 
 if(n_elements(vdisp) eq 0) then begin
 

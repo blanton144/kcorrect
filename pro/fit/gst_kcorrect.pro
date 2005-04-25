@@ -6,7 +6,8 @@
 ; CALLING SEQUENCE:
 ;   kcorrect= gst_kcorrect(redshift [, nmgy=, ivar=, mag=, err=, $
 ;                          galex=, twomass=, calibobj=, tsobj=, flux=, $
-;                          band_shift=, chi2=, rmaggies=, omaggies=, oivar=])
+;                          band_shift=, chi2=, rmaggies=, omaggies=, $
+;                          oivar=, mass=, mtol=, absmag=, amivar=])
 ; INPUTS:
 ;   redshift - [N] redshifts
 ;   galex - [N] GALEX "mcat" style input, with:
@@ -59,6 +60,12 @@
 ;   kcorrect - [10, N] K-corrections in FNugrizJHK satisfying
 ;                m = M + DM(z) + K(z)
 ;              based on the best fit sum of templates
+;   mtol - [5, ngals] mass-to-light ratios from model in each band
+;   mass - [ngals] total mass from model in each band
+;   absmag - [5, ngals] absolute magnitude (for missing data, substitutes
+;            model fit)
+;   amivar - [5, ngals] inverse variance of absolute magnitude (for
+;            missing data = 0)
 ; OPTIONAL OUTPUTS:
 ;   coeffs - coefficients of fit
 ;   chi2 - chi^2 of fit
@@ -84,6 +91,12 @@
 ;   You must specify nmgy,ivar OR mag,err OR calibobj OR tsobj OR
 ;   galex.  If nmgy or mag, make sure they are Galactic extinction
 ;   corrected and AB calibrated.
+;
+;   For v4_0b templates and later, coefficients are in units of:
+;     1 solar mass / (D/10pc)^2
+;   That is, sum the coefficients and multiply by (D/10pc)^2 to get
+;   masses. (In fact, for Omega0=0.3 and OmegaL0=0.7, this is what the
+;   "mass" keyword returns).
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-
@@ -92,7 +105,8 @@ function gst_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                        calibobj=calibobj, tsobj=tsobj, flux=flux, $
                        band_shift=in_band_shift, chi2=chi2, coeffs=coeffs, $
                        rmaggies=rmaggies, omaggies=omaggies, $
-                       oivar=oivar, galex=galex, vname=vname
+                       oivar=oivar, galex=galex, vname=vname, $
+                       mass=mass, mtol=mtol, absmag=absmag, amivar=amivar
 
 common com_gst_kcorrect, rmatrix, zvals, band_shift
 

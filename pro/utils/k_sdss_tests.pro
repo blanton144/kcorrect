@@ -9,10 +9,10 @@
 ;   2005-04-07 MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_sdss_tests
+pro k_sdss_tests, vname=vname
 
-k_sdss_tests_lrg
-k_sdss_tests_main
-k_sdss_tests_generic
+k_sdss_tests_lrg, vname=vname
+k_sdss_tests_main, vname=vname
+k_sdss_tests_generic, vname=vname
 
 end
