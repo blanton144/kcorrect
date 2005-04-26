@@ -32,7 +32,7 @@ foreach $band (@bands) {
 	print ofp "  double lambda;\n";
 	print ofp "  double pass;\n";
 	print ofp "} KFILTER;\n\n";
-	open(ifp,"$goodsdir/${band}.pb");
+	open(ifp,"$goodsdir/${band}.bp");
 	while(<ifp>) {
 		$line=$_;
 		chomp;
