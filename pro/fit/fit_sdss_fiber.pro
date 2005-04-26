@@ -54,7 +54,7 @@ endelse
 k_reconstruct_spec, dum, loglam, /init, vname=vname
 readspec, plate, fiberid, mjd=mjd, zans=zans
 sdss_spec_block, plate, fiberid, mjd, block_flux=flux, block_ivar=ivar, $
-  block_lambda=lambda, avloglam=loglam ;;, /deextinct
+  block_lambda=lambda, avloglam=loglam, /deextinct
 flux=flux*1.e-17
 ivar=ivar*1.e+34
 

@@ -20,7 +20,6 @@ test SDSS spectroscopy
    code to fit an sdss fiber XX
    median smooth differences  XX
    make sdss_continuum XX
-   make sdss_measure_lines
    take random set and plot: spectrum, model, residuals, fractional residuals
    measure D4000 (on spectrum and model)
    measure Hbeta absorption(?) (on spectrum and model)
@@ -40,11 +39,11 @@ other
    
 
 For next fitting:
+  include LRGs XX
+  fix ACS filters XX
+  limit ages to < 14 billion years in model! XX
   ask Daniel about u band
-  include LRGs
   ask Lexi about Ks
-  fix ACS filters
-  limit ages to < 14 billion years in model!
    
 
 check consistency of fit across redshiift at low z

@@ -103,7 +103,7 @@ if(n_tags(tsobj) gt 0) then begin
         return
     endif
     sdss_mag=sdss_mag-tsobj.reddening
-    k_sdssfix, sdss_mag, sdss_err, maggies, maggies_ivar 
+    k_sdssfix, sdss_mag, sdss_err, maggies, ivar 
     return
 endif
 

@@ -69,17 +69,13 @@ ii=where(sp.z gt 0.05 and sp.z lt 0.17 and $
 sp=sp[ii]
 im=im[ii]
 help,im
-kc=sdss_kcorrect(sp.z, calibobj=im, band_shift=0.1, vname=vname)
-dm=lf_distmod(sp.z)
-absm=22.5-2.5*alog10(im.petroflux[2])-im.extinction[2]-kc[2,*]-dm
-ii=where(absm gt -21.5 and absm lt -21.2)
+kc=sdss_kcorrect(sp.z, calibobj=im, band_shift=0.1, vname=vname, absmag=absmag)
+ii=where(absmag[2,*] gt -21.5 and absmag[2,*] lt -21.2)
 sp=sp[ii]
 im=im[ii]
-dm=lf_distmod(sp.z)
 kc=kc[*,ii]
-absmag=fltarr(5,n_elements(sp))
-for i=0, 4 do $
-  absmag[i,*]=22.5-2.5*alog10(im.petroflux[i])-im.extinction[i]-kc[i,*]-dm
+absmag=absmag[*,ii]
+dm=lf_distmod(sp.z)
 
 k_print, filename='sdss_colors_main.ps', pold=pold, xold=xold, yold=yold, $
   axis_char_scale=1.1

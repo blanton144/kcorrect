@@ -70,11 +70,12 @@ rawfile=prefix+'_rawspec.fits'
 
 ;;     a. find minimum set of bursts to use
 bc03= k_im_read_bc03()
+imaxage=max(where(bc03.age lt 14.e+9))
 iwave=where(bc03.wave gt norm_lmin and bc03.wave lt norm_lmax, nwave)
 nages=3000L + nagesmax
 tol=5.
 while(nages gt nagesmax) do begin
-    iuse=n_elements(bc03.age)-1L 
+    iuse=imaxage 
     i=iuse
     while i ge 1 do begin
         j=iuse[0]-1L
@@ -232,13 +233,13 @@ filterlist=['galex_FUV.par', $
             'deep_B.par', $
             'deep_R.par', $
             'deep_I.par', $
-            'J_ISAAC.par', $
-            'H_ISAAC.par', $
-            'Ks_ISAAC.par', $
-            'acs_f435w.par', $
-            'acs_f606w.par', $
-            'acs_f775w.par', $
-            'acs_f850lp.par']
+            'goods_J_isaac_etc.par', $
+            'goods_H_isaac_etc.par', $
+            'goods_Ks_isaac_etc.par', $
+            'goods_acs_f435w.par', $
+            'goods_acs_f606w.par', $
+            'goods_acs_f775w.par', $
+            'goods_acs_f850lp.par']
 lambda=fltarr(navloglam+1L)
 davloglam=avloglam[1]-avloglam[0]
 lambda[0:navloglam-1L]=10.^(avloglam-davloglam)

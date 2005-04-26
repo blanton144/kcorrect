@@ -36,7 +36,7 @@
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro galex_to_maggies, galex, maggies, ivar
+pro twomass_to_maggies, twomass, maggies, ivar
 
 common com_g2m, vega2ab
 
@@ -50,7 +50,7 @@ if(n_elements(vega2ab) eq 0) then $
   vega2ab=k_vega2ab(filterlist=filterlist, /kurucz)
 
 ;; get Galactic extinction
-euler,im.ra,im.decl,ll,bb,1
+euler,twomass.ra,twomass.decl,ll,bb,1
 ebv=dust_getval(ll, bb, /interp, /noloop)
 
 maggies=fltarr(3,n_elements(twomass))

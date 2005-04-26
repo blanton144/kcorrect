@@ -61,6 +61,8 @@ if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
 if(NOT keyword_set(sample)) then sample='sample15'
 if(NOT keyword_set(flux)) then flux='model'
+if(NOT keyword_set(nlrg_photo)) then nlrg_photo=250L
+if(NOT keyword_set(nlrg_spec)) then nlrg_spec=250L
 if(NOT keyword_set(nsdss_photo)) then nsdss_photo=250L
 if(NOT keyword_set(nsdss_spec)) then nsdss_spec=250L
 if(NOT keyword_set(ngalex)) then ngalex=250L
@@ -79,7 +81,9 @@ seed=seed1
 galex_weight=1.
 sdss_spec_weight=0.05
 sdss_photo_weight=1.
-deep_weight=1.
+lrg_spec_weight=1.
+lrg_photo_weight=0.05
+deep_weight=0.3
 
 ;; figure out what form we need the data in
 hdr=headfits(mmatrix)
@@ -96,7 +100,6 @@ filterlist=strtrim(mrdfits(mmatrix, 5), 2)
 zf=mrdfits(mmatrix, 6)
 
 ;; create full matrix
-ntotal=nsdss_photo+nsdss_spec+ngalex+ndeep
 datastr={nx:n_elements(lambda), $
          ny:ntotal, $
          rowstart:lonarr(ntotal), $
@@ -107,10 +110,19 @@ ivar=0
 xx=0
 zdist=fltarr(ntotal)
 zhelio=fltarr(ntotal)
-isdss_spec=lindgen(nsdss_spec)
-isdss_photo=nsdss_spec+lindgen(nsdss_photo)
-igalex=nsdss_spec+nsdss_photo+lindgen(ngalex)
-ideep=nsdss_spec+nsdss_photo+ngalex+lindgen(ndeep)
+ntotal=0L
+isdss_spec   =ntotal+lindgen(nsdss_spec)
+ntotal=ntotal+nsdss_spec
+isdss_photo  =ntotal+lindgen(nsdss_photo)
+ntotal=ntotal+nsdss_photo
+igalex       =ntotal+lindgen(ngalex)
+ntotal=ntotal+ngalex
+ideep        =ntotal+lindgen(ndeep)
+ntotal=ntotal+ndeep
+ilrg_photo   =ntotal+lindgen(nlrg_photo)
+ntotal=ntotal+nlrg_photo
+ilrg_spec    =ntotal+lindgen(nlrg_spec)
+ntotal=ntotal+nlrg_spec
 
 ;; sdss spectra
 postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='bsafe', $
@@ -188,6 +200,89 @@ for i=0L, n_elements(postcat)-1L do begin
     endif
     datastr.nxrow[isdss_photo[i]]=ngood
     currx=currx+ngood
+endfor
+
+;; lrg photometry
+sp=mrdfits(vagc_name('object_sdss_spectro'),1,row=postcat.object_position)
+im=mrdfits(vagc_name('object_sdss_imaging'),1,row=postcat.object_position)
+ilrg_photo=where((sp.primtarget AND 32) gt 0 AND $
+                 sp.z gt 0.2 and sp.z lt 0.6)
+sp=sp[ilrg_photo]
+im=im[ilrg_photo]
+indx_lrg_photo=shuffle_indx(n_elements(sp), num_sub=nlrg_photo, seed=seed)
+sp=sp[indx_lrg_photo]
+im=im[indx_lrg_photo]
+sdss_to_maggies, maggies, maggies_ivar, calibobj=im
+zdist[ilrg_photo]=sp.zhelio
+dm=lf_distmod(zdist[ilrg_photo])
+zhelio[ilrg_photo]=sp.z
+iz=long(floor((nzf-1.)*(zhelio[ilrg_photo]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
+for i=0L, n_elements(im)-1L do begin
+    datastr.rowstart[ilrg_photo[i]]=currx
+
+    igood=where(maggies[*,i] gt 0. and maggies_ivar[*,i] gt 0, ngood) 
+    if(ngood gt 0) then begin
+        new_data=maggies[igood,i]*10.^(0.4*dm[i])
+        new_ivar=1.e+18/ $
+          (1./maggies_ivar[igood,i]+ $
+           (0.4*alog(10.)*maggies[igood,i]*minerrors[igood+2])^2) $
+          *10.^(-0.8*dm[i])*lrg_photo_weight
+        new_xx=iz[i]+(igood+2L)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, new_data]
+            ivar=[ivar, new_ivar]
+            xx=[xx, new_xx]
+        endif else begin
+            data=new_data
+            ivar=new_ivar
+            xx=new_xx
+        endelse
+    endif
+    datastr.nxrow[ilrg_photo[i]]=ngood
+    currx=currx+ngood
+endfor
+
+;; lrg spectroscopy
+sp=mrdfits(vagc_name('object_sdss_spectro'),1,row=postcat.object_position)
+im=mrdfits(vagc_name('object_sdss_imaging'),1,row=postcat.object_position)
+ilrg_spec=where((sp.primtarget AND 32) gt 0 AND $
+                 sp.z gt 0.2 and sp.z lt 0.6)
+sp=sp[ilrg_spec]
+im=im[ilrg_spec]
+indx_lrg_spec=shuffle_indx(n_elements(sp), num_sub=nlrg_spec, seed=seed)
+sp=sp[indx_lrg_spec]
+im=im[indx_lrg_spec]
+sdss_to_maggies, maggies, maggies_ivar, calibobj=im
+zdist[ilrg_spec]=sp.zhelio
+dm=lf_distmod(zdist[ilrg_spec])
+zhelio[ilrg_spec]=sp.z
+iz=long(floor((nzf-1.)*(zhelio[ilrg_spec]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
+for i=0L, n_elements(im)-1L do begin
+    datastr.rowstart[ilrg_spec[i]]=currx
+
+    sdss_spec_block, sp[i].plate, sp[i].fiberid, sp[i].mjd, $
+      block_flux=block_flux, block_ivar=block_ivar, $
+      block_lambda=block_lambda, avloglam=avloglam, /deextinct, vdisp=vdisp
+    absrc=3.631*2.99792*10.^(15-2.*avloglam)
+    dm=lf_distmod(sp.z)
+    for i=0L, n_elements(im)-1L do $
+      block_flux[*,i]=block_flux[*,i]/absrc*10.^(0.4*dm[i])
+    for i=0L, n_elements(im)-1L do $
+      block_ivar[*,i]=block_ivar[*,i]*absrc^2*10.^(-0.8*dm[i])
+    igood=where(block_ivar[*,i] gt 0., ngood)
+    if(ngood gt 0) then begin
+        if(keyword_set(data)) then begin
+            data=[data, block_flux[igood,i]]
+            ivar=[ivar, block_ivar[igood,i]*lrg_spec_weight]
+            xx=[xx, igood]
+        endif else begin
+            data=block_flux[igood,i]
+            ivar=block_ivar[igood,i]*lrg_spec_weight
+            xx=igood
+        endelse
+        datastr.nxrow[ilrg_spec[i]]=ngood
+        currx=currx+ngood
+    endif
 endfor
 
 ;; collect some galex photometry with SDSS too

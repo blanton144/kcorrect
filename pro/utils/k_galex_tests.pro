@@ -167,6 +167,5 @@ endfor
 k_end_print, pold=pold, xold=xold, yold=yold
 
 save
-stop
 
 end

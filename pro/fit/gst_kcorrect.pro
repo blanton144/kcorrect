@@ -106,7 +106,8 @@ function gst_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                        band_shift=in_band_shift, chi2=chi2, coeffs=coeffs, $
                        rmaggies=rmaggies, omaggies=omaggies, $
                        oivar=oivar, galex=galex, vname=vname, $
-                       mass=mass, mtol=mtol, absmag=absmag, amivar=amivar
+                       mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
+                       twomass=twomass
 
 common com_gst_kcorrect, rmatrix, zvals, band_shift
 
@@ -164,7 +165,7 @@ endif
 
 ;; get SDSS stuff
 if(n_tags(twomass) gt 0) then begin
-    twomass_to_maggies, twomass_mgy, twomass_mgy_ivar
+    twomass_to_maggies, twomass, twomass_mgy, twomass_mgy_ivar
     mgy[7:9,*]=twomass_mgy
     mgy_ivar[7:9,*]=twomass_mgy_ivar
 endif

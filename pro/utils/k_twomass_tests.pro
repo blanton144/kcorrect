@@ -16,7 +16,7 @@ twomass=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_twomass.fits',1, $
 im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)
 sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,columns='z', nrow=28800)
 
-ii=where(twomass.twomass_position gt 0 AND sp.z gt 0.01 AND sp.z lt 0.3)
+ii=where(twomass.twomass_tag ge 0 AND sp.z gt 0.01 AND sp.z lt 0.3)
 sp=sp[ii]
 im=im[ii]
 twomass=twomass[ii]

@@ -9,7 +9,7 @@
         "Ks_isaac_etc");
 $goodsdir="goods";
 foreach $band (@bands) {
-	print "$goodsdir/${band}.pb\n";
+	print "$goodsdir/${band}.bp\n";
 	
 	open(ifp,"$goodsdir/${band}.bp");
 	$nlines=0;

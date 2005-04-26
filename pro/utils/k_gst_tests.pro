@@ -18,9 +18,12 @@ if(NOT file_test('data_k_gst_tests.sav')) then begin
                        nrow=28800, columns=['e_bv', 'fuv_mag', 'fuv_magerr', $
                                             'nuv_mag', 'nuv_magerr'])
     twomass=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_twomass.fits', 1, $
+                         columns=['ra', 'decl', $
+                                 'j_m_ext', 'j_msig_ext', 'j_flg_ext', $
+                                 'h_m_ext', 'h_msig_ext', 'h_flg_ext', $
+                                 'k_m_ext', 'k_msig_ext', 'k_flg_ext'], $
                          nrow=28800)
     sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,columns='z', nrow=28800)
-    sp=sp[objs.object_position]
     
     ii=where(sp.z gt 0.01 and sp.z lt 0.6)
     sp=sp[ii]
