@@ -1,0 +1,41 @@
+# Units:
+#  "lambda" is in Angstroms
+#  "pass" is the contribution to the detector signal per photon
+#
+# Bandpass Name(s): [SPECIFY]
+#
+# Instrument: GOODS (ACS+ISAAC)
+# 
+# Determined by: GOODS team (sent by Lexi Moustakas)
+#
+# Date of determination: 2004?
+#
+# Meaning of/Reason for default column: Only available
+#
+# Notes:
+# 
+# From L. Moustakas:
+#
+# "This page provides access to the nominal bandpass functions used for
+# GOODS imaging data. The bandpass files are simple ascii tables with
+# names *.bp ("bp" = "bandpass"), where * is some descriptive name for the
+# filter. The first column gives wavelength in Angstroms (regardless of
+# the original source for the information), and the second column gives
+# the bandpass transmission. To the extent possible, the transmission
+# values are absolutely normalized, and include as many elements of the
+# total system throughput (including filter, detector QE, optics, and
+# sometimes atmospheric transmission where important) as possible. In some
+# cases (e.g., Spitzer/MIPS), the only bandpass functions available were
+# pre-normalized to a peak value of 1, and so do not record the actual
+# total throughput.
+# 
+# In many cases, a fair amount of effort has gone into deriving the
+# appropriate bandpass functions from various throughput components.
+# However, in some cases there is uncertainty about some of the throughput
+# elements, or the appropriate procedures for combining them. The links
+# from the first column of the table below provide information about where
+# the bandpass functions were obtained, or how they were constructed."
+#
+# Michael Blanton
+# 2005-04-26
+#
