@@ -61,12 +61,13 @@ if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
 if(NOT keyword_set(sample)) then sample='sample15'
 if(NOT keyword_set(flux)) then flux='model'
-if(NOT keyword_set(nlrg_photo)) then nlrg_photo=250L
-if(NOT keyword_set(nlrg_spec)) then nlrg_spec=250L
-if(NOT keyword_set(nsdss_photo)) then nsdss_photo=250L
-if(NOT keyword_set(nsdss_spec)) then nsdss_spec=250L
-if(NOT keyword_set(ngalex)) then ngalex=250L
-if(NOT keyword_set(ndeep)) then ndeep=250L
+if(NOT keyword_set(nlrg_photo)) then nlrg_photo=5L
+if(NOT keyword_set(nlrg_spec)) then nlrg_spec=5L
+if(NOT keyword_set(nsdss_photo)) then nsdss_photo=5L
+if(NOT keyword_set(nsdss_spec)) then nsdss_spec=5L
+if(NOT keyword_set(ngalex)) then ngalex=5L
+if(NOT keyword_set(ndeep)) then ndeep=5L
+if(NOT keyword_set(ngoods)) then ngoods=5L
 if(NOT keyword_set(seed1)) then seed1=1000L
 if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
@@ -83,7 +84,8 @@ sdss_spec_weight=0.05
 sdss_photo_weight=1.
 lrg_spec_weight=1.
 lrg_photo_weight=0.05
-deep_weight=0.3
+deep_weight=1.0
+goods_weight=1.0
 
 ;; figure out what form we need the data in
 hdr=headfits(mmatrix)
@@ -99,6 +101,23 @@ avloglam=alog10(lambda[0:nspec-1])
 filterlist=strtrim(mrdfits(mmatrix, 5), 2)
 zf=mrdfits(mmatrix, 6)
 
+;; set up indices
+ntotal=0L
+isdss_spec   =ntotal+lindgen(nsdss_spec)
+ntotal=ntotal+nsdss_spec
+isdss_photo  =ntotal+lindgen(nsdss_photo)
+ntotal=ntotal+nsdss_photo
+igalex       =ntotal+lindgen(ngalex)
+ntotal=ntotal+ngalex
+ideep        =ntotal+lindgen(ndeep)
+ntotal=ntotal+ndeep
+igoods       =ntotal+lindgen(ngoods)
+ntotal=ntotal+ngoods
+ilrg_photo   =ntotal+lindgen(nlrg_photo)
+ntotal=ntotal+nlrg_photo
+ilrg_spec    =ntotal+lindgen(nlrg_spec)
+ntotal=ntotal+nlrg_spec
+
 ;; create full matrix
 datastr={nx:n_elements(lambda), $
          ny:ntotal, $
@@ -110,19 +129,6 @@ ivar=0
 xx=0
 zdist=fltarr(ntotal)
 zhelio=fltarr(ntotal)
-ntotal=0L
-isdss_spec   =ntotal+lindgen(nsdss_spec)
-ntotal=ntotal+nsdss_spec
-isdss_photo  =ntotal+lindgen(nsdss_photo)
-ntotal=ntotal+nsdss_photo
-igalex       =ntotal+lindgen(ngalex)
-ntotal=ntotal+ngalex
-ideep        =ntotal+lindgen(ndeep)
-ntotal=ntotal+ndeep
-ilrg_photo   =ntotal+lindgen(nlrg_photo)
-ntotal=ntotal+nlrg_photo
-ilrg_spec    =ntotal+lindgen(nlrg_spec)
-ntotal=ntotal+nlrg_spec
 
 ;; sdss spectra
 postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='bsafe', $
@@ -284,6 +290,170 @@ for i=0L, n_elements(im)-1L do begin
         currx=currx+ngood
     endif
 endfor
+
+;; collect some goods photometry 
+gphoto=rsex(getenv('KCORRECT_DIR')+ $
+            '/data/redshifts/goods/mb_cdfs_isaac_ks_photz_c1.1_d3.0k.cat')
+gz=rsex(getenv('KCORRECT_DIR')+ $
+        '/data/redshifts/goods/mb_z.cdfs.c1.1z.20050218.cat')
+igot=where(gz.z lt 2. and gz.z gt 0.1)
+gz=gz[igot]
+gphoto=gphoto[igot]
+indx_g=shuffle_indx(n_elements(gz), num_sub=ngoods, seed=seed)
+gz=gz[indx_g]
+gphoto=gphoto[indx_g]
+goods_dm=lf_distmod(gz.z)
+zdist[igoods]=gz.z
+zhelio[igoods]=gz.z
+iz=long(floor((nzf-1.)*(zhelio[igoods]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
+glactc, gphoto.ra, gphoto.dec, 2000., gl, gb, 1, /deg
+ebv=dust_getval(gl, gb, /noloop)
+dfactors=[4.32, 3.32, 2.00, 1.54, 0.90, 0.58, 0.37]
+for i=0L, n_elements(gz)-1L do begin
+    datastr.rowstart[igoods[i]]=currx
+
+    iband=16L
+    if(gphoto[i].bmag_magauto ne -99.) then begin
+        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
+        extinction=ebv[i]*dfactors[0]
+        err2=0.02^2+gphoto[i].bmagerr_magauto^2
+        maggies=10.^(-0.4*(gphoto[i].bmag_magauto-extinction-goods_dm[i]))
+        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(iband)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, maggies]
+            ivar=[ivar, maggies_ivar*goods_weight]
+            xx=[xx, new_xx]
+        endif else begin
+            data=maggies
+            ivar=maggies_ivar*goods_weight
+            xx=new_xx
+        endelse
+        currx=currx+1L
+    endif 
+
+    iband=17L
+    if(gphoto[i].vmag_magauto ne -99.) then begin
+        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
+        extinction=ebv[i]*dfactors[1]
+        err2=0.02^2+gphoto[i].vmagerr_magauto^2
+        maggies=10.^(-0.4*(gphoto[i].vmag_magauto-extinction-goods_dm[i]))
+        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(iband)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, maggies]
+            ivar=[ivar, maggies_ivar*goods_weight]
+            xx=[xx, new_xx]
+        endif else begin
+            data=maggies
+            ivar=maggies_ivar*goods_weight
+            xx=new_xx
+        endelse
+        currx=currx+1L
+    endif 
+
+    iband=18L
+    if(gphoto[i].imag_magauto ne -99.) then begin
+        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
+        extinction=ebv[i]*dfactors[2]
+        err2=0.02^2+gphoto[i].imagerr_magauto^2
+        maggies=10.^(-0.4*(gphoto[i].imag_magauto-extinction-goods_dm[i]))
+        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(iband)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, maggies]
+            ivar=[ivar, maggies_ivar*goods_weight]
+            xx=[xx, new_xx]
+        endif else begin
+            data=maggies
+            ivar=maggies_ivar*goods_weight
+            xx=new_xx
+        endelse
+        currx=currx+1L
+    endif 
+
+    iband=19L
+    if(gphoto[i].zmag_magauto ne -99.) then begin
+        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
+        extinction=ebv[i]*dfactors[3]
+        err2=0.02^2+gphoto[i].zmagerr_magauto^2
+        maggies=10.^(-0.4*(gphoto[i].zmag_magauto-extinction-goods_dm[i]))
+        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(iband)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, maggies]
+            ivar=[ivar, maggies_ivar*goods_weight]
+            xx=[xx, new_xx]
+        endif else begin
+            data=maggies
+            ivar=maggies_ivar*goods_weight
+            xx=new_xx
+        endelse
+        currx=currx+1L
+    endif 
+
+    iband=13L
+    if(gphoto[i].jmag_magauto ne -99.) then begin
+        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
+        extinction=ebv[i]*dfactors[4]
+        err2=0.02^2+gphoto[i].jmagerr_magauto^2
+        maggies=10.^(-0.4*(gphoto[i].jmag_magauto-extinction-goods_dm[i]))
+        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(iband)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, maggies]
+            ivar=[ivar, maggies_ivar*goods_weight]
+            xx=[xx, new_xx]
+        endif else begin
+            data=maggies
+            ivar=maggies_ivar*goods_weight
+            xx=new_xx
+        endelse
+        currx=currx+1L
+    endif 
+
+    iband=14L
+    if(gphoto[i].hmag_magauto ne -99.) then begin
+        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
+        extinction=ebv[i]*dfactors[5]
+        err2=0.02^2+gphoto[i].hmagerr_magauto^2
+        maggies=10.^(-0.4*(gphoto[i].hmag_magauto-extinction-goods_dm[i]))
+        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(iband)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, maggies]
+            ivar=[ivar, maggies_ivar*goods_weight]
+            xx=[xx, new_xx]
+        endif else begin
+            data=maggies
+            ivar=maggies_ivar*goods_weight
+            xx=new_xx
+        endelse
+        currx=currx+1L
+    endif 
+
+    iband=15L
+    if(gphoto[i].kmag_magauto ne -99.) then begin
+        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
+        extinction=ebv[i]*dfactors[6]
+        err2=0.02^2+gphoto[i].kmagerr_magauto^2
+        maggies=10.^(-0.4*(gphoto[i].kmag_magauto-extinction-goods_dm[i]))
+        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
+        new_xx=iz[i]+(iband)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, maggies]
+            ivar=[ivar, maggies_ivar*goods_weight]
+            xx=[xx, new_xx]
+        endif else begin
+            data=maggies
+            ivar=maggies_ivar*goods_weight
+            xx=new_xx
+        endelse
+        currx=currx+1L
+    endif 
+
+endfor
+
 
 ;; collect some galex photometry with SDSS too
 galex_objects=mrdfits(getenv('VAGC_REDUX')+'/galex/galex_objects.fits',1)
