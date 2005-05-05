@@ -211,8 +211,7 @@ endif else begin
        keyword_set(noextinct) eq 1) then begin
         flux=tspec_v0_nl_nd#coeffs 
         if(vdisp gt 0.) then begin
-            sigma=sqrt(vdisp)/(2.99792e+5*alog(10.))
-            flux=gauss_smooth(loglam,flux,sigma,loglam)
+            flux=k_smooth(loglam,flux,sqrt(vdisp))
         endif
         return
     endif
@@ -221,8 +220,7 @@ endif else begin
        keyword_set(noextinct) eq 0) then begin
         flux=tspec_v0_nl#coeffs 
         if(vdisp gt 0.) then begin
-            sigma=sqrt(vdisp)/(2.99792e+5*alog(10.))
-            flux=gauss_smooth(loglam,flux,sigma,loglam)
+            flux=k_smooth(loglam,flux,sqrt(vdisp))
         endif
         return
     endif
@@ -231,8 +229,7 @@ endif else begin
        keyword_set(noextinct) eq 0) then begin
         flux=tspec_v0_nl#coeffs 
         if(vdisp gt 0.) then begin
-            sigma=vdisp/(2.99792e+5*alog(10.))
-            flux=gauss_smooth(loglam,flux,sigma,loglam)
+            flux=k_smooth(loglam,flux,sqrt(vdisp))
         endif
         flux=flux+lspec_v300#coeffs
         return
@@ -242,8 +239,7 @@ endif else begin
        keyword_set(noextinct) eq 1) then begin
         flux=tspec_v0_nl_nd#coeffs 
         if(vdisp gt 0.) then begin
-            sigma=sqrt(vdisp)/(2.99792e+5*alog(10.))
-            flux=gauss_smooth(loglam,flux,sigma,loglam)
+            flux=k_smooth(loglam,flux,sqrt(vdisp))
         endif
         flux=flux+lspec_v300#coeffs
         return

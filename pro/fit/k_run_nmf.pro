@@ -43,7 +43,7 @@ data_ivar.val=ivar
 data_ivar.x=xx
 ngals=n_elements(data.rowstart)
 
-ilez=where(data.val le 0., nlez)
+ilez=where(data.val le 0. or data_ivar.val gt 1.d+30, nlez)
 if(nlez gt 0) then begin
     data.val[ilez]=1.
     data_ivar.val[ilez]=0.

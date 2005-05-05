@@ -48,7 +48,8 @@ if(n_tags(slist) gt 0) then begin
 endif else begin
     plate=in_plate
     fiberid=in_fiberid
-    mjd=in_mjd
+    if(keyword_set(in_mjd)) then $
+      mjd=in_mjd
 endelse
 
 k_reconstruct_spec, dum, loglam, /init, vname=vname

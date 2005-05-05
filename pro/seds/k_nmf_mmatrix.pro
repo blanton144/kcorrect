@@ -35,8 +35,11 @@
 ;-
 ;------------------------------------------------------------------------------
 pro k_nmf_mmatrix, prefix=prefix, back=back, lmin=lmin, lmax=lmax, $
-                   dusts=dusts 
+                   dusts=dusts , filterlist=filterlist, minzf=minzf, $
+                   maxzf=maxzf, nzf=nzf, nagesmax=nagesmax, noel=noel, $
+                   isolib=isolib, nodust=nodust
 
+if(NOT keyword_set(isolib)) then isolib='Padova1994'
 if(NOT keyword_set(back)) then back=0.5  ;; how many Gyrs earlier?
 if(NOT keyword_set(lmin)) then lmin=600.
 if(NOT keyword_set(lmax)) then lmax=30000.
@@ -47,6 +50,27 @@ if(NOT keyword_set(vdisp)) then vdisp=300.
 if(NOT keyword_set(minzf)) then minzf=0.
 if(NOT keyword_set(maxzf)) then maxzf=2.
 if(NOT keyword_set(nzf)) then nzf=400
+if(NOT keyword_set(filterlist)) then $
+  filterlist=['galex_FUV.par', $
+              'galex_NUV.par', $
+              'sdss_u0.par', $
+              'sdss_g0.par', $
+              'sdss_r0.par', $
+              'sdss_i0.par', $
+              'sdss_z0.par', $
+              'twomass_J.par', $
+              'twomass_H.par', $
+              'twomass_Ks.par', $
+              'deep_B.par', $
+              'deep_R.par', $
+              'deep_I.par', $
+              'goods_J_isaac_etc.par', $
+              'goods_H_isaac_etc.par', $
+              'goods_Ks_isaac_etc.par', $
+              'goods_acs_f435w.par', $
+              'goods_acs_f606w.par', $
+              'goods_acs_f775w.par', $
+              'goods_acs_f850lp.par']
 if(n_tags(dusts) eq 0) then begin
     dusts1={geometry:'', dust:'', structure:'', tauv:0.}
     dusts=replicate(dusts1,4)
@@ -55,6 +79,9 @@ if(n_tags(dusts) eq 0) then begin
     dusts.structure=['c','c','c','c']
     dusts.tauv=[0.,1.,3.,6.]
 endif 
+if(keyword_set(nodust)) then begin
+    dusts={geometry:'dusty', dust:'MW', structure:'c', tauv:0.}
+endif
 ndusts=n_elements(dusts)
 
 norm_lmin=800. ;; limits when testing whether two BC03 models are similar
@@ -69,7 +96,7 @@ rawfile=prefix+'_rawspec.fits'
 ;; 1. make stellar pops
 
 ;;     a. find minimum set of bursts to use
-bc03= k_im_read_bc03()
+bc03= k_im_read_bc03(isolib=isolib)
 imaxage=max(where(bc03.age lt 14.e+9))
 iwave=where(bc03.wave gt norm_lmin and bc03.wave lt norm_lmax, nwave)
 nages=3000L + nagesmax
@@ -104,20 +131,20 @@ while(nages gt nagesmax) do begin
 endwhile
 
 ;;     b. now make the full grid for the desired ages
-tmp_bc03= k_im_read_bc03(age=1.)
+tmp_bc03= k_im_read_bc03(age=1.,isolib=isolib)
 nl=n_elements(tmp_bc03.flux)
 wave=tmp_bc03.wave
 loglam=alog10(wave)
 grid=fltarr(nl, nages, nmets)
 for im= 0L, nmets-1L do $
-  grid[*,*,im]= (k_im_read_bc03(met=mets[im])).flux[*,iuse]
+  grid[*,*,im]= (k_im_read_bc03(met=mets[im],isolib=isolib)).flux[*,iuse]
 earlygrid=fltarr(nl, nages, nmets)
 early=ages-back*1.e+9
 iearly=where(early gt 0., nearly)
 for ia= 0L, nearly-1L do $
   for im= 0L, nmets-1L do $
   earlygrid[*,iearly[ia],im]= $
-  (k_im_read_bc03(met=mets[im],age=early[iearly[ia]]/1.e+9)).flux
+  (k_im_read_bc03(met=mets[im],age=early[iearly[ia]]/1.e+9,isolib=isolib)).flux
 
 ;;     d. interpolate grid onto flux grid
 avloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
@@ -162,9 +189,9 @@ for ia=0L, nages-1L do $
 for im= 0L, nmets-1L do begin
     for ia= 0L, nages-1L do begin 
         sfgrid[*,ia+im*nages]= $
-          gauss_smooth(avloglam, sfgrid[*,ia+im*nages], sigma, avloglam)
+          k_smooth(avloglam, sfgrid[*,ia+im*nages], vdisp)
         earlysfgrid[*,ia+im*nages]= $
-          gauss_smooth(avloglam, earlysfgrid[*,ia+im*nages], sigma, avloglam)
+          k_smooth(avloglam, earlysfgrid[*,ia+im*nages], vdisp)
     endfor
 endfor
 
@@ -198,48 +225,30 @@ for i=0L, nages-1L do age[i,*,*]=ages[i]
 
 ;; now make emission lines 
 nel=0
-readcol, getenv('KCORRECT_DIR')+'/data/templates/linelist.txt', $
-  f='(a,f,a)', comment=';', elname, lambda, type
-ii=where(type eq 'em' OR type eq 'both' and $
-         lambda gt 3700. and $
-         lambda lt 9000.)
-elname=elname[ii]
-lambda=lambda[ii]
-nel=n_elements(elname)
-emgrid=fltarr(navloglam, nel)
-for i=0L, nel-1L do $
-  emgrid[*, i]= 1.e-7*exp(-(avloglam-alog10(lambda[i]))^2/(sigma)^2)/ $
-  (sqrt(2.*!DPI)*sigma)/absrc
-tmp_spgrid=spgrid
-spgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
-spgrid[*,0L:nages*nmets*ndusts-1L]=tmp_spgrid
-spgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
-tmp_earlyspgrid=earlyspgrid
-earlyspgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
-earlyspgrid[*,0L:nages*nmets*ndusts-1L]=tmp_earlyspgrid
-earlyspgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
+if(NOT keyword_set(noel)) then begin
+    readcol, getenv('KCORRECT_DIR')+'/data/templates/linelist.txt', $
+      f='(a,f,a)', comment=';', elname, lambda, type
+    ii=where(type eq 'em' OR type eq 'both' and $
+             lambda gt 3700. and $
+             lambda lt 9000.)
+    elname=elname[ii]
+    lambda=lambda[ii]
+    nel=n_elements(elname)
+    emgrid=fltarr(navloglam, nel)
+    for i=0L, nel-1L do $
+      emgrid[*, i]= 1.e-7*exp(-(avloglam-alog10(lambda[i]))^2/(sigma)^2)/ $
+      (sqrt(2.*!DPI)*sigma)/absrc
+    tmp_spgrid=spgrid
+    spgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
+    spgrid[*,0L:nages*nmets*ndusts-1L]=tmp_spgrid
+    spgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
+    tmp_earlyspgrid=earlyspgrid
+    earlyspgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
+    earlyspgrid[*,0L:nages*nmets*ndusts-1L]=tmp_earlyspgrid
+    earlyspgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
+endif
 
 ;; 3. now make all filters at all redshifts
-filterlist=['galex_FUV.par', $
-            'galex_NUV.par', $
-            'sdss_u0.par', $
-            'sdss_g0.par', $
-            'sdss_r0.par', $
-            'sdss_i0.par', $
-            'sdss_z0.par', $
-            'twomass_J.par', $
-            'twomass_H.par', $
-            'twomass_Ks.par', $
-            'deep_B.par', $
-            'deep_R.par', $
-            'deep_I.par', $
-            'goods_J_isaac_etc.par', $
-            'goods_H_isaac_etc.par', $
-            'goods_Ks_isaac_etc.par', $
-            'goods_acs_f435w.par', $
-            'goods_acs_f606w.par', $
-            'goods_acs_f775w.par', $
-            'goods_acs_f850lp.par']
 lambda=fltarr(navloglam+1L)
 davloglam=avloglam[1]-avloglam[0]
 lambda[0:navloglam-1L]=10.^(avloglam-davloglam)

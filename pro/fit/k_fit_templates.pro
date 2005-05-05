@@ -21,11 +21,12 @@
 ;------------------------------------------------------------------------------
 pro k_fit_templates, nt=nt
 
-if(NOT keyword_set(nprime)) then nprime=200
-if(NOT keyword_set(subprime)) then subprime=0.2
+if(NOT keyword_set(nprime)) then nprime=2000
+if(NOT keyword_set(subprime)) then subprime=1.
 
 ;; 1. initial fits
-k_run_nmf, nt=nt, niter=nprime, /reset
+k_run_nmf, nt=nt, niter=100, /reset
+k_run_nmf, nt=nt, niter=nprime
 
 ;; 2. split sample
 
@@ -85,6 +86,8 @@ isort=sort(umr)
 ipos=lonarr(n_elements(umr))
 ipos[isort]=lindgen(n_elements(umr))
 iclass=long(float(nt)*float(ipos)/float(n_elements(umr)))
+
+save, filename='prime.sav'
 
 ;; 3. run nmf fitting for each separately
 for i=0L, nt-1L do begin
@@ -152,8 +155,6 @@ alltemplates=reform(alltemplates, n_elements(alltemplates)/nt, nt)
 mwrfits, alltemplates, 'k_nmf_soln.fits', /create
 
 k_run_nmf, nt=nt, niter=nprime, /qa
-
-stop
 
 for i=0L, 99L do $
   k_run_nmf, nt=nt, niter=nstep, /qa

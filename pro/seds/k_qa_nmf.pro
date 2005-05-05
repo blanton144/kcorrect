@@ -21,6 +21,8 @@ pro k_qa_nmf
 version='test'
 nsubsp=300
 
+hogg_usersym, 10, /fill
+
 ;; read in the template basics
 mmatrix=mrdfits('k_nmf_mmatrix.fits',0,hdr)
 lambda=mrdfits('k_nmf_mmatrix.fits',1)
@@ -39,7 +41,8 @@ nfilter=long(sxpar(hdr, 'NFILTER'))
 ndusts=long(sxpar(hdr, 'NDUST'))
 nmets=long(sxpar(hdr, 'NMET'))
 nages=long(sxpar(hdr, 'NAGE'))
-filternames=['F', 'N', 'u', 'g', 'r', 'i', 'z', 'J', 'H', 'K_s', 'B', 'R', 'I']
+filternames=['F', 'N', 'u', 'g', 'r', 'i', 'z', 'J', 'H', 'K_s', 'B', 'R', $
+             'I', 'J', "H", 'K_s', 'B', 'V', 'i', 'z']
 metallicities=[0.0001, 0.0004, 0.004, 0.008, 0.02, 0.05]
 
 ;; read in the data
@@ -180,17 +183,21 @@ for ifilter=0L, nfilter-2L do begin
     igood=where(colerr[ifilter,*] ne 0., ngood)
 
     if(ngood gt 0) then begin
-        djs_plot, zhelio[igood], mcol[ifilter,igood], psym=4, $
-          ytitle=filternames[ifilter]+'-'+filternames[ifilter+1]
-        djs_oplot, zhelio[igood], col[ifilter,igood], psym=6, color='red'
+        djs_plot, zhelio[igood], mcol[ifilter,igood], psym=8, $
+          ytitle=filternames[ifilter]+'-'+filternames[ifilter+1], symsize=0.2
+        djs_oplot, zhelio[igood], col[ifilter,igood], psym=8, color='red', $
+         symsize=0.2
         djs_oploterr, zhelio[igood], col[ifilter,igood], $
-          yerr=colerr[ifilter,igood], color='red'
-        djs_plot, zhelio[igood], col[ifilter,igood]-mcol[ifilter,igood], psym=6, $
+          yerr=colerr[ifilter,igood], color='red', symsize=0.2
+        yra=minmax(col[ifilter,igood]-mcol[ifilter,igood]) 
+        yra[0]=yra[0] > (-0.9)
+        yra[1]=yra[1] < (0.9)
+        hogg_scatterplot, zhelio[igood], $
+	        col[ifilter,igood]-mcol[ifilter,igood], yra=yra, $
           ytitle=filternames[ifilter]+'-'+filternames[ifilter+1]+' residual', $
-          xtitle='redshift z', color='red'
+          xtitle='redshift z', /cond, xnpix=24, ynpix=20, exp=0.5, $
+	satfrac=0.001
         djs_oplot, minmax(zhelio), [0., 0.], color='blue', linestyle=1
-        djs_oploterr, zhelio[igood], col[ifilter,igood]-mcol[ifilter,igood], $
-          yerr=colerr[ifilter,igood], color='red'
     endif
 endfor
 
@@ -202,11 +209,15 @@ for ifilter=0L, nfilter-3L do begin
                 colerr[ifilter+1L,*] gt 0., ngood)
     if(ngood gt 0) then begin
         djs_plot, col[ifilter,igood], col[ifilter+1L,igood], psym=4, $
+          color='red', $
           xtitle=filternames[ifilter]+'-'+filternames[ifilter+1], $
           ytitle=filternames[ifilter+1]+'-'+filternames[ifilter+2]
-        djs_oploterr, col[ifilter,igood], col[ifilter+1,igood], $
-          xerr=colerr[ifilter,igood], yerr=colerr[ifilter+1,igood]
-        djs_oplot, mcol[ifilter,igood], mcol[ifilter+1,igood], psym=4, color='red'
+        djs_oplot, mcol[ifilter,igood], mcol[ifilter+1,igood], psym=4, $
+          xtitle=filternames[ifilter]+'-'+filternames[ifilter+1], $
+          ytitle=filternames[ifilter+1]+'-'+filternames[ifilter+2]
+        ;djs_oploterr, col[ifilter,igood], col[ifilter+1,igood], $
+        ;  xerr=colerr[ifilter,igood], yerr=colerr[ifilter+1,igood], $
+        ;  color='red'
     endif
 endfor
 
