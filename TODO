@@ -2,19 +2,19 @@ test SDSS data:
    compare all versions of photometry XX
    check volume limited sample consistency XX
    make residual plots vs redshift XX
-   plot actual K-corrections
+   plot actual K-corrections XX
 test GALEX data:
    make galex_kcorrect XX
    make residual plots XX 
    check volume limited sample consistency XX
    test predictability of GALEX fluxes XX
-   plot actual K-corrections
+   plot actual K-corrections XX
 test 2MASS data:
    make twomass_kcorrect XX
    make residual plots XX 
    check volume limited sample consistency XX 
    test predictability of 2MASS fluxes XX 
-   plot actual K-corrections
+   plot actual K-corrections XX
 test SDSS spectroscopy
    code to fit single, aligned spectrum XX
    code to fit an sdss fiber XX
@@ -26,9 +26,10 @@ test SDSS spectroscopy
 make templates plot XX
 make plot of representative set of objects
 test DEEP data:
+   make sdss2bessell
+   make sdss2deep 
    make deep_kcorrect
    make residual plot 
-   make sdss2deep 
    make deep2sdss 
    make deep2bessell 
    make deep-like sample
