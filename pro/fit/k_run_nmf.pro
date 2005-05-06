@@ -26,6 +26,7 @@ if(NOT keyword_set(niter)) then niter=1000L
 if(NOT keyword_set(nt)) then nt=4
 
 mmatrix=mrdfits('k_nmf_mmatrix.fits')
+dust=mrdfits('k_nmf_mmatrix.fits',2)
 datastr=mrdfits('k_nmf_spdata.fits',1)
 vals=mrdfits('k_nmf_spdata.fits',2)
 ivar=mrdfits('k_nmf_spdata.fits',3)
@@ -55,7 +56,12 @@ if(file_test('k_nmf_soln.fits') eq 1 and $
     coeffs=mrdfits('k_nmf_soln.fits',1)
     if(keyword_set(coeffs)) then $
       if((size(coeffs,/dim))[1] ne ngals) then coeffs=0
-endif 
+endif else begin
+    templates=randomu(seed, (size(mmatrix, /dim))[1], nt)+0.5  
+    ii=where(dust.tauv gt 0.)
+    for i=0L, nt-1L do $
+      templates[ii, i]=templates[ii,i]*0.001
+endelse
 nmf_sparse, data, data_ivar, nt, mmatrix, niter, coeffs=coeffs, $
   templates=templates
 

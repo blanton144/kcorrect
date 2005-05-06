@@ -62,10 +62,10 @@ if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
 if(NOT keyword_set(sample)) then sample='sample15'
 if(NOT keyword_set(flux)) then flux='model'
 if(NOT keyword_set(nlrg_photo)) then nlrg_photo=100L
-if(NOT keyword_set(nlrg_spec)) then nlrg_spec=10L
-if(NOT keyword_set(nsdss_photo)) then nsdss_photo=200L
-if(NOT keyword_set(nsdss_spec)) then nsdss_spec=50L
-if(NOT keyword_set(ngalex)) then ngalex=200L
+if(NOT keyword_set(nlrg_spec)) then nlrg_spec=400L
+if(NOT keyword_set(nsdss_photo)) then nsdss_photo=100L
+if(NOT keyword_set(nsdss_spec)) then nsdss_spec=2000L
+if(NOT keyword_set(ngalex)) then ngalex=100L
 if(NOT keyword_set(ndeep)) then ndeep=100L
 if(NOT keyword_set(ngoods)) then ngoods=100L
 if(NOT keyword_set(seed1)) then seed1=1000L
@@ -73,19 +73,19 @@ if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
 if(NOT keyword_set(velmodtype)) then velmodtype='sigv150'
 ; min errors in FNugrizJHKBRIBV
-minerrors=[0.05, 0.05, 0.05, 0.02, 0.02, 0.02, 0.03, $
+minerrors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, $
            0.05, 0.05, 0.05, 0.02, 0.02, 0.02, 0.02, 0.02]
 kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0., 0., 0., 0., 0., 0., 0., 0.]
 seed=seed1
 
 ;; relative weights
-galex_weight=1.
-sdss_spec_weight=0.005
-sdss_photo_weight=1.
-lrg_spec_weight=0.005
-lrg_photo_weight=1.
-deep_weight=1.0
-goods_weight=1.0
+galex_weight=0.1
+sdss_spec_weight=1.0
+sdss_photo_weight=0.1
+lrg_spec_weight=1.0
+lrg_photo_weight=0.1
+deep_weight=0.1
+goods_weight=0.1
 
 ;; figure out what form we need the data in
 hdr=headfits(mmatrix)
@@ -413,25 +413,27 @@ for i=0L, n_elements(gz)-1L do begin
         currx=currx+1L
     endif 
 
-    iband=14L
-    if(gphoto[i].hmag_magauto ne -99.) then begin
-        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
-        extinction=ebv[i]*dfactors[5]
-        err2=0.02^2+gphoto[i].hmagerr_magauto^2
-        maggies=10.^(-0.4*(gphoto[i].hmag_magauto-extinction-goods_dm[i]))
-        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
-        new_xx=iz[i]+(iband)*nzf+nspec
-        if(keyword_set(data)) then begin
-            data=[data, maggies]
-            ivar=[ivar, maggies_ivar*goods_weight]
-            xx=[xx, new_xx]
-        endif else begin
-            data=maggies
-            ivar=maggies_ivar*goods_weight
-            xx=new_xx
-        endelse
-        currx=currx+1L
-    endif 
+    if(0) then begin
+        iband=14L
+        if(gphoto[i].hmag_magauto ne -99.) then begin
+            datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
+            extinction=ebv[i]*dfactors[5]
+            err2=0.02^2+gphoto[i].hmagerr_magauto^2
+            maggies=10.^(-0.4*(gphoto[i].hmag_magauto-extinction-goods_dm[i]))
+            maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
+            new_xx=iz[i]+(iband)*nzf+nspec
+            if(keyword_set(data)) then begin
+                data=[data, maggies]
+                ivar=[ivar, maggies_ivar*goods_weight]
+                xx=[xx, new_xx]
+            endif else begin
+                data=maggies
+                ivar=maggies_ivar*goods_weight
+                xx=new_xx
+            endelse
+            currx=currx+1L
+        endif 
+    endif
 
     iband=15L
     if(gphoto[i].kmag_magauto ne -99.) then begin

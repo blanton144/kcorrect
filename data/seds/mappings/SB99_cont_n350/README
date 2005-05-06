@@ -1,0 +1,26 @@
+--------------------------------------------------------------------
+Photoionization Grid for Starburst99 continuous burst models
+with electron density of 350/cm^3.   
+
+The grid was run by Lisa Kewley and is described in
+Kewley et al. 2001, ApJ, 556, 121
+--------------------------------------------------------------------
+
+Naming convention for output files (gzipped)
+
+type_metallicity_age_ionization-parameter_SB99_atm.ph4.gz
+
+where type is either:
+spec  = emission line list - gives wavelength and flux in each 
+        emission line (this is the most commonly used output file).
+photn = ionizing conditions through the nebula at each step size 
+        through the model.
+phapn = plasma properties (eg., pressure, sound speed, Mag field)
+phlss = information about energy conservation through the nebula
+    
+
+atm is either L = Lejeune et al. extended atmospheres (+ Kurucz atmospheres)
+              K = Kurucz atmospheres
+
+See http://cfa-www.harvard.edu/~lkewley/Mappings/Output.html
+for a detailed description of the contents in each of these files.

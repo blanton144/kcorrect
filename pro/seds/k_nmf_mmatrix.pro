@@ -294,6 +294,7 @@ sxaddpar, hdr, 'NDUST', ndusts, 'number of dusts'
 sxaddpar, hdr, 'NMET', nmets, 'number of metallicities'
 sxaddpar, hdr, 'NAGE', nages, 'number of ages'
 sxaddpar, hdr, 'NEL', nel, 'number of emission lines'
+sxaddpar, hdr, 'ISOLIB', isolib, 'isochrone library used'
 sxaddpar, hdr, 'VDISP', vdisp, 'smoothed to this velocity dispersion (km/s)'
 mwrfits, outgrid, outfile, hdr, /create
 mwrfits, outlambda,outfile 

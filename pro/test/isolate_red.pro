@@ -12,7 +12,7 @@
 pro isolate_red
 
 im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1,nrow=28800)
-twomass=hogg_mrdfits(getenv('VAGC_REDUX')+'/twomass/twomass_catalog.fits',1, $
+twomass=hogg_mrdfits(getenv('VAGC_REDUX')+'/twomass_catalog.fits',1, $
                      nrow=28800)
 galex=hogg_mrdfits(getenv('VAGC_REDUX')+'/galex/galex_catalog.fits',1, $
                    nrow=28800)
@@ -24,27 +24,20 @@ sersic=hogg_mrdfits(getenv('VAGC_REDUX')+'/sersic/sersic_catalog.fits',1)
 umg=kc.absmag[0]-kc.absmag[1]
 gmr=kc.absmag[1]-kc.absmag[2]
 
-ii=where(sp.z gt 0.09 and sp.z lt 0.11 and $
+ii=where(sp.z gt 0.17 and sp.z lt 0.23 and $
          sersic.sersic_n[2] gt 3. and sersic.sersic_n[2] lt 5. and $
-         gmr gt 0.8 and gmr lt 1.0 and $
-         randomu(seed, n_elements(gmr)) lt 0.05, nii)
+         gmr gt 0.9 and gmr lt 1.1 and $
+         umg gt 1.0 and umg lt 3.1 and $
+         randomu(seed, n_elements(gmr)) lt 0.25, nii)
 
-useumg=median(umg[ii])
-usegmr=median(gmr[ii])
-usermi=median(rmi[ii])
-useimz=median(imz[ii])
-
-
-
-useumg=umg[ii]
-usegmr=gmr[ii]
-useumg=replicate(median(useumg), nii)+0.1
-usegmr=replicate(median(usegmr), nii)
+sdss_to_maggies, maggies,ivar, calibobj=im[ii], flux='model'
 
 k_nmf_mmatrix, filterlist=['sdss_u0.par', $
                            'sdss_g0.par', $
-                           'sdss_r0.par'], $
-  minzf=0.09, maxzf=0.11, nzf=20, nagesmax=40, /noel, $
+                           'sdss_r0.par', $
+                           'sdss_i0.par', $
+                           'sdss_z0.par'], $
+  minzf=0.16, maxzf=0.24, nzf=100, nagesmax=40, /noel, $
   dusts={geometry:'dusty', dust:'MW', structure:'c', tauv:0.}
 
 ;; figure out what form we need the data in
@@ -76,11 +69,11 @@ xx=0
 data=0
 ivar=0
 for i=0L, nii-1L do begin & $
-    new_xx=iz[0]+[0,1,2]*nzf+nspec & $
-    new_data=[10.^(-0.4*useumg[i]),1., 10.^(0.4*usegmr[i])] & $
-    new_ivar=1./(new_data^2*0.03) & $
-    datastr.rowstart[i]=i*3L & $
-    datastr.nxrow[i]=3 & $
+    new_xx=iz[0]+[0,1,2,4,5]*nzf+nspec & $
+    new_data= maggies[*,i] & $
+    new_ivar= ivar[*,i] & $
+    datastr.rowstart[i]=i*5L & $
+    datastr.nxrow[i]=5 & $
     if(NOT keyword_set(xx)) then $
       xx=new_xx $
     else $
