@@ -25,8 +25,9 @@ if(NOT keyword_set(nprime)) then nprime=2000
 if(NOT keyword_set(subprime)) then subprime=1.
 
 ;; 1. initial fits
-k_run_nmf, nt=nt, niter=100, /reset
-k_run_nmf, nt=nt, niter=nprime
+k_run_nmf, nt=nt, niter=10, /reset, /qa
+k_run_nmf, nt=nt, niter=100, /qa
+k_run_nmf, nt=nt, niter=nprime, /qa
 
 ;; 2. split sample
 

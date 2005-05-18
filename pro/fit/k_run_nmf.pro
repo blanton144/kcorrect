@@ -27,6 +27,7 @@ if(NOT keyword_set(nt)) then nt=4
 
 mmatrix=mrdfits('k_nmf_mmatrix.fits')
 dust=mrdfits('k_nmf_mmatrix.fits',2)
+age=mrdfits('k_nmf_mmatrix.fits',4)
 datastr=mrdfits('k_nmf_spdata.fits',1)
 vals=mrdfits('k_nmf_spdata.fits',2)
 ivar=mrdfits('k_nmf_spdata.fits',3)
@@ -57,7 +58,10 @@ if(file_test('k_nmf_soln.fits') eq 1 and $
     if(keyword_set(coeffs)) then $
       if((size(coeffs,/dim))[1] ne ngals) then coeffs=0
 endif else begin
-    templates=randomu(seed, (size(mmatrix, /dim))[1], nt)+0.5  
+    templates=0.5+randomu(seed, (size(mmatrix, /dim))[1], nt)
+    for i=0L, nt-1L do $
+      templates[0:n_elements(age)-1L,i]= $
+      max(sqrt(age))*templates[0:n_elements(age)-1L,i]/sqrt(age)
     ii=where(dust.tauv gt 0., nii)
     if(nii gt 0) then $
       for i=0L, nt-1L do $

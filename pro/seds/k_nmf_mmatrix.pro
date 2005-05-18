@@ -70,7 +70,15 @@ if(NOT keyword_set(filterlist)) then $
               'goods_acs_f435w.par', $
               'goods_acs_f606w.par', $
               'goods_acs_f775w.par', $
-              'goods_acs_f850lp.par']
+              'goods_acs_f850lp.par', $
+              'spitzer_irac_ch1.par', $
+              'spitzer_irac_ch2.par', $
+              'spitzer_irac_ch3.par', $
+              'spitzer_irac_ch4.par', $
+              'spitzer_mips_24.par', $
+              'spitzer_mips_70.par', $
+              'spitzer_mips_160.par']
+             ]
 if(n_tags(dusts) eq 0) then begin
     dusts1={geometry:'', dust:'', structure:'', tauv:0.}
     dusts=replicate(dusts1,4)
@@ -96,7 +104,7 @@ rawfile=prefix+'_rawspec.fits'
 ;; 1. make stellar pops
 
 ;;     a. find minimum set of bursts to use
-bc03= k_im_read_bc03(isolib=isolib)
+bc03= k_im_read_bc03(isolib=isolib, /vac)
 imaxage=max(where(bc03.age lt 14.e+9))
 iwave=where(bc03.wave gt norm_lmin and bc03.wave lt norm_lmax, nwave)
 nages=3000L + nagesmax
@@ -131,20 +139,21 @@ while(nages gt nagesmax) do begin
 endwhile
 
 ;;     b. now make the full grid for the desired ages
-tmp_bc03= k_im_read_bc03(age=1.,isolib=isolib)
+tmp_bc03= k_im_read_bc03(age=1.,isolib=isolib, /vac)
 nl=n_elements(tmp_bc03.flux)
 wave=tmp_bc03.wave
 loglam=alog10(wave)
 grid=fltarr(nl, nages, nmets)
 for im= 0L, nmets-1L do $
-  grid[*,*,im]= (k_im_read_bc03(met=mets[im],isolib=isolib)).flux[*,iuse]
+  grid[*,*,im]= (k_im_read_bc03(met=mets[im],isolib=isolib, /vac)).flux[*,iuse]
 earlygrid=fltarr(nl, nages, nmets)
 early=ages-back*1.e+9
 iearly=where(early gt 0., nearly)
 for ia= 0L, nearly-1L do $
   for im= 0L, nmets-1L do $
   earlygrid[*,iearly[ia],im]= $
-  (k_im_read_bc03(met=mets[im],age=early[iearly[ia]]/1.e+9,isolib=isolib)).flux
+  (k_im_read_bc03(met=mets[im], $
+                  age=early[iearly[ia]]/1.e+9,isolib=isolib, /vac)).flux
 
 ;;     d. interpolate grid onto flux grid
 avloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
@@ -250,7 +259,7 @@ if(NOT keyword_set(noel)) then begin
     endif
     
     atm='K'
-    age='8Myr'
+    agestr='8Myr'
     model='SB99' 
     sfh='cont_n10'
     gasmets=['.05', '0.2', '0.4', '1.0', '2.0']
@@ -262,7 +271,7 @@ if(NOT keyword_set(noel)) then begin
             gasmet=gasmets[i]
             qpar=qpars[j]
             filename=getenv('KCORRECT_DIR')+'/data/seds/mappings/'+ $
-              model+'_'+sfh+'/spec_Z'+gasmet+'_'+age+'_q'+qpar+'_'+model+ $
+              model+'_'+sfh+'/spec_Z'+gasmet+'_'+agestr+'_q'+qpar+'_'+model+ $
               '_'+atm+'.ph4'
             mappings=read_mappings(filename, /vac)
             for k=0L, n_elements(mappings.lambda)-1L do $

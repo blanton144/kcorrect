@@ -68,6 +68,7 @@ if(NOT keyword_set(nsdss_spec)) then nsdss_spec=500L
 if(NOT keyword_set(ngalex)) then ngalex=1000L
 if(NOT keyword_set(ndeep)) then ndeep=1000L
 if(NOT keyword_set(ngoods)) then ngoods=1000L
+if(NOT keyword_set(nswire)) then nswire=100L
 if(NOT keyword_set(seed1)) then seed1=1000L
 if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
@@ -79,13 +80,14 @@ kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0.0, 0.0, 0.0, 0., 0., 0., 0., 0.]
 seed=seed1
 
 ;; relative weights
-galex_weight=15.0
+galex_weight=10.0
 sdss_spec_weight=0.01
 sdss_photo_weight=1.0
 lrg_spec_weight=0.01
 lrg_photo_weight=1.0
-deep_weight=20.0
-goods_weight=20.0
+deep_weight=10.0
+goods_weight=10.0
+swire_weight=10.0
 
 ;; figure out what form we need the data in
 hdr=headfits(mmatrix)
@@ -113,6 +115,8 @@ ilrg_spec    =ntotal+lindgen(nlrg_spec)
 ntotal=ntotal+nlrg_spec
 igoods       =ntotal+lindgen(ngoods)
 ntotal=ntotal+ngoods
+iswire       =ntotal+lindgen(nswire)
+ntotal=ntotal+nswire
 igalex       =ntotal+lindgen(ngalex)
 ntotal=ntotal+ngalex
 ideep        =ntotal+lindgen(ndeep)
@@ -292,169 +296,37 @@ for i=0L, n_elements(im)-1L do begin
     endif
 endfor
 
-;; collect some goods photometry 
-gphoto=rsex(getenv('KCORRECT_DIR')+ $
-            '/data/redshifts/goods/mb_cdfs_isaac_ks_photz_c1.1_d3.0k.cat')
-gz=rsex(getenv('KCORRECT_DIR')+ $
-        '/data/redshifts/goods/mb_z.cdfs.c1.1z.20050218.cat')
-igot=where(gz.z lt 2. and gz.z gt 0.1)
-gz=gz[igot]
-gphoto=gphoto[igot]
-indx_g=shuffle_indx(n_elements(gz), num_sub=ngoods, seed=seed)
-gz=gz[indx_g]
-gphoto=gphoto[indx_g]
-goods_dm=lf_distmod(gz.z)
-zdist[igoods]=gz.z
-zhelio[igoods]=gz.z
-iz=long(floor((nzf-1.)*(zhelio[igoods]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
-glactc, gphoto.ra, gphoto.dec, 2000., gl, gb, 1, /deg
-ebv=dust_getval(gl, gb, /noloop)
-dfactors=[4.32, 3.32, 2.00, 1.54, 0.90, 0.58, 0.37]
-for i=0L, n_elements(gz)-1L do begin
-    datastr.rowstart[igoods[i]]=currx
-
-    iband=16L
-    if(gphoto[i].bmag_magauto ne -99.) then begin
-        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
-        extinction=ebv[i]*dfactors[0]
-        err2=0.02^2+gphoto[i].bmagerr_magauto^2
-        maggies=10.^(-0.4*(gphoto[i].bmag_magauto-extinction-goods_dm[i]))
-        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
-        new_xx=iz[i]+(iband)*nzf+nspec
-        if(keyword_set(data)) then begin
-            data=[data, maggies]
-            ivar=[ivar, maggies_ivar*goods_weight]
-            xx=[xx, new_xx]
-        endif else begin
-            data=maggies
-            ivar=maggies_ivar*goods_weight
-            xx=new_xx
-        endelse
-        currx=currx+1L
-    endif 
-
-    iband=17L
-    if(gphoto[i].vmag_magauto ne -99.) then begin
-        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
-        extinction=ebv[i]*dfactors[1]
-        err2=0.02^2+gphoto[i].vmagerr_magauto^2
-        maggies=10.^(-0.4*(gphoto[i].vmag_magauto-extinction-goods_dm[i]))
-        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
-        new_xx=iz[i]+(iband)*nzf+nspec
-        if(keyword_set(data)) then begin
-            data=[data, maggies]
-            ivar=[ivar, maggies_ivar*goods_weight]
-            xx=[xx, new_xx]
-        endif else begin
-            data=maggies
-            ivar=maggies_ivar*goods_weight
-            xx=new_xx
-        endelse
-        currx=currx+1L
-    endif 
-
-    iband=18L
-    if(gphoto[i].imag_magauto ne -99.) then begin
-        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
-        extinction=ebv[i]*dfactors[2]
-        err2=0.02^2+gphoto[i].imagerr_magauto^2
-        maggies=10.^(-0.4*(gphoto[i].imag_magauto-extinction-goods_dm[i]))
-        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
-        new_xx=iz[i]+(iband)*nzf+nspec
-        if(keyword_set(data)) then begin
-            data=[data, maggies]
-            ivar=[ivar, maggies_ivar*goods_weight]
-            xx=[xx, new_xx]
-        endif else begin
-            data=maggies
-            ivar=maggies_ivar*goods_weight
-            xx=new_xx
-        endelse
-        currx=currx+1L
-    endif 
-
-    iband=19L
-    if(gphoto[i].zmag_magauto ne -99.) then begin
-        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
-        extinction=ebv[i]*dfactors[3]
-        err2=0.02^2+gphoto[i].zmagerr_magauto^2
-        maggies=10.^(-0.4*(gphoto[i].zmag_magauto-extinction-goods_dm[i]))
-        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
-        new_xx=iz[i]+(iband)*nzf+nspec
-        if(keyword_set(data)) then begin
-            data=[data, maggies]
-            ivar=[ivar, maggies_ivar*goods_weight]
-            xx=[xx, new_xx]
-        endif else begin
-            data=maggies
-            ivar=maggies_ivar*goods_weight
-            xx=new_xx
-        endelse
-        currx=currx+1L
-    endif 
-
-    iband=13L
-    if(gphoto[i].jmag_magauto ne -99.) then begin
-        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
-        extinction=ebv[i]*dfactors[4]
-        err2=0.02^2+gphoto[i].jmagerr_magauto^2
-        maggies=10.^(-0.4*(gphoto[i].jmag_magauto-extinction-goods_dm[i]))
-        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
-        new_xx=iz[i]+(iband)*nzf+nspec
-        if(keyword_set(data)) then begin
-            data=[data, maggies]
-            ivar=[ivar, maggies_ivar*goods_weight]
-            xx=[xx, new_xx]
-        endif else begin
-            data=maggies
-            ivar=maggies_ivar*goods_weight
-            xx=new_xx
-        endelse
-        currx=currx+1L
-    endif 
-
-    if(0) then begin
-        iband=14L
-        if(gphoto[i].hmag_magauto ne -99.) then begin
-            datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
-            extinction=ebv[i]*dfactors[5]
-            err2=0.02^2+gphoto[i].hmagerr_magauto^2
-            maggies=10.^(-0.4*(gphoto[i].hmag_magauto-extinction-goods_dm[i]))
-            maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
-            new_xx=iz[i]+(iband)*nzf+nspec
-            if(keyword_set(data)) then begin
-                data=[data, maggies]
-                ivar=[ivar, maggies_ivar*goods_weight]
-                xx=[xx, new_xx]
-            endif else begin
-                data=maggies
-                ivar=maggies_ivar*goods_weight
-                xx=new_xx
-            endelse
-            currx=currx+1L
-        endif 
-    endif
-
-    iband=15L
-    if(gphoto[i].kmag_magauto ne -99.) then begin
-        datastr.nxrow[igoods[i]]=datastr.nxrow[igoods[i]]+1L
-        extinction=ebv[i]*dfactors[6]
-        err2=0.02^2+gphoto[i].kmagerr_magauto^2
-        maggies=10.^(-0.4*(gphoto[i].kmag_magauto-extinction-goods_dm[i]))
-        maggies_ivar=1./(err2*(0.4*alog(10.)*maggies)^2)
-        new_xx=iz[i]+(iband)*nzf+nspec
-        if(keyword_set(data)) then begin
-            data=[data, maggies]
-            ivar=[ivar, maggies_ivar*goods_weight]
-            xx=[xx, new_xx]
-        endif else begin
-            data=maggies
-            ivar=maggies_ivar*goods_weight
-            xx=new_xx
-        endelse
-        currx=currx+1L
-    endif 
-
+;; collect some swire photometry 
+swire=mrdfits(getenv('VAGC_REDUX')+'/spitzer/swire_catalog.fits',1)
+objects=mrdfits(getenv('VAGC_REDUX')+'/spitzer/swire_objects.fits',1)
+iin=where(objects.object_position ge 0)
+sp=mrdfits(vagc_name('object_sdss_spectro'),1,row=objects[iin].object_position)
+igal=where(sp.z gt 0.003 and sp.z lt 0.5)
+sp=sp[igal]
+swire=swire[iin[igal]]
+indx_s=shuffle_indx(n_elements(swire), num_sub=nswire, seed=seed)
+swire=swire[indx_s]
+sp=sp[indx_s]
+swire_to_maggies, swire, swire_maggies, swire_ivar
+swire_dm=lf_distmod(sp.z)
+zdist[iswire]=sp.z
+zhelio[iswire]=sp.z
+iz=long(floor((nzf-1.)*(zhelio[iswire]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
+iband=[0,1,2,3,4,20,21,22,23,24,25]
+for i=0L, n_elements(swire)-1L do begin
+    datastr.rowstart[iswire[i]]=currx
+    igood=where(swire_ivar[*,i] gt 0., ngood)
+    datastr.nxrow[iswire[i]]=ngood
+    new_xx=iz[i]+(iband[igood])*nzf+nspec
+    if(keyword_set(data)) then begin
+        data=[data, swire_maggies]
+        ivar=[ivar, swire_ivar*swire_weight]
+        xx=[xx, new_xx]
+    endif else begin
+        data=swire_maggies
+        ivar=swire_ivar*swire_weight
+        xx=new_xx
+    endelse
 endfor
 
 

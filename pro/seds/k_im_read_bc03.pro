@@ -39,6 +39,7 @@
 ;       lr       - read the low resolution models (default is to read
 ;                  the high resolution models)
 ;       silent   - do not print any messages to STDOUT
+;       vac      - translate wavelengths to vacuum
 ;
 ; OUTPUTS:
 ;       bc03 - data structure with the following fields:
@@ -197,7 +198,8 @@ end
 function k_im_read_bc03, isedfile=isedfile, isedpath=isedpath, $
                          metallicity=metallicity, age=age, minwave=minwave, $
                          maxwave=maxwave, salpeter=salpeter, lr=lr, $
-                         silent=silent, isolib=isolib, bc03_extras=bc03_extras
+                         silent=silent, isolib=isolib, vac=vac, $
+                         bc03_extras=bc03_extras
 
 if n_elements(metallicity) eq 0L then metallicity = 4L
 
@@ -406,6 +408,12 @@ if arg_present(bc03_extras) then begin
     endfor
 
 endif 
+
+if(keyword_set(vac)) then begin
+    wave=bc03.wave
+    airtovac, wave
+    bc03.wave=wave
+endif
 
 return, bc03
 end
