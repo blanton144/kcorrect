@@ -193,8 +193,7 @@ if(arg_present(absmag)) then begin
     absmag=fltarr(n_elements(filterlist), n_elements(redshift))
     amivar=fltarr(n_elements(filterlist), n_elements(redshift))
     for i=0L, n_elements(filterlist)-1L do $
-      absmag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])-lf_distmod(redshift)- $
-      kcorrect[i,*]
+      absmag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])-lf_distmod(redshift)
     for i=0L, n_elements(filterlist)-1L do begin
         ig=where(use_maggies_ivar[i,*] gt 0. AND use_maggies[i,*] gt 0., ng)
         if(ng gt 0) then begin

@@ -57,7 +57,7 @@ redc=sflux/sweight
 sig2redc=1./sweight
 
 d4000n=redc/bluec
-ivar=(1./d4000n)*(redc^2/sig2redc+bluec^2/sig2bluec)
+ivar=(1./d4000n^2)/(sig2redc/redc^2+sig2bluec/bluec^2)
 return, d4000n
 
 end

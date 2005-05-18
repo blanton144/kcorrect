@@ -54,20 +54,20 @@
 ;   23-Nov-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_nmf_spdata, mmatrix=mmatrix, sample=sample, flux=flux, $
+pro k_nmf_spdata_spec, mmatrix=mmatrix, sample=sample, flux=flux, $
                   galexblue=galexblue
 
 if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
 if(NOT keyword_set(sample)) then sample='sample15'
-if(NOT keyword_set(flux)) then flux='petro'
-if(NOT keyword_set(nlrg_photo)) then nlrg_photo=400L
-if(NOT keyword_set(nlrg_spec)) then nlrg_spec=51L
-if(NOT keyword_set(nsdss_photo)) then nsdss_photo=2000L
-if(NOT keyword_set(nsdss_spec)) then nsdss_spec=500L
-if(NOT keyword_set(ngalex)) then ngalex=1000L
-if(NOT keyword_set(ndeep)) then ndeep=1000L
-if(NOT keyword_set(ngoods)) then ngoods=1000L
+if(NOT keyword_set(flux)) then flux='model'
+if(NOT keyword_set(nlrg_photo)) then nlrg_photo=50L
+if(NOT keyword_set(nlrg_spec)) then nlrg_spec=10L
+if(NOT keyword_set(nsdss_photo)) then nsdss_photo=100L
+if(NOT keyword_set(nsdss_spec)) then nsdss_spec=1000L
+if(NOT keyword_set(ngalex)) then ngalex=100L
+if(NOT keyword_set(ndeep)) then ndeep=100L
+if(NOT keyword_set(ngoods)) then ngoods=100L
 if(NOT keyword_set(seed1)) then seed1=1000L
 if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
@@ -75,17 +75,17 @@ if(NOT keyword_set(velmodtype)) then velmodtype='sigv150'
 ; min errors in FNugrizJHKBRIBV
 minerrors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, $
            0.05, 0.05, 0.05, 0.02, 0.02, 0.02, 0.02, 0.02]
-kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0.0, 0.0, 0.0, 0., 0., 0., 0., 0.]
+kc2ab=[ 0.006, -0.024, -0.005, 0.015,  0.042, 0., 0., 0., 0., 0., 0., 0., 0.]
 seed=seed1
 
 ;; relative weights
-galex_weight=15.0
-sdss_spec_weight=0.01
+galex_weight=1.0
+sdss_spec_weight=1.
 sdss_photo_weight=1.0
-lrg_spec_weight=0.01
+lrg_spec_weight=1.
 lrg_photo_weight=1.0
-deep_weight=20.0
-goods_weight=20.0
+deep_weight=1.0
+goods_weight=1.0
 
 ;; figure out what form we need the data in
 hdr=headfits(mmatrix)
@@ -133,7 +133,24 @@ zhelio=fltarr(ntotal)
 ;; sdss spectra
 postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='bsafe', $
                                post='1'), 1, nrow=28800)
-indx_spec=shuffle_indx(n_elements(postcat), num_sub=nsdss_spec, seed=seed)
+gmr=postcat.absm[1]-postcat.absm[2]
+isort=sort(gmr)
+nbins=11
+bins=findgen(nbins+1L)/10.
+for i=0L, nbins-1L do begin
+    ii=where(gmr gt bins[i] and $
+             gmr lt bins[i+1])
+    tmp_indx_spec= $
+      ii[shuffle_indx(n_elements(ii), num_sub=nsdss_spec/nbins, seed=seed)]
+    if(i eq 0) then $
+      indx_spec=tmp_indx_spec $
+    else $
+      indx_spec=[indx_spec, tmp_indx_spec]
+endfor
+nleft=nsdss_spec-n_elements(indx_spec)
+if(nleft gt 0) then $
+  indx_spec=[indx_spec, shuffle_indx(n_elements(postcat), num_sub=nleft, $
+                                     seed=seed)]
 postcat=postcat[indx_spec]
 kc=mrdfits(vagc_name('kcorrect', flux=flux, collision_type='none', $
                      band_shift='0.10'),1,row=postcat.object_position)
@@ -143,7 +160,7 @@ vmod=mrdfits(getenv('VAGC_REDUX')+'/velmod_distance/distance_'+velmodtype+ $
              '.fits',1, row=postcat.object_position)
 sdss_spec_block, sp.plate, sp.fiberid, sp.mjd, $
   block_flux=block_flux, block_ivar=block_ivar, block_lambda=block_lambda, $
-  avloglam=avloglam, /deextinct, vdisp=vdisp
+  avloglam=avloglam, /deextinct, vdisp=vdisp, minerror=0.03
 absrc=3.631*2.99792*10.^(15-2.*avloglam)
 dm=lf_distmod(vmod.zdist)
 for i=0L, n_elements(postcat)-1L do $

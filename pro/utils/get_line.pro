@@ -41,9 +41,9 @@ if(n_elements(flux_ivar) eq 0) then $
 
 if(keyword_set(lname)) then begin
     if(lname eq 'HDELTA') then begin
-        blim=alog10([4040., 4075.])
-        rlim=alog10([4130., 4160.])
-        llim=alog10([4082., 4120.])
+        blim=alog10([4041., 4080.])
+        rlim=alog10([4128., 4161.])
+        llim=alog10([4083., 4122.])
     endif
 endif else begin
     lname='LINE'
@@ -96,12 +96,12 @@ if(sweight le 0.) then begin
 endif
 dlam=0.5*(10.^(loglam[iline+1L])-10.^(loglam[iline-1L]))
 lflux=total((flux[iline]-continuum[0])*float(flux_ivar[iline] gt 0.)*dlam)
-sig2lflux=total(float(flux_ivar[iline] gt 0.)/ $
-               (flux_ivar[iline]+1.*float(flux_ivar[iline] le 0.)))
+sig2lflux=total(dlam^2*float(flux_ivar[iline] gt 0.)/ $
+                (flux_ivar[iline]+1.*float(flux_ivar[iline] le 0.)))
 lflux_ivar=1./sig2lflux
-continuum_ivar=sig2continuum
+continuum_ivar=1./sig2continuum
 eqw=lflux/continuum
-eqw_ivar=(1./eqw^2)*(lflux^2*lflux_ivar+continuum^2*continuum_ivar)
+eqw_ivar=(1./eqw^2)/(1./(lflux^2*lflux_ivar)+1./(continuum^2*continuum_ivar))
 
 lstruct=create_struct(lname+'_FLUX', lflux, $
                       lname+'_FLUX_IVAR', lflux_ivar, $

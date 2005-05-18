@@ -19,7 +19,7 @@
 ;   09-Apr-2005  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_fit_templates, nt=nt
+pro k_fit_templates, nt=nt, nprime=nprime
 
 if(NOT keyword_set(nprime)) then nprime=2000
 if(NOT keyword_set(subprime)) then subprime=1.

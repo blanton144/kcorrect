@@ -128,7 +128,7 @@ if(n_elements(mag) gt 0) then begin
 endif
 if(n_elements(nmgy) gt 0) then begin
     mgy[*,*]=nmgy*1.e-9
-    mgy_ivar[*,*]=nmgy_ivar*1.e+18
+    mgy_ivar[*,*]=ivar*1.e+18
 endif
 
 ;; get GALEX stuff from GALEX structure

@@ -20,33 +20,15 @@ test SDSS spectroscopy
    code to fit an sdss fiber XX
    median smooth differences  XX
    make sdss_continuum XX
-   take random set and plot: spectrum, model, residuals, fractional residuals
-   measure D4000 (on spectrum and model)
-   measure Hbeta absorption(?) (on spectrum and model)
+   measure D4000 (on spectrum and model) XX
+   measure Hbeta absorption(?) (on spectrum and model) XX
 make templates plot XX
-make plot of representative set of objects
 test DEEP data:
-   make sdss2bessell
-   make sdss2deep 
-   make deep_kcorrect
+   make deep_kcorrect use closest band
    make residual plot 
-   make deep2sdss 
-   make deep2bessell 
-   make deep-like sample
-   run deep_kcorrect and sdss_kcorrect, check consistency
-other
+   run deep_kcorrect and sdss2deep->sdss2bessell, check consistency
    make bessell2sdss 
-   make sdss2bessell 
    
-
-For next fitting:
-  include LRGs XX
-  fix ACS filters XX
-  limit ages to < 14 billion years in model! XX
-  ask Daniel about u band
-  ask Lexi about Ks
-   
-
 check consistency of fit across redshiift at low z
 check predictability of FNKs
 get test data:
@@ -55,17 +37,6 @@ get test data:
    galex+SDSS subsample
    twomass+SDSS subsample
    synthesized across all z?
-write and test:
-   sdss_kcorrect
-   deep_kcorrect
-   galex_kcorrect
-   twomass_kcorrect
-check metallicities
-check stellar masses
-make sure vmatrix/lambda stuff works fine
-run on full
-
-clean up TODO:
 
 new docs:
   which calib for eisenstein k_sdssfix

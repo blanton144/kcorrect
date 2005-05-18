@@ -33,7 +33,7 @@ for i=0L, nt-1L do begin
 endfor
 
 if(NOT keyword_set(verbose)) then verbose=1L
-if(NOT keyword_set(maxiter)) then maxiter=50000
+if(NOT keyword_set(maxiter)) then maxiter=500000
 if(NOT keyword_set(tolerance)) then tolerance=1.e-6
 
 ; Set source object name
@@ -47,5 +47,6 @@ retval=call_external(soname, 'idl_k_fit_spec', float(coeffs), $
                      float(flux), float(ivar), float(templates), $
                      long(nt), long(nl),float(tolerance), long(maxiter), $
                      long(niter),float(chi2),long(verbose)) 
+
 
 end

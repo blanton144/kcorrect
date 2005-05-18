@@ -58,8 +58,9 @@ if(file_test('k_nmf_soln.fits') eq 1 and $
       if((size(coeffs,/dim))[1] ne ngals) then coeffs=0
 endif else begin
     templates=randomu(seed, (size(mmatrix, /dim))[1], nt)+0.5  
-    ii=where(dust.tauv gt 0.)
-    for i=0L, nt-1L do $
+    ii=where(dust.tauv gt 0., nii)
+    if(nii gt 0) then $
+      for i=0L, nt-1L do $
       templates[ii, i]=templates[ii,i]*0.001
 endelse
 nmf_sparse, data, data_ivar, nt, mmatrix, niter, coeffs=coeffs, $

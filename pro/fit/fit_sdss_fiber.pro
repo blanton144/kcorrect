@@ -15,6 +15,7 @@
 ;   vname - name of fit to use (default 'default')
 ; OPTIONAL KEYWORDS:
 ;   usevdisp - use correct vdisp for fit 
+;   nolines - output model without lines
 ; OUTPUTS:
 ;   coeffs - coefficients fit to each template 
 ;   model - model spectrum
@@ -38,7 +39,7 @@ pro fit_sdss_fiber, in_plate, in_fiberid, mjd=in_mjd, slist=slist, $
                     model=model, coeffs=coeffs, vname=vname, $
                     usevdisp=usevdisp, flux=flux, ivar=ivar, loglam=loglam, $
                     cmodel=cmodel, age=age, mass=mass, b300=b300, $
-                    metallicity=metallicity
+                    metallicity=metallicity, nolines=nolines
                     
 
 if(n_tags(slist) gt 0) then begin
@@ -62,11 +63,11 @@ ivar=ivar*1.e+34
 if(keyword_set(usevdisp)) then vdisp=zans.vdisp
 k_fit_spec, flux, ivar, coeffs, vname=vname, vdisp=vdisp, templates=templates
 k_reconstruct_spec, coeffs, loglam, vname=vname, age=age, $
-  metallicity=metallicity, mass=mass, b300=b300
+  metallicity=metallicity, mass=mass, b300=b300, nolines=nolines
 if(arg_present(mass)) then $
   mass=mass*10.^(0.4*lf_distmod(zans.z))
 if(arg_present(model)) then $
-  k_reconstruct_spec, coeffs, loglam, model, vname=vname
+  k_reconstruct_spec, coeffs, loglam, model, vname=vname, nolines=nolines
 if(arg_present(cmodel)) then begin
     k_reconstruct_spec, coeffs, loglam, cmodel, vname=vname, /nolines
     cflux=flux
