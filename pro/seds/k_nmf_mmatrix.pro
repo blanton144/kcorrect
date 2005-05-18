@@ -226,18 +226,52 @@ for i=0L, nages-1L do age[i,*,*]=ages[i]
 ;; now make emission lines 
 nel=0
 if(NOT keyword_set(noel)) then begin
-    readcol, getenv('KCORRECT_DIR')+'/data/templates/linelist.txt', $
-      f='(a,f,a)', comment=';', elname, lambda, type
-    ii=where(type eq 'em' OR type eq 'both' and $
+    if(0) then begin
+        readcol, getenv('KCORRECT_DIR')+'/data/templates/linelist.txt', $
+          f='(a,f,a)', comment=';', elname, lambda, type
+        ii=where(type eq 'em' OR type eq 'both' and $
              lambda gt 3700. and $
-             lambda lt 9000.)
-    elname=elname[ii]
-    lambda=lambda[ii]
-    nel=n_elements(elname)
+                 lambda lt 9000.)
+        elname=elname[ii]
+        lambda=lambda[ii]
+        nel=n_elements(elname)
+        emgrid=fltarr(navloglam, nel)
+        for i=0L, nel-1L do $
+          emgrid[*, i]= 1.e-7*exp(-(avloglam-alog10(lambda[i]))^2/(sigma)^2)/ $
+          (sqrt(2.*!DPI)*sigma)/absrc
+        tmp_spgrid=spgrid
+        spgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
+        spgrid[*,0L:nages*nmets*ndusts-1L]=tmp_spgrid
+        spgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
+        tmp_earlyspgrid=earlyspgrid
+        earlyspgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
+        earlyspgrid[*,0L:nages*nmets*ndusts-1L]=tmp_earlyspgrid
+        earlyspgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
+    endif
+    
+    atm='K'
+    age='8Myr'
+    model='SB99' 
+    sfh='cont_n10'
+    gasmets=['.05', '0.2', '0.4', '1.0', '2.0']
+    qpars=[ '5.0e6', '1.0e7', '2.0e7', '4.0e7', '8.0e7', '1.5e8', '3.0e8'] 
+    nel=n_elements(gasmets)*n_elements(qpars)
     emgrid=fltarr(navloglam, nel)
-    for i=0L, nel-1L do $
-      emgrid[*, i]= 1.e-7*exp(-(avloglam-alog10(lambda[i]))^2/(sigma)^2)/ $
-      (sqrt(2.*!DPI)*sigma)/absrc
+    for i=0L, n_elements(gasmets)-1L do begin
+        for j=0L, n_elements(qpars)-1L do begin
+            gasmet=gasmets[i]
+            qpar=qpars[j]
+            filename=getenv('KCORRECT_DIR')+'/data/seds/mappings/'+ $
+              model+'_'+sfh+'/spec_Z'+gasmet+'_'+age+'_q'+qpar+'_'+model+ $
+              '_'+atm+'.ph4'
+            mappings=read_mappings(filename, /vac)
+            for k=0L, n_elements(mappings.lambda)-1L do $
+              emgrid[*, i*n_elements(qpars)+j]= $
+              emgrid[*, i*n_elements(qpars)+j]+1.e-10* $
+              mappings.flux[k]*exp(-(avloglam-alog10(mappings.lambda[k]))^2/ $
+                                   (sigma)^2)/(sqrt(2.*!DPI)*sigma)/absrc
+        endfor
+    endfor
     tmp_spgrid=spgrid
     spgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
     spgrid[*,0L:nages*nmets*ndusts-1L]=tmp_spgrid
@@ -303,6 +337,8 @@ mwrfits, met, outfile
 mwrfits, age, outfile
 mwrfits, filterlist, outfile
 mwrfits, zf, outfile
+mwrfits, gasmets, outfile
+mwrfits, qpars, outfile
 
 hdr=['']
 sxaddpar, hdr, 'NSPEC', navloglam, 'number of points in spectrum'

@@ -4,9 +4,10 @@
 ; PURPOSE:
 ;   Read a MAPPINGS III file
 ; CALLING SEQUENCE:
-;   model= read_mappings(filename)
+;   model= read_mappings(filename [, /vac] )
 ; INPUTS:
 ;   filename - name of file
+;   /vac - convert to vacuum wavelengths
 ; OUTPUTS:
 ;   model - structure containing descriptions of model:
 ;     .RUN - name of run
@@ -19,7 +20,7 @@
 ;   06-May-2005  Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-function read_mappings, filename
+function read_mappings, filename, vac=vac
 
 model={run:''}
 
@@ -57,6 +58,9 @@ while(NOT eof(unit)) do begin
 endwhile
 
 free_lun, unit
+
+if(keyword_set(vac)) then $
+  airtovac, lambda
 
 model=create_struct('lambda', lambda, $
                     'flux', flux, $
