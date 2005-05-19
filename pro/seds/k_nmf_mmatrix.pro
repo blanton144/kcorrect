@@ -298,7 +298,8 @@ drainefiles=['spec_2.8.dat']
 ndraine=n_elements(drainefiles)
 drainegrid=fltarr(navloglam, ndraine)
 for i=0L, n_elements(drainefiles)-1L do begin
-    dst=read_draine(drainefiles[i])
+    dst=read_draine(getenv('KCORRECT_DIR')+'/data/seds/draine/'+ $
+                    drainefiles[i])
     lambda=[dst.lambda[0]-1., dst.lambda[0], dst.lambda, $
             dst.lambda[n_elements(dst.lambda)-1L], $
             dst.lambda[n_elements(dst.lambda)-1L]+1. ]
