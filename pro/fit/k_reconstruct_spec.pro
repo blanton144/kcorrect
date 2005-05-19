@@ -71,7 +71,7 @@ if(newname) then begin
 
         spec=mrdfits(getenv('KCORRECT_DIR')+'/data/templates/k_nmf_mmatrix.'+ $
                      vname+'.fits', 0, hdr)
-        nel=long(sxpar(hdr,'NEL'))
+        nextra=long(sxpar(hdr,'NEXTRA'))
         nspec=long(sxpar(hdr,'NSPEC'))
         ndusts=long(sxpar(hdr, 'NDUST'))
         nmets=long(sxpar(hdr, 'NMET'))
@@ -117,8 +117,8 @@ if(newname) then begin
         
         ;; assumes lines are right after spectrum
         lspec_v300=spec[0L:nspec-1L,n_elements(dust): $
-                        n_elements(dust)+nel-1L]# $
-          templates[n_elements(dust):n_elements(dust)+nel-1L, *]
+                        n_elements(dust)+nextra-1L]# $
+          templates[n_elements(dust):n_elements(dust)+nextra-1L, *]
         tspec_v0=tspec_v0_nl+lspec_v300
         tspec_v300_nd=tspec_v300_nl_nd+lspec_v300
         tspec_v0_nd=tspec_v0_nl_nd+lspec_v300

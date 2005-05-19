@@ -100,9 +100,8 @@ endwhile
 ;; microns to angstroms
 lambda=lambda*1.e+4
 
-;; per H to per A
-flux=flux
-
+;; to per A
+flux=flux/lambda
 
 free_lun, unit
 

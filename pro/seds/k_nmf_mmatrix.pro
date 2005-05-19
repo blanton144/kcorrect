@@ -42,9 +42,9 @@ pro k_nmf_mmatrix, prefix=prefix, back=back, lmin=lmin, lmax=lmax, $
 if(NOT keyword_set(isolib)) then isolib='Padova1994'
 if(NOT keyword_set(back)) then back=0.5  ;; how many Gyrs earlier?
 if(NOT keyword_set(lmin)) then lmin=600.
-if(NOT keyword_set(lmax)) then lmax=30000.
+if(NOT keyword_set(lmax)) then lmax=3200000.
 if(NOT keyword_set(prefix)) then prefix='k_nmf'
-if(NOT keyword_set(navloglam)) then navloglam=8000L
+if(NOT keyword_set(navloglam)) then navloglam=30000L
 if(NOT keyword_set(nagesmax)) then nagesmax=40
 if(NOT keyword_set(vdisp)) then vdisp=300.
 if(NOT keyword_set(minzf)) then minzf=0.
@@ -78,7 +78,7 @@ if(NOT keyword_set(filterlist)) then $
               'spitzer_mips_24.par', $
               'spitzer_mips_70.par', $
               'spitzer_mips_160.par']
-             ]
+
 if(n_tags(dusts) eq 0) then begin
     dusts1={geometry:'', dust:'', structure:'', tauv:0.}
     dusts=replicate(dusts1,4)
@@ -233,6 +233,7 @@ age=fltarr(nages,nmets,ndusts)
 for i=0L, nages-1L do age[i,*,*]=ages[i]
 
 ;; now make emission lines 
+nextra=0
 nel=0
 if(NOT keyword_set(noel)) then begin
     if(0) then begin
@@ -290,6 +291,31 @@ if(NOT keyword_set(noel)) then begin
     earlyspgrid[*,0L:nages*nmets*ndusts-1L]=tmp_earlyspgrid
     earlyspgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
 endif
+nextra=nextra+nel
+
+;; 3.5 dust from draine
+drainefiles=['spec_2.8.dat']
+ndraine=n_elements(drainefiles)
+drainegrid=fltarr(navloglam, ndraine)
+for i=0L, n_elements(drainefiles)-1L do begin
+    dst=read_draine(drainefiles[i])
+    lambda=[dst.lambda[0]-1., dst.lambda[0], dst.lambda, $
+            dst.lambda[n_elements(dst.lambda)-1L], $
+            dst.lambda[n_elements(dst.lambda)-1L]+1. ]
+    flux=[0., 0., dst.flux, 0., 0.]
+    drainegrid[*,i]= 1.e+18*interpol(flux, alog10(lambda), avloglam)/absrc
+endfor
+tmp_spgrid=spgrid
+spgrid=fltarr(navloglam,nages*nmets*ndusts+nextra+ndraine)
+spgrid[*,0L:nages*nmets*ndusts+nextra-1L]=tmp_spgrid
+spgrid[*,nages*nmets*ndusts+nextra: $
+       nages*nmets*ndusts+nextra+ndraine-1L]=drainegrid
+tmp_earlyspgrid=earlyspgrid
+earlyspgrid=fltarr(navloglam,nages*nmets*ndusts+nextra+ndraine)
+earlyspgrid[*,0L:nages*nmets*ndusts+nextra-1L]=tmp_earlyspgrid
+earlyspgrid[*,nages*nmets*ndusts+nextra: $
+            nages*nmets*ndusts+nextra+ndraine-1L]= drainegrid
+nextra=nextra+ndraine
 
 ;; 3. now make all filters at all redshifts
 lambda=fltarr(navloglam+1L)
@@ -297,13 +323,13 @@ davloglam=avloglam[1]-avloglam[0]
 lambda[0:navloglam-1L]=10.^(avloglam-davloglam)
 lambda[1:navloglam]=10.^(avloglam+davloglam)
 pgrid=spgrid
-for i=0L, nages*ndusts*nmets+nel-1L do $
+for i=0L, nages*ndusts*nmets+nextra-1L do $
   pgrid[*,i]=pgrid[*,i]*absrc
 k_projection_table, rmatrix, pgrid, lambda, zf, filterlist, zmin=minzf, $
   zmax=maxzf, nz=nzf
 rmatrix=rmatrix > 0.
 earlypgrid=earlyspgrid
-for i=0L, nages*ndusts*nmets+nel-1L do $
+for i=0L, nages*ndusts*nmets+nextra-1L do $
   earlypgrid[*,i]=earlypgrid[*,i]*absrc
 k_projection_table, earlyrmatrix, earlypgrid, lambda, zf, filterlist, $
   zmin=minzf, zmax=maxzf, nz=nzf
@@ -311,16 +337,16 @@ earlyrmatrix=earlyrmatrix > 0.
   
 ;; 4. prepare output
 
-outgrid=fltarr(navloglam+nzf*n_elements(filterlist),nages*nmets*ndusts+nel)
+outgrid=fltarr(navloglam+nzf*n_elements(filterlist),nages*nmets*ndusts+nextra)
 outgrid[0:navloglam-1L,*]=spgrid
-for i=0L, (nages*nmets*ndusts)+nel-1L do $
+for i=0L, (nages*nmets*ndusts)+nextra-1L do $
   outgrid[navloglam:navloglam+nzf*n_elements(filterlist)-1L,i]= $
   rmatrix[*,i,*]
 
 earlyoutgrid=fltarr(navloglam+nzf*n_elements(filterlist),nages*nmets*ndusts+ $
-                    nel)
+                    nextra)
 earlyoutgrid[0:navloglam-1L,*]=earlyspgrid
-for i=0L, (nages*nmets*ndusts)+nel-1L do $
+for i=0L, (nages*nmets*ndusts)+nextra-1L do $
   earlyoutgrid[navloglam:navloglam+nzf*n_elements(filterlist)-1L,i]= $
   earlyrmatrix[*,i,*]
 
@@ -336,7 +362,9 @@ sxaddpar, hdr, 'NFILTER', n_elements(filterlist), 'number of filters'
 sxaddpar, hdr, 'NDUST', ndusts, 'number of dusts'
 sxaddpar, hdr, 'NMET', nmets, 'number of metallicities'
 sxaddpar, hdr, 'NAGE', nages, 'number of ages'
+sxaddpar, hdr, 'NEXTRA', nextra, 'number of extra templates'
 sxaddpar, hdr, 'NEL', nel, 'number of emission lines'
+sxaddpar, hdr, 'NDRAINE', ndraine, 'number of draine models'
 sxaddpar, hdr, 'ISOLIB', isolib, 'isochrone library used'
 sxaddpar, hdr, 'VDISP', vdisp, 'smoothed to this velocity dispersion (km/s)'
 mwrfits, outgrid, outfile, hdr, /create
@@ -348,6 +376,7 @@ mwrfits, filterlist, outfile
 mwrfits, zf, outfile
 mwrfits, gasmets, outfile
 mwrfits, qpars, outfile
+mwrfits, drainefiles, outfile
 
 hdr=['']
 sxaddpar, hdr, 'NSPEC', navloglam, 'number of points in spectrum'
@@ -356,7 +385,9 @@ sxaddpar, hdr, 'NFILTER', n_elements(filterlist), 'number of filters'
 sxaddpar, hdr, 'NDUST', ndusts, 'number of dusts'
 sxaddpar, hdr, 'NMET', nmets, 'number of metallicities'
 sxaddpar, hdr, 'NAGE', nages, 'number of ages'
+sxaddpar, hdr, 'NEXTRA', nextra, 'number of extra templates'
 sxaddpar, hdr, 'NEL', nel, 'number of emission lines'
+sxaddpar, hdr, 'NDRAINE', ndraine, 'number of draine models'
 sxaddpar, hdr, 'VDISP', vdisp, 'smoothed to this velocity dispersion (km/s)'
 sxaddpar, hdr, 'BACK', back, 'Gyrs previous to mmatrix'
 mwrfits, earlyoutgrid, earlyfile, hdr, /create
@@ -366,7 +397,9 @@ sxaddpar, hdr, 'NSPEC', navloglam, 'number of points in spectrum'
 sxaddpar, hdr, 'NDUST', ndusts, 'number of dusts'
 sxaddpar, hdr, 'NMET', nmets, 'number of metallicities'
 sxaddpar, hdr, 'NAGE', nages, 'number of ages'
+sxaddpar, hdr, 'NEXTRA', nextra, 'number of extra templates'
 sxaddpar, hdr, 'NEL', nel, 'number of emission lines'
+sxaddpar, hdr, 'NDRAINE', ndraine, 'number of draine models'
 mwrfits, rawspgrid, rawfile, hdr, /create
 
 end

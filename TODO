@@ -23,11 +23,7 @@ test SDSS spectroscopy
    measure D4000 (on spectrum and model) XX
    measure Hbeta absorption(?) (on spectrum and model) XX
 make templates plot XX
-test DEEP data:
-   make deep_kcorrect use closest band
-   make residual plot 
-   run deep_kcorrect and sdss2deep->sdss2bessell, check consistency
-   make bessell2sdss 
+make deep_kcorrect use closest band
    
 check consistency of fit across redshiift at low z
 check predictability of FNKs
