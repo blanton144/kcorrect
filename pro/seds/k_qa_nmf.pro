@@ -42,7 +42,8 @@ ndusts=long(sxpar(hdr, 'NDUST'))
 nmets=long(sxpar(hdr, 'NMET'))
 nages=long(sxpar(hdr, 'NAGE'))
 filternames=['F', 'N', 'u', 'g', 'r', 'i', 'z', 'J', 'H', 'K_s', 'B', 'R', $
-             'I', 'J', "H", 'K_s', 'B', 'V', 'i', 'z']
+             'I', 'J', "H", 'K_s', 'B', 'V', 'i', 'z', '[3.6]', '[4.5]', $
+             '[5.8]', '[8.0]', '[24]' ]
 metallicities=[0.0001, 0.0004, 0.004, 0.008, 0.02, 0.05]
 
 ;; read in the data
