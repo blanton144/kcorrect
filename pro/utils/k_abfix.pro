@@ -4,7 +4,7 @@
 ; PURPOSE:
 ;   Take SDSS pipeline maggies and return AB maggies
 ; CALLING SEQUENCE:
-;   k_sdssfix, maggies, maggies_ivar [ aboff=]
+;   k_abfix, maggies, maggies_ivar [ aboff=]
 ; INPUTS/OUTPUTS:
 ;   maggies - input maggies (changed on output)
 ;   maggies_ivar - input inverse variances (changed on output)
