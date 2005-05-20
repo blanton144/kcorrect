@@ -166,7 +166,12 @@ interloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
 for im= 0L, nmets-1L do begin
     for ia= 0L, nages-1L do begin 
         splog, string(im)+string(ia) 
-        intergrid=interpol(grid[*,ia,im], loglam, interloglam) 
+        dloglam=loglam[1]-loglam[0]
+        nloglam=n_elements(loglam)
+        intergrid=interpol([0., 0., grid[*,ia,im], 0., 0.], $
+                           [loglam[0]-dloglam, loglam[0], loglam, $
+                            loglam[nloglam-1L], loglam[nloglam-1]+dloglam], $
+                           interloglam) 
         combine1fiber, interloglam, intergrid, fltarr(ninterloglam)+1., $
           newloglam=avloglam, newflux=tmp1, maxiter=0 
         sfgrid[*,ia+im*nages]=tmp1 
