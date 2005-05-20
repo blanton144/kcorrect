@@ -41,8 +41,8 @@ if(keyword_set(ab02)) then aboff=[-0.042, 0.036, 0.015, 0.013, -0.002]
 if(NOT keyword_set(aboff)) then aboff=[-0.036, 0.012, 0.010, 0.028, -0.040]
 
 for i=0L, n_elements(aboff)-1L do begin
-    maggies=maggies*10.^(-0.4*aboff[i])
-    maggies_ivar=maggies_ivar*10.^(0.8*aboff[i])
+    maggies[i,*]=maggies[i,*]*10.^(-0.4*aboff[i])
+    maggies_ivar[i,*]=maggies_ivar[i,*]*10.^(0.8*aboff[i])
 endfor
 
 end

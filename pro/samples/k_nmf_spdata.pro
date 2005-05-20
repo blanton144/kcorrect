@@ -61,14 +61,14 @@ if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
 if(NOT keyword_set(sample)) then sample='sample15'
 if(NOT keyword_set(flux)) then flux='petro'
-if(NOT keyword_set(nlrg_photo)) then nlrg_photo=400L
-if(NOT keyword_set(nlrg_spec)) then nlrg_spec=51L
-if(NOT keyword_set(nsdss_photo)) then nsdss_photo=2000L
-if(NOT keyword_set(nsdss_spec)) then nsdss_spec=500L
-if(NOT keyword_set(ngalex)) then ngalex=1000L
-if(NOT keyword_set(ndeep)) then ndeep=1000L
-if(NOT keyword_set(ngoods)) then ngoods=1000L
-if(NOT keyword_set(nswire)) then nswire=100L
+if(NOT keyword_set(nlrg_photo)) then nlrg_photo=0L
+if(NOT keyword_set(nlrg_spec)) then nlrg_spec=0L
+if(NOT keyword_set(nsdss_photo)) then nsdss_photo=0L
+if(NOT keyword_set(nsdss_spec)) then nsdss_spec=0L
+if(NOT keyword_set(ngalex)) then ngalex=0L
+if(NOT keyword_set(ndeep)) then ndeep=0L
+if(NOT keyword_set(ngoods)) then ngoods=0L
+if(NOT keyword_set(nswire)) then nswire=200L
 if(NOT keyword_set(seed1)) then seed1=1000L
 if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
@@ -105,21 +105,29 @@ zf=mrdfits(mmatrix, 6)
 
 ;; set up indices
 ntotal=0L
-isdss_spec   =ntotal+lindgen(nsdss_spec)
+if(nsdss_spec gt 0) then $
+  isdss_spec   =ntotal+lindgen(nsdss_spec)
 ntotal=ntotal+nsdss_spec
-isdss_photo  =ntotal+lindgen(nsdss_photo)
+if(nsdss_photo gt 0) then $
+  isdss_photo  =ntotal+lindgen(nsdss_photo)
 ntotal=ntotal+nsdss_photo
-ilrg_photo   =ntotal+lindgen(nlrg_photo)
+if(nlrg_photo gt 0) then $
+  ilrg_photo   =ntotal+lindgen(nlrg_photo)
 ntotal=ntotal+nlrg_photo
-ilrg_spec    =ntotal+lindgen(nlrg_spec)
+if(nlrg_spec gt 0) then $
+  ilrg_spec    =ntotal+lindgen(nlrg_spec)
 ntotal=ntotal+nlrg_spec
-igoods       =ntotal+lindgen(ngoods)
+if(ngoods gt 0) then $
+  igoods       =ntotal+lindgen(ngoods)
 ntotal=ntotal+ngoods
-iswire       =ntotal+lindgen(nswire)
+if(nswire gt 0) then $
+  iswire       =ntotal+lindgen(nswire)
 ntotal=ntotal+nswire
-igalex       =ntotal+lindgen(ngalex)
+if(ngalex gt 0) then $
+  igalex       =ntotal+lindgen(ngalex)
 ntotal=ntotal+ngalex
-ideep        =ntotal+lindgen(ndeep)
+if(ndeep gt 0) then $
+  ideep        =ntotal+lindgen(ndeep)
 ntotal=ntotal+ndeep
 
 ;; create full matrix
@@ -134,6 +142,7 @@ xx=0
 zdist=fltarr(ntotal)
 zhelio=fltarr(ntotal)
 
+if(nsdss_spec gt 0) then begin
 ;; sdss spectra
 postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='bsafe', $
                                post='1'), 1, nrow=28800)
@@ -173,7 +182,9 @@ for i=0L, n_elements(postcat)-1L do begin
 endfor
 zdist[isdss_spec]=vmod.zdist
 zhelio[isdss_spec]=kc.z
+endif
 
+if(nsdss_photo gt 0) then begin
 ;; sdss photometry
 postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='bsafe', $
                                post='1'), 1, nrow=28800)
@@ -213,7 +224,9 @@ for i=0L, n_elements(postcat)-1L do begin
     datastr.nxrow[isdss_photo[i]]=ngood
     currx=currx+ngood
 endfor
+endif
 
+if(nlrg_photo gt 0) then begin
 ;; lrg photometry
 sp=sdss_spectro_matched(nrow=28800,columns=['z', 'primtarget'] )
 im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1,nrow=28800)
@@ -254,7 +267,9 @@ for i=0L, n_elements(im)-1L do begin
     datastr.nxrow[ilrg_photo[i]]=ngood
     currx=currx+ngood
 endfor
+endif
 
+if(nlrg_spec gt 0) then begin
 ;; lrg spectroscopy
 sp=sdss_spectro_matched(nrow=28800,columns=['z', 'primtarget', 'plate', $
 	'fiberid', 'mjd'] )
@@ -295,7 +310,9 @@ for i=0L, n_elements(im)-1L do begin
         currx=currx+ngood
     endif
 endfor
+endif
 
+if(nswire gt 0) then begin
 ;; collect some swire photometry 
 swire=mrdfits(getenv('VAGC_REDUX')+'/spitzer/swire_catalog.fits',1)
 objects=mrdfits(getenv('VAGC_REDUX')+'/spitzer/swire_objects.fits',1)
@@ -312,24 +329,27 @@ swire_dm=lf_distmod(sp.z)
 zdist[iswire]=sp.z
 zhelio[iswire]=sp.z
 iz=long(floor((nzf-1.)*(zhelio[iswire]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
-iband=[0,1,2,3,4,20,21,22,23,24,25]
+iband=[2,3,4,5,6,20,21,22,23,24,25]
 for i=0L, n_elements(swire)-1L do begin
     datastr.rowstart[iswire[i]]=currx
     igood=where(swire_ivar[*,i] gt 0., ngood)
     datastr.nxrow[iswire[i]]=ngood
     new_xx=iz[i]+(iband[igood])*nzf+nspec
     if(keyword_set(data)) then begin
-        data=[data, swire_maggies]
-        ivar=[ivar, swire_ivar*swire_weight]
+        data=[data, swire_maggies[igood,i]]
+        ivar=[ivar, swire_ivar[igood,i]*swire_weight]
         xx=[xx, new_xx]
     endif else begin
-        data=swire_maggies
-        ivar=swire_ivar*swire_weight
+        data=swire_maggies[igood,i]
+        ivar=swire_ivar[igood,i]*swire_weight
         xx=new_xx
     endelse
+		currx=currx+ngood
 endfor
+endif
 
 
+if(ngalex gt 0) then begin
 ;; collect some galex photometry with SDSS too
 galex_objects=mrdfits(getenv('VAGC_REDUX')+'/galex/galex_objects.fits',1)
 galex=mrdfits(getenv('VAGC_REDUX')+'/galex/galex_catalog.fits',1)
@@ -425,7 +445,9 @@ for i=0L, n_elements(galex)-1L do begin
     datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+ngood
     currx=currx+ngood
 endfor
+endif
 
+if(ndeep gt 0) then begin
 ;; collect some deep photometry 
 deep=mrdfits(getenv('KCORRECT_DIR')+ $
              '/data/redshifts/deep/zcat.dr1.uniq.fits.gz',1)
@@ -504,6 +526,7 @@ for i=0L, n_elements(deep)-1L do begin
         currx=currx+1L
     endif 
 endfor
+endif
 
 hdr=['']
 sxaddpar, hdr, 'NSPEC', nspec, 'number of points in spectrum'
