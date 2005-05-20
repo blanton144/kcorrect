@@ -42,6 +42,7 @@
 pro swire_to_maggies, swire, maggies, ivar
 
 red_fac=[5.08248, 3.73964, 2.71230, 2.05665, 1.45819, 0., 0., 0., 0., 0.]
+abfix=[0.79, -0.09, 0.16, 0.39, 0.57, 0., 0. ,0., 0. ,0. ,0.]
 
 maggies=fltarr(10, n_elements(swire))
 ivar=fltarr(10, n_elements(swire))
@@ -140,6 +141,6 @@ if(ng gt 0) then begin
 endif
 
 k_minerror, maggies, ivar, replicate(0.02, 10)
-
+k_abfix, maggies, ivar, aboff=abfix
 
 end
