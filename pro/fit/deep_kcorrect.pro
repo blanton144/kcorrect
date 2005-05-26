@@ -23,6 +23,8 @@
 ;   band_shift    - blueshift of output bandpasses (to get ^{z}b
 ;                   type bands) [default 0.]
 ;   vname - name of fit to use (defaults to 'default')
+; OPTIONAL KEYWORDS:
+;   /closest - use closest bands for K-corrections
 ; OUTPUTS:
 ;   kcorrect - [3, N] K-corrections from BRI to NUV, U, and B (or NUV,
 ;              u, g if /sdss is set) satisfying
@@ -42,6 +44,7 @@
 ;   omaggies, oivar - [3, N] maggies and inverse variances used for fit
 ;                           (after extinction, AB correction, etc)
 ;                           (BRI)
+;   obands - [3, N] which input bands the K-corrections refer to 
 ; COMMENTS:
 ;   This is a simple wrapper on kcorrect.pro.  It keeps a version of
 ;   rmatrix and zvals in memory to save time, recalculating them each
@@ -68,7 +71,7 @@ function deep_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         coeffs=coeffs, rmaggies=rmaggies, omaggies=omaggies, $
                         oivar=oivar, vname=vname, mass=mass, mtol=mtol, $
                         absmag=absmag, amivar=amivar, sdss=sdss, $
-                        rmatrix=rmatrix
+                        rmatrix=rmatrix, closest=closest, obands=obands
 
 common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
   deep_rmatrix, deep_zvals
@@ -144,7 +147,23 @@ k_reconstruct_maggies,coeffs,replicate(band_shift,n_elements(redshift)), $
   reconstruct_maggies,rmatrix=out_rmatrix,zvals=out_zvals
 reconstruct_maggies=reconstruct_maggies/(1.+band_shift)
 
-kcorrect=reconstruct_maggies/rmaggies
+obands=lindgen(n_elements(out_filterlist))#replicate(1L, n_elements(redshift))
+
+if(keyword_set(closest)) then begin
+    lambda_in=k_lambda_eff(filterlist=deep_filterlist)
+    lambda_out=k_lambda_eff(filterlist=out_filterlist, band_shift=band_shift)
+    for i=0L, n_elements(redshift)-1L do begin
+        for j=0L, n_elements(lambda_out)-1L do begin
+            dmin=min(abs(lambda_in/(1.+redshift[i])-lambda_out[j]), imin)
+            obands[j, i]= imin
+        endfor
+    endfor
+endif
+
+kcorrect=fltarr(n_elements(out_filterlist), n_elements(redshift))
+for i=0L, n_elements(redshift)-1L do $
+  for j=0L, n_elements(out_filterlist)-1L do $
+  kcorrect[j,i]=reconstruct_maggies[j,i]/ rmaggies[obands[j,i],i]
 kcorrect=2.5*alog10(kcorrect)
 
 if(arg_present(omaggies) or arg_present(absmag) gt 0) then $
@@ -157,17 +176,17 @@ if(arg_present(absmag)) then begin
     amivar=fltarr(n_elements(out_filterlist), n_elements(redshift))
     for i=0L, n_elements(out_filterlist)-1L do $
       absmag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])- $
-      lf_distmod(redshift, omega0=omega0, omegal0=omegal0)- $
-      kcorrect[i,*]
+      lf_distmod(redshift, omega0=omega0, omegal0=omegal0)
     for i=0L, n_elements(out_filterlist)-1L do begin
         ig=where(oivar[i,*] gt 0. AND omaggies[i,*] gt 0., ng)
-        if(ng gt 0) then begin
-            absmag[i,ig]=-2.5*alog10(omaggies[i,ig])- $
-              lf_distmod(redshift[ig], omega0=omega0, omegal0=omegal0)- $
-              kcorrect[i,ig]
-            amivar[i,ig]=omaggies[i,ig]^2*oivar[i,ig]* $
+        for j=0L, ng-1L do begin
+            absmag[i,ig[j]]=-2.5*alog10(omaggies[obands[i,j],ig[j]])- $
+              lf_distmod(redshift[ig[j]],omega0=omega0,omegal0=omegal0)- $
+              kcorrect[i,ig[j]]
+            amivar[i,ig[j]]=omaggies[obands[i,j],ig[j]]^2* $
+              oivar[obands[i,j],ig[j]]* $
               (0.4*alog(10.))^2
-        endif 
+        endfor
     endfor
 endif
 

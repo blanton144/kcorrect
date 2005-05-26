@@ -1,4 +1,4 @@
-\documentclass[10pt]{aastex}
+\documentclass[10pt,preprint]{aastex}
 
 \newcommand{\vv}[1]{{\bf #1}}
 \newcommand{\df}{\delta}
@@ -62,28 +62,29 @@ the ultraviolet, the Sloan Digital Sky Survey in the optical, and the
 Two-Micron All Sky Survey in the near infrared, and (at higher
 redshifts) the Deep Extragalactic Evolutionary Probe 2 and the Great
 Observatories Origins Deep Survey.  However, this data comes in a
-rather heterogeneous form --- sometimes in the form of spectra,
-sometimes in the form of broad-band photometry. In addition,
-broad-band photometry suffers from two forms of heterogeneity: system
-responses differ among different surveys, and galaxies are observed at
-many different redshifts (and the system responses therefore differ
-among all galaxies in the rest frame).  How can we explore this very
-heterogeneous set of data?  Here we present an implementation of an
-algorithm for fitting star-formation histories to these data. Our
-approach is to restrict the problem by trying to explain the
-observations of each galaxy as a nonnegative linear combination of a
-small set of star-formation history templates.  The algorithm has
-almost arbitrary freedom in choosing the set of templates, but it must
-explain every galaxy in terms of a nonnegative sum of the same set.
-Our algorithm can handle whatever spectral or broad-band information
-one has on each galaxy.  The results of the algorithm have scientific
-applications --- such as exploring the star-formation histories of
-galaxies, how they vary with environment, how they correlate with
-other properties, and how they change with redshift. In addition, they
-have technical applications --- such as $K$-corrections, photometric
-redshifts, and continuum-fitting of spectra. This algorithm and its
-ilk are likely to become more and more useful as astronomers continue
-to combine large sets of inhomogeneous data.
+rather heterogeneous form --- sometimes in the form of
+spectrophotometry, sometimes in the form of broad-band photometry. In
+addition, broad-band photometry suffers from two forms of
+heterogeneity: system responses differ among different surveys, and
+galaxies are observed at many different redshifts (and the system
+responses therefore differ among all galaxies in the rest frame).  How
+can we explore this very heterogeneous set of data?  Here we present
+an implementation of an algorithm for fitting star-formation histories
+to these data. Our approach is to restrict the problem by trying to
+explain the observations of each galaxy as a nonnegative linear
+combination of a small set of star-formation history templates.  The
+algorithm has almost arbitrary freedom in choosing the set of
+templates, but it must explain every galaxy in terms of a nonnegative
+sum of the same small set.  Our algorithm can handle whatever spectral
+or broad-band information one has on each galaxy.  The results of the
+algorithm have scientific applications --- such as exploring the
+star-formation histories of galaxies, how they vary with environment,
+how they correlate with other properties, and how they change with
+redshift. In addition, they have technical applications --- such as
+$K$-corrections, photometric redshifts, and continuum-fitting of
+spectra. This algorithm and its ilk are likely to become more and more
+useful as astronomers continue to combine large sets of inhomogeneous
+data.
 \end{abstract}
 
 \keywords{galaxies: fundamental parameters --- galaxies: photometry
@@ -117,12 +118,12 @@ one object to another.
 
 On the other hand, from the spectroscopic observations we know the
 galaxy spectra reside in a low-dimensional locus. Principal Component
-Analysis (PCA) of galaxy spectra, introduced by \citet{connolly94a} and
-applied many times since then ({\bf more refs}; \citealt{yip05a}),
+Analysis (PCA) of galaxy spectra, introduced by \citet{connolly94a}
+and applied many times since then ({\bf more refs}; \citealt{yip05a}),
 demonstrates that most of the variance in the distribution of galaxies
-in spectral space can be explained using a few templates. This means,
-that in the linear space of all possible spectra, galaxies exist in
-only a small local. Therefore, even with very heterogeneous data, we
+in spectral space can be explained using a few templates. This means
+that, in the linear space of all possible spectra, galaxies exist in
+only a small locus. Therefore, even with very heterogeneous data, we
 should be able to determine the properties of this locus.
 
 Here we present an approach to combining the heterogeneous data
@@ -130,9 +131,10 @@ described above in order to determine the properties of the locus of
 galaxy spectra. Rather than taking the model-free approach used by
 PCA, we here restrict the space of possible spectra to those predicted
 from the high resolution stellar population synthesis model of
-\citet{bruzual03a}. This approach both constrains the problem
-appropriately and yields a natural theoretical interpretation of the
-results in terms of star-formation histories.
+\citet{bruzual03a} and the emission line models of {\bf mappings
+ref}.  This approach both constrains the problem appropriately and
+yields a natural theoretical interpretation of the results in terms of
+star-formation histories.
 
 In a nutshell, our algorithm does the following. Given the
 observations (and uncertainties of those observations) available for
@@ -146,11 +148,11 @@ Factorization (NMF).
 This approach is similar to PCA in that it finds the small spectral
 subspace in which galaxies exist, and can in some ways be thought of
 as ``nonnegative PCA.''  However, our method has several advantages
-over standard PCA approach. First, it has a natural physical
+over the standard PCA approach. First, it has a natural physical
 interpretation associated with that spectral subspace, which is the
 corresponding subspace of all possible star-formation
 histories. Second, it naturally handles data uncertainties and missing
-data which allows it to ignore variation which is due purely to
+data, which allows it to ignore that variation which is due purely to
 statistical errors.  Third, it handles the complications of observing
 galaxy spectra photometrically using broad-band filters.
 
@@ -193,13 +195,16 @@ Section \ref{nmf} we describe our minimization procedure.
 Our model for the star-formation history of each galaxy $i$ is a linear
 combination of $N$ templates, as follows:
 \begin{equation}
+\label{stellar}
 G_i(t, m, d) = \sum_{i=0}^{N-1} a_{ik} T_k(t, m, \tau_V).
 \end{equation}
-We restrict to nonnegative star-formation rates ($a_{ik} \ge
-0$). $T_k(t, m, \tau_V)$ is the star-formation history, described as
-the stellar mass (in solar masses) formed $t$ years ago, with
-metallicity $m$, and currently obscured by $\tau_V$ magnitudes in the
-$V$ band.
+$G_i(t, m, \tau_V)$ is the star-formation history of each galaxy $i$,
+described as the stellar mass (in solar masses) formed $t$ years ago,
+with metallicity $m$, and currently obscured by $\tau_V$ magnitudes in
+the $V$ band. $T_k(t, m, \tau_V)$ is the star-formation history of one
+of $N$ templates out of which we allow ourselves to build each
+galaxy. We restrict to nonnegative combinations of these templates
+($a_{ik} \ge 0$).
 
 Each template is in turn expressed as a linear combination of a set of
 instantaneous bursts:
@@ -208,34 +213,74 @@ T_k(t, m, d) =
 \sum_{l=0}^{N_t-1} 
 \sum_{n=0}^{N_m-1} 
 \sum_{p=0}^{N_\tau-1} 
-t_{lmn} 
+t_{k,lmn} 
 \delta^D(t-t_l)
 \delta^D(m-m_n)
 \delta^D(\tau_V-\tau_{V,p})
 \end{equation}
+That is, for each template $k$ a certain mass in stars $t_{k,lmn}$
+(expressed in solar masses) were formed time $t_l$ ago with
+metallicity $m_n$, and are at the time of observation obscured by
+$\tau_V$ magnitudes of dust in the $V$ band.
+
+As described in Section \ref{spectra}, these star-formation histories
+can be converted into spectra using population synthesis models.
+
+\subsection{Model for the ionized gas}
+
+In the optical, the other important contribution to the flux other
+than the stellar light is emission from ionized gas. Depending on how
+it is ionized and what its metallicity is, the recombination of this
+gas can yield rather different spectra. 
+
+Thus, we treat the gas as a sum of the same templates:
+\begin{equation}
+\label{emission}
+E_i(m, q) = \sum_{i=0}^{N-1} a_{ik} S_k(m, q). 
+\end{equation}
+$E_i(m, q)$ is the amount of gas in each galaxy with metallicity $m$
+and ionization parameter $q$.  $S_k(m, q)$ is the amount of such gas
+in each of our $N$ templates.  We constrain the $a_{ik}$ in this
+equation to be the same as that in Equation \ref{stellar} for the
+star-formation histories. That is, each star formation history
+templates $T_k{t, m, \tau_V}$ will be associated with the
+corresponding distribution of ionized gas $S_k(m,q)$. 
+
+Again, each template is actually a sum of delta functions:
+\begin{equation}
+S_k(m, q) = 
+\sum_{r=0}^{N_m-1} 
+\sum_{s=0}^{N_q-1} 
+t_{k,rs}'
+\delta^D(m-m_r)
+\delta^D(q-q_s)
+\end{equation}
+where for each metallicity $m_r$ and ionization parameter $q_s$ we 
+have a prediction for the emergent line fluxes, which we describe in
+Section \ref{spectra}. 
 
 
 
-\subsection{Predicted spectra from the star-formation histories}
+
+\subsection{Predicted spectra from the star-formation histories and
+ionized gas}
 \label{spectra}
 
 
 Note that we do not {\it have} to limit our spectral library to those
-predicted by star-formation histories. In fact, we can add arbitrary
-spectra in this step to account for emission lines, polycyclic
-aromatic hydrocarbon (PAH) emission, active galactic nuclei, or any
-other constituent of galaxies. 
-
-In fact, as an example of this, we here include nine emission lines:
-OII 3728 \AA; H$\beta$ 4863 \AA; OIII 4960, 5008 \AA; NII 6550, 6585
-\AA; H$\alpha$ 6565 \AA; SII 6718, 6733 (all vacuum wavelengths). We
-include each of these lines as a template with a Gaussian centered on
-the line center with a dispersion corresponding to 300 km s^{-1}.
+predicted by star-formation histories or the emission line models. In
+fact, we can add arbitrary spectra in this step to account for
+emission lines, polycyclic aromatic hydrocarbon (PAH) emission in the
+mid-infrared, active galactic nuclei in the ultraviolet, or any other
+constituent of galaxies.
 
 \subsection{Observations of the predicted spectra}
 \label{observe}
 
-\subsection{Finding the best-fit templates}
+\subsection{Summary of the problem we want to solve}
+\label{problem}
+
+\section{Non-negative matrix factorization to find the best templates}
 \label{nmf}
 
 \section{Data}
@@ -272,8 +317,8 @@ and the University of Washington.
 
 \newpage
 
-%\include{tables}
+%\include{fitting_tables}
 
-\include{figures}
+\include{fitting_figures}
 
 \end{document}
