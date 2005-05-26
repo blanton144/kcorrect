@@ -25,7 +25,11 @@ pro k_run_nmf, niter=niter, nt=nt, qa=qa, reset=reset
 if(NOT keyword_set(niter)) then niter=1000L
 if(NOT keyword_set(nt)) then nt=4
 
-mmatrix=mrdfits('k_nmf_mmatrix.fits')
+mmatrix=mrdfits('k_nmf_mmatrix.fits',0,hdr)
+nextra=long(sxpar(hdr, 'NEXTRA'))
+ndusts=long(sxpar(hdr, 'NDUST'))
+nmets=long(sxpar(hdr, 'NMET'))
+nages=long(sxpar(hdr, 'NAGE'))
 dust=mrdfits('k_nmf_mmatrix.fits',2)
 age=mrdfits('k_nmf_mmatrix.fits',4)
 datastr=mrdfits('k_nmf_spdata.fits',1)
@@ -69,6 +73,14 @@ endif else begin
 endelse
 nmf_sparse, data, data_ivar, nt, mmatrix, niter, coeffs=coeffs, $
   templates=templates
+
+
+;; normalize coeffs to unit stellar mass
+t_mass=total(templates[0:nages*nmets*ndusts-1L,*], 1)
+for i=0L, nt-1L do $
+  coeffs[i,*]=coeffs[i,*]*t_mass[i]
+for i=0L, nt-1L do $
+  templates[*,i]=templates[*,i]/t_mass[i]
 
 mwrfits, templates, 'k_nmf_soln.fits', /create
 mwrfits, coeffs, 'k_nmf_soln.fits'

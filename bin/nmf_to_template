@@ -1,0 +1,10 @@
+#!/bin/csh -f
+
+\cp k_nmf_mmatrix.fits $KCORRECT_DIR/data/templates/k_nmf_mmatrix.$1.fits
+\cp k_nmf_early.fits $KCORRECT_DIR/data/templates/k_nmf_early.$1.fits
+\cp k_nmf_rawspec.fits $KCORRECT_DIR/data/templates/k_nmf_rawspec.$1.fits
+\cp k_nmf_derived.fits $KCORRECT_DIR/data/templates/k_nmf_derived.$1.fits
+\cp k_nmf_soln.fits $KCORRECT_DIR/data/templates/k_nmf_soln.$1.fits
+\cp vmatrix.test.dat $KCORRECT_DIR/data/templates/vmatrix.$1.dat
+\cp lambda.test.dat $KCORRECT_DIR/data/templates/lambda.$1.dat
+\rm $KCORRECT_DIR/data/templates/k_nmf_spec.$1.fits

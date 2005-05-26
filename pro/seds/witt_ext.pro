@@ -39,8 +39,8 @@ if(n_elements(w_geometry) gt 0) then $
   if(w_geometry ne geometry) then w_lambda=0
 if(n_elements(w_dust) gt 0) then $
   if(w_dust ne dust) then w_lambda=0
-if(n_elements(w_dust) gt 0) then $
-  if(w_dust ne dust) then w_lambda=0
+if(n_elements(w_structure) gt 0) then $
+  if(w_structure ne structure) then w_lambda=0
 if(n_elements(w_lambda) le 1) then begin
     rootdir=getenv('KCORRECT_DIR')+'/data/dustmodels'
     k_read_ascii_table,w_lambda,rootdir+'/witt.'+geometry+'_'+dust+ $
@@ -55,10 +55,14 @@ if(n_elements(w_lambda) le 1) then begin
 endif
 
 int_tau_att=fltarr(n_elements(w_lambda))
-for i=0L, n_elements(w_lambda)-1L do begin
-    int_tau_att[i]=interpol(w_tau_att[i,*],w_tauv,tauv)
-endfor
-tau_att=interpol(int_tau_att,w_lambda,lambda)
+for i=0L, n_elements(w_lambda)-1L do $
+  int_tau_att[i]=interpol(w_tau_att[i,*],w_tauv,tauv)
+int_tau_att=[int_tau_att[0], int_tau_att[0], int_tau_att, $
+             int_tau_att[n_elements(int_tau_att)-1L], $
+             int_tau_att[n_elements(int_tau_att)-1L]]
+int_lambda=[0., w_lambda[0], w_lambda, $
+            w_lambda[n_elements(w_lambda)-1], 1.e+9]
+tau_att=interpol(int_tau_att,int_lambda,lambda)
 
 return,tau_att
 

@@ -16,6 +16,7 @@
 ; OPTIONAL KEYWORDS:
 ;   usevdisp - use correct vdisp for fit 
 ;   nolines - output model without lines
+;   plot - splot the results
 ; OUTPUTS:
 ;   coeffs - coefficients fit to each template 
 ;   model - model spectrum
@@ -39,7 +40,7 @@ pro fit_sdss_fiber, in_plate, in_fiberid, mjd=in_mjd, slist=slist, $
                     model=model, coeffs=coeffs, vname=vname, $
                     usevdisp=usevdisp, flux=flux, ivar=ivar, loglam=loglam, $
                     cmodel=cmodel, age=age, mass=mass, b300=b300, $
-                    metallicity=metallicity, nolines=nolines
+                    metallicity=metallicity, nolines=nolines, plot=plot
                     
 
 if(n_tags(slist) gt 0) then begin
@@ -66,7 +67,7 @@ k_reconstruct_spec, coeffs, loglam, vname=vname, age=age, $
   metallicity=metallicity, mass=mass, b300=b300, nolines=nolines
 if(arg_present(mass)) then $
   mass=mass*10.^(0.4*lf_distmod(zans.z))
-if(arg_present(model)) then $
+if(arg_present(model) gt 0 or keyword_set(plot) gt 0) then $
   k_reconstruct_spec, coeffs, loglam, model, vname=vname, nolines=nolines
 if(arg_present(cmodel)) then begin
     k_reconstruct_spec, coeffs, loglam, cmodel, vname=vname, /nolines
@@ -76,6 +77,11 @@ if(arg_present(cmodel)) then begin
     dloglam=loglam[1]-loglam[0]
     diff=djs_median(cflux/cmodel, width=long(0.02/dloglam))
     cmodel=cmodel*diff
+endif
+
+if(keyword_set(plot)) then begin
+    splot, 10.^loglam, flux
+    soplot, 10.^loglam, model, color='red'
 endif
 
 end

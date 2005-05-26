@@ -14,15 +14,28 @@ pro k_sdss_tests_main, vname=vname
 im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1,nrow=28800)
 sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,nrow=28800,columns='z')
 
-ii=where((im.vagc_select and 4) gt 0)
+ii=where((im.vagc_select and 4) gt 0 and sp.z gt 0.01 and sp.z lt 0.4)
+im=im[ii]
+sp=sp[ii]
+ii=shuffle_indx(n_elements(sp), num_sub=10000)
 im=im[ii]
 sp=sp[ii]
 kc=sdss_kcorrect(sp.z, calibobj=im, band_shift=0.1, rmaggies=rmaggies, $
-                 omaggies=omaggies, oivar=oivar, vname=vname)
+                 omaggies=omaggies, oivar=oivar, vname=vname, $
+                 absmag=absmag, mtol=mtol)
 cresid=fltarr(4, n_elements(sp))
 for i=0L, 3L do $
   cresid[i,*]=(-2.5*alog10(rmaggies[i,*]/rmaggies[i+1,*]))- $
   (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
+
+k_print, filename='sdss_mtol_main.ps', pold=pold, xold=xold, yold=yold, $
+  axis_char_scale=1.1
+!P.MULTI=[0,1,1]
+hogg_usersym, 10, /fill
+djs_plot, absmag[1,*]-absmag[2,*], alog10(mtol[2,*]), psym=8, symsize=0.4, $
+  xra=[0.01,1.19]
+k_end_print, pold=pold, xold=xold, yold=yold
+stop
 
 k_print, filename='sdss_resid_main.ps', $
   pold=pold, xold=xold, yold=yold, $

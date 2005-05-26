@@ -105,7 +105,7 @@ set_print, filename='k_qa_nmf.ps'
 
 ;; for each template, show the spectrum (full and just optical)
 !P.MULTI=[0, 1, 2]
-tspec=mmatrix#templates
+tspec=outvmatrix
 for i=0L, nt-1L do begin
     djs_plot, lambda[0:nspec-1], tspec[*,i], /xlog, /ylog
     il=where(lambda[0:nspec-1] gt 3000. and lambda[0:nspec-1] lt 8500., nl)
@@ -141,9 +141,9 @@ for i=0L, nt-1L do begin
 endfor
 
 ;; derived quantities
-stmass=total(coeffs,1)
-age=(t_age#coeffs)/stmass
-metallicity=(t_metallicity#coeffs)/stmass
+stmass=transpose(t_mass#coeffs)
+age=((t_mass*t_age)#coeffs)/stmass
+metallicity=((t_mass*t_metallicity)#coeffs)/stmass
 !P.MULTI=[0,1,2]
 djs_plot, stmass, metallicity, psym=4, xtitle='stellar mass (M_\odot)', $
   ytitle='metallicity',/xlog, xcharsize=0.0001

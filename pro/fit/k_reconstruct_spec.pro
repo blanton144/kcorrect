@@ -72,6 +72,8 @@ if(newname) then begin
         spec=mrdfits(getenv('KCORRECT_DIR')+'/data/templates/k_nmf_mmatrix.'+ $
                      vname+'.fits', 0, hdr)
         nextra=long(sxpar(hdr,'NEXTRA'))
+        if(nextra eq 0) then $
+          nextra=long(sxpar(hdr,'NEL'))
         nspec=long(sxpar(hdr,'NSPEC'))
         ndusts=long(sxpar(hdr, 'NDUST'))
         nmets=long(sxpar(hdr, 'NMET'))
