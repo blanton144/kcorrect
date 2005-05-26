@@ -20,6 +20,20 @@ sp=sp[ii]
 ii=shuffle_indx(n_elements(sp), num_sub=10000)
 im=im[ii]
 sp=sp[ii]
+
+kcb=sdss2bessell(sp.z, calibobj=im, band_shift=0.0, rmaggies=rmaggies, $
+                 omaggies=omaggies, oivar=oivar, vname=vname, $
+                 absmag=absmag, mtol=mtol, /vega)
+k_print, filename='sdss_mtol_main.ps', pold=pold, xold=xold, yold=yold, $
+  axis_char_scale=1.1
+!P.MULTI=[0,1,1]
+hogg_usersym, 10, /fill
+djs_plot, absmag[1,*]-absmag[3,*], alog10(mtol[3,*]), psym=8, symsize=0.4, $
+  xra=[0.01,1.79],yra=[-0.59, 0.89], xtitle='!8B-R!6', ytitle='(M/L)(R)'
+djs_oplot, [0.4,1.6], -0.82+0.85*[0.4,1.6], th=4, color='red'
+djs_oplot, [0.4,1.6], 0.4-0.82+0.85*[0.4,1.6], th=4, color='red'
+k_end_print, pold=pold, xold=xold, yold=yold
+
 kc=sdss_kcorrect(sp.z, calibobj=im, band_shift=0.1, rmaggies=rmaggies, $
                  omaggies=omaggies, oivar=oivar, vname=vname, $
                  absmag=absmag, mtol=mtol)
@@ -27,15 +41,6 @@ cresid=fltarr(4, n_elements(sp))
 for i=0L, 3L do $
   cresid[i,*]=(-2.5*alog10(rmaggies[i,*]/rmaggies[i+1,*]))- $
   (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
-
-k_print, filename='sdss_mtol_main.ps', pold=pold, xold=xold, yold=yold, $
-  axis_char_scale=1.1
-!P.MULTI=[0,1,1]
-hogg_usersym, 10, /fill
-djs_plot, absmag[1,*]-absmag[2,*], alog10(mtol[2,*]), psym=8, symsize=0.4, $
-  xra=[0.01,1.19]
-k_end_print, pold=pold, xold=xold, yold=yold
-stop
 
 k_print, filename='sdss_resid_main.ps', $
   pold=pold, xold=xold, yold=yold, $

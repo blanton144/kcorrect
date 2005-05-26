@@ -117,15 +117,18 @@ if(nswire gt 0) then begin
     swire=swire[ired]
     objects=objects[ired]
     sp=sp[ired]
+    im=im[ired]
 
     ;; limit number 
     indx_s=shuffle_indx(n_elements(swire), num_sub=nswire, seed=seed)
     swire=swire[indx_s]
     sp=sp[indx_s]
+    im=im[indx_s]
     objects=objects[indx_s]
     swire_to_maggies, swire, swire_maggies, swire_ivar
-    swire_ivar[0,*]=0.
-    swire_ivar[4,*]=0.
+    sdss_to_maggies, sdss_maggies, sdss_ivar, calibobj=im
+    swire_maggies[0:4,*]=sdss_maggies
+    swire_ivar[0:4,*]=sdss_ivar
     swire_dm=lf_distmod(sp.z)
     zdist[iswire]=sp.z
     zhelio[iswire]=sp.z

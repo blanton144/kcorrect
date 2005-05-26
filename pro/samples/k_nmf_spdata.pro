@@ -69,7 +69,7 @@ if(NOT keyword_set(velmodtype)) then velmodtype='sigv150'
 seed=seed1
 
 ;; relative weights
-galex_weight=1000.0
+galex_weight=50.0
 sdss_spec_weight=0.003
 sdss_photo_weight=1.0
 lrg_spec_weight=0.003
@@ -138,6 +138,97 @@ ivar=0
 xx=0
 zdist=fltarr(ntotal)
 zhelio=fltarr(ntotal)
+
+if(ngalex gt 0) then begin
+;; collect some galex photometry with SDSS too
+    galex_objects=mrdfits(getenv('VAGC_REDUX')+'/galex/galex_objects.fits',1)
+    galex=mrdfits(getenv('VAGC_REDUX')+'/galex/galex_catalog.fits',1)
+    imatched=where(galex_objects.object_tag ge 0)
+    galex_objects=galex_objects[imatched]
+    galex=galex[imatched]
+    galex_lss=mrdfits(vagc_name('lss_index', sample=sample), 1, $
+                      row=galex_objects.object_position)
+    igot=where(galex_lss.ztype gt 0 and $
+               galex_lss.z gt 0.01 and $
+               galex_lss.z lt 0.30)
+    galex_lss=galex_lss[igot]
+    galex_objects=galex_objects[igot]
+    galex=galex[igot]
+    indx_galex=shuffle_indx(n_elements(galex), num_sub=ngalex, seed=seed)
+    galex=galex[indx_galex]
+    galex_objects=galex_objects[indx_galex]
+    galex_lss=galex_lss[indx_galex]
+    galex_vmod=mrdfits(getenv('VAGC_REDUX')+'/velmod_distance/distance_'+ $
+                       velmodtype+'.fits',1, row=galex_objects.object_position)
+    galex_dm=lf_distmod(galex_vmod.zdist)
+    galex_sdss=imfull[galex_objects.object_position]
+    sdss_to_maggies, sdss_maggies, sdss_ivar, calibobj=galex_sdss, flux=flux
+    zdist[igalex]=galex_vmod.zdist
+    zhelio[igalex]=galex_vmod.zact
+    iz=long(floor((nzf-1.)*(zhelio[igalex]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
+    for i=0L, n_elements(galex)-1L do begin
+        datastr.rowstart[igalex[i]]=currx
+
+        if(galex[i].fuv_mag ne -999. AND galex[i].fuv_mag ne -99.) then begin
+            datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+1L
+            maggies=10.^(-0.4*(galex[i].fuv_mag-galex[i].fuv_extinction- $
+                               galex_dm[i]))
+            maggies_ivar= $
+              1./((galex[i].fuv_magerr^2+0.02^2)* $
+                  (0.4*alog(10.)*maggies)^2)
+            new_xx=iz[i]+(0L)*nzf+nspec
+            if(keyword_set(data)) then begin
+                data=[data, maggies]
+                ivar=[ivar, maggies_ivar*galex_weight]
+                xx=[xx, new_xx]
+            endif else begin
+                data=maggies
+                ivar=maggies_ivar*galex_weight
+                xx=new_xx
+            endelse
+            currx=currx+1L
+        endif 
+
+        if(galex[i].nuv_mag ne -999. AND galex[i].nuv_mag ne -99.) then begin
+            datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+1L
+            maggies=10.^(-0.4*(galex[i].nuv_mag-galex[i].nuv_extinction- $
+                               galex_dm[i]))
+            maggies_ivar= $
+              1./((galex[i].nuv_magerr^2+0.02^2)* $
+                  (0.4*alog(10.)*maggies)^2)
+            new_xx=iz[i]+(1L)*nzf+nspec
+            if(keyword_set(data)) then begin
+                data=[data, maggies]
+                ivar=[ivar, maggies_ivar*galex_weight]
+                xx=[xx, new_xx]
+            endif else begin
+                data=maggies
+                ivar=maggies_ivar*galex_weight
+                xx=new_xx
+            endelse
+            currx=currx+1L
+        endif 
+
+        if(keyword_set(galexblue)) then $
+          igood=where(sdss_maggies[0:1,i] gt 0., ngood) $
+        else $
+          igood=where(sdss_maggies[*,i] gt 0., ngood) 
+        new_data=sdss_maggies[igood,i]*10.^(0.4*galex_dm[i])
+        new_ivar=sdss_ivar[igood,i]*sdss_photo_weight*10.^(-0.8*galex_dm[i])
+        new_xx=iz[i]+(igood+2L)*nzf+nspec
+        if(keyword_set(data)) then begin
+            data=[data, new_data]
+            ivar=[ivar, new_ivar]
+            xx=[xx, new_xx]
+        endif else begin
+            data=new_data
+            ivar=new_ivar
+            xx=new_xx
+        endelse
+        datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+ngood
+        currx=currx+ngood
+    endfor
+endif
 
 ;; collect some goods photometry
 if(ngoods gt 0) then begin
@@ -389,97 +480,6 @@ if(nswire gt 0) then begin
     endfor
 endif
 
-
-if(ngalex gt 0) then begin
-;; collect some galex photometry with SDSS too
-    galex_objects=mrdfits(getenv('VAGC_REDUX')+'/galex/galex_objects.fits',1)
-    galex=mrdfits(getenv('VAGC_REDUX')+'/galex/galex_catalog.fits',1)
-    imatched=where(galex_objects.object_tag ge 0)
-    galex_objects=galex_objects[imatched]
-    galex=galex[imatched]
-    galex_lss=mrdfits(vagc_name('lss_index', sample=sample), 1, $
-                      row=galex_objects.object_position)
-    igot=where(galex_lss.ztype gt 0 and $
-               galex_lss.z gt 0.01 and $
-               galex_lss.z lt 0.30)
-    galex_lss=galex_lss[igot]
-    galex_objects=galex_objects[igot]
-    galex=galex[igot]
-    indx_galex=shuffle_indx(n_elements(galex), num_sub=ngalex, seed=seed)
-    galex=galex[indx_galex]
-    galex_objects=galex_objects[indx_galex]
-    galex_lss=galex_lss[indx_galex]
-    galex_vmod=mrdfits(getenv('VAGC_REDUX')+'/velmod_distance/distance_'+ $
-                       velmodtype+'.fits',1, row=galex_objects.object_position)
-    galex_dm=lf_distmod(galex_vmod.zdist)
-    galex_sdss=imfull[galex_objects.object_position]
-    sdss_to_maggies, sdss_maggies, sdss_ivar, calibobj=galex_sdss, flux=flux
-    zdist[igalex]=galex_vmod.zdist
-    zhelio[igalex]=galex_vmod.zact
-    iz=long(floor((nzf-1.)*(zhelio[igalex]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
-    for i=0L, n_elements(galex)-1L do begin
-        datastr.rowstart[igalex[i]]=currx
-
-        if(galex[i].fuv_mag ne -999. AND galex[i].fuv_mag ne -99.) then begin
-            datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+1L
-            maggies=10.^(-0.4*(galex[i].fuv_mag-galex[i].fuv_extinction- $
-                               galex_dm[i]))
-            maggies_ivar= $
-              1./((galex[i].fuv_magerr^2+0.02^2)* $
-                  (0.4*alog(10.)*maggies)^2)
-            new_xx=iz[i]+(0L)*nzf+nspec
-            if(keyword_set(data)) then begin
-                data=[data, maggies]
-                ivar=[ivar, maggies_ivar*galex_weight]
-                xx=[xx, new_xx]
-            endif else begin
-                data=maggies
-                ivar=maggies_ivar*galex_weight
-                xx=new_xx
-            endelse
-            currx=currx+1L
-        endif 
-
-        if(galex[i].nuv_mag ne -999. AND galex[i].nuv_mag ne -99.) then begin
-            datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+1L
-            maggies=10.^(-0.4*(galex[i].nuv_mag-galex[i].nuv_extinction- $
-                               galex_dm[i]))
-            maggies_ivar= $
-              1./((galex[i].nuv_magerr^2+0.02^2)* $
-                  (0.4*alog(10.)*maggies)^2)
-            new_xx=iz[i]+(1L)*nzf+nspec
-            if(keyword_set(data)) then begin
-                data=[data, maggies]
-                ivar=[ivar, maggies_ivar*galex_weight]
-                xx=[xx, new_xx]
-            endif else begin
-                data=maggies
-                ivar=maggies_ivar*galex_weight
-                xx=new_xx
-            endelse
-            currx=currx+1L
-        endif 
-
-        if(keyword_set(galexblue)) then $
-          igood=where(sdss_maggies[0:1,i] gt 0., ngood) $
-        else $
-          igood=where(sdss_maggies[*,i] gt 0., ngood) 
-        new_data=sdss_maggies[igood,i]*10.^(0.4*galex_dm[i])
-        new_ivar=sdss_ivar[igood,i]*sdss_photo_weight*10.^(-0.8*galex_dm[i])
-        new_xx=iz[i]+(igood+2L)*nzf+nspec
-        if(keyword_set(data)) then begin
-            data=[data, new_data]
-            ivar=[ivar, new_ivar]
-            xx=[xx, new_xx]
-        endif else begin
-            data=new_data
-            ivar=new_ivar
-            xx=new_xx
-        endelse
-        datastr.nxrow[igalex[i]]=datastr.nxrow[igalex[i]]+ngood
-        currx=currx+ngood
-    endfor
-endif
 
 if(ndeep gt 0) then begin
 ;; collect some deep photometry 

@@ -141,9 +141,15 @@ if(keyword_set(vega)) then begin
         ;; you need to convert FROM AB TO VEGA. the K-correction is
         ;; M=m-DM-K, so adding v2ab to K makes M=m-DM-K-v2ab,
         ;; equivalent to M=m-DM-K+ab2v
-        kcorrect[i,*]=kcorrect[i,*]+v2ab 
+        kcorrect[i,*]=kcorrect[i,*]+v2ab[0]
     endfor
 endif
+
+smaggies=10.^(-0.4*k_solar_magnitudes(filterlist=filterlist))
+mtol=fltarr(n_elements(filterlist), n_elements(redshift))
+mm=total(coeffs,1)
+for i=0L, n_elements(filterlist)-1L do $
+  mtol[i,*]=mm/reconstruct_maggies[i,*]*smaggies[i]
 
 if(arg_present(absmag)) then begin
     absmag=fltarr(n_elements(filterlist), n_elements(redshift))
@@ -151,6 +157,13 @@ if(arg_present(absmag)) then begin
     for i=0L, n_elements(filterlist)-1L do $
       absmag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])- $
       lf_distmod(redshift, omega0=omega0, omegal0=omegal0)
+    if(keyword_set(vega)) then begin
+        for i=0L, n_elements(filterlist)-1L do begin
+            v2ab=k_vega2ab(filterlist=filterlist[i], /kurucz, $
+                           band_shift=band_shift)
+            absmag[i,*]=absmag[i,*]-v2ab[0]
+        endfor
+    endif
     for i=0L, n_elements(filterlist)-1L do begin
         ig=where(oivar[i,*] gt 0. AND omaggies[i,*] gt 0., ng)
         if(ng gt 0) then begin
