@@ -5,7 +5,7 @@
 ;   Given a set of AB maggies, returns the K-correction for each band.
 ; CALLING SEQUENCE:
 ;   kcorrect, maggies, maggies_ivar, redshift, kcorrect [ , $
-;        band_shift=, /magnitude, /stddev, lfile=, $
+;        band_shift=, /magnitude, /stddev, lfile=, absmag=, $
 ;        vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $
 ;        zvals=, lambda=, vmatrix=, /sdssfix, /abfix, minerrors=, $
 ;        coeffs=, chi2=, maxiter=, zmin=, zmax=, nz=, /verbose ]
@@ -35,6 +35,8 @@
 ;   filterpath    - path to filters [default $KCORRECT_DIR/data/filters]
 ;   /verbose      - call k_fit_nonneg verbosely
 ;   maxiter       - maximum number of iterations for fit [default 3000]
+;   omega0, omegal0 - cosmological parameters for calculating distance
+;                     moduli [default 0.3, 0.7]
 ; DEPRECATED INPUTS:
 ;   /abfix        - uses k_abfix to fix input SDSS maggies to AB
 ;                   (better to just call with 'sdss_kcorrect')
@@ -104,15 +106,11 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               chi2=chi2, maxiter=maxiter, verbose=verbose, nz=nz, $
               zmin=zmin, zmax=zmax, abfix=abfix, minerrors=minerrors, $
               rmaggies=rmaggies, mass=mass, mtol=mtol, vname=vname, $
-              absmag=absmag, amivar=amivar
+              absmag=absmag, amivar=amivar, omega0=omega0, omegal0=omegal0
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
-    print, 'Syntax - kcorrect, maggies, maggies_ivar, redshift, kcorrect [ , $'
-    print, '             band_shift=, /magnitude, /stddev, lfile=, $'
-    print, '             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $'
-    print, '             zvals=, zmin=, zmax= lambda=, vmatrix=, coeffs=, $'
-    print, '             /verbose, /sdssfix, /abfix, mass=, mtol=]'
+    doc_library, 'kcorrect'
     return
 endif
 
@@ -178,7 +176,8 @@ reconstruct_maggies=reconstruct_maggies/(1.+band_shift)
 k_reconstruct_maggies,coeffs,redshift,rmaggies,rmatrix=rmatrix,zvals=zvals
 
 if(arg_present(mass)) then $
-  mass=total(coeffs,1)*10.^(0.4*lf_distmod(redshift))
+  mass=total(coeffs,1)*10.^(0.4*lf_distmod(redshift, omega0=omega0, $
+                                           omegal0=omegal0))
 smaggies=10.^(-0.4*k_solar_magnitudes(filterlist=filterlist))
 mtol=fltarr(n_elements(filterlist), n_elements(redshift))
 mm=total(coeffs,1)
@@ -193,12 +192,14 @@ if(arg_present(absmag)) then begin
     absmag=fltarr(n_elements(filterlist), n_elements(redshift))
     amivar=fltarr(n_elements(filterlist), n_elements(redshift))
     for i=0L, n_elements(filterlist)-1L do $
-      absmag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])-lf_distmod(redshift)
+      absmag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])- $
+      lf_distmod(redshift, omega0=omega0,omegal0=omegal0)
     for i=0L, n_elements(filterlist)-1L do begin
         ig=where(use_maggies_ivar[i,*] gt 0. AND use_maggies[i,*] gt 0., ng)
         if(ng gt 0) then begin
             absmag[i,ig]=-2.5*alog10(use_maggies[i,ig])- $
-              lf_distmod(redshift[ig])-kcorrect[i,ig]
+              lf_distmod(redshift[ig], omega0=omega0, omegal0=omegal0)- $
+              kcorrect[i,ig]
             amivar[i,ig]=use_maggies[i,ig]^2*use_maggies_ivar[i,ig]* $
               (0.4*alog(10.))^2
         endif 

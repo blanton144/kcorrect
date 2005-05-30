@@ -5,25 +5,48 @@
 ;   runs tests on 2MASS+SDSS test data
 ; CALLING SEQUENCE:
 ;   k_twomass_tests
+; DATA DEPENDENCIES:
+;   $KCORRECT_DIR/data/test/twomass_tests.fits (builds if not there)
 ; REVISION HISTORY:
 ;   2005-04-07 MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
 pro k_twomass_tests, vname=vname
 
-twomass=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_twomass.fits',1, $
-                     nrow=28800)
-im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)
-sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,columns='z', nrow=28800)
+twomassfile=getenv('KCORRECT_DIR')+'/data/test/twomass_tests.fits'
+if(NOT file_test(twomassfile)) then begin
+    twomass=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_twomass.fits',1, $
+                         nrow=28800)
+    im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)
+    sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,columns='z', nrow=28800)
+    
+    ii=where(twomass.twomass_tag ge 0 AND sp.z gt 0.01 AND sp.z lt 0.3)
+    sp=sp[ii]
+    im=im[ii]
+    twomass=twomass[ii]
 
-ii=where(twomass.twomass_tag ge 0 AND sp.z gt 0.01 AND sp.z lt 0.3)
-sp=sp[ii]
-im=im[ii]
-twomass=twomass[ii]
+    if(nii gt 100000) then begin
+        ii=shuffle_indx(n_elements(twomass), num_sub=10000)
+        sp=sp[ii]
+        im=im[ii]
+        twomass=twomass[ii]
+    endif
 
-kc1=twomass_kcorrect(sp.z, calibobj=im, band_shift=0.1, rmaggies=rmaggies1, $
+    cat1=create_struct(im[0], sp[0], $
+                       struct_trimtags(twomass[0], select_tags='*', $
+                                       except_tags='ra'))
+    cat=replicate(cat1, n_elements(im))
+    struct_assign, sp, cat
+    struct_assign, im, cat, /nozero
+    struct_assign, twomass, cat, /nozero
+    mwrfits, cat, twomassfile, /create
+endif else begin
+    cat=mrdfits(twomassfile,1)
+endelse
+    
+kc1=twomass_kcorrect(cat.z, calibobj=cat, band_shift=0.1, rmaggies=rmaggies1, $
                      vname=vname)
-kc0=twomass_kcorrect(sp.z, twomass=twomass, calibobj=im, band_shift=0.1, $
+kc0=twomass_kcorrect(cat.z, twomass=cat, calibobj=cat, band_shift=0.1, $
                      rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar, $
                      vname=vname)
 
@@ -116,17 +139,17 @@ endfor
 k_end_print, pold=pold, xold=xold, yold=yold
 
 dm=lf_distmod(sp.z)
-absm=22.5-2.5*alog10(im.petroflux[2])-im.extinction[2]-dm-kc1[2,*]
-mag=22.5-2.5*alog10(im.petroflux[2])-im.extinction[2]
+absm=22.5-2.5*alog10(cat.petroflux[2])-cat.extinction[2]-dm-kc1[2,*]
+mag=22.5-2.5*alog10(cat.petroflux[2])-cat.extinction[2]
 ii=where(sp.z gt 0.05 and sp.z lt 0.17 and $
          absm gt -21.5 and absm lt -21.2 and $
-         (im.vagc_select and 4) gt 0 and mag lt 17.6)
+         (cat.vagc_select and 4) gt 0 and mag lt 17.6)
 help,ii
 absmag=fltarr(8,n_elements(ii))
 for i=0,7 do $
   absmag[i,*]=-2.5*alog10(omaggies[i,ii])-dm[ii]-kc0[i,ii]
 
-k_print, filename='galex_colors_main.ps', pold=pold, xold=xold, yold=yold, $
+k_print, filename='twomass_colors_main.ps', pold=pold, xold=xold, yold=yold, $
   axis_char_scale=2.4
 
 !X.MARGIN=[0,2]
@@ -163,8 +186,5 @@ axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
 endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
-
-save
-stop
 
 end

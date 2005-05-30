@@ -15,6 +15,9 @@
 ;      does own corrections, runs kcorrect, evaluates chi2
 ;      compares these two
 ;   Compares all four of the above results.
+; DATA DEPENDENCIES:
+;   $KCORRECT_DIR/data/test/obj_test.fits    (calibObj version)
+;   $KCORRECT_DIR/data/test/spobj_test.fits  (tsObj version)
 ; REVISION HISTORY:
 ;   2005-04-07 MRB, NYU
 ;-
@@ -55,6 +58,6 @@ for i=0L, 4L do begin
       xra=[0.01, 0.4]
 endfor
 
-	k_end_print, xold=xold, yold=yold, pold=pold
+k_end_print, xold=xold, yold=yold, pold=pold
 
 end

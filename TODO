@@ -1,42 +1,5 @@
-test SDSS data:
-   compare all versions of photometry XX
-   check volume limited sample consistency XX
-   make residual plots vs redshift XX
-   plot actual K-corrections XX
-test GALEX data:
-   make galex_kcorrect XX
-   make residual plots XX 
-   check volume limited sample consistency XX
-   test predictability of GALEX fluxes XX
-   plot actual K-corrections XX
-test 2MASS data:
-   make twomass_kcorrect XX
-   make residual plots XX 
-   check volume limited sample consistency XX 
-   test predictability of 2MASS fluxes XX 
-   plot actual K-corrections XX
-test SDSS spectroscopy
-   code to fit single, aligned spectrum XX
-   code to fit an sdss fiber XX
-   median smooth differences  XX
-   make sdss_continuum XX
-   measure D4000 (on spectrum and model) XX
-   measure Hbeta absorption(?) (on spectrum and model) XX
-make templates plot XX
-make deep_kcorrect use closest band
-   
-check consistency of fit across redshiift at low z
-check predictability of FNKs
-get test data:
-   deep subsample
-   galex subsample
-   galex+SDSS subsample
-   twomass+SDSS subsample
-   synthesized across all z?
-
-new docs:
-  which calib for eisenstein k_sdssfix
-  clarify issue with color edges
-  how to calculate corrections from one band to another using
-   reconstruct_maggies
-  
+make test GALEX+SDSS data
+make test TWOMASS+SDSS data
+make test SDSS data
+make test GST data
+make test SWIRE data

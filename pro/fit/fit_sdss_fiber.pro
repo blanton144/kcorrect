@@ -13,6 +13,8 @@
 ;           and .MJD
 ; OPTIONAL INPUTS:
 ;   vname - name of fit to use (default 'default')
+;   omega0, omegal0 - cosmological parameters for calculating distance
+;                     moduli [default 0.3, 0.7]
 ; OPTIONAL KEYWORDS:
 ;   usevdisp - use correct vdisp for fit 
 ;   nolines - output model without lines
@@ -40,7 +42,8 @@ pro fit_sdss_fiber, in_plate, in_fiberid, mjd=in_mjd, slist=slist, $
                     model=model, coeffs=coeffs, vname=vname, $
                     usevdisp=usevdisp, flux=flux, ivar=ivar, loglam=loglam, $
                     cmodel=cmodel, age=age, mass=mass, b300=b300, $
-                    metallicity=metallicity, nolines=nolines, plot=plot
+                    metallicity=metallicity, nolines=nolines, plot=plot, $
+                    omega0=omega0, omegal0=omegal0
                     
 
 if(n_tags(slist) gt 0) then begin
@@ -66,7 +69,7 @@ k_fit_spec, flux, ivar, coeffs, vname=vname, vdisp=vdisp, templates=templates
 k_reconstruct_spec, coeffs, loglam, vname=vname, age=age, $
   metallicity=metallicity, mass=mass, b300=b300, nolines=nolines
 if(arg_present(mass)) then $
-  mass=mass*10.^(0.4*lf_distmod(zans.z))
+  mass=mass*10.^(0.4*lf_distmod(zans.z, omega0=omega0, omegal0=omegal0))
 if(arg_present(model) gt 0 or keyword_set(plot) gt 0) then $
   k_reconstruct_spec, coeffs, loglam, model, vname=vname, nolines=nolines
 if(arg_present(cmodel)) then begin

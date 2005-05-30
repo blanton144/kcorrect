@@ -5,37 +5,105 @@
 ;   runs tests on GALEX+SDSS test data
 ; CALLING SEQUENCE:
 ;   k_galex_tests
+; DATA DEPENDENCIES:
+;   $KCORRECT_DIR/data/test/galex_tests.fits (builds if not there)
 ; REVISION HISTORY:
 ;   2005-04-07 MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
 pro k_galex_tests, vname=vname
 
-galex=hogg_mrdfits(getenv('VAGC_REDUX')+'/galex/galex_catalog.fits', 1, $
-                   nrow=28800)
-objs=hogg_mrdfits(getenv('VAGC_REDUX')+'/galex/galex_objects.fits', 1, $
-                  nrow=28800)
-ii=where(objs.object_position ge 0)
-galex=galex[ii]
-objs=objs[ii]
-im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)
-im=im[objs.object_position]
-sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,columns='z', nrow=28800)
-sp=sp[objs.object_position]
+galexfile=getenv('KCORRECT_DIR')+'/data/test/galex_tests.fits'
+if(NOT file_test(galexfile)) then begin
+    galex=hogg_mrdfits(getenv('VAGC_REDUX')+'/galex/galex_catalog.fits', 1, $
+                       nrow=28800)
+    objs=hogg_mrdfits(getenv('VAGC_REDUX')+'/galex/galex_objects.fits', 1, $
+                      nrow=28800)
+    ii=where(objs.object_position ge 0)
+    galex=galex[ii]
+    objs=objs[ii]
+    im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)
+    im=im[objs.object_position]
+    sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,columns='z', nrow=28800)
+    sp=sp[objs.object_position]
+    
+    ii=where(sp.z gt 0.01 and sp.z lt 0.3)
+    sp=sp[ii]
+    im=im[ii]
+    galex=galex[ii]
+    objs=objs[ii]
 
-ii=where(sp.z gt 0.01 and sp.z lt 0.3)
-sp=sp[ii]
-im=im[ii]
-galex=galex[ii]
-objs=objs[ii]
+    ii=shuffle_indx(n_elements(galex), num_sub=10000)
+    sp=sp[ii]
+    im=im[ii]
+    galex=galex[ii]
+    objs=objs[ii]
 
-kc1=galex_kcorrect(sp.z, calibobj=im, band_shift=0.1, rmaggies=rmaggies1, $
+    cat1=create_struct(im[0], $
+                       sp[0], $
+                       struct_trimtags(galex[0], select_tags='*', $
+                                       except_tags='id'))
+    cat=replicate(cat1, n_elements(im))
+    struct_assign, sp, cat
+    struct_assign, im, cat, /nozero
+    struct_assign, galex, cat, /nozero
+    mwrfits, cat, galexfile, /create
+endif else begin
+    cat=mrdfits(galexfile,1)
+endelse
+
+vlimfile=getenv('KCORRECT_DIR')+'/data/test/galex_tests_vlim.fits'
+if(NOT file_test(vlimfile)) then begin
+    galex=hogg_mrdfits(getenv('VAGC_REDUX')+'/galex/galex_catalog.fits', 1, $
+                       nrow=28800)
+    objs=hogg_mrdfits(getenv('VAGC_REDUX')+'/galex/galex_objects.fits', 1, $
+                      nrow=28800)
+    ii=where(objs.object_position ge 0)
+    galex=galex[ii]
+    objs=objs[ii]
+    im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)
+    im=im[objs.object_position]
+    kc=hogg_mrdfits(vagc_name('kcorrect',flux='petro',collision='none', $
+                              band_shift='0.10'),1, nrow=28800)
+    kc=kc[objs.object_position]
+    
+    mag=22.5-2.5*alog10(im.petroflux[2])-im.extinction[2]
+    ii=where(kc.z gt 0.05 and kc.z lt 0.17 and $
+             kc.absmag[2] gt -21.5 and kc.absmag[2] lt -21.2 and $
+             (im.vagc_select and 4) gt 0 and mag lt 17.6)
+    help,ii
+    
+    if(n_elements(ii) gt 10000) then begin
+        ii=shuffle_indx(n_elements(galex), num_sub=10000)
+        kc=kc[ii]
+        im=im[ii]
+        galex=galex[ii]
+        objs=objs[ii]
+    endif
+
+    vlim1=create_struct(im[0], $
+                        struct_trimtags(kc[0], select_tags='*', $
+                                        except_tags=['ra', $
+                                                     'dec']), $
+                        struct_trimtags(galex[0], select_tags='*', $
+                                        except_tags='id'))
+    vlim=replicate(vlim1, n_elements(im))
+    struct_assign, im, cat
+    struct_assign, kc, cat, /nozero
+    struct_assign, galex, cat, /nozero
+    mwrfits, vlim, vlimfile, /create
+endif else begin
+    vlim=mrdfits(vlimfile,1)
+endelse
+
+
+kc1=galex_kcorrect(cat.z, calibobj=cat, band_shift=0.1, rmaggies=rmaggies1, $
                    vname=vname)
-kc0=galex_kcorrect(sp.z, galex=galex, calibobj=im, band_shift=0.1, $
+kc0=galex_kcorrect(cat.z, galex=cat, calibobj=cat, band_shift=0.1, $
                    rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar, $
                    vname=vname)
 
-cresid=fltarr(6, n_elements(sp))
+cresid=fltarr(6, n_elements(cat))
 for i=0L, 5L do $
   cresid[i,*]=(-2.5*alog10(rmaggies0[i,*]/rmaggies0[i+1,*]))- $
   (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
@@ -65,7 +133,7 @@ xchs=[0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
 ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
 
 for i=0, 5 do begin  & $
-  hogg_scatterplot, sp.z, cresid[i,*], psym=3, $
+  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
   xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
   xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
@@ -77,7 +145,7 @@ endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
 
-cresid=fltarr(6, n_elements(sp))
+cresid=fltarr(6, n_elements(cat))
 for i=0L, 5L do $
   cresid[i,*]=(-2.5*alog10(rmaggies1[i,*]/rmaggies1[i+1,*]))- $
   (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
@@ -107,7 +175,7 @@ xchs=[0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
 ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
 
 for i=0, 5 do begin  & $
-  hogg_scatterplot, sp.z, cresid[i,*], psym=3, $
+  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
   xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
   xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
@@ -119,16 +187,9 @@ endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
 
-dm=lf_distmod(sp.z)
-absm=22.5-2.5*alog10(im.petroflux[2])-im.extinction[2]-dm-kc1[4,*]
-mag=22.5-2.5*alog10(im.petroflux[2])-im.extinction[2]
-ii=where(sp.z gt 0.05 and sp.z lt 0.17 and $
-         absm gt -21.5 and absm lt -21.2 and $
-         (im.vagc_select and 4) gt 0 and mag lt 17.6)
-help,ii
-absmag=fltarr(7,n_elements(ii))
-for i=0,6 do $
-  absmag[i,*]=-2.5*alog10(omaggies[i,ii])-dm[ii]-kc0[i,ii]
+kc=galex_kcorrect(vlim.z, galex=vlim, calibobj=vlim, band_shift=0.1, $
+                  rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar, $
+                  vname=vname, absmag=absmag)
 
 k_print, filename='galex_colors_main.ps', pold=pold, xold=xold, yold=yold, $
   axis_char_scale=2.4
@@ -154,7 +215,7 @@ xchs=[0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
 ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
 
 for i=0, 5 do begin  & $
-  hogg_scatterplot, sp[ii].z, absmag[i,*]-absmag[i+1,*], psym=3, $
+  hogg_scatterplot, vlim.z, absmag[i,*]-absmag[i+1,*], psym=3, $
   xra=[0.041, 0.179], yra=ranges[*,i], /cond, $
   xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
@@ -165,7 +226,5 @@ axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
 endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
-
-save
 
 end

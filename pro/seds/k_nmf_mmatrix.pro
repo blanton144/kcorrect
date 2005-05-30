@@ -50,6 +50,8 @@ if(NOT keyword_set(vdisp)) then vdisp=300.
 if(NOT keyword_set(minzf)) then minzf=0.
 if(NOT keyword_set(maxzf)) then maxzf=2.
 if(NOT keyword_set(nzf)) then nzf=400
+if(NOT keyword_set(narbitrary)) then $
+  narbitrary=long((alog10(lmax)-alog10(lmin))/0.06)
 if(NOT keyword_set(filterlist)) then $
   filterlist=['galex_FUV.par', $
               'galex_NUV.par', $
@@ -299,7 +301,7 @@ endif
 nextra=nextra+nel
 
 ;; 3.5 dust from draine
-drainefiles=['spec_2.8.dat']
+drainefiles=['spec_2.2.dat', 'spec_2.5.dat', 'spec_2.8.dat']
 ndraine=n_elements(drainefiles)
 drainegrid=fltarr(navloglam, ndraine)
 for i=0L, n_elements(drainefiles)-1L do begin

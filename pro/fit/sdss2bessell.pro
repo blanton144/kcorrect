@@ -7,7 +7,8 @@
 ;   kcorrect= sdss2bessell(redshift [, nmgy=, ivar=, mag=, err=, $
 ;                          calibobj=, tsobj=, flux=, chi2=, rmaggies=, $
 ;                          omaggies=, vname=, oivar=, mass=, mtol=, $
-;                          absmag=, amivar=, band_shift=, /vega ])
+;                          absmag=, amivar=, band_shift=, /vega, $
+;                          omega0=, omegal0= ])
 ; INPUTS:
 ;   redshift - [N] redshifts
 ;   calibobj - [N] photoop-style structure, containing:
@@ -36,6 +37,8 @@
 ;          used 
 ;   vname - name of fit to use (defaults to 'default')
 ;   band_shift - evaluate UBVRI shifted blue by 1+band_shift
+;   omega0, omegal0 - cosmological parameters for calculating distance
+;                     moduli [default 0.3, 0.7]
 ; OPTIONAL KEYWORDS:
 ;   /vega - output Vega magnitudes, fluxes (STILL TAKES AB INPUTS!)
 ; OUTPUTS:
@@ -79,7 +82,8 @@ function sdss2bessell, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                        chi2=chi2, coeffs=coeffs, rmaggies=rmaggies, $
                        omaggies=omaggies, oivar=oivar, vname=vname, $
                        mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
-                       band_shift=in_band_shift, vega=vega
+                       band_shift=in_band_shift, vega=vega, omega0=omega0, $
+                       omegal0=omegal0
 
 common com_sdss2bessell, rmatrix, zvals, band_shift
 
@@ -93,24 +97,28 @@ if(n_params() lt 1 OR $
     return, -1
 endif 
 
-;; interpret band_shift
-if(NOT keyword_set(in_band_shift)) then in_band_shift=0.
-
 ;; need to reset rmatrix if band_shift changes
-if(n_elements(band_shift) ne 0) then begin
-    if(band_shift ne in_band_shift) then begin
-       rmatrix=0
-       zvals=0
-    endif
+if(n_elements(in_band_shift) gt 0) then begin
+    if(n_elements(band_shift) ne 0) then begin
+        if(band_shift ne in_band_shift) then begin
+            rmatrix=0
+            zvals=0
+        endif
+        band_shift=in_band_shift
+    endif else begin
+        band_shift=in_band_shift
+    endelse 
 endif else begin
-    band_shift=in_band_shift
-endelse 
+    if(n_elements(band_shift) eq 0) then $
+      band_shift=0.
+endelse
 
 kcdum=sdss_kcorrect(redshift,nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                     calibobj=calibobj, tsobj=tsobj, flux=flux, $
                     chi2=chi2, coeffs=coeffs, rmaggies=rmaggies, $
                     omaggies=omaggies, oivar=oivar, vname=vname, $
-                    mass=mass, mtol=mtol, band_shift=band_shift)
+                    mass=mass, mtol=mtol, band_shift=band_shift, $
+                    omega0=omega0, omegal0=omegal0)
 
 ; calculate the preliminaries
 filterlist=['bessell_U.par', $

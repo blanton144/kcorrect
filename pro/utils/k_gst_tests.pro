@@ -4,14 +4,17 @@
 ; PURPOSE:
 ;   runs tests on GALEX+SDSS+2MASS test data
 ; CALLING SEQUENCE:
-;   k_galex_tests
+;   k_gst_tests
+; DATA DEPENDENCIES:
+;   $KCORRECT_DIR/data/test/gst_tests.fits (builds if not there)
 ; REVISION HISTORY:
 ;   2005-04-07 MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
 pro k_gst_tests, vname=vname
 
-if(NOT file_test('data_k_gst_tests.sav')) then begin
+gstfile=getenv('KCORRECT_DIR')+'/data/test/gst_tests.fits'
+if(NOT file_test(gstfile)) then begin
     calibobj=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_sdss_imaging.fits',1, $
                           nrow=28800)
     galex=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_galex.fits', 1, $
@@ -25,18 +28,37 @@ if(NOT file_test('data_k_gst_tests.sav')) then begin
                          nrow=28800)
     sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,columns='z', nrow=28800)
     
-    ii=where(sp.z gt 0.01 and sp.z lt 0.6)
+    ii=where(sp.z gt 0.01 and sp.z lt 0.6 and twomass.twomass_tag ge 0 and $
+             galex.galex_tag ge 0)
     sp=sp[ii]
     calibobj=calibobj[ii]
     galex=galex[ii]
     twomass=twomass[ii]
+
+    if(nii gt 100000) then begin
+        ii=shuffle_indx(n_elements(twomass), num_sub=10000)
+        sp=sp[ii]
+        calibobj=calibobj[ii]
+        galex=galex[ii]
+        twomass=twomass[ii]
+    endif
     
-    save, filename='data_k_gst_tests.sav'
+    cat1=create_struct(im[0], $
+                       sp[0], $
+                       twomass[0], $
+                       struct_trimtags(galex[0], select_tags='*', $
+                                       except_tags='id'))
+    cat=replicate(cat1, n_elements(im))
+    struct_assign, sp, cat
+    struct_assign, im, cat, /nozero
+    struct_assign, twomass, cat, /nozero
+    struct_assign, galex, cat, /nozero
+    mwrfits, cat, gstfile, /create
 endif else begin
-    restore, 'data_k_gst_tests.sav'
+    cat=mrdfits(gstfile,1)
 endelse
 
-kc=gst_kcorrect(sp.z, calibobj=calibobj, twomass=twomass, galex=galex, $
+kc=gst_kcorrect(cat.z, calibobj=cat, twomass=cat, galex=cat, $
                 band_shift=0., vname=vname)
 
 k_print, filename='kcorrect.ps', $
@@ -50,7 +72,7 @@ k_print, filename='kcorrect.ps', $
 !P.MULTI=[0,2,5]
 
 for i=0, 9 do begin  
-  djs_plot, sp.z, kc[i,*], psym=3, xra=[0.009, 0.599]
+  djs_plot, cat.z, kc[i,*], psym=3, xra=[0.009, 0.599]
   if (i mod 2) eq 1 then $
     axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
     ytitle=textoidl('y'),ycharsize=2.4 

@@ -5,23 +5,38 @@
 ;   runs tests on SDSS test data
 ; CALLING SEQUENCE:
 ;   k_sdss_tests_main
+; DATA DEPENDENCIES:
+;   $KCORRECT_DIR/data/test/sdss_tests_lrg.fits (builds if not there)
 ; REVISION HISTORY:
 ;   2005-04-07 MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
 pro k_sdss_tests_lrg, vname=vname
 
-im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1,nrow=28800)
-ti=hogg_mrdfits(vagc_name('object_sdss_tiling'),1,nrow=28800)
-sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,nrow=28800,columns='z')
+testfile=getenv('KCORRECT_DIR')+'/data/test/sdss_tests_lrg.fits'
+if(NOT file_test(testfile)) then begin
+    im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1,nrow=28800)
+    ti=hogg_mrdfits(vagc_name('object_sdss_tiling'),1,nrow=28800)
+    sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,nrow=28800,columns='z')
 
-ii=where((ti.primtarget and 32) gt 0)
-im=im[ii]
-sp=sp[ii]
-help,im
-kc=sdss_kcorrect(sp.z, calibobj=im, band_shift=0.3, rmaggies=rmaggies, $
+    ii=where((ti.primtarget and 32) gt 0)
+    im=im[ii]
+    sp=sp[ii]
+    help,im
+
+    cat1=create_struct(im[0], sp[0])
+    cat=replicate(cat1, n_elements(im))
+    struct_assign, sp, cat
+    struct_assign, im, cat, /nozero
+    mwrfits, cat, testfile, /create
+endif else begin
+    cat=mrdfits(testfile,1)
+endelse
+
+cat.petroflux_ivar[0]=0.
+kc=sdss_kcorrect(cat.z, calibobj=cat, band_shift=0.3, rmaggies=rmaggies, $
                  omaggies=omaggies, oivar=oivar, vname=vname)
-cresid=fltarr(4, n_elements(sp))
+cresid=fltarr(4, n_elements(cat))
 for i=0L, 3L do $
   cresid[i,*]=(-2.5*alog10(rmaggies[i,*]/rmaggies[i+1,*]))- $
   (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
@@ -47,7 +62,7 @@ xchs=[0.001, 0.001, 1.1, 1.1]
 ychs=[1.1, 0.001, 1.1, 0.001]
 
 for i=0, 3 do begin  & $
-  hogg_scatterplot, sp.z, cresid[i,*], psym=3, $
+  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
   xra=[0.12, 0.56], yra=ranges[*,i], /cond, $
   xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
@@ -59,10 +74,10 @@ endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
 
-dm=lf_distmod(sp.z)
-absmag=fltarr(5,n_elements(sp))
+dm=lf_distmod(cat.z)
+absmag=fltarr(5,n_elements(cat))
 for i=0, 4 do $
-  absmag[i,*]=22.5-2.5*alog10(im.petroflux[i])-im.extinction[i]-kc[i,*]-dm
+  absmag[i,*]=22.5-2.5*alog10(cat.petroflux[i])-cat.extinction[i]-kc[i,*]-dm
 
 k_print, filename='sdss_colors_lrg.ps', pold=pold, xold=xold, yold=yold, $
   axis_char_scale=1.1
@@ -84,7 +99,7 @@ xchs=[0.001, 0.001, 1.1, 1.1]
 ychs=[1.1, 0.001, 1.1, 0.001]
 
 for i=0, 3 do begin  & $
-  hogg_scatterplot, sp.z, absmag[i,*]-absmag[i+1,*], psym=3, $
+  hogg_scatterplot, cat.z, absmag[i,*]-absmag[i+1,*], psym=3, $
   xra=[0.12, 0.56], yra=ranges[*,i], /cond, $
   xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $

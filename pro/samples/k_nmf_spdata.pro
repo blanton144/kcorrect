@@ -69,7 +69,7 @@ if(NOT keyword_set(velmodtype)) then velmodtype='sigv150'
 seed=seed1
 
 ;; relative weights
-galex_weight=50.0
+galex_weight=1.0
 sdss_spec_weight=0.003
 sdss_photo_weight=1.0
 lrg_spec_weight=0.003
@@ -368,7 +368,7 @@ if(nlrg_photo gt 0) then begin
     indx_lrg_photo=shuffle_indx(n_elements(sp), num_sub=nlrg_photo, seed=seed)
     sp=sp[indx_lrg_photo]
     im=im[indx_lrg_photo]
-    sdss_to_maggies, maggies, maggies_ivar, calibobj=im
+    sdss_to_maggies, maggies, maggies_ivar, calibobj=im, flux=flux
     maggies_ivar[0,*]=0. ;; ignore u-band for LRGs
     zdist[ilrg_photo]=sp.z
     dm=lf_distmod(zdist[ilrg_photo])
@@ -406,7 +406,6 @@ if(nlrg_spec gt 0) then begin
     indx_lrg_spec=shuffle_indx(n_elements(sp), num_sub=nlrg_spec, seed=seed)
     sp=sp[indx_lrg_spec]
     im=im[indx_lrg_spec]
-    sdss_to_maggies, maggies, maggies_ivar, calibobj=im
     zdist[ilrg_spec]=sp.z
     zhelio[ilrg_spec]=sp.z
     dm=lf_distmod(zdist[ilrg_spec])
@@ -453,7 +452,7 @@ if(nswire gt 0) then begin
     sp=sp[indx_s]
     im=im[indx_s]
     swire_to_maggies, swire, swire_maggies, swire_ivar
-    sdss_to_maggies, sdss_maggies, sdss_ivar, calibobj=im
+    sdss_to_maggies, sdss_maggies, sdss_ivar, calibobj=im, flux=flux
     swire_maggies[0:4,*]=sdss_maggies
     swire_ivar[0:4,*]=sdss_ivar
     swire_dm=lf_distmod(sp.z)

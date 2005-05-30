@@ -5,9 +5,10 @@
 ;   calculate K-corrections for standard SDSS input
 ; CALLING SEQUENCE:
 ;   kcorrect= sdss_kcorrect(redshift [, nmgy=, ivar=, mag=, err=, $
-;                           calibobj=, tsobj=, flux=, band_shift=,
-;                           chi2=, rmaggies=, omaggies=, vname=, 
-;                           oivar=, mass=, mtol=, absmag=, amivar= ])
+;                           calibobj=, tsobj=, flux=, band_shift=,$
+;                           chi2=, rmaggies=, omaggies=, vname=, $
+;                           oivar=, mass=, mtol=, absmag=, amivar=, $
+;                           omega0=, omegal0= ])
 ; INPUTS:
 ;   redshift - [N] redshifts
 ;   calibobj - [N] photoop-style structure, containing:
@@ -37,6 +38,8 @@
 ;   band_shift    - blueshift of bandpasses to apply (to get ^{z}b
 ;                   type bands) [default 0.]
 ;   vname - name of fit to use (defaults to 'default')
+;   omega0, omegal0 - cosmological parameters for calculating distance
+;                     moduli [default 0.3, 0.7]
 ; OUTPUTS:
 ;   kcorrect - [5, ngals] K-corrections in ugriz satisfying
 ;                m = M + DM(z) + K(z)
@@ -98,7 +101,8 @@ function sdss_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         band_shift=in_band_shift, chi2=chi2, coeffs=coeffs, $
                         rmaggies=rmaggies, omaggies=omaggies, $
                         oivar=oivar, vname=vname, mass=mass, mtol=mtol, $
-                        absmag=absmag, amivar=amivar
+                        absmag=absmag, amivar=amivar, omega0=omega0, $
+                        omegal0=omegal0
 
 common com_sdss_kcorrect, rmatrix, zvals, band_shift
 
@@ -112,25 +116,29 @@ if(n_params() lt 1 OR $
     return, -1
 endif 
 
-;; interpret band_shift
-if(NOT keyword_set(in_band_shift)) then in_band_shift=0.
-
 ;; need to reset rmatrix if band_shift changes
-if(n_elements(band_shift) ne 0) then begin
-    if(band_shift ne in_band_shift) then begin
-       rmatrix=0
-       zvals=0
-    endif
+if(n_elements(in_band_shift) gt 0) then begin
+    if(n_elements(band_shift) ne 0) then begin
+        if(band_shift ne in_band_shift) then begin
+            rmatrix=0
+            zvals=0
+        endif
+        band_shift=in_band_shift
+    endif else begin
+        band_shift=in_band_shift
+    endelse 
 endif else begin
-    band_shift=in_band_shift
-endelse 
+    if(n_elements(band_shift) eq 0) then $
+      band_shift=0.
+endelse
 
 sdss_to_maggies, mgy, mgy_ivar, calibobj=calibobj, tsobj=tsobj, flux=flux
 
 ;; call kcorrect
 kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, rmaggies=rmaggies, $
-  vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar
+  vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
+  omega0=omega0, omegal0=omegal0
 
 if(arg_present(omaggies)) then $
   omaggies=mgy

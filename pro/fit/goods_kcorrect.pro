@@ -1,62 +1,74 @@
 ;+
 ; NAME:
-;   deep_kcorrect
+;   goods_kcorrect
 ; PURPOSE:
-;   calculate K-corrections for standard DEEP input (from BRI to NUB)
+;   calculate K-corrections for GOODS catalog (BVizJHK)
 ; CALLING SEQUENCE:
-;   kcorrect= deep_kcorrect(redshift [, nmgy=, ivar=, mag=, err=, $
-;                           zcat=, /sdss, band_shift=, chi2=, rmaggies=, $
-;                           omaggies=, vname=, oivar=, mass=, mtol=, $
-;                           absmag=, amivar=, omega0=, omegal0= ])
+;   kcorrect= goods_kcorrect(redshift [, nmgy=, ivar=, mag=, err=, $
+;                            goods=, /sdss, band_shift=, chi2=, rmaggies=, $
+;                            omaggies=, vname=, oivar=, mass=, mtol=, $
+;                            absmag=, amivar=, omega0=, omegal0= ])
 ; INPUTS:
 ;   redshift - [N] redshifts
-;   zcat - [N] DEEP zcat-style structure, containing:
-;                  .MAGB
-;                  .MAGR
-;                  .MAGI
-;                  .SFD_EBV
-;   nmgy, ivar - [3, N] nanomaggies, Galactic-reddening corrected, and inverse
+;   goods - [N] GOODS-style structure, containing:
+;               .RA (J2000 degrees)
+;               .DEC (J2000 degrees)
+;               .BMAG_MAGAUTO
+;               .BMAGERR_MAGAUTO
+;               .VMAG_MAGAUTO
+;               .VMAGERR_MAGAUTO
+;               .IMAG_MAGAUTO
+;               .IMAGERR_MAGAUTO
+;               .ZMAG_MAGAUTO
+;               .ZMAGERR_MAGAUTO
+;               .JMAG_MAGAUTO
+;               .JMAGERR_MAGAUTO
+;               .HMAG_MAGAUTO
+;               .HMAGERR_MAGAUTO
+;               .KMAG_MAGAUTO
+;               .KMAGERR_MAGAUTO
+;   nmgy, ivar - [7, N] nanomaggies, Galactic-reddening corrected, and inverse
 ;                variance of same
-;   mag, err - [3, N] Pogson magnitudes, Galactic-reddening corrected and
+;   mag, err - [7, N] Pogson magnitudes, Galactic-reddening corrected and
 ;              errors of same
 ; OPTIONAL INPUTS:
 ;   band_shift    - blueshift of output bandpasses (to get ^{z}b
 ;                   type bands) [default 0.]
-;   vname - name of fit to use (defaults to 'default')
+;   vname - name of fit to use [defaults to 'default']
 ;   omega0, omegal0 - cosmological parameters for calculating distance
 ;                     moduli [default 0.3, 0.7]
-; OPTIONAL KEYWORDS:
-;   /closest - use closest bands for K-corrections
 ; OUTPUTS:
-;   kcorrect - [3, N] K-corrections from BRI to NUV, U, and B (or NUV,
-;              u, g if /sdss is set) satisfying
+;   kcorrect - [6, N] K-corrections from BVizJHK to NUBVRI (or Nugriz 
+;              /sdss is set). The closest input band is used for each
+;              output band (which ones are decided upon is output in
+;              "obands"). K-corrections satisfy
 ;                m_R = M_Q + DM(z) + K_QR(z)
 ;              based on the best fit sum of templates. All magnitudes
-;              are AB.
-;   mtol - [3, N] mass-to-light ratios from model in each output band
+;              are AB. 
+;   mtol - [6, N] mass-to-light ratios from model in each output band
 ;   mass - [N] total mass from model in each band
-;   absmag - [3, N] absolute magnitude (for missing data, substitutes
+;   absmag - [6, N] absolute magnitude (for missing data, substitutes
 ;            model fit) in each output band
-;   amivar - [3, N] inverse variance of absolute magnitude (for
+;   amivar - [6, N] inverse variance of absolute magnitude (for
 ;            missing data = 0) in each output band
 ; OPTIONAL OUTPUTS:
 ;   coeffs - coefficients of fit
 ;   chi2 - chi^2 of fit
-;   rmaggies - [3, N] reconstructed maggies from the fit (BRI)
-;   omaggies, oivar - [3, N] maggies and inverse variances used for fit
-;                           (after extinction, AB correction, etc)
+;   rmaggies - [7, N] reconstructed maggies from the fit (BRI)
+;   omaggies, oivar - [7, N] maggies and inverse variances used for fit
+;                           (after extinction correction, etc)
 ;                           (BRI)
-;   obands - [3, N] which input bands the K-corrections refer to 
+;   obands - [6, N] which input bands the K-corrections refer to 
 ; COMMENTS:
 ;   This is a simple wrapper on kcorrect.pro.  It keeps a version of
 ;   rmatrix and zvals in memory to save time, recalculating them each
 ;   time you change band_shift.
 ;
-;   You must specify nmgy,ivar OR mag,err OR zcat. If
+;   You must specify nmgy,ivar OR mag,err OR goods. If
 ;   nmgy or mag, make sure they are AB calibrated and Galactic
 ;   extinction corrected.
 ;
-;   Uses deep_to_maggies to convert zcat structure to Galactic
+;   Uses goods_to_maggies to convert goods structure to Galactic
 ;   extinction corrected maggies with errors.
 ;
 ;   For v4_0b templates and later, coefficients are in units of:
@@ -68,33 +80,39 @@
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-function deep_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
-                        zcat=zcat, band_shift=in_band_shift, chi2=chi2, $
-                        coeffs=coeffs, rmaggies=rmaggies, omaggies=omaggies, $
-                        oivar=oivar, vname=vname, mass=mass, mtol=mtol, $
-                        absmag=absmag, amivar=amivar, sdss=sdss, $
-                        rmatrix=rmatrix, closest=closest, obands=obands, $
-                        omega0=omega0, omegal0=omegal0
+function goods_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
+                         goods=goods, band_shift=in_band_shift, chi2=chi2, $
+                         coeffs=coeffs, rmaggies=rmaggies, omaggies=omaggies, $
+                         oivar=oivar, vname=vname, mass=mass, mtol=mtol, $
+                         absmag=absmag, amivar=amivar, sdss=sdss, $
+                         rmatrix=rmatrix, obands=obands, omega0=omega0, $
+                         omegal0=omegal0
 
 common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
-  deep_rmatrix, deep_zvals
+  goods_rmatrix, goods_zvals
 
 if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
     ((keyword_set(mag) eq 0 OR keyword_set(err) eq 0)) AND $
-    (n_tags(zcat) eq 0))) $
+    (n_tags(goods) eq 0))) $
   then begin
-    doc_library, 'deep_kcorrect'
+    doc_library, 'goods_kcorrect'
     return, -1
 endif 
 
 new_out_filterlist=['galex_NUV.par', $
                     'bessell_U.par', $
-                    'bessell_B.par']
+                    'bessell_B.par', $
+                    'bessell_V.par', $
+                    'bessell_R.par', $
+                    'bessell_I.par']
 if(keyword_set(sdss)) then $
   new_out_filterlist=['galex_NUV.par', $
                       'sdss_u0.par', $
-                      'sdss_g0.par']
+                      'sdss_g0.par', $
+                      'sdss_r0.par', $
+                      'sdss_i0.par', $
+                      'sdss_z0.par']
 
 ;; need to reset rmatrix if band_shift changes
 if(n_elements(in_band_shift) gt 0) then begin
@@ -123,9 +141,8 @@ if(n_elements(out_filterlist) gt 0) then begin
 endif 
 out_filterlist=new_out_filterlist
 
-
-mgy=fltarr(3, n_elements(redshift))
-mgy_ivar=fltarr(3, n_elements(redshift))
+mgy=fltarr(7, n_elements(redshift))
+mgy_ivar=fltarr(7, n_elements(redshift))
 if(n_elements(mag) gt 0) then begin
     mgy[*,*]=10.^(-0.4*mag)
     mgy_ivar[*,*]=1./(0.4*alog(10.)*mgy*err)^2.
@@ -135,15 +152,21 @@ if(n_elements(nmgy) gt 0) then begin
     mgy_ivar[*,*]=ivar*1.e+18
 endif
 
-if(n_tags(zcat) gt 0) then $
-  zcat_to_maggies, zcat, mgy, mgy_ivar
+if(n_tags(goods) gt 0) then $
+  goods_to_maggies, goods, mgy, mgy_ivar
 
 ;; call kcorrect
-deep_filterlist=['deep_B.par', 'deep_R.par', 'deep_I.par']
+goods_filterlist=['goods_acs_f435w.par', $
+                  'goods_acs_f606w.par', $
+                  'goods_acs_f775w.par', $
+                  'goods_acs_f850lp.par', $
+                  'goods_J_isaac_etc.par', $
+                  'goods_H_isaac_etc.par', $
+                  'goods_Ks_isaac_etc.par']
 kcorrect, mgy, mgy_ivar, redshift, kcdum, band_shift=band_shift, $
-  rmatrix=deep_rmatrix, zvals=deep_zvals, coeffs=coeffs, rmaggies=rmaggies, $
+  rmatrix=goods_rmatrix, zvals=goods_zvals, coeffs=coeffs, rmaggies=rmaggies, $
   vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
-  filterlist=deep_filterlist
+  filterlist=goods_filterlist
 
 ; calculate the preliminaries
 if(NOT keyword_set(out_rmatrix) OR NOT keyword_set(out_zvals)) then begin
@@ -160,16 +183,14 @@ reconstruct_maggies=reconstruct_maggies/(1.+band_shift)
 
 obands=lindgen(n_elements(out_filterlist))#replicate(1L, n_elements(redshift))
 
-if(keyword_set(closest)) then begin
-    lambda_in=k_lambda_eff(filterlist=deep_filterlist)
-    lambda_out=k_lambda_eff(filterlist=out_filterlist, band_shift=band_shift)
-    for i=0L, n_elements(redshift)-1L do begin
-        for j=0L, n_elements(lambda_out)-1L do begin
-            dmin=min(abs(lambda_in/(1.+redshift[i])-lambda_out[j]), imin)
-            obands[j, i]= imin
-        endfor
+lambda_in=k_lambda_eff(filterlist=deep_filterlist)
+lambda_out=k_lambda_eff(filterlist=out_filterlist, band_shift=band_shift)
+for i=0L, n_elements(redshift)-1L do begin
+    for j=0L, n_elements(lambda_out)-1L do begin
+        dmin=min(abs(lambda_in/(1.+redshift[i])-lambda_out[j]), imin)
+        obands[j, i]= imin
     endfor
-endif
+endfor
 
 kcorrect=fltarr(n_elements(out_filterlist), n_elements(redshift))
 for i=0L, n_elements(redshift)-1L do $

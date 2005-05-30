@@ -1,15 +1,15 @@
 ;+
 ; NAME:
-;   sdss2deep
+;   sdss2goods
 ; PURPOSE:
-;   take SDSS data and return DEEP BRI at some redshift
+;   take SDSS data and return GOODS BVizJHK at some redshift
 ; CALLING SEQUENCE:
-;   bri= sdss2deep(sdss_redshift, deep_redshift, [, nmgy=, ivar=, mag=, err=, $
-;                  calibobj=, tsobj=, flux=, chi2=, rmaggies=, $
-;                  omaggies=, vname=, oivar=, mass=, mtol= ]
+;   mag= sdss2goods(sdss_redshift, goods_redshift, [, nmgy=, ivar=, $
+;                   mag=, err=, calibobj=, tsobj=, flux=, chi2=, $
+;                   rmaggies=, omaggies=, vname=, oivar=, mass=, mtol= ]
 ; INPUTS:
 ;   sdss_redshift - [N] redshifts of input 
-;   deep_redshift - [N] redshifts of desired output
+;   goods_redshift - [N] redshifts of desired output
 ;   calibobj - [N] photoop-style structure, containing:
 ;                  .PETROFLUX[5]
 ;                  .PETROFLUX_IVAR[5]
@@ -36,8 +36,7 @@
 ;          used 
 ;   vname - name of fit to use (defaults to 'default')
 ; OUTPUTS:
-;   bri - [3, N] apparent magnitudes in BRI (AB)
-;   mtol - [5, N] mass-to-light ratios from model in each band
+;   mag - [7, N] apparent magnitudes in BVizJHK (AB)
 ;   mass - [N] total mass from model in each band
 ; OPTIONAL OUTPUTS:
 ;   coeffs - coefficients of fit
@@ -66,13 +65,13 @@
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-function sdss2deep, sdss_redshift, deep_redshift, nmgy=nmgy, ivar=ivar, $
+function sdss2goods, sdss_redshift, goods_redshift, nmgy=nmgy, ivar=ivar, $
                     mag=mag, err=err, calibobj=calibobj, tsobj=tsobj, $
                     flux=flux, chi2=chi2, coeffs=coeffs, rmaggies=rmaggies, $
                     omaggies=omaggies, oivar=oivar, vname=vname, $
                     mass=mass, mtol=mtol
 
-common com_sdss2deep, rmatrix, zvals, band_shift
+common com_sdss2goods, rmatrix, zvals, band_shift
 
 if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
@@ -80,7 +79,7 @@ if(n_params() lt 1 OR $
     (n_tags(calibobj) eq 0) AND $
     (n_tags(tsobj) eq 0))) $
   then begin
-    doc_library, 'sdss2deep'
+    doc_library, 'sdss2goods'
     return, -1
 endif 
 
@@ -91,9 +90,13 @@ kcdum=sdss_kcorrect(sdss_redshift,nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                     mass=mass, mtol=mtol, band_shift=band_shift)
 
 ; calculate the preliminaries
-filterlist=['deep_B.par', $
-            'deep_R.par', $
-            'deep_I.par']
+filterlist=['goods_acs_f435w.par', $
+            'goods_acs_f606w.par', $
+            'goods_acs_f775w.par', $
+            'goods_acs_f850lp.par', $
+            'goods_J_isaac_etc.par', $
+            'goods_H_isaac_etc.par', $
+            'goods_Ks_isaac_etc.par']
 if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
     if(NOT keyword_set(vmatrix) OR NOT keyword_set(lambda)) then $
       k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
@@ -102,31 +105,48 @@ if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
       zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath
 endif
 
-; Reconstruct the magnitudes as observed by DEEP
-k_reconstruct_maggies,coeffs, deep_redshift, $
+; Reconstruct the magnitudes as observed by GOODS
+k_reconstruct_maggies,coeffs, goods_redshift, $
   reconstruct_maggies,rmatrix=rmatrix,zvals=zvals
 
-offset=reconstruct_maggies/rmaggies[0:2,*]
+sdss_filterlist=['sdss_u0.par', $
+                 'sdss_g0.par', $
+                 'sdss_r0.par', $
+                 'sdss_i0.par', $
+                 'sdss_z0.par']
+lambda_in=k_lambda_eff(filterlist=sdss_filterlist)
+lambda_out=k_lambda_eff(filterlist=filterlist, band_shift=band_shift)
+obands=lonarr(n_elements(filterlist), n_elements(goods_redshift))
+offset=fltarr(7, n_elements(goods_redshift))
+for i=0L, n_elements(goods_redshift)-1L do begin
+    for j=0L, n_elements(lambda_out)-1L do begin
+        dmin=min(abs(lambda_in/(1.+sdss_redshift[i])- $
+                     lambda_out[j]/(1.+goods_redshift[i])), imin)
+        obands[j, i]= imin
+        offset[j,i]=reconstruct_maggies[j,i]/rmaggies[obands[j,i],i]
+    endfor
+endfor
 offset=2.5*alog10(offset)
 
-bri=fltarr(n_elements(filterlist), n_elements(sdss_redshift))
-bri_ivar=fltarr(n_elements(filterlist), n_elements(sdss_redshift))
+mag=fltarr(n_elements(filterlist), n_elements(sdss_redshift))
+mag_ivar=fltarr(n_elements(filterlist), n_elements(sdss_redshift))
 for i=0L, n_elements(filterlist)-1L do $
-  bri[i,*]=-2.5*alog10(reconstruct_maggies[i,*])- $
+  mag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])- $
   lf_distmod(sdss_redshift, omega0=omega0, omegal0=omegal0)+ $
-  lf_distmod(deep_redshift, omega0=omega0, omegal0=omegal0)
-for i=0L, n_elements(filterlist)-1L do begin
-    ig=where(oivar[i,*] gt 0. AND omaggies[i,*] gt 0., ng)
+  lf_distmod(goods_redshift, omega0=omega0, omegal0=omegal0)
+for i=0L, n_elements(goods_redshift)-1L do begin
+    ig=where(oivar[obands[*,i], i] gt 0. AND $
+             omaggies[obands[*,i], i] gt 0., ng) 
     if(ng gt 0) then begin
-        bri[i,ig]=-2.5*alog10(omaggies[i,ig])- $
-          lf_distmod(sdss_redshift[ig], omega0=omega0, omegal0=omegal0)+ $
-          lf_distmod(deep_redshift[ig], omega0=omega0, omegal0=omegal0)- $
-          offset[i,ig]
-        bri_ivar[i,ig]=omaggies[i,ig]^2*oivar[i,ig]* $
+        mag[ig,i]=-2.5*alog10(omaggies[obands[ig,i],i])- $
+          lf_distmod(sdss_redshift[i], omega0=omega0, omegal0=omegal0)+ $
+          lf_distmod(goods_redshift[i], omega0=omega0, omegal0=omegal0)- $
+          offset[[ig,i],i]
+        mag_ivar[ig,i]=omaggies[obands[ig,i],i]^2*oivar[obands[ig,i],i]* $
           (0.4*alog(10.))^2
     endif 
 endfor
 
-return, bri
+return, mag
 
 end
