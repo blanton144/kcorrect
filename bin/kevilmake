@@ -44,7 +44,8 @@ case `uname` in
 		F77=g77
 		SO_EXT=dylib
 		X_LD_FLAGS="-bundle /usr/lib/bundle1.o -L/usr/lib -lc -lcc_dynamic -flat_namespace -undefined suppress"
-# The following two lines should be equivalent to the above line
+#   Uncomment the following two lines to get .dylib libraries that can
+#   be linked into C programs on a Mac OS X system
 #		LD=libtool
 #		X_LD_FLAGS="-dynamic -L/usr/lib -lc -lcc_dynamic"
 		X_CFLAGS="-g -Wall -dynamic"

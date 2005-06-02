@@ -45,7 +45,7 @@ if(NOT keyword_set(lmin)) then lmin=600.
 if(NOT keyword_set(lmax)) then lmax=3200000.
 if(NOT keyword_set(prefix)) then prefix='k_nmf'
 if(NOT keyword_set(navloglam)) then navloglam=30000L
-if(NOT keyword_set(nagesmax)) then nagesmax=40
+if(NOT keyword_set(nagesmax)) then nagesmax=25
 if(NOT keyword_set(vdisp)) then vdisp=300.
 if(NOT keyword_set(minzf)) then minzf=0.
 if(NOT keyword_set(maxzf)) then maxzf=2.
@@ -83,11 +83,11 @@ if(NOT keyword_set(filterlist)) then $
 
 if(n_tags(dusts) eq 0) then begin
     dusts1={geometry:'', dust:'', structure:'', tauv:0.}
-    dusts=replicate(dusts1,4)
-    dusts.geometry=['shell', 'shell','shell','shell']
-    dusts.dust=['MW','MW','MW','MW']
-    dusts.structure=['h','h','h','h']
-    dusts.tauv=[0.,0.5,1.5,4.]
+    dusts=replicate(dusts1,7)
+    dusts.geometry=['shell', 'shell','shell','shell','shell','shell','shell']
+    dusts.dust=['MW','MW','MW','MW','SMC','SMC','SMC']
+    dusts.structure=['h','h','h','h','h','h','h']
+    dusts.tauv=[0.,0.5,1.5,4.,0.5,1.5,4.]
 endif 
 if(keyword_set(nodust)) then begin
     dusts={geometry:'dusty', dust:'MW', structure:'c', tauv:0.}
@@ -301,7 +301,9 @@ endif
 nextra=nextra+nel
 
 ;; 3.5 dust from draine
-drainefiles=['spec_2.2.dat', 'spec_2.5.dat', 'spec_2.8.dat']
+ndraine=0L 
+if(0) then begin
+drainefiles=['spec_2.2.dat','spec_2.5.dat','spec_2.8.dat']
 ndraine=n_elements(drainefiles)
 drainegrid=fltarr(navloglam, ndraine)
 for i=0L, n_elements(drainefiles)-1L do begin
@@ -323,6 +325,7 @@ earlyspgrid=fltarr(navloglam,nages*nmets*ndusts+nextra+ndraine)
 earlyspgrid[*,0L:nages*nmets*ndusts+nextra-1L]=tmp_earlyspgrid
 earlyspgrid[*,nages*nmets*ndusts+nextra: $
             nages*nmets*ndusts+nextra+ndraine-1L]= drainegrid
+endif
 nextra=nextra+ndraine
 
 ;; 3. now make all filters at all redshifts
@@ -384,6 +387,7 @@ mwrfits, filterlist, outfile
 mwrfits, zf, outfile
 mwrfits, gasmets, outfile
 mwrfits, qpars, outfile
+if(ndraine gt 0) then $
 mwrfits, drainefiles, outfile
 
 hdr=['']

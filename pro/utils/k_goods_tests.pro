@@ -31,7 +31,7 @@ if(NOT file_test(savfile)) then begin
     im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)
     im=im[lowz.object_position]
     
-    for i=0L, 199L do begin
+    for i=0L, 0L do begin
         maxvmax=max(1./lowz.vmax)
         chances=(1./lowz.vmax)/maxvmax
         tmp_igoods=where(randomu(seed, n_elements(lowz)) lt chances, npick)
@@ -69,15 +69,63 @@ endif else begin
     restore, savfile
 endelse 
 
+hogg_usersym, 8, /fill
+
 k_print, filename='k_test_sdss2goods.ps'
 hogg_usersym, 10, /fill
-!P.MULTI=[0,3,2]
+!P.MULTI=[0,2,3]
 !Y.MARGIN=0
-djs_plot, goods_redshift, mag[0,*]-mag[1,*], psym=3, $
+
+ytitle='!8B-V!6'
+djs_plot, goods_redshift, mag[0,*]-mag[1,*], psym=8, symsize=0.3, $
   xra=[0.5, 1.5], xcharsize=0.0001, ycharsize=1.4, $
-  ytitle='!8B-V!6', yra=[-0.3,4.5], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95]
-djs_oplot, gz.zhelio, gz.bmag_magauto-deep.vmag_magauto, psym=3, $
+  ytitle=ytitle, yra=[-0.3,4.5], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95]
+djs_oplot, gz.z, gphoto.bmag_magauto-gphoto.vmag_magauto, psym=8, $
   symsize=0.35, color='red'
+
+ytitle='!8V-i!6'
+djs_plot, goods_redshift, mag[1,*]-mag[2,*], psym=8, symsize=0.3, $
+  xra=[0.5, 1.5], xcharsize=0.0001, ycharsize=0.0001, $
+  ytitle=ytitle, yra=[-0.3,2.3], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95]
+djs_oplot, gz.z, gphoto.vmag_magauto-gphoto.imag_magauto, psym=8, $
+  symsize=0.35, color='red'
+axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+  ytitle=textoidl(ytitle),ycharsize=1.1 
+
+ytitle='!8i-z!6'
+djs_plot, goods_redshift, mag[2,*]-mag[3,*], psym=8, symsize=0.3, $
+  xra=[0.5, 1.5], xcharsize=0.0001, ycharsize=1.4, $
+  ytitle=ytitle, yra=[-0.3,1.5], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95]
+djs_oplot, gz.z, gphoto.imag_magauto-gphoto.zmag_magauto, psym=8, $
+  symsize=0.35, color='red'
+
+ytitle='!8z-J!6'
+djs_plot, goods_redshift, mag[3,*]-mag[4,*], psym=8, symsize=0.3, $
+  xra=[0.5, 1.5], xcharsize=0.0001, ycharsize=0.0001, $
+  ytitle=ytitle, yra=[-0.3,1.9], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95]
+djs_oplot, gz.z, gphoto.zmag_magauto-gphoto.jmag_magauto, psym=8, $
+  symsize=0.35, color='red'
+axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+  ytitle=textoidl(ytitle),ycharsize=1.1 
+
+ytitle='!8J-H!6'
+djs_plot, goods_redshift, mag[4,*]-mag[5,*], psym=8, symsize=0.3, $
+  xra=[0.5, 1.5], xcharsize=1.4001, ycharsize=1.4, $
+  ytitle=ytitle, yra=[-0.3,1.1], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95], $
+  xtitle='z'
+djs_oplot, gz.z, gphoto.jmag_magauto-gphoto.hmag_magauto, psym=8, $
+  symsize=0.35, color='red'
+
+ytitle='!8H-K!6'
+djs_plot, goods_redshift, mag[5,*]-mag[6,*], psym=8, symsize=0.3, $
+  xra=[0.5, 1.5], xcharsize=1.4001, ycharsize=0.0001, $
+  ytitle=ytitle, yra=[-0.3,0.9], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95], $
+  xtitle='z'
+djs_oplot, gz.z, gphoto.hmag_magauto-gphoto.kmag_magauto, psym=8, $
+  symsize=0.35, color='red'
+axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+  ytitle=textoidl(ytitle),ycharsize=1.1 
+
 k_end_print
 
 kc=goods_kcorrect(gz.z, goods=gphoto,absmag=absmag, vname=vname, $

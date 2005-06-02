@@ -56,6 +56,7 @@ maggies=k_project_filters(lambda_edges,flux,filterlist=filterlist, $
                           filterpath=filterpath,band_shift=band_shift)
 solarmags=reform(-2.5*alog10(maggies),n_elements(maggies))
 
+if(n_elements(solarmags) eq 1) then solarmags=solarmags[0]
 return,solarmags
 
 end

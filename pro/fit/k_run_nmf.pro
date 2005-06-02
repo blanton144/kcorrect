@@ -27,6 +27,8 @@ if(NOT keyword_set(nt)) then nt=4
 
 mmatrix=mrdfits('k_nmf_mmatrix.fits',0,hdr)
 nextra=long(sxpar(hdr, 'NEXTRA'))
+nel=long(sxpar(hdr, 'NEL'))
+ndraine=long(sxpar(hdr, 'NDRAINE'))
 ndusts=long(sxpar(hdr, 'NDUST'))
 nmets=long(sxpar(hdr, 'NMET'))
 nages=long(sxpar(hdr, 'NAGE'))
@@ -70,7 +72,18 @@ endif else begin
     if(nii gt 0) then $
       for i=0L, nt-1L do $
       templates[ii, i]=templates[ii,i]*0.001
+	  if(ndraine gt 0) then $
+      templates[nages*ndusts*nmets+nel: $
+                nages*ndusts*nmets+nel+ndraine-1L, *]= $
+        templates[nages*ndusts*nmets+nel: $
+                  nages*ndusts*nmets+nel+ndraine-1L, *]*0.001
 endelse
+ttot=total(templates, 1)
+if(keyword_set(coeffs)) then $
+for i=0L, nt-1L do $
+  coeffs[i,*]=coeffs[i,*]*ttot[i]
+for i=0L, nt-1L do $
+  templates[*,i]=templates[*,i]/ttot[i]
 nmf_sparse, data, data_ivar, nt, mmatrix, niter, coeffs=coeffs, $
   templates=templates
 

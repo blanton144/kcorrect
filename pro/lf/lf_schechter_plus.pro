@@ -1,10 +1,10 @@
 ;+
 ; NAME:
-;   lf_schechter
+;   lf_schechter_plus
 ; PURPOSE:
 ;   given schechter parameters and absolute mags, return vals
 ; CALLING SEQUENCE:
-;   vals= lf_schechter(absmag, phistar, mstar, alpha)
+;   vals= lf_schechter(absmag, phistar, mstar, alpha, phiplus, alphaplus)
 ;     OR
 ;   vals= lf_schechter(absmag, schechter)
 ; INPUTS:

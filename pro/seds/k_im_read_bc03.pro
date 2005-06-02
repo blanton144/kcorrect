@@ -1,6 +1,6 @@
 ;+
 ; NAME:
-;       IM_READ_BC03()
+;       K_IM_READ_BC03()
 ;
 ; PURPOSE:
 ;       Read the Bruzual & Charlot (2003) binary format population

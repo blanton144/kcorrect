@@ -84,6 +84,7 @@ maggies=k_project_filters(lambda_edges,flux,filterlist=filterlist, $
                           filterpath=filterpath,band_shift=band_shift)
 vega2ab=reform(-2.5*alog10(maggies),n_elements(filterlist))
 
+if(n_elements(vega2ab) eq 1) then vega2ab=vega2ab[0]
 return,vega2ab
 
 end

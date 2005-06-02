@@ -184,12 +184,12 @@ for ifilter=0L, nfilter-2L do begin
     igood=where(colerr[ifilter,*] ne 0., ngood)
 
     if(ngood gt 0) then begin
-        djs_plot, zhelio[igood], mcol[ifilter,igood], psym=8, $
-          ytitle=filternames[ifilter]+'-'+filternames[ifilter+1], symsize=0.2
-        djs_oplot, zhelio[igood], col[ifilter,igood], psym=8, color='red', $
+        djs_plot, zhelio[igood], col[ifilter,igood], psym=8, color='red', $
          symsize=0.2
-        djs_oploterr, zhelio[igood], col[ifilter,igood], $
-          yerr=colerr[ifilter,igood], color='red', symsize=0.2
+        djs_oplot, zhelio[igood], mcol[ifilter,igood], psym=8, $
+          ytitle=filternames[ifilter]+'-'+filternames[ifilter+1], symsize=0.2
+        ;;djs_oploterr, zhelio[igood], col[ifilter,igood], $
+        ;;  yerr=colerr[ifilter,igood], color='red', symsize=0.2
         yra=minmax(col[ifilter,igood]-mcol[ifilter,igood]) 
         yra[0]=yra[0] > (-0.9)
         yra[1]=yra[1] < (0.9)

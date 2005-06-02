@@ -8,51 +8,111 @@ Photometry</h1>
 
 <HR>
 
-<h3> General Description</h3>
+<h3> Outline</h3>
 
 <p> This web page documents a code written in C and IDL to calculate
 spectral energy distributions and K-corrections. This version is a
-significant improvement of <a href="v1-index.html"> an older
-version</a> still available. Of particular note are that the problem
-with galaxies at z=0.3 is solved and that the photometric redshift
-estimates from this version should be more robust.</p>
+significant improvement of <a href="v3_2-index.html"> an older
+version</a> still available.</p>
 
-<p> Standard format IDL <a href="kcorrect_help.html">
-documentation</a> exists. Conditions of using the code released here
-are to send your email address to <a href="mb144@nyu.edu">
-mb144@nyu.edu</a>, to cite <a
-href="http://cosmo.nyu.edu/blanton/pubs.html#blanton03b"> Blanton et
-al. 2003</a>, and to specify the version tag (eg. v3_2) of the code
-used. (You can check this in the IDL code using the <b>k_version</b>
-command).  </p>
+<ol> 
+<li> <a href="#general"> General description</a>
+<li> <a href="#new"> What's new in v4?</a>
+<li> <a href="#conditions"> Conditions of use</a>
+<li> <a href="#obtain"> Obtaining the software</a>
+<li> <a href="#install"> Installing the software</a>
+<li> <a href="#concept"> Basic concept of the K-correction</a>
+<li> <a href="#highlevel"> IDL routines for SDSS, GALEX, 2MASS, DEEP2,
+GOODS users</a>
+<li> <a href="#idl"> Lower-level IDL routines for arbitrary data</a>
+<li> <a href="#cstandalone"> Stand-alone C-code</a> 
+<li> <a href="#clib"> kcorrect C library</a>
+<li> <a href="#abmags"> SDSS AB magnitudes and calibration
+uncertainties</a>
+<li> <a href="#linear"> Linear relationships between bandpasses</a>
+<li> <a href="#known"> Known problems</a>
+<li> <a href="#thanks"> Acknowledgements</a>
+</ol>
 
-<p> We document in detail here how to use the SED fits provided to
-calculate K-corrections and SEDs for particular objects with
-broad-band magnitude measurements. We do not document in detail how to
-use the code to optimize the templates; the interested user can peruse
-the comments in the code and/or contact the authors.  Note that
-although this code has been written with SDSS and 2MASS in mind as its
-first application, it has been written generally enough to be applied
-to nearly any set of observations. Although you can trust the results
-of this version extrapolated to rest-frame wavelengths outside the
-optical and infrared better than you could the previous versions,
-extrapolations remain as unwise as they always have been. </p>
+<a name="general">
+<h3> General description</h3>
 
-<p> The code compiles into a shared object library callable by C, so
-that people can incorporate the K-correction routines directly into
-their code.  We also provide an interface to the identical library
-through IDL. Users of Fortran might want to communicate with me about
-how to accommodate their needs. Or they might want to start using a
-portable language. It is possible in principle to link the C libraries
-into code based on SM, TCL/Tk, or Python, and I would be interested in
-helping interested parties to do this.</p>
+<p> This IDL code fits very restricted spectral energy distribution
+models to galaxy photometry or spectra in the restframe UV, optical
+and near-infrared. The main purpose of the fits are for calculating
+K-corrections, which the code does as well. </p>
+
+<p> The templates it uses for the fits may also be interpreted
+physically, since they are based on the Bruzual-Charlot stellar
+evolution synthesis codes. Thus, for each fit galaxy we can provide an
+estimate of the stellar mass-to-light ratio.</p>
+
+<p> For users of the IDL version of the code, we have special
+high-level routines to handle data from a number of commonly used
+surveys: SDSS, GALEX, 2MASS, DEEP2 and GOODS. However, the lower level
+IDL routines are written generally enough that one can use those
+routine to handle data from any survey in the restframe UV, optical,
+or near-infrared. </p>
+
+<p> The lowest level code compiles into a shared object library
+callable by C, so that non-IDL users can incorporate the K-correction
+routines directly into their code. It is possible in principle to
+link the C libraries into code based on SM, TCL/Tk, or Python, and I
+would be interested in helping interested parties to do this.</p>
 
 <p> One can imagine using the results of this code to calculate the
 evolution of the luminosity function, the distribution of galaxy
 colors, as well as to develop galaxy classification algorithms. Or, to
 estimate <a href="photoz.html"> photometric redshifts</a>.</p>
 
-<h3> Obtaining the Code</h3>
+<a name="new">
+<h3> What's new in v4</h3>
+
+<p> There are three main things that are new in the latest version:</p>
+<ol> 
+<li> The templates have been extended to work in the rest-frame
+ultraviolet, and still work in the optical and near infrared. In
+particular, our templates are consistent with data at low redshift
+from GALEX, SDSS, and 2MASS can be explained by our templates, and
+with data up to redshifts of 1.5 or 2.0 in DEEP2 and GOODS.  
+<li> Because they are based on unaltered stellar evolution synthesis
+results from Bruzual-Charlot models, the fits have a natural physical
+meaning and one can make physical conclusions about recent
+star-formation histories and stellar masses. 
+<li> I have added a bunch of higher level IDL routines to perform common
+tasks, like K-correcting SDSS data, GOODS data, GALEX data, DEEP2
+data, and 2MASS data, in addition to taking SDSS data and simulating
+DEEP2 or GOODS observations at higher redshift. When possible, users
+should stick to these high-level routines.
+<li> The <a href="abmags"> SDSS AB corrections</a> have changed
+somewhat. 
+</ol>
+
+<p> The new templates were obtained using a clever algorithm called
+"nonnegative matrix factorization," which finds the best set of N
+nonnegative templates which can be linearly, nonnegatively combined to
+explain a set of data. Think of it as "nonnegative PCA." However, it
+has the advantage over PCA that you can account explicitly for the
+uncertainties in the data. In our case, we use a basis set for the
+templates which consists of predictions of stellar evolution synthesis
+models, but you could simply use a set of discrete delta functions if
+you liked. This method has a bunch of potential applications in
+astronomy. The code is NMF_SPARSE in <a
+href="http://spectro.princeton.edu/"> idlutils</a>. </P>
+
+<a name="conditions">
+<h3> Conditions of use</h3>
+
+<p> Conditions of using the code released here
+are to send your email address to <a href="mb144@nyu.edu">
+mb144@nyu.edu</a>, to cite <a
+href="http://cosmo.nyu.edu/blanton/pubs.html#blanton03b"> Blanton et
+al. 2003</a>, and to specify the version tag (eg. v4_0) of the code
+used. (You can check this in the IDL code using the <b>k_version</b>
+command).  </p>
+
+<a name="obtain">
+<h3> Obtaining the software</h3>
 
 <p>First off, if you are downloading the code, please register it. Do so
 by sending your email address to <a href="mailto:mb144@nyu.edu">
@@ -60,14 +120,15 @@ mb144@nyu.edu</a>. No other information is required. I want this
 because it will allow me to contact users in case of any improvements
 or bug fixes.</p>
 
+<p> Note that the IDL code depends
+on the <a href="http://spectro.princeton.edu/idlutils_doc.html">
+idlutils</a> package.
+
 The best way to obtain the code is to simply download the latest
 version from this site. The tagged and released versions, from latest
 to earliest, are:
 <ol>
-<li> <a href="kcorrect.v3_2.tar.gz"> kcorrect.v3_2.tar.gz</a> (latest
-recommended version)
-<li> <a href="kcorrect.v1_16.tar.gz"> kcorrect.v1_16.tar.gz</a>
-(older recommended version)
+<li> <a href="kcorrect.v4_0.tar.gz"> kcorrect.v4_0.tar.gz</a> 
 </ol>
 The earlier version is only included so that you can reproduce old
 results if you like. Note that there have been some usage changes.
@@ -89,9 +150,9 @@ cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot login
 When the above asks for a password, just hit Enter. 
 <li> After this, you can just export any version you want:
 <pre>
-cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v3_2 kcorrect
+cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v4_0 kcorrect
 </pre>
-where you can replace v3_2 with whatever version you want.
+where you can replace v4_0 with whatever version you want.
 </ol> 
 Please export only based on revision tag, so that we can
 track versions properly. 
@@ -104,11 +165,8 @@ check it back in). Please <a href="mailto:mb144@nyu.edu"> contact
 me</a> if you want to do this.
 </p>
 
-<p> Note that the IDL code depends
-on the <a href="http://spectro.princeton.edu/idlutils_doc.html">
-idlutils</a> package.
-
-<h3> Compiling the Code</h3>
+<a name="install">
+<h3> Installing the software</h3>
 
 <p>
 The code has been tested, and compiles and runs on a Red Hat 7.1
@@ -167,7 +225,12 @@ put something like "fit_coeffs.c" into your code but include the
 k_reconstruct_maggies() call directly inside to get the K-corrections.
 </p>
 
-<h3> The Basics</h3>
+<p> There is a known problem with compiling the stand-alone C code on a
+Mac OS X system. See <a href="#known">the Known Problems section</a>
+for a description.</p>
+
+<a href="concept">
+<h3> Basic concept of obtaining K-corrections </h3>
 
 <p> We'll describe the basic idea before getting into exactly how to
 use the code. To each set of five-band galaxy magnitudes I fit an SED
@@ -627,15 +690,26 @@ href="http://www.sdss.org/dr2/data/parfiles.html"> the SDSS DR2
 site</a>. IDL code (in particular, yanny_readone()) exists in <a
 href="http://spectro.princeton.edu"> idlutils</a> to read in such files. </p>
 
-<h3> A Note on the Absolute Calibration of SDSS Magnitudes</h3>
+<a name="abmags">
+<h3> Absolute calibration and its uncertainty in SDSS magnitudes</h3>
 
-Our best estimate of the absolute calibration of SDSS data indicates
-that the magnitudes output by the SDSS pipeline code are not exactly
-on an AB system. There are offsets Delta m = m_AB - m_SDSS = [-0.042,
-0.036, 0.015, 0.013, -0.002] in u, g, r, i, and z bands. We have
-trained our templates on SDSS magnitudes corrected to this system. For
-the moment we recommend that the user apply these corrections to the
-magnitudes they are using. 
+<p>
+Our best estimate (from Eisenstein's work on hot white dwarfs) of the
+absolute calibration of SDSS data indicates that the magnitudes output
+by the SDSS pipeline code are not exactly on an AB system. There are
+offsets Delta m = m_AB - m_SDSS = [-0.036, 0.012, 0.010, 0.028,
+-0.040] in u, g, r, i, and z bands. Note these numbers have changed
+since v3_2. We have trained our templates on SDSS magnitudes corrected
+to this system. For the moment we recommend that the user apply these
+corrections to the magnitudes they are using.
+</p>
+
+<p> In addition, we always apply minimum uncertainty of [0.05, 0.02,
+0.02, 0.02, 0.03] mag in ugriz (the high level routines SDSS_KCORRECT,
+etc. already do so). This is because there is always an uncertainty in
+the calibration of any given galaxy, and we don't want the templates
+working super-hard to fit (say) some unrealistically small error bar
+in one band at the expense of the other bands. </p>
 
 <A NAME="linear"> 
 <h3> Linear relationships between different band systems</h3>
@@ -646,37 +720,41 @@ systems, <b>all in the AB system</b>. <a
 href="linear.ps">This short document</a> shows all of the
 relevant results. </p>
 
-<h3> A Note on Photometric Errors</h3>
 
-The photometric errors in the SDSS are not dominated by Poisson noise,
-which is what is estimated in the parameters "petroCountsErr",
-etc. Instead, the errors are dominated by local calibration errors and
-other systematic effects, which are poorly known. I usually add errors
-of [0.05,0.02,0.02,0.02,0.03] in ugriz in quadrature to the estimated
-errors from PHOTO, which makes things considerably better behaved.
-
-<A NAME="note1"> 
-<h3> A Note on non-AB Magnitudes Returned by v1_10 and
-Previous</h3>
-</a>
-
-Back in the days of v1_10, Ivan Baldry pointed out that kcorrect
-returned non-AB magnitudes when it was requested to output
-K-corrections to shifted bandpasses. The sense of the error was that
-the K-correction was missing a term of -2.5 log_10 (1+z_0) for a
-bandpass shift of z_0. This error occurred independent of bandpass,
-color, redshift, and anything else. Thus, when interpreting magnitudes
-returned by kcorrect v1_10 and earlier, please apply a correction of
--2.5 log_10 (1+z_0), where z_0 is the shift of the bandpass
-(eg. $^{z_0}b$ is the b-band shifted by z_0). Luckily this only is an
-error in the absolute measures of magnitude; colors are unchanged, the
-shapes of LFs are unchanged (just shifted in magnitude), etc. Many
-thanks to Ivan for pointing out the error.
-
+<a name="known">
 <h3> Known problems </h3>
 
-<ol>
-<li> In v3_2, fit_coeffs sends output to stdout occasionally of the form:
+<ol> 
+<li>
+<p> There is a known problem with compiling the stand-alone C code on
+a Mac OS X system, which results in the following error message: <pre>
+cc -I/Users/blanton/kcorrect/include -I/Users/blanton/kcorrect/src -g
+-Wall -dy namic -O3 -DCHECK_LEAKS -o
+/Users/blanton/kcorrect/bin/fit_photoz fit_photoz.c - lm
+-L/Users/blanton/kcorrect/lib \ -lkcorrect ld:
+/Users/blanton/kcorrect/lib/libkcorrect.dylib is input for the dynamic
+link editor, is not relocatable by the static link editor again make:
+*** [/Users/blanton/kcorrect/bin/fit_photoz] Error 1 make: Target
+`all' not remade because of errors.  </pre> I am honestly not really
+sure what causes this.  The library 
+libkcorrect.dylib is fine for importing into IDL but NOT for importing
+into the stand-alone C code. If you want the library to be built correctly
+for importing into C programs, you can uncomment the two
+lines in the "kevilmake" script:
+<pre>
+#   Uncomment the following two lines to get .dylib libraries that can
+#   be linked into C programs on a Mac OS X system
+#		LD=libtool
+#		X_LD_FLAGS="-dynamic -L/usr/lib -lc -lcc_dynamic"
+</pre>
+In this case, the library will be fine for importing into C but no
+good for using from IDL.  I can't make the Mac do both with a single
+library file. Sorry! If somebody knows how to do this, PLEASE let me
+know.</p>
+
+
+<li> In v3_2 and earlier, fit_coeffs sends output to stdout
+occasionally of the form:
 <pre>
 ERROR: choldc failed (sum==-1.197184e+06)
 </pre>
@@ -689,7 +767,33 @@ to
 <pre>
 fprintf(stderr, "ERROR: choldc failed (sum==%e)\n",sum);
 </pre>
+
+<li> In versions v1_10 and earlier, the code returned K-corrections to
+non-AB systems (oops!).
+Back in those days, Ivan Baldry pointed out that kcorrect
+returned non-AB magnitudes when it was requested to output
+K-corrections to shifted bandpasses. The sense of the error was that
+the K-correction was missing a term of -2.5 log_10 (1+z_0) for a
+bandpass shift of z_0. This error occurred independent of bandpass,
+color, redshift, and anything else. Thus, when interpreting magnitudes
+returned by kcorrect v1_10 and earlier, please apply a correction of
+-2.5 log_10 (1+z_0), where z_0 is the shift of the bandpass
+(eg. $^{z_0}b$ is the b-band shifted by z_0). Luckily this only is an
+error in the absolute measures of magnitude; colors are unchanged, the
+shapes of LFs are unchanged (just shifted in magnitude), etc. Many
+thanks to Ivan for pointing out the error.
 </ol>
+
+<a name="thanks">
+<h3> Acknowledgements</h3>
+
+GALEX grant.
+
+Thanks to Alison Coil, Jeff Newman, and Risa Wechsler for help
+understand and using the DEEP2 data. Thanks to Lexi Moustakas for help
+using the GOODS catalog -- and the GOODS team for access to that
+catalog. Thanks to John Moustakas for his code for reading in
+Bruzual-Charlot templates.
 
 <hr> 
 

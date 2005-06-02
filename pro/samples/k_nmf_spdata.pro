@@ -56,12 +56,12 @@ if(NOT keyword_set(sample)) then sample='sample15'
 if(NOT keyword_set(flux)) then flux='petro'
 if(NOT keyword_set(nlrg_photo)) then nlrg_photo=800L
 if(NOT keyword_set(nlrg_spec)) then nlrg_spec=100L
-if(NOT keyword_set(nsdss_photo)) then nsdss_photo=4000L
-if(NOT keyword_set(nsdss_spec)) then nsdss_spec=600L
-if(NOT keyword_set(ngalex)) then ngalex=2500L
-if(NOT keyword_set(ndeep)) then ndeep=1500L
+if(NOT keyword_set(nsdss_photo)) then nsdss_photo=2000L
+if(NOT keyword_set(nsdss_spec)) then nsdss_spec=400L
+if(NOT keyword_set(ngalex)) then ngalex=2000L
+if(NOT keyword_set(ndeep)) then ndeep=2000L
 if(NOT keyword_set(ngoods)) then ngoods=1000L
-if(NOT keyword_set(nswire)) then nswire=200L
+if(NOT keyword_set(nswire)) then nswire=0L
 if(NOT keyword_set(seed1)) then seed1=1001L
 if(NOT keyword_set(omega0)) then omega0=0.3
 if(NOT keyword_set(omegal0)) then omegal0=0.7
@@ -71,12 +71,12 @@ seed=seed1
 ;; relative weights
 galex_weight=1.0
 sdss_spec_weight=0.003
-sdss_photo_weight=1.0
+sdss_photo_weight=[1.,1.,1.,1.,1.]
 lrg_spec_weight=0.003
 lrg_photo_weight=1.0
 deep_weight=1.0
 goods_weight=1.0
-swire_weight=0.01
+swire_weight=0.001
 twomass_weight=1.0
 
 spfull=sdss_spectro_matched(columns=['plate', $
@@ -214,7 +214,7 @@ if(ngalex gt 0) then begin
         else $
           igood=where(sdss_maggies[*,i] gt 0., ngood) 
         new_data=sdss_maggies[igood,i]*10.^(0.4*galex_dm[i])
-        new_ivar=sdss_ivar[igood,i]*sdss_photo_weight*10.^(-0.8*galex_dm[i])
+        new_ivar=sdss_ivar[igood,i]*sdss_photo_weight[igood]*10.^(-0.8*galex_dm[i])
         new_xx=iz[i]+(igood+2L)*nzf+nspec
         if(keyword_set(data)) then begin
             data=[data, new_data]
@@ -336,7 +336,7 @@ if(nsdss_photo gt 0) then begin
     dm=lf_distmod(zdist[isdss_photo])
     zhelio[isdss_photo]=sp.z
     iz=long(floor((nzf-1.)*(zhelio[isdss_photo]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
-    weight=[replicate(sdss_photo_weight,5), replicate(twomass_weight,3)]
+    weight=[sdss_photo_weight, replicate(twomass_weight,3)]
     for i=0L, n_elements(postcat)-1L do begin
         igood=where(maggies[*,i] gt 0. and maggies_ivar[*,i] gt 0, ngood) 
         if(ngood gt 0) then begin

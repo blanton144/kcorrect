@@ -1,22 +1,16 @@
 ;+
 ; NAME:
-;   k_nmf_spdata
+;   k_nmf_spdata_spec
 ; PURPOSE:
-;   put together sparse data for nmf fitting
+;   put together spectroscopic data for nmf fitting
 ; CALLING SEQUENCE:
-;   k_nmf_spdata
+;   k_nmf_spdata_spec
 ; COMMENTS:
 ;   Assumes k_nmf_mmatrix has been run.
 ;
 ;   Takes data from sources:
-;     1. SDSS photometric survey
-;             ugrizJHK magnitudes
-;     2. SDSS spectroscopic survey
+;     1. SDSS spectroscopic survey
 ;             optical spectrum smoothed to 300 km/s resolution
-;     3. GALEX-SDSS matrix
-;             FNugriz magnitudes
-;     4. DEEP data
-;     5. GOODS redshift sample data
 ; 
 ;   Creates a file k_nmf_spdata.fits of the following form:
 ;     HDU0: NULL
@@ -43,13 +37,6 @@
 ;     HDU7: [Ngals]; heliocentric redshift of each object
 ;   This file is readable by k_nmf_run.pro
 ;   
-;   assumes kcorrect files used:
-;     correction = [-0.042,  0.036,  0.015, 0.013, -0.002]
-;   and we want:
-;     correction = [-0.036,  0.012,  0.010, 0.028,  0.040] 
-;   from daniel's WDs
-;   so we apply:
-;                  [ 0.006, -0.024, -0.005, 0.015,  0.042]
 ; REVISION HISTORY:
 ;   23-Nov-2004  Michael Blanton (NYU)
 ;-

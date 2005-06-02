@@ -28,7 +28,7 @@
 ;   ivar - [7, N] inverse variance of maggies
 ; COMMENTS:
 ;   It ALWAYS applies a minimum error of [0.02, 0.02, 0.02] in
-;   all bandpasses
+;   all bandpasses. It assumes H band is CRAP and never uses it.
 ;
 ;   Requires you to have the dust maps so that dust_getval can find
 ;   them. (If somebody wants me to set "default" columns in the
@@ -66,5 +66,7 @@ for iband=0L, 6L do begin
 endfor
 
 k_minerror, maggies, ivar, minerrors
+
+ivar[5,*]=0.
 
 end

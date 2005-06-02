@@ -27,6 +27,8 @@ dm=fltarr(ngals)
 retval=call_external(soname, 'idl_z2dm', float(z), float(omega0), $
                      float(omegal0), float(dm), long(ngals))
 
+if(n_elements(dm) eq 1) then dm=dm[0]
+
 return,dm
 
 end

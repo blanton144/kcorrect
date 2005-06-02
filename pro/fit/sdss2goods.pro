@@ -132,16 +132,16 @@ mag=fltarr(n_elements(filterlist), n_elements(sdss_redshift))
 mag_ivar=fltarr(n_elements(filterlist), n_elements(sdss_redshift))
 for i=0L, n_elements(filterlist)-1L do $
   mag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])- $
-  lf_distmod(sdss_redshift, omega0=omega0, omegal0=omegal0)+ $
-  lf_distmod(goods_redshift, omega0=omega0, omegal0=omegal0)
+  (lf_distmod(sdss_redshift, omega0=omega0, omegal0=omegal0))[0]+ $
+  (lf_distmod(goods_redshift, omega0=omega0, omegal0=omegal0))[0]
 for i=0L, n_elements(goods_redshift)-1L do begin
     ig=where(oivar[obands[*,i], i] gt 0. AND $
              omaggies[obands[*,i], i] gt 0., ng) 
     if(ng gt 0) then begin
         mag[ig,i]=-2.5*alog10(omaggies[obands[ig,i],i])- $
-          lf_distmod(sdss_redshift[i], omega0=omega0, omegal0=omegal0)+ $
-          lf_distmod(goods_redshift[i], omega0=omega0, omegal0=omegal0)- $
-          offset[[ig,i],i]
+          (lf_distmod(sdss_redshift[i], omega0=omega0, omegal0=omegal0))[0]+ $
+          (lf_distmod(goods_redshift[i], omega0=omega0, omegal0=omegal0))[0]- $
+          offset[ig,i]
         mag_ivar[ig,i]=omaggies[obands[ig,i],i]^2*oivar[obands[ig,i],i]* $
           (0.4*alog(10.))^2
     endif 
