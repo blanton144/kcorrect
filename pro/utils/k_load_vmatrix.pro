@@ -17,6 +17,9 @@
 ; OUTPUTS:
 ;   vmatrix   - [nl,nv] template
 ;   lambda    - [nl+1] pixel edges of template
+; COMMENTS:
+;   Use lambda=k_lambda_to_centers(lambda) to get [nl] pixel centers
+;   from [nl+1] pixel edges.
 ; REVISION HISTORY:
 ;   04-Jun-2003  Written by Mike Blanton, NYU
 ;-

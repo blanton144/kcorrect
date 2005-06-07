@@ -1,10 +1,10 @@
 ;+
 ; NAME:
-;   zcat_to_maggies
+;   deep_to_maggies
 ; PURPOSE:
 ;   convert DEEP zcat input to Galactic-extinction corrected AB maggies 
 ; CALLING SEQUENCE:
-;   zcat_to_maggies, zcat, maggies, ivar
+;   deep_to_maggies, zcat, maggies, ivar
 ; INPUTS:
 ;   zcat - [N] DEEP style input, with:
 ;               .MAGB
@@ -23,7 +23,7 @@
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro zcat_to_maggies, zcat, maggies, ivar
+pro deep_to_maggies, zcat, maggies, ivar
 
 red_fac=[4.32, 2.63, 1.96]
 

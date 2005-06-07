@@ -118,13 +118,17 @@ if(newname) then begin
         tspec_v0_nl_nd=rawspec[0:nspec-1L,0:nii-1L]#templates_nd
         
         ;; assumes lines are right after spectrum
-        lspec_v300=spec[0L:nspec-1L,n_elements(dust): $
-                        n_elements(dust)+nextra-1L]# $
-          templates[n_elements(dust):n_elements(dust)+nextra-1L, *]
+        if(nextra gt 0) then begin
+            lspec_v300=spec[0L:nspec-1L,n_elements(dust): $
+                            n_elements(dust)+nextra-1L]# $
+              templates[n_elements(dust):n_elements(dust)+nextra-1L, *]
+        endif else begin
+            lspec_v300=fltarr(nspec,1)
+        endelse
         tspec_v0=tspec_v0_nl+lspec_v300
         tspec_v300_nd=tspec_v300_nl_nd+lspec_v300
         tspec_v0_nd=tspec_v0_nl_nd+lspec_v300
-
+        
         tmass=total(templates[0:nages*nmets*ndusts-1L,*], 1)
         i300=where(age lt 3.e+8, n300)
         tmass300=total(templates[i300, *], 1)

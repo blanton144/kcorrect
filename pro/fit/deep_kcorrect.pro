@@ -136,7 +136,7 @@ if(n_elements(nmgy) gt 0) then begin
 endif
 
 if(n_tags(zcat) gt 0) then $
-  zcat_to_maggies, zcat, mgy, mgy_ivar
+  deep_to_maggies, zcat, mgy, mgy_ivar
 
 ;; call kcorrect
 deep_filterlist=['deep_B.par', 'deep_R.par', 'deep_I.par']

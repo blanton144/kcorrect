@@ -1,0 +1,704 @@
+<HTML>
+<BODY>
+
+<H1> K-corrections and Photometric Redshifts <br> with Broad-band
+Photometry</h1>
+ 
+<p> Mike Blanton, Department of Physics, New York University </p>
+
+<HR>
+
+<h3> General Description</h3>
+
+<p> This web page documents a code written in C and IDL to calculate
+spectral energy distributions and K-corrections. This version is a
+significant improvement of <a href="v1-index.html"> an older
+version</a> still available. Of particular note are that the problem
+with galaxies at z=0.3 is solved and that the photometric redshift
+estimates from this version should be more robust.</p>
+
+<p> Standard format IDL <a href="kcorrect_help.html">
+documentation</a> exists. Conditions of using the code released here
+are to send your email address to <a href="mb144@nyu.edu">
+mb144@nyu.edu</a>, to cite <a
+href="http://cosmo.nyu.edu/blanton/pubs.html#blanton03b"> Blanton et
+al. 2003</a>, and to specify the version tag (eg. v3_2) of the code
+used. (You can check this in the IDL code using the <b>k_version</b>
+command).  </p>
+
+<p> We document in detail here how to use the SED fits provided to
+calculate K-corrections and SEDs for particular objects with
+broad-band magnitude measurements. We do not document in detail how to
+use the code to optimize the templates; the interested user can peruse
+the comments in the code and/or contact the authors.  Note that
+although this code has been written with SDSS and 2MASS in mind as its
+first application, it has been written generally enough to be applied
+to nearly any set of observations. Although you can trust the results
+of this version extrapolated to rest-frame wavelengths outside the
+optical and infrared better than you could the previous versions,
+extrapolations remain as unwise as they always have been. </p>
+
+<p> The code compiles into a shared object library callable by C, so
+that people can incorporate the K-correction routines directly into
+their code.  We also provide an interface to the identical library
+through IDL. Users of Fortran might want to communicate with me about
+how to accommodate their needs. Or they might want to start using a
+portable language. It is possible in principle to link the C libraries
+into code based on SM, TCL/Tk, or Python, and I would be interested in
+helping interested parties to do this.</p>
+
+<p> One can imagine using the results of this code to calculate the
+evolution of the luminosity function, the distribution of galaxy
+colors, as well as to develop galaxy classification algorithms. Or, to
+estimate <a href="photoz.html"> photometric redshifts</a>.</p>
+
+<h3> Obtaining the Code</h3>
+
+<p>First off, if you are downloading the code, please register it. Do so
+by sending your email address to <a href="mailto:mb144@nyu.edu">
+mb144@nyu.edu</a>. No other information is required. I want this
+because it will allow me to contact users in case of any improvements
+or bug fixes.</p>
+
+The best way to obtain the code is to simply download the latest
+version from this site. The tagged and released versions, from latest
+to earliest, are:
+<ol>
+<li> <a href="kcorrect.v3_2.tar.gz"> kcorrect.v3_2.tar.gz</a> (latest
+recommended version)
+<li> <a href="kcorrect.v1_16.tar.gz"> kcorrect.v1_16.tar.gz</a>
+(older recommended version)
+</ol>
+The earlier version is only included so that you can reproduce old
+results if you like. Note that there have been some usage changes.
+
+It is also possible to export tagged versions from a public CVS
+repository, using the CVS "export" feature, as follows (pirated this
+description from spectro.princeton.edu):
+<ol>
+<li> Make sure your environment uses ssh to access CVS:
+<pre>
+CVS_RSH=ssh
+export CVS_RSH
+</pre>
+<li> The first time you access the repository, create the .cvspass
+file (run this in your home directory):
+<pre>
+cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot login
+</pre>
+When the above asks for a password, just hit Enter. 
+<li> After this, you can just export any version you want:
+<pre>
+cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v3_2 kcorrect
+</pre>
+where you can replace v3_2 with whatever version you want.
+</ol> 
+Please export only based on revision tag, so that we can
+track versions properly. 
+
+<p>
+It is also possible to CVS "checkout" the latest version of the
+code. This is not recommended unless you want to become involved in
+developing kcorrect (that is, if you will want to alter the code and
+check it back in). Please <a href="mailto:mb144@nyu.edu"> contact
+me</a> if you want to do this.
+</p>
+
+<p> Note that the IDL code depends
+on the <a href="http://spectro.princeton.edu/idlutils_doc.html">
+idlutils</a> package.
+
+<h3> Compiling the Code</h3>
+
+<p>
+The code has been tested, and compiles and runs on a Red Hat 7.1
+OS. Little experimentation with other operating systems has been
+performed. Other Linux versions should port very easily, at least. 
+In order to compile the code follow these directions:
+
+<ol>
+<li> First set the environmental variables. For example, in bash:
+<pre>
+KCORRECT_DIR=/usr/local/kcorrect
+PATH=$KCORRECT_DIR/bin:$PATH
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KCORRECT_DIR/lib
+export KCORRECT_DIR 
+export LD_LIBRARY_PATH 
+IDL_PATH=$IDL_PATH:+$KCORRECT_DIR/pro
+</pre>
+or in tcsh:
+<pre>
+setenv KCORRECT_DIR /usr/local/kcorrect
+setenv PATH $KCORRECT_DIR/bin:$PATH
+setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$KCORRECT_DIR/lib
+setenv IDL_PATH ${IDL_PATH}:+$KCORRECT_DIR/pro
+</pre>
+These default settings may need to be changed on your system as
+follows:
+<ol>
+<li>
+<b>KCORRECT_DIR</b>: Simply substitute whatever directory you have
+downloaded this product into. 
+<li>
+<b>PATH</b>: Obviously needed to run the binaries created
+<li>
+<b>LD_LIBRARY_PATH</b>: Required for the stand-alone code, so that the
+operating system can find libkcorrect.so at runtime.
+<li>
+<b>IDL_PATH</b>: Set only if you are using IDL
+</ol>
+You probably want to put these settings in your .bashrc or .tcshrc
+file. EvilUPS or UPS users can just say:
+<pre>
+setup -r /usr/local/kcorrect kcorrect
+</pre>
+Then 
+<li> Type "kevilmake -k" while in $KCORRECT_DIR.  Then everything
+should compile At this point, you should be able to open IDL and start
+using the utilities described below, or run the stand-alone C code.
+</ol>
+
+<p>
+Note that the C codes "fit_coeffs.c" and "reconstruct_maggies.c" only depend
+on the K-correction library; thus, you can use them as templates for
+incorporating the K-correction code directly into your C code, as long
+as you include the K-correction library. In fact, you would probably
+put something like "fit_coeffs.c" into your code but include the
+k_reconstruct_maggies() call directly inside to get the K-corrections.
+</p>
+
+<h3> The Basics</h3>
+
+<p> We'll describe the basic idea before getting into exactly how to
+use the code. To each set of five-band galaxy magnitudes I fit an SED
+which is a nonnegative linear combination of some templates. The
+templates have been optimized to minimize the residuals between the
+actual galaxy magnitudes and the galaxy magnitudes reconstructed from
+the galaxy SED fit.  The units of the fit spectra created are in ergs
+cm^{-2} s^{-1} A^{-1}. </p>
+
+<p> As an example, consider the figure below. I have taken actual
+spectra from the SDSS and projected them onto the g, r, and i
+bandpasses (since these are the ones the spectrum overlaps). Then I
+have run <b>kcorrect</b> and tried to reconstruct the spectrum. What
+<b>kcorrect</b> does here is to fit the nonnegative sum of three
+(carefully chosen) templates to the g, r, and i fluxes. The black line
+is the original spectrum, the red is the reconstructed. As you can
+see, the fit is reasonable. Not all galaxies are recovered this
+well. The usual failures are, first, that some galaxies are very red
+compared to our templates and, second, that the emission lines are not
+recovered particularly well.</p>
+
+<p>
+<a href="demo.gif">
+<img src="demo.gif" width=530 height=533 border=0></a>
+</p>
+
+<p> If you want to convert apparent magnitudes in band R to absolute
+magnitudes in band Q, you need to calculate the K-correction, which is
+defined by the equation: 
+<pre> 
+m_R = M_Q + DM(z) + K_QR(z) 
+</pre>
+where m_R is the apparent magnitude, M_Q is the absolute magnitude,
+DM(z) is the distance modulus, accounting for the angular diameter
+distance and cosmological surface-brightness dimming, and K_QR(z) is
+the K-correction. By absolute magnitude we mean: the apparent
+magnitude in band Q the object would have if it were observed at rest,
+10 pc away, using an aperture that contains its total flux. See <a
+href="http://cosmo.nyu.edu/blanton/pubs.html#hogg02c"> Hogg et
+al. (2002)</a> for a full description of what the K-correction
+is. Essentially, the K-correction is fully determined by the galaxy
+SED and the description of the bandpasses, so that with the SED fits
+above we have everything we need to calculate K-corrections.</p>
+
+<p> I designed the code to calculate K-corrections between some set of
+observed AB bands (by default, the SDSS ugriz bands) and those same
+bands shifted by an arbitrary redshift. For example, for the SDSS
+spectroscopic survey, most galaxies are observed near redshift 0.1; it
+makes sense, therefore, to K-correct to bandpasses shifted by 0.1
+(ie. by a factor 1.1). This procedure minimizes errors in the
+estimated K-corrections, because the galaxies at z=0.1 will then have
+a K-correction which independent of their SEDs (and therefore their
+colors) and equal to -2.5 log_10 (1+0.1). In general, for a bandpass
+shifted by z_0, the K-correction for a galaxy at z_0 to the observed
+bandpass shifted by z_0 is -2.5 log_10 (1+z_0), independent of galaxy
+SED. (Note that the K-correction is not zero in this case; very early
+versions of code, v1_10 and previous, incorrectly did not apply this
+overall offset --- see the <a href="#note1"> note</a> at bottom). </p>
+
+<p> The code is generally based on AB maggies. Two notes:
+<ol>
+<li> SDSS observations calibrated off of the Photometric Telescope
+patches (which includes anything in tsObj catalog files and in the
+official survey database) are NOT on our best guess for the AB
+system. A set of offsets must be applied to the magnitudes to
+achieve our best guess.
+<li> SDSS catalog magnitudes obtained from the official survey
+database are luptitudes, which for reasonably bright objects are
+equivalent to AB magnitudes. "Maggies" are simply the linearized
+version of AB magnitudes; that is, they are 10^{-0.4*mag} (the
+conversion from luptitudes to maggies is a bit more complicated, see
+the description accompanying the <a href="http://www.sdss.org/dr2/">
+DR2 documentation</a>). 
+</ol>
+</p>
+
+<p> But you may still be wondering what I mean by an "AB"
+magnitude. The AB system is designed such that a flat spectrum object
+with f_nu = 3631 Jy = 3.631e-20 ergs cm^{-2} s^{-1} Hz^{-1} should
+have every magnitude equal to zero. The beauty of the AB system is
+that the uniform definition makes it convenient to synthesize AB
+magnitudes from theory or models. The tragic flaw is that the quality
+of the AB-ness of a system is very dependent on precise
+spectrophotometry of standards and the carefulness of the calibrators,
+since no objects have a flat spectrum. There is a tension between
+these two needs --- similar to other tensions throughout astronomy
+between making precise measurements and making interpretable ones.</p>
+
+<h3> Using the IDL Code</h3>
+
+The easiest interface to the code, if it is available to you, is the
+IDL code. The detailed <a href="kcorrect_help.html"> documentation</a>
+is available for all of the routines, but there is basically only one
+you would usually use, which is <b>kcorrect</b>. The IDL code depends
+on the <a href="http://spectro.princeton.edu/idlutils_doc.html">
+idlutils</a> package.
+
+This routine performs the K-corrections on a 
+set of magnitudes or maggies. It is called as follows:
+<pre>
+kcorrect, maggies, maggies_ivar, redshift, kcorrect [ , $
+  band_shift=, /magnitude, /stddev, lfile=, $
+  vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $
+  zvals=, lambda=, vmatrix=, coeffs=, /verbose, /sdssfix ]
+</pre>
+By default, you hand the code AB maggies in SDSS ugriz, the inverse
+variance of the maggies (1/stddev^2), and the redshift, and it passes
+back K-corrections (in magnitudes) to redshift zero for those
+bandpasses, 
+based on the
+nonnegative fit of three carefully chosen templates.  The flags mean
+the following:
+<ol>
+<li> <b>band_shift=</b>: K-correct to the given redshift instead of
+redshift zero. 
+<li> <b>filterlist=</b>: list of filters (defaults to 
+['sdss_u0.par', 'sdss_g0.par', 'sdss_r0.par', 'sdss_i0.par',
+'sdss_z0.par'])
+<li> <b>filterpath=</b>: path to look for filters on (defaults to 
+$KCORRECT_DIR/data/filters)
+<li> <b>coeffs=</b>: outputs the coefficients multiplying each
+template
+<li> <b>lambda=</b>, <b>vmatrix=</b>: outputs the wavelength scale and
+flux of each template (combined with the coefficients, you can use
+these to look at the fit spectrum)
+<li> <b>chi2=</b>: outputs chi^2 of the template fit
+<li> <b>/sdssfix</b>: assumes you are giving it tsObj inputs
+(luptitudes and standard deviation of luptitudes) and
+translates to maggies and inverse variance in the AB system (using our
+best guess for the AB offsets); automatically sets
+/magnitude and /stddev
+<li> <b>/magnitude</b>: "maggies" inputs are in magnitudes, not
+maggies
+<li> <b>/stddev</b>: "maggies_ivar" inputs are the standard deviation,
+not the inverse variance
+</ol>
+Other inputs are explained in the documentation. </p>
+
+<p> Please note that the calling procedure has changed since v1_16, in
+the sense that inputting maggies is now the default.  I apologize that
+some people may have to change their code, but this system is better
+than magnitudes. Sorry, but then, you get what you pay for. </p>
+
+<p> To perform K-corrections for other sets of bandpasses (say, the
+Bessell bandpasses or 2MASS bandpasses), look for them in
+$KCORRECT_DIR/data/filters and insert them in the filterlist=
+flag. </p>
+
+<p>
+As an example of using <b>kcorrect</b>, one might do the following:
+<pre>
+kcorrect, [1., 4.78, 10.96, 14.45, 19.05],  $
+          [1100., 28., 7.7, 4.4, 2.5], $
+          0.03, kcorrect, band_shift=0.1, chi2=chi2
+</pre>
+which would take the set of maggies in the first argument, observed
+for a galaxy at redshift 0.03, and return the K-corrections to the
+ugriz magnitudes shifted by 0.1. This choice of maggies and
+uncertainties should return a good chi^2.  Note that it is a
+nonnegative fit, so linear goodness of fit measures don't exactly
+apply. </p>
+
+<p> Please note that <b>kcorrect</b> uses a lot of overhead (2-3 seconds
+worth), so if you can, use it on several thousand galaxies
+simultaneously at least. If you use it on each object individually (as
+in the example given above), you will be in trouble. If you truly
+cannot avoid it, then specify the extra arguments rmatrix 
+and zvals. For example, if you run the following:
+<pre>
+kcorrect, [1., 4.78, 10.96, 14.45, 19.05],  $
+          [1100., 28., 7.7, 4.4, 2.5], $
+          0.03, kcorrect, band_shift=0.1, chi2=chi2, $
+          rmatrix=rmatrix, zvals=zvals
+kcorrect, [1., 4.73, 11.26, 14.25, 18.85],  $
+          [1100., 28., 7.7, 4.4, 2.5], $
+          0.03, kcorrect, band_shift=0.1, chi2=chi2, $
+          rmatrix=rmatrix, zvals=zvals
+</pre>
+You will find that the second call takes far less time than the first,
+because the temporary data stored in rmatrix and zvals will not have
+to be regenerated.</p>
+
+<p> If you want to look at the fit spectrum, then specify vmatrix,
+lambda, and coeffs. The commands
+<pre>
+kcorrect, [1., 4.78, 10.96, 14.45, 19.05],  $
+          [1100., 28., 7.7, 4.4, 2.5], $
+          0.03, kcorrect, band_shift=0.1, chi2=chi2, $
+          vmatrix=vmatrix, lambda=lambda, coeffs=coeffs
+plot, lambda, vmatrix#coeffs, xra=[2000., 12000.]
+</pre>
+will plot the best fit spectrum.</p>
+
+<p> If you want to project that spectrum onto a new set of bandpasses,
+use k_reconstruct_maggies. For example, to project back onto the SDSS
+bandpasses, the command
+<pre>
+k_reconstruct_maggies, coeffs, 0.03, maggies, vmatrix=vmatrix, $
+    lambda=lambda, filterlist=['sdss_u0.par', 'sdss_g0.par', $
+    'sdss_r0.par', 'sdss_i0.par', 'sdss_z0.par']
+</pre>
+will pass back the reconstruction in the array maggies. You can
+project onto any bandpasses you want. For example,
+<pre>
+k_reconstruct_maggies, coeffs, 0.03, maggies, vmatrix=vmatrix, $
+    lambda=lambda, filterlist=['bessell_B.par', 'bessell_V.par']
+vega2ab=k_vega2ab(filterlist=['bessell_B.par', 'bessell_V.par'],/kurucz)
+bessellmags=-2.5*alog10(maggies)-vega2ab
+BminusV=bessellmags[0]-bessellmags[1]
+</pre>
+will yield the AB B-V for the best fit.  I won't fully document
+k_reconstruct_maggies here; look in the IDL documentation for more
+information.
+
+<h3> Using the Stand-Alone C Code</h3>
+
+<p> The C code requires a bit more attention to use. If people say
+they would use it if it were easier, I will improve it. In this
+section, I will describe the stand-alone C programs which fit for the
+coefficients and which calculate the reconstructed maggies. In the next
+section, I will briefly describe how to use the libraries within your
+own C code.  </p>
+
+<p>
+There are two stand-alone programs, <b>fit_coeffs</b> and
+<b>reconstruct_maggies</b>. <b>fit_coeffs</b> uses the maggies in each band
+to calculate the coefficients. <b>reconstruct_maggies</b> uses the list of
+coefficients (as output by <b>fit_coeffs</b> to reconstruct the
+magnitudes.
+</p>
+
+<p>
+<b>fit_coeffs</b> has a help flag:
+<pre>
+apeiron.[kcorrect].7 % fit_coeffs --help
+Usage: cat <galaxy file> | fit_coeffs [--vfile vfile --lfile lfile
+            --ffile ffile ]
+</pre>
+As indicated, you would call it like
+<pre>
+cat maggies.dat | fit_coeffs 
+</pre>
+where each line of "maggies.dat" has the form:
+<pre>
+redshift umaggies gmaggies rmaggies imaggies zmaggies uinvvar ginvvar rinvvar iinvvar zinvvar
+</pre>
+All of the quantities in this file are in maggies, as described
+above. So you have to convert the luptitudes or magnitudes --- and the
+inverse variances --- into maggies before calling this. (Note that the
+conversion to the inverse variances from the maggies and the magnitude
+errors is (maggies*0.4*ln(10)*magerr)^{-2}). </p>
+
+<p> From the set of maggies and errors, the code calculates a set of
+four coefficients which correspond to its guess about the nature of
+the galaxy SED. The coefficients are output to standard out in the
+form:
+<pre> 
+redshift coeff0 coeff1 coeff2  
+</pre> 
+where the redshift is included for reasons which
+will be clear soon. </p>
+
+<p> Once you have the coefficients, you can calculate the
+reconstructed maggies for a galaxy with the same SED and same total
+flux, observed at any redshift through a shifted bandpass, using
+<b>reconstruct_maggies</b>. The help flag for
+<b>reconstruct_maggies</b> yields 
+<pre>
+apeiron.[kcorrect].8 % reconstruct_maggies --help
+Usage: cat <coeffs file> | reconstruct_maggies [--vfile vfile --lfile lfile
+            --ffile ffile --band-shift band_shift --redshift redshift]
+</pre>
+So you can call it like:
+<pre>
+cat coeffs.dat | reconstruct_maggies 
+</pre>
+where coeffs.dat is in the same format as the output to
+<b>fit_coeffs</b>:
+<pre>
+redshift coeff0 coeff1 coeff2 
+</pre>
+The optional parameter "band_shift" specifies the bandpasses to
+reconstruct (band_shift=0., the default, indicates to use the observed
+frame bandpasses). "redshift" specifies the redshift at which to
+observe the galaxy (by default, the input redshift is used).
+The output is in the form:
+<pre>
+redshift u_rec g_rec r_rec i_rec z_rec 
+</pre>
+in the original maggy units.
+</p>
+
+<p> To summarize with an example, if you wanted to calculate the
+K-corrections from the observed bandpasses to rest-frame bandpasses
+shifted by 0.1, you could call the code as follows: 
+<pre>
+cat $KCORRECT_DIR/test/sample.dat | fit_coeffs | reconstruct_maggies >! maggies.dat
+cat $KCORRECT_DIR/test/sample.dat | fit_coeffs | reconstruct_maggies --band-shift 0.1 --redshift 0. >! maggies.z0.dat
+</pre>
+The K-corrections are then defined by -2.5 log_10(maggies/maggies.z0).
+
+<p> You can use the <b>ffile</b> option to reconstruct_maggies to specify a
+file which contains a list of the filters to use (by default, it uses
+the SDSS filters). </p>
+
+<p> As I noted above, I have not worked very hard to make the
+stand-alone C code or the C library <i>very</i> usable, as generally
+speaking that would have meant replicating features in IDL and C, and
+I wasn't sure how many people would use the pure C versions. If there
+is a need to do this, I might be convinced to -- or if YOU do it, we
+could include your stuff in the library. </p>
+
+<h3> Using the C Libraries</h3>
+
+<p> Why would you bother incorporating the K-correction code into your
+code at all, rather than just calculating the K-corrections once and
+reading in the results? Well, perhaps you have to calculate 1/Vmax, in
+which for each object you have to check its K-correction at (nearly)
+arbitrary redshifts. It is best to calculate the K-corrections on
+the fly in these cases, so we provide ways of doing this through a
+shared object libary.</p>
+
+<p> For example, the stand-alone C code uses the "libkcorrect.so"
+library (in fact, this is *exactly* the same library which is linked
+into IDL). If you have this library in your LD_LIBRARY_PATH and you
+include the header file "kcorrect.h" (in $KCORRECT_DIR/include), your
+own code can call it. The best way to figure out how to use it is to
+read the examples in fit_coeffs.c and reconstruct_maggies.c, but I'll try to
+explain the essentials here.  </p>
+
+<ol>
+<li>
+First, the code has to have the basic information about the
+templates. You will usually be using the "default" templates in
+$KCORRECT_DIR/data/templates, so you will have to load in the files:
+<pre>
+$KCORRECT_DIR/data/templates/vmatrix.default.dat
+$KCORRECT_DIR/data/templates/lambda.default.dat
+</pre>
+These files are in a <a href="ascii.html"> special ASCII format</a>
+which can be read into a "float*" variable in C using the routine
+k_load_ascii_table. For example:
+<pre>
+k_load_ascii_table(&vmatrix,&ndim,&sizes,vmatrixfile);
+</pre>
+loads in a set of data from vmatrixfile. The pointer to the data is
+returned in "vmatrix".  The number of dimensions in the data is
+returned in "ndim". "sizes" is an array of size ndim giving the size
+of each dimension. The information in each of these files is the following:
+<ol>
+<li> lambda.default.dat: The wavelength scale covered by the templates
+(the *edges*, not centers, of all pixels) [NLAMBDA+1]
+<li> vmatrix.default.dat: The spectra spanning the
+SED space [NV,NLAMBDA]
+</ol>
+
+<li> Second, it is necessary to read in the filters. The list of filters is
+in the directory:
+<pre>
+$KCORRECT_DIR/data/templates/sdss_filters.dat
+</pre>
+This list is read by the routine "k_load_filters", which assumes all the
+filters are in the directory $KCORRECT_DIR/data/filters (or if
+KCORRECT_DIR is not set, in the current directory). This routine is
+called as:
+<pre>
+k_load_filters(&filter_n,&filter_lambda,&filter_pass,&maxn,&nk,filterfile);
+</pre>
+"nk" is the number of filters. "filter_n" is the number of points in
+each filter curve, "filter_lambda" is the wavelength scale of each
+filter, and "filter_pass" is the response curve of each filter. "maxn"
+is the maximum of "filter_n". This sets the indexing of
+"filter_lambda" and "filter_pass", so that to get the ith wavelength
+of the kth filter you access "filter_lambda[k*maxn+i]".
+
+<li> Third, you have to define the redshift range over which you are
+going to define a look-up table. I usually use 0. to 1., to be safe,
+with 1000 steps, using the code:
+<pre>
+zvals=(float *) malloc(nz*sizeof(float));
+for(i=0;i<<blah>nz;i++)
+  zvals[i]=zmin+(zmax-zmin)*((float)i+0.5)/(float)nz;
+</pre>
+where nz=1000, zmin=0., and zmax=1. 
+
+<li> Finally, you have to define the look-up table which tabulates the
+projection of each basis element in the bmatrix onto each filter, at
+each redshift in zvals:
+<pre>
+rmatrix=(float *) malloc(nz*nv*nk*sizeof(float));
+k_projection_table(rmatrix,nk,nv,vmatrix,lambda,nl,zvals,nz,filter_n,
+                   filter_lambda,filter_pass,band_shift,maxn);
+</pre>
+One defines "nv" and "nl" based on the "sizes" returned by the
+k_load_ascii_table calls described above. 
+</ol>
+
+Once this overhead has been taken care of (and it is a significant
+amount of time --- a few seconds --- so only do it once!) you can use
+the routines "k_fit_noneg" and "k_reconstruct_maggies". 
+
+<ol>
+<li> <b>k_fit_noneg</b> is called as:
+<pre>
+k_fit_noneg(coeffs, rmatrix, nk, nv, zvals, nz, maggies, maggies_ivar,
+            redshift, ngalaxy, tolerance, maxiter, niter, chi2,
+            verbose)
+</pre>
+The array coeffs should be of the size (nv*ngalaxy), and the coefficients
+are returned in it. 
+<li> <b>k_reconstruct_maggies</b> is called as:
+<pre>
+k_reconstruct_maggies(zvals, nz, rmatrix, nk, nv, coeffs, redshift, 
+                      reconstruct_maggies, ngalaxy)
+</pre>
+where reconstruct_maggies are expressed in maggies.
+</ol>
+
+<p> Clever people will realize that a photometric redshift estimation
+code can easily be constructed from the parts assembled here. Cleverer
+people will deduce that in fact this has already been implemented and
+<a href="photoz.html"> documented</a> in the distribution here. This
+photo-z code is significantly better than earlier versions (v1_16 and
+earlier). </P>
+
+<p> As I noted above, I have not worked very hard to make the
+stand-alone C code or the C library *very* usable, as generally
+speaking that would have meant replicating features in IDL and C, and
+I wasn't sure how many people would use the pure C versions. If there
+is a need to do this, I might be convinced to -- or if YOU do it, we
+could include your stuff in the library. </p>
+
+<h3> Filter Curves</h3>
+
+<p> It is of course necessary to have filter responses to do any of
+this work. It turns out that the SDSS filters do not have the
+responses they were designed to have, but <a
+href="http://www.ioa.s.u-tokyo.ac.jp/~doi/"> Mamoru Doi</a> has done
+the hard work of measuring them. Jim Gunn then took these, ran them
+through models of the telescope and the atmosphere (using an
+appropriately scaled model of the Palomar atmospheric model at airmass
+1.3). Daniel Eisenstein deserves special mention for the extensive
+testing he has done on these. We have a <a href="filters">
+repository</a> of these and other curves. For <b>kcorrect</b> we use
+the SDSS files:
+<pre>
+sdss_u0.par 
+sdss_g0.par 
+sdss_r0.par
+sdss_i0.par 
+sdss_z0.par 
+</pre> 
+The other SDSS files refer to the responses for each camcol.</p>
+
+<p> The files are in a special SDSS format called FTCL described at <a
+href="http://www.sdss.org/dr2/data/parfiles.html"> the SDSS DR2
+site</a>. IDL code (in particular, yanny_readone()) exists in <a
+href="http://spectro.princeton.edu"> idlutils</a> to read in such files. </p>
+
+<h3> A Note on the Absolute Calibration of SDSS Magnitudes</h3>
+
+Our best estimate of the absolute calibration of SDSS data indicates
+that the magnitudes output by the SDSS pipeline code are not exactly
+on an AB system. There are offsets Delta m = m_AB - m_SDSS = [-0.042,
+0.036, 0.015, 0.013, -0.002] in u, g, r, i, and z bands. We have
+trained our templates on SDSS magnitudes corrected to this system. For
+the moment we recommend that the user apply these corrections to the
+magnitudes they are using. 
+
+<A NAME="linear"> 
+<h3> Linear relationships between different band systems</h3>
+
+<p> Using this code on a number of SDSS galaxies, we have estimated
+the linear relationships between a number of different bandpass
+systems, <b>all in the AB system</b>. <a
+href="linear.ps">This short document</a> shows all of the
+relevant results. </p>
+
+<h3> A Note on Photometric Errors</h3>
+
+The photometric errors in the SDSS are not dominated by Poisson noise,
+which is what is estimated in the parameters "petroCountsErr",
+etc. Instead, the errors are dominated by local calibration errors and
+other systematic effects, which are poorly known. I usually add errors
+of [0.05,0.02,0.02,0.02,0.03] in ugriz in quadrature to the estimated
+errors from PHOTO, which makes things considerably better behaved.
+
+<A NAME="note1"> 
+<h3> A Note on non-AB Magnitudes Returned by v1_10 and
+Previous</h3>
+</a>
+
+Back in the days of v1_10, Ivan Baldry pointed out that kcorrect
+returned non-AB magnitudes when it was requested to output
+K-corrections to shifted bandpasses. The sense of the error was that
+the K-correction was missing a term of -2.5 log_10 (1+z_0) for a
+bandpass shift of z_0. This error occurred independent of bandpass,
+color, redshift, and anything else. Thus, when interpreting magnitudes
+returned by kcorrect v1_10 and earlier, please apply a correction of
+-2.5 log_10 (1+z_0), where z_0 is the shift of the bandpass
+(eg. $^{z_0}b$ is the b-band shifted by z_0). Luckily this only is an
+error in the absolute measures of magnitude; colors are unchanged, the
+shapes of LFs are unchanged (just shifted in magnitude), etc. Many
+thanks to Ivan for pointing out the error.
+
+<h3> Known problems </h3>
+
+<ol>
+<li> In v3_2, fit_coeffs sends output to stdout occasionally of the form:
+<pre>
+ERROR: choldc failed (sum==-1.197184e+06)
+</pre>
+which screws up the inputs to reconstruct_maggies. If this affects
+you, change the line in k_choldc.c:
+<pre>
+printf("ERROR: choldc failed (sum==%e)\n",sum);
+</pre>
+to
+<pre>
+fprintf(stderr, "ERROR: choldc failed (sum==%e)\n",sum);
+</pre>
+</ol>
+
+<hr> 
+
+<address>
+Snail Mail: <a href="../address.html"
+>
+Michael Blanton</a>;
+Email: <a href="mailto:mb144@nyu.edu"> mb144@nyu.edu</a> 
+</address>
+
+</BODY>
+</HTML>

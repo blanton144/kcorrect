@@ -83,7 +83,7 @@ if(arg_present(cmodel)) then begin
 endif
 
 if(keyword_set(plot)) then begin
-    splot, 10.^loglam, flux
+    splot, 10.^loglam, flux, xra=[1000.,10000.]
     soplot, 10.^loglam, model, color='red'
 endif
 

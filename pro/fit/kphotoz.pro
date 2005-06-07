@@ -15,26 +15,28 @@
 ;   maggies_ivar - inverse variance in maggies (magnitudes if
 ;                  /magnitude set, std. dev. if /stddev set)
 ; OPTIONAL INPUTS:
-;   /magnitude     - set if input and output in -2.5 log_10(maggies)
-;   /stddev        - maggies_ivar actual contains standard dev.
+;   vname         - name of fit to us (default 'default')
 ;   lfile    - wavelength file for vmatrix [default lambda.default.dat]
 ;   vfile         - vmatrix file [default vmatrix.default.dat]
 ;   vpath         - path to templates [default $KCORRECT_DIR/data/templates]
+;   maxiter       - maximum number of iterations for fit [default
+;                   3000]
 ;   filterlist    - list of filters [default
 ;                                    ['sdss_u0.par', 'sdss_g0.par',
 ;                                     'sdss_r0.par', 'sdss_i0.par',
 ;                                     'sdss_z0.par']]
 ;   filterpath    - path to filters [default $KCORRECT_DIR/data/filters]
-;   /sdssfix      - uses k_sdssfix to "fix" input SDSS magnitudes and 
-;                   standard deviations (treats as if /magnitude and
-;                   /stddev are also set)
+;   /magnitude     - set if input and output in -2.5 log_10(maggies)
+;   /stddev        - maggies_ivar actual contains standard dev.
 ;   /verbose      - call k_fit_nonneg verbosely
 ;   /noprior      - don't use any prior (by default uses a prior which
 ;                   slightly discourages low redshifts). overridden by
 ;                   lprior and zprior
 ;   zprior/lprior - grid of redshift and -2ln(prior) values to apply
-;   maxiter       - maximum number of iterations for fit [default
-;                   3000]
+;   /sdssfix      - uses k_sdssfix to "fix" input SDSS magnitudes and 
+;                   standard deviations (treats as if /magnitude and
+;                   /stddev are also set) DEPRECATED: use
+;                   SDSS_KPHOTOZ() instead.
 ; OUTPUTS:
 ;   photoz     - photometric redshift
 ;   coeffs     - coefficients fit to each template
@@ -59,7 +61,7 @@
 ;------------------------------------------------------------------------------
 pro kphotoz, maggies, maggies_ivar, photoz, $
              magnitude=magnitude, stddev=stddev, $
-             lfile=lfile, vfile=vfile, vpath=vpath, $
+             lfile=lfile, vfile=vfile, vpath=vpath, vname=vname, $
              filterlist=filterlist, filterpath=filterpath, $
              rmatrix=rmatrix, zmin=zmin, zmax=zmax, nz=nz, zvals=zvals, $
              lambda=lambda, vmatrix=vmatrix, sdssfix=sdssfix, coeffs=coeffs, $
@@ -68,11 +70,7 @@ pro kphotoz, maggies, maggies_ivar, photoz, $
 
 ; Need at least 6 parameters
 if (N_params() LT 3) then begin
-    print, 'Syntax - kphotoz, maggies, maggies_ivar, photoz [ , $'
-    print, '             /magnitude, /stddev, lfile=, zmin=, zmax=, nz=, $'
-    print, '             vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $'
-    print, '             zvals=, lambda=, vmatrix=, coeffs=, /verbose, $'
-    print, '             lprior=, zprior=, /noprior, /sdssfix ]'
+    doc_library,'kphotoz'
     return
 endif
 
@@ -118,7 +116,7 @@ endif
 ; Calculate coeffs
 if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then $
   k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
-  vpath=vpath
+  vpath=vpath, vname=vname
 photoz=k_fit_photoz(use_maggies,use_maggies_ivar,vmatrix,lambda, $
                     filterlist=filterlist,chi2=chi2, $
                     rmatrix=rmatrix,zvals=zvals,maxiter=maxiter, zmin=zmin, $

@@ -27,8 +27,9 @@
 ;   maggies - [7, N] output in AB maggies in BVizJHK
 ;   ivar - [7, N] inverse variance of maggies
 ; COMMENTS:
-;   It ALWAYS applies a minimum error of [0.02, 0.02, 0.02] in
-;   all bandpasses. It assumes H band is CRAP and never uses it.
+;   It ALWAYS applies a minimum error of 0.02 in all
+;   bandpasses. Except in H band it ALWAYS sets the inverse variance
+;   to zero since I don't believe the H band calibration.
 ;
 ;   Requires you to have the dust maps so that dust_getval can find
 ;   them. (If somebody wants me to set "default" columns in the

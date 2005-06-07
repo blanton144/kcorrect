@@ -22,14 +22,16 @@ version</a> still available.</p>
 <li> <a href="#obtain"> Obtaining the software</a>
 <li> <a href="#install"> Installing the software</a>
 <li> <a href="#concept"> Basic concept of the K-correction</a>
-<li> <a href="#highlevel"> IDL routines for SDSS, GALEX, 2MASS, DEEP2,
-GOODS users</a>
+<li> <a href="#highlevel"> <b>IDL routines for SDSS, GALEX, 2MASS, DEEP2,
+GOODS users</b></a>
 <li> <a href="#idl"> Lower-level IDL routines for arbitrary data</a>
+<li> <a href="#utils"> Other useful utilities in the IDL library</a>
 <li> <a href="#cstandalone"> Stand-alone C-code</a> 
 <li> <a href="#clib"> kcorrect C library</a>
+<li> <a href="#filters"> Filter curves</a>
 <li> <a href="#abmags"> SDSS AB magnitudes and calibration
 uncertainties</a>
-<li> <a href="#linear"> Linear relationships between bandpasses</a>
+<li> <a href="#linear"> <b>Linear relationships between bandpasses</b></a>
 <li> <a href="#known"> Known problems</a>
 <li> <a href="#thanks"> Acknowledgements</a>
 </ol>
@@ -47,12 +49,14 @@ physically, since they are based on the Bruzual-Charlot stellar
 evolution synthesis codes. Thus, for each fit galaxy we can provide an
 estimate of the stellar mass-to-light ratio.</p>
 
-<p> For users of the IDL version of the code, we have special
-high-level routines to handle data from a number of commonly used
-surveys: SDSS, GALEX, 2MASS, DEEP2 and GOODS. However, the lower level
-IDL routines are written generally enough that one can use those
-routine to handle data from any survey in the restframe UV, optical,
-or near-infrared. </p>
+<p> The easiest interface to the code, if it is available to you, is
+the IDL code. Detailed <a href="kcorrect_help.html"> documentation</a>
+is available for all of the routines.  For users of the IDL version of
+the code, we have special high-level routines to handle data from a
+number of commonly used surveys: SDSS, GALEX, 2MASS, DEEP2 and GOODS.
+However, the lower level IDL routines are written generally enough
+that one can use those routine to handle data from any survey in the
+restframe UV, optical, or near-infrared. </p>
 
 <p> The lowest level code compiles into a shared object library
 callable by C, so that non-IDL users can incorporate the K-correction
@@ -78,14 +82,14 @@ with data up to redshifts of 1.5 or 2.0 in DEEP2 and GOODS.
 <li> Because they are based on unaltered stellar evolution synthesis
 results from Bruzual-Charlot models, the fits have a natural physical
 meaning and one can make physical conclusions about recent
-star-formation histories and stellar masses. 
+star-formation histories and stellar masses. <b>These are NOT ready
+for prime-time, as it were</b>
 <li> I have added a bunch of higher level IDL routines to perform common
 tasks, like K-correcting SDSS data, GOODS data, GALEX data, DEEP2
 data, and 2MASS data, in addition to taking SDSS data and simulating
 DEEP2 or GOODS observations at higher redshift. When possible, users
 should stick to these high-level routines.
-<li> The <a href="abmags"> SDSS AB corrections</a> have changed
-somewhat. 
+<li> The <a href="#abmags">SDSS AB corrections</a> have changed somewhat. 
 </ol>
 
 <p> The new templates were obtained using a clever algorithm called
@@ -216,6 +220,10 @@ should compile At this point, you should be able to open IDL and start
 using the utilities described below, or run the stand-alone C code.
 </ol>
 
+<p> The IDL code depends on the <a
+href="http://spectro.princeton.edu/idlutils_doc.html"> idlutils</a>
+package.</p>
+
 <p>
 Note that the C codes "fit_coeffs.c" and "reconstruct_maggies.c" only depend
 on the K-correction library; thus, you can use them as templates for
@@ -229,16 +237,45 @@ k_reconstruct_maggies() call directly inside to get the K-corrections.
 Mac OS X system. See <a href="#known">the Known Problems section</a>
 for a description.</p>
 
-<a href="concept">
+<a name="concept">
 <h3> Basic concept of obtaining K-corrections </h3>
 
-<p> We'll describe the basic idea before getting into exactly how to
-use the code. To each set of five-band galaxy magnitudes I fit an SED
-which is a nonnegative linear combination of some templates. The
-templates have been optimized to minimize the residuals between the
-actual galaxy magnitudes and the galaxy magnitudes reconstructed from
-the galaxy SED fit.  The units of the fit spectra created are in ergs
-cm^{-2} s^{-1} A^{-1}. </p>
+<p> I'll describe the basic idea before getting into exactly how to
+use the code. </p>
+
+<p> If you want to convert apparent magnitudes in band R to absolute
+magnitudes in band Q, you need to calculate the K-correction, which is
+defined by the equation: 
+<center> 
+<i>m</i><sub>R</sub> = <i>M</i><sub>Q</sub> + DM<i>(z)</i> +
+<i>K</i><sub>QR</sub><i>(z)</i>,
+</center>
+
+where <i>m</i><sub>R</sub> is the apparent magnitude,
+<i>M</i><sub>Q</sub> is the absolute magnitude, DM<i>(z)</i> is the
+distance modulus, accounting for the angular diameter distance and
+cosmological surface-brightness dimming, and
+<i>K</i><sub>QR</sub><i>(z)</i> is the K-correction. By absolute
+magnitude we mean: the apparent magnitude in band Q the object would
+have if it were observed at rest, 10 pc away, using an aperture that
+contains its total flux. The distance modulus accounts for the
+difference between an object's actual distance and 10 pc. The
+K-correction accounts for the fact that you observed a redshifted
+galaxy in band R but the absolute magnitude requires a rest-frame
+observation in band Q. Obviously the difference between the fluxes
+observed in different bandpasses is fully determined by the galaxy SED
+and the description of the bandpasses.  See <a
+href="http://cosmo.nyu.edu/blanton/pubs.html#hogg02c"> Hogg et
+al. (2002)</a> for a full description of what the K-correction
+is. 
+
+<p> In order to get the appropriate SED for a set of galaxy fluxes,
+kcorrect fits an SED which is a nonnegative linear combination of some
+small number of templates. The templates have been optimized to
+minimize the residuals between the actual galaxy fluxes and the galaxy
+fluxes reconstructed from the galaxy SED fit.  The units of the fit
+spectra created are in ergs cm<sup>&minus;2</sup> s<sup>&minus;1</sup>
+A<sup>&minus;1</sup>.
 
 <p> As an example, consider the figure below. I have taken actual
 spectra from the SDSS and projected them onto the g, r, and i
@@ -247,71 +284,60 @@ have run <b>kcorrect</b> and tried to reconstruct the spectrum. What
 <b>kcorrect</b> does here is to fit the nonnegative sum of three
 (carefully chosen) templates to the g, r, and i fluxes. The black line
 is the original spectrum, the red is the reconstructed. As you can
-see, the fit is reasonable. Not all galaxies are recovered this
-well. The usual failures are, first, that some galaxies are very red
-compared to our templates and, second, that the emission lines are not
-recovered particularly well.</p>
+see, the fit is reasonable. </p>
 
 <p>
 <a href="demo.gif">
-<img src="demo.gif" width=530 height=533 border=0></a>
+<img src="demo.gif" width=200 height=200 border=0></a>
 </p>
 
-<p> If you want to convert apparent magnitudes in band R to absolute
-magnitudes in band Q, you need to calculate the K-correction, which is
-defined by the equation: 
-<pre> 
-m_R = M_Q + DM(z) + K_QR(z) 
-</pre>
-where m_R is the apparent magnitude, M_Q is the absolute magnitude,
-DM(z) is the distance modulus, accounting for the angular diameter
-distance and cosmological surface-brightness dimming, and K_QR(z) is
-the K-correction. By absolute magnitude we mean: the apparent
-magnitude in band Q the object would have if it were observed at rest,
-10 pc away, using an aperture that contains its total flux. See <a
-href="http://cosmo.nyu.edu/blanton/pubs.html#hogg02c"> Hogg et
-al. (2002)</a> for a full description of what the K-correction
-is. Essentially, the K-correction is fully determined by the galaxy
-SED and the description of the bandpasses, so that with the SED fits
-above we have everything we need to calculate K-corrections.</p>
+<p> I designed the code so it could calculate K-corrections from some
+set of observed AB bands to those same bands shifted by an arbitrary
+redshift, if so desired. For example, for the SDSS spectroscopic
+survey, most galaxies are observed near redshift 0.1; it makes sense,
+therefore, to K-correct to bandpasses shifted by 0.1 (ie. by a factor
+1.1). This procedure minimizes errors in the estimated K-corrections,
+because the galaxies at z=0.1 will then have a K-correction which
+independent of their SEDs (and therefore their colors) and equal to
+&minus;2.5log<sub>10</sub>(1+0.1). In general, for a bandpass shifted
+by z<sub>0</sub>, the K-correction for a galaxy at z<sub>0</sub> to
+the observed bandpass shifted by z<sub>0</sub> is
+&minus;2.5log<sub>10</sub>(1+z<sub>0</sub>), independent of galaxy
+SED. A bandpass <i>b</i> shifted by redshift z is denoted
+<i><sup>z</sup>b</i> (as in <i><sup>0.1</sup>g</i>).</i></p>
 
-<p> I designed the code to calculate K-corrections between some set of
-observed AB bands (by default, the SDSS ugriz bands) and those same
-bands shifted by an arbitrary redshift. For example, for the SDSS
-spectroscopic survey, most galaxies are observed near redshift 0.1; it
-makes sense, therefore, to K-correct to bandpasses shifted by 0.1
-(ie. by a factor 1.1). This procedure minimizes errors in the
-estimated K-corrections, because the galaxies at z=0.1 will then have
-a K-correction which independent of their SEDs (and therefore their
-colors) and equal to -2.5 log_10 (1+0.1). In general, for a bandpass
-shifted by z_0, the K-correction for a galaxy at z_0 to the observed
-bandpass shifted by z_0 is -2.5 log_10 (1+z_0), independent of galaxy
-SED. (Note that the K-correction is not zero in this case; very early
-versions of code, v1_10 and previous, incorrectly did not apply this
-overall offset --- see the <a href="#note1"> note</a> at bottom). </p>
-
-<p> The code is generally based on AB maggies. Two notes:
+<p> The inputs to the code are used AB maggies.  These are the ratio
+of the source to the AB standard source in each band. To relate these
+quantities to magnitudes, an object with total flux <i>f</i> in
+maggies
+has magnitude</p>
+<center><i>m</i>&nbsp;=&nbsp;&minus;&nbsp;2.5&nbsp;log<sub>
+10</sub>&nbsp;<i>f</i>&nbsp;&nbsp;&nbsp;.</center> <p> An advantage of
+the maggie unit system is that it is linear, and thus can when
+necessary accommodate negative flux estimates. 
+Two notes:
 <ol>
-<li> SDSS observations calibrated off of the Photometric Telescope
-patches (which includes anything in tsObj catalog files and in the
-official survey database) are NOT on our best guess for the AB
-system. A set of offsets must be applied to the magnitudes to
-achieve our best guess.
+<li> As discussed <a href="#abmags"> below</a>, SDSS catalog numbers
+are NOT on our best guess for the AB system. A set of offsets must be
+applied to the magnitudes to achieve our best guess. 
+Our high level
+IDL code deals with this automatically.
 <li> SDSS catalog magnitudes obtained from the official survey
 database are luptitudes, which for reasonably bright objects are
-equivalent to AB magnitudes. "Maggies" are simply the linearized
-version of AB magnitudes; that is, they are 10^{-0.4*mag} (the
-conversion from luptitudes to maggies is a bit more complicated, see
-the description accompanying the <a href="http://www.sdss.org/dr2/">
-DR2 documentation</a>). 
+equivalent to magnitudes.  While maggies are simply related to
+magnitudes by 10<sup>&minus;0.4m</sup>, the conversion from luptitudes
+to maggies is a bit more complicated; see the description accompanying
+the <a href="http://www.sdss.org/dr2/"> DR2 documentation</a>). Our
+high level IDL code deals with these conversions automatically.  
 </ol>
 </p>
 
 <p> But you may still be wondering what I mean by an "AB"
 magnitude. The AB system is designed such that a flat spectrum object
-with f_nu = 3631 Jy = 3.631e-20 ergs cm^{-2} s^{-1} Hz^{-1} should
-have every magnitude equal to zero. The beauty of the AB system is
-that the uniform definition makes it convenient to synthesize AB
+with f<sub>&nu</sub> = 3631 Jy = 3.631 &times; 10<sup>&minus;20</sup> ergs
+cm<sup>&minus;2</sup> s<sup>&minus;1</sup> Hz<sup>&minus;1</sup>
+should have every magnitude equal to zero. The beauty of the AB system
+is that the uniform definition makes it convenient to synthesize AB
 magnitudes from theory or models. The tragic flaw is that the quality
 of the AB-ness of a system is very dependent on precise
 spectrophotometry of standards and the carefulness of the calibrators,
@@ -319,63 +345,95 @@ since no objects have a flat spectrum. There is a tension between
 these two needs --- similar to other tensions throughout astronomy
 between making precise measurements and making interpretable ones.</p>
 
-<h3> Using the IDL Code</h3>
+<a name="highlevel">
+<h3> IDL routines for SDSS, GALEX, 2MASS, DEEP2, and GOODS users</h3>
 
+<p>
 The easiest interface to the code, if it is available to you, is the
 IDL code. The detailed <a href="kcorrect_help.html"> documentation</a>
-is available for all of the routines, but there is basically only one
-you would usually use, which is <b>kcorrect</b>. The IDL code depends
-on the <a href="http://spectro.princeton.edu/idlutils_doc.html">
-idlutils</a> package.
+is available for all of the routines.  The IDL code depends on the <a
+href="http://spectro.princeton.edu/idlutils_doc.html"> idlutils</a>
+package.
+</p>
 
-This routine performs the K-corrections on a 
-set of magnitudes or maggies. It is called as follows:
-<pre>
-kcorrect, maggies, maggies_ivar, redshift, kcorrect [ , $
-  band_shift=, /magnitude, /stddev, lfile=, $
-  vfile=, vpath=, filterlist=, filterpath=, rmatrix=, $
-  zvals=, lambda=, vmatrix=, coeffs=, /verbose, /sdssfix ]
-</pre>
-By default, you hand the code AB maggies in SDSS ugriz, the inverse
-variance of the maggies (1/stddev^2), and the redshift, and it passes
-back K-corrections (in magnitudes) to redshift zero for those
-bandpasses, 
-based on the
-nonnegative fit of three carefully chosen templates.  The flags mean
-the following:
+<p> The following routines exist:</p>
 <ol>
-<li> <b>band_shift=</b>: K-correct to the given redshift instead of
-redshift zero. 
-<li> <b>filterlist=</b>: list of filters (defaults to 
-['sdss_u0.par', 'sdss_g0.par', 'sdss_r0.par', 'sdss_i0.par',
-'sdss_z0.par'])
-<li> <b>filterpath=</b>: path to look for filters on (defaults to 
-$KCORRECT_DIR/data/filters)
-<li> <b>coeffs=</b>: outputs the coefficients multiplying each
-template
-<li> <b>lambda=</b>, <b>vmatrix=</b>: outputs the wavelength scale and
-flux of each template (combined with the coefficients, you can use
-these to look at the fit spectrum)
-<li> <b>chi2=</b>: outputs chi^2 of the template fit
-<li> <b>/sdssfix</b>: assumes you are giving it tsObj inputs
-(luptitudes and standard deviation of luptitudes) and
-translates to maggies and inverse variance in the AB system (using our
-best guess for the AB offsets); automatically sets
-/magnitude and /stddev
-<li> <b>/magnitude</b>: "maggies" inputs are in magnitudes, not
-maggies
-<li> <b>/stddev</b>: "maggies_ivar" inputs are the standard deviation,
-not the inverse variance
+<li> <a href="kcorrect_help.html#SDSS_KCORRECT"> sdss_kcorrect</a>:
+SDSS K-corrections 
+<li> <a href="kcorrect_help.html#SDSS2BESSELL"> sdss2bessell</a>: Take
+   SDSS <i>ugriz</i> fluxes and return Bessell <i>UBVRI</i> fluxes
+<li> <a href="kcorrect_help.html#GALEX_KCORRECT"> galex_kcorrect</a>:
+GALEX+SDSS K-corrections
+<li> <a href="kcorrect_help.html#TWOMASS_KCORRECT"> twomass_kcorrect</a>:
+2MASS+SDSS K-corrections
+<li> <a href="kcorrect_help.html#GST_KCORRECT"> gst_kcorrect</a>:
+GALEX+SDSS+2MASS kcorrections
+<li> <a href="kcorrect_help.html#DEEP_KCORRECT"> deep_kcorrect</a>:
+DEEP K-corrections
+<li> <a href="kcorrect_help.html#SDSS2DEEP"> sdss2deep</a>:
+Take local SDSS observations and return fluxes which would be observed
+in DEEP at some given redshift.
+<li> <a href="kcorrect_help.html#GOODS_KCORRECT"> goods_kcorrect</a>:
+GOODS K-corrections
+<li> <a href="kcorrect_help.html#SDSS2GOODS"> sdss2goods</a>: 
+Take local SDSS observations and return fluxes which would be observed
+in GOODS at some given redshift.
 </ol>
-Other inputs are explained in the documentation. </p>
 
-<p> Please note that the calling procedure has changed since v1_16, in
-the sense that inputting maggies is now the default.  I apologize that
-some people may have to change their code, but this system is better
-than magnitudes. Sorry, but then, you get what you pay for. </p>
+<p> In all cases I have tried to make the inputs as close to the
+catalogs that the user might be using, and in the form of a structure
+passed by the user.  The code calls routines like the following to
+handle the transformations:</P>
+<ol>
+<li> <a href="kcorrect_help.html#SDSS_TO_MAGGIES"> sdss_to_maggies</a>
+<li> <a href="kcorrect_help.html#GALEX_TO_MAGGIES"> galex_to_maggies</a>
+<li> <a href="kcorrect_help.html#TWOMASS_TO_MAGGIES"> twomass_to_maggies</a>
+<li> <a href="kcorrect_help.html#DEEP_TO_MAGGIES"> deep_to_maggies</a>
+<li> <a href="kcorrect_help.html#GOODS_TO_MAGGIES"> goods_to_maggies</a>
+</ol>
+<p> As noted in the documentation, these routines sometimes perform
+corrections to the AB system (such as the <a href="abmags"> small
+corrections for the SDSS</a> and the transformation from the Vega
+system in 2MASS). Also, they tend to add small uncertainties in
+quadrature with all of the uncertainties in order not to overfit to
+possible calibration errors. Sometimes they require the <a
+href="http://skymaps.info"> Schlegel, Finkbeiner and Davis
+dustmaps</a> to be correctly installed on you system. Finally, they
+try to recognize the usual error flags and set inverse variances to
+zero where appropriate. The K-correction routines do output the
+maggies and inverse variances they calculate in the "omaggies" and
+"oivar" keywords.</p>
 
-<p> To perform K-corrections for other sets of bandpasses (say, the
-Bessell bandpasses or 2MASS bandpasses), look for them in
+<p> In the case of SDSS, I provide
+both calibObj structure inputs (like those used by the <a
+href="http://photo.astro.princeton.edu"> Princeton reductions</a> and
+the <a href="http://sdss.physics.nyu.edu/vagc"> NYU-VAGC</a>) and
+tsObj inputs (like those used by the <a href="http://das.sdss.org">
+Data Archive Servers)</a>. I don't ever use the <a
+href="http://cas.sdss.org"> Catalog Archive Server</a> but would be
+happy to add an input structure for people who do if you let me know
+what columns to assume is in it. In the meanwhile, basically anything
+called "Counts" in the tsObj structure corresponds to anything called
+"Mag" in the CAS. Note the oddity that COUNTS_MODEL corresponds to
+modelMag.</p>
+
+<p> These K-correction routines will also return absolute magnitudes
+(and inverse variances of the same). To do so it assumes
+&Omega;<sub>m</sub> = 0.3 and &Omega;<sub>&Lambda;</sub> = 0.7 (though
+these can be set differently on input).</p> 
+
+<p> You will also note some outputs having to do with mass-to-light
+ratios and masses. <b>These are still preliminary and should be used
+with caution</b>.</p>
+
+<a name="idl">
+<h2>Lower-level IDL routines for arbitrary data</h3>
+
+<p> All the above K-correction routines use the same basic engine, <a
+href="kcorrect_help.html#KCORRECT"> kcorrect</a>. This routine uses
+SDSS filters by default but allows any type to be input.  To perform
+K-corrections for other sets of bandpasses (say, the Bessell
+bandpasses or 2MASS bandpasses), look for them in
 $KCORRECT_DIR/data/filters and insert them in the filterlist=
 flag. </p>
 
@@ -388,7 +446,7 @@ kcorrect, [1., 4.78, 10.96, 14.45, 19.05],  $
 </pre>
 which would take the set of maggies in the first argument, observed
 for a galaxy at redshift 0.03, and return the K-corrections to the
-ugriz magnitudes shifted by 0.1. This choice of maggies and
+<i>ugriz</i> magnitudes shifted by 0.1. This choice of maggies and
 uncertainties should return a good chi^2.  Note that it is a
 nonnegative fit, so linear goodness of fit measures don't exactly
 apply. </p>
@@ -411,7 +469,9 @@ kcorrect, [1., 4.73, 11.26, 14.25, 18.85],  $
 </pre>
 You will find that the second call takes far less time than the first,
 because the temporary data stored in rmatrix and zvals will not have
-to be regenerated.</p>
+to be regenerated. The <a href="#highlevel"> high-level routines</a> I
+discuss above all maintain common blocks which store rmatrix and zvals
+for you so you don't have to worry about this.</p>
 
 <p> If you want to look at the fit spectrum, then specify vmatrix,
 lambda, and coeffs. The commands
@@ -422,10 +482,13 @@ kcorrect, [1., 4.78, 10.96, 14.45, 19.05],  $
           vmatrix=vmatrix, lambda=lambda, coeffs=coeffs
 plot, lambda, vmatrix#coeffs, xra=[2000., 12000.]
 </pre>
-will plot the best fit spectrum.</p>
+will plot the best fit spectrum. You can also just call <a
+href="kcorrect_help.html#K_LOAD_VMATRIX">k_load_vmatrix</a> to get the
+templates.</p>
 
 <p> If you want to project that spectrum onto a new set of bandpasses,
-use k_reconstruct_maggies. For example, to project back onto the SDSS
+use <a href="kcorrect_help.html#K_RECONSTRUCT_MAGGIES">
+k_reconstruct_maggies</a>. For example, to project back onto the SDSS
 bandpasses, the command
 <pre>
 k_reconstruct_maggies, coeffs, 0.03, maggies, vmatrix=vmatrix, $
@@ -441,11 +504,51 @@ vega2ab=k_vega2ab(filterlist=['bessell_B.par', 'bessell_V.par'],/kurucz)
 bessellmags=-2.5*alog10(maggies)-vega2ab
 BminusV=bessellmags[0]-bessellmags[1]
 </pre>
-will yield the AB B-V for the best fit.  I won't fully document
-k_reconstruct_maggies here; look in the IDL documentation for more
-information.
+will yield the Vega B-V for the best fit. </p>
 
-<h3> Using the Stand-Alone C Code</h3>
+<p> Users of kcorrect v3_2 will hopefully find that I retained
+backwards compatibility.  Please note that the calling procedure has
+changed since v1_16, in the sense that inputting maggies is now the
+default. </p> 
+
+<a name="utils"> 
+<h3>Other useful utilities in the IDL library</h3>
+
+In addition to the K-correction tools, kcorrect has some other useful
+tools in it: 
+<ol>
+<li> <a href="photoz.html"> Photometric redshift code</a> <b>Not fully
+tested for this version.</b>
+<li> <a href="kcorrect_help.html#K_PROJECT_FILTERS">
+k_project_filters()</a> is a standalone IDL routine to project a
+spectrum onto a filter.
+<li> <a href="kcorrect_help.html#K_SMOOTH">
+k_smooth</a> smooths a spectrum with a Gaussian.
+<li> <a href="kcorrect_help.html#K_SOLAR_MAGNITUDES">
+k_solar_magnitudes()</a> calculates Solar absolute magnitudes in any
+filter.
+<li> <a href="kcorrect_help.html#K_VEGA2AB"> k_vega2ab()</a> provides
+conversions between AB and Vega magnitudes.
+<li> <a href="kcorrect_help.html#LF_DISTMOD"> lf_distmod()</a>
+calculates distance moduli given a redshift and cosmology.
+<li> A number of useful routines (mostly starting with "lf_") exist
+for calculating luminosity functions.
+
+<li> There are various pieces of code (not all written by me) for
+reading in certain types of data files, like <a
+href="kcorrect_help.html#K_IM_READ_BC03()"> Bruzual-Charlot
+predictions</a> (by John Moustakas), <a
+href="kcorrect_help.html#READ_DRAINE"> Bruce Draine's PAH spectra</a>,
+<a href="kcorrect_help.html#READ_PEG.PRO"> PEGASE2 predictions</a> (by
+Alex Quintero), <a href="kcorrect_help.html#WITT_EXT"> Witt-Gordon
+multiple-scattering dust extinction predictions</a>, and <a
+href="kcorrect_help.html#READ_MAPPINGS">Mappings-III style emission
+line fluxes</a>.
+
+</ol>
+
+<a name="cstandalone">
+<h3> Stand-alone C code</h3>
 
 <p> The C code requires a bit more attention to use. If people say
 they would use it if it were easier, I will improve it. In this
@@ -543,7 +646,8 @@ I wasn't sure how many people would use the pure C versions. If there
 is a need to do this, I might be convinced to -- or if YOU do it, we
 could include your stuff in the library. </p>
 
-<h3> Using the C Libraries</h3>
+<a name="clib">
+<h3> kcorrect C library</h3>
 
 <p> Why would you bother incorporating the K-correction code into your
 code at all, rather than just calculating the K-corrections once and
@@ -663,10 +767,21 @@ I wasn't sure how many people would use the pure C versions. If there
 is a need to do this, I might be convinced to -- or if YOU do it, we
 could include your stuff in the library. </p>
 
-<h3> Filter Curves</h3>
+<a name="filters">
+<h3> Filter curves</h3>
 
 <p> It is of course necessary to have filter responses to do any of
-this work. It turns out that the SDSS filters do not have the
+this work. Thus, in kcorrect I have put together a fairly large
+library of filter curves in a homogeneous format. I have tried as far
+as possible to provide the provenance of all of these curves, though
+it has not always been possible to figure out.</p>
+
+<p> The files are in a special SDSS format called FTCL described at <a
+href="http://www.sdss.org/dr2/data/parfiles.html"> the SDSS DR2
+site</a>. IDL code (in particular, yanny_readone()) exists in <a
+href="http://spectro.princeton.edu"> idlutils</a> to read in such files. </p>
+
+<p>It turns out that the SDSS filters do not have the
 responses they were designed to have, but <a
 href="http://www.ioa.s.u-tokyo.ac.jp/~doi/"> Mamoru Doi</a> has done
 the hard work of measuring them. Jim Gunn then took these, ran them
@@ -685,11 +800,6 @@ sdss_z0.par
 </pre> 
 The other SDSS files refer to the responses for each camcol.</p>
 
-<p> The files are in a special SDSS format called FTCL described at <a
-href="http://www.sdss.org/dr2/data/parfiles.html"> the SDSS DR2
-site</a>. IDL code (in particular, yanny_readone()) exists in <a
-href="http://spectro.princeton.edu"> idlutils</a> to read in such files. </p>
-
 <a name="abmags">
 <h3> Absolute calibration and its uncertainty in SDSS magnitudes</h3>
 
@@ -705,7 +815,7 @@ corrections to the magnitudes they are using.
 </p>
 
 <p> In addition, we always apply minimum uncertainty of [0.05, 0.02,
-0.02, 0.02, 0.03] mag in ugriz (the high level routines SDSS_KCORRECT,
+0.02, 0.02, 0.03] mag in <i>ugriz</i> (the high level routines SDSS_KCORRECT,
 etc. already do so). This is because there is always an uncertainty in
 the calibration of any given galaxy, and we don't want the templates
 working super-hard to fit (say) some unrealistically small error bar
@@ -787,13 +897,54 @@ thanks to Ivan for pointing out the error.
 <a name="thanks">
 <h3> Acknowledgements</h3>
 
-GALEX grant.
+<p> This work was funded in part by a GALEX Archival research grant
+(##).</p>
 
-Thanks to Alison Coil, Jeff Newman, and Risa Wechsler for help
-understand and using the DEEP2 data. Thanks to Lexi Moustakas for help
-using the GOODS catalog -- and the GOODS team for access to that
-catalog. Thanks to John Moustakas for his code for reading in
-Bruzual-Charlot templates.
+<p> Sam Roweis provided irreplaceable help in teaching me the
+algorithms used in this code. David Hogg tracked down many of the
+bandpass responses given here. Ivan Baldry was critical to debugging
+the code. Hewett and Warren provided a bandpass response for the
+b<sub>j</sub> band.  Thanks to Alison Coil, Jeff Newman, and Risa
+Wechsler for help understand and using the DEEP2 data. Thanks to Lexi
+Moustakas for help using the GOODS catalog -- and the GOODS team for
+access to that catalog. Thanks to John Moustakas for his code for
+reading in Bruzual-Charlot templates.</p>
+
+<a name="credits">
+<h3> SDSS credits</h3> 
+
+<p> Funding for the Sloan Digital Sky Survey (SDSS) has been provided
+by the Alfred P. Sloan Foundation, the Participating Institutions, the
+National Aeronautics and Space Administration, the National Science
+Foundation, the U.S. Department of Energy, the Japanese
+Monbukagakusho, and the Max Planck Society. The SDSS Web site is
+http://www.sdss.org/.  </p>
+
+<p> The SDSS is managed by the Astrophysical
+Research Consortium (ARC) for the Participating Institutions.  The
+Participating Institutions are The University of Chicago, Fermilab,
+the Institute for Advanced Study, the Japan Participation Group, The
+Johns Hopkins University, Los Alamos National Laboratory, the
+Max-Planck-Institute for Astronomy (MPIA), the Max-Planck-Institute
+for Astrophysics (MPA), New Mexico State University, University of
+Pittsburgh, Princeton University, the United States Naval Observatory,
+and the University of Washington. </p>
+
+<h3> 2MASS credits</h3>
+
+<p>
+This publication makes use of data products from the Two Micron All
+Sky Survey, which is a joint project of the University of
+Massachusetts and the Infrared Processing and Analysis
+Center/California Institute of Technology, funded by the National
+Aeronautics and Space Administration and the National Science
+Foundation.</p>
+
+<h3> GALEX credits</h3>
+
+<h3> DEEP2 credits</h3>
+
+<h3> GOODS credits</h3>
 
 <hr> 
 
