@@ -20,7 +20,8 @@
 ;   29-Nov-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_run_nmf, niter=niter, nt=nt, qa=qa, reset=reset
+pro k_run_nmf, niter=niter, nt=nt, qa=qa, reset=reset, zdust=zdust, $
+               zextra=zextra
 
 if(NOT keyword_set(niter)) then niter=1000L
 if(NOT keyword_set(nt)) then nt=4
@@ -69,14 +70,25 @@ endif else begin
       templates[0:n_elements(age)-1L,i]= $
       max(sqrt(age))*templates[0:n_elements(age)-1L,i]/sqrt(age)
     ii=where(dust.tauv gt 0., nii)
-    if(nii gt 0) then $
-      for i=0L, nt-1L do $
-      templates[ii, i]=templates[ii,i]*0.001
+    if(NOT keyword_set(zdust)) then begin
+        if(nii gt 0) then $
+          for i=0L, nt-1L do $
+          templates[ii, i]=templates[ii,i]*0.001
+    endif else begin
+        if(nii gt 0) then $
+          for i=0L, nt-1L do $
+          templates[ii, i]=0.
+    endelse
 	  if(ndraine gt 0) then $
       templates[nages*ndusts*nmets+nel: $
                 nages*ndusts*nmets+nel+ndraine-1L, *]= $
         templates[nages*ndusts*nmets+nel: $
                   nages*ndusts*nmets+nel+ndraine-1L, *]*0.001
+    if(keyword_set(zextra)) then begin
+        nc=(size(templates,/dim))[0]
+        for i=0L, nt-1L do $
+          templates[n_elements(age):nc-1L,i]=0.
+    endif
 endelse
 ttot=total(templates, 1)
 if(keyword_set(coeffs)) then $
@@ -86,7 +98,6 @@ for i=0L, nt-1L do $
   templates[*,i]=templates[*,i]/ttot[i]
 nmf_sparse, data, data_ivar, nt, mmatrix, niter, coeffs=coeffs, $
   templates=templates
-
 
 ;; normalize coeffs to unit stellar mass
 t_mass=total(templates[0:nages*nmets*ndusts-1L,*], 1)

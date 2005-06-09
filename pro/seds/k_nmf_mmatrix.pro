@@ -83,11 +83,11 @@ if(NOT keyword_set(filterlist)) then $
 
 if(n_tags(dusts) eq 0) then begin
     dusts1={geometry:'', dust:'', structure:'', tauv:0.}
-    dusts=replicate(dusts1,7)
-    dusts.geometry=['shell', 'shell','shell','shell','shell','shell','shell']
-    dusts.dust=['MW','MW','MW','MW','SMC','SMC','SMC']
-    dusts.structure=['h','h','h','h','h','h','h']
-    dusts.tauv=[0.,0.5,1.5,4.,0.5,1.5,4.]
+    dusts=replicate(dusts1,3)
+    dusts.geometry=['shell','shell','shell']
+    dusts.dust=['MW','MW','SMC']
+    dusts.structure=['h','h','h']
+    dusts.tauv=[0.,3.0,3.0]
 endif 
 if(keyword_set(nodust)) then begin
     dusts={geometry:'dusty', dust:'MW', structure:'c', tauv:0.}

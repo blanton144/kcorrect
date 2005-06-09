@@ -57,9 +57,9 @@ endif else begin
     vlim=mrdfits(vlimfile,1)
 endelse
 
-kcb=sdss2bessell(cat.z, calibobj=cat, band_shift=0.0, rmaggies=rmaggies, $
+kcb=sdss2bessell(vlim.z, calibobj=vlim, band_shift=0.0, rmaggies=rmaggies, $
                  omaggies=omaggies, oivar=oivar, vname=vname, $
-                 absmag=absmag, mtol=mtol, /vega)
+                 absmag=absmag, mtol=mtol, /vega, coeffs=coeffs)
 k_print, filename='sdss_mtol_main.ps', pold=pold, xold=xold, yold=yold, $
   axis_char_scale=1.1
 !P.MULTI=[0,1,1]
@@ -87,10 +87,10 @@ k_print, filename='sdss_resid_main.ps', $
 !X.OMARGIN=0
 !Y.OMARGIN=0
 !P.MULTI=[0,2,2]
-ranges=[[-1.09, 1.09], $
-        [-0.29, 0.29], $
-        [-0.29, 0.29], $
-        [-0.39, 0.39]]
+ranges=[[-0.49, 0.49], $
+        [-0.19, 0.19], $
+        [-0.19, 0.19], $
+        [-0.19, 0.19]]
 ytitle=['\Delta!8(u-g)!6', $
         '\Delta!8(g-r)!6', $
         '\Delta!8(r-i)!6', $
@@ -100,7 +100,7 @@ ychs=[1.1, 0.001, 1.1, 0.001]
 
 for i=0, 3 do begin  & $
   hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
-  xra=[0.041, 0.179], yra=ranges[*,i], /cond, $
+  xra=[0.01, 0.31], yra=ranges[*,i], /cond, $
   xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
   xtitle='!8z!6', xch=xchs[i], ych=ychs[i] & $

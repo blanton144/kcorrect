@@ -178,7 +178,8 @@ k_reconstruct_maggies,coeffs,redshift,rmaggies,rmatrix=rmatrix,zvals=zvals
 if(arg_present(mass)) then $
   mass=total(coeffs,1)*10.^(0.4*lf_distmod(redshift, omega0=omega0, $
                                            omegal0=omegal0))
-smaggies=10.^(-0.4*k_solar_magnitudes(filterlist=filterlist))
+smaggies=10.^(-0.4*k_solar_magnitudes(filterlist=filterlist, $
+                                      band_shift=band_shift))
 mtol=fltarr(n_elements(filterlist), n_elements(redshift))
 mm=total(coeffs,1)
 for i=0L, n_elements(filterlist)-1L do $

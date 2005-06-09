@@ -6,158 +6,213 @@
 ; CALLING SEQUENCE:
 ;   k_fit_templates [, nt= ]
 ; OPTIONAL INPUTS:
-;   nt - number of templates to fit for (default 6)
-; COMMENTS:
-;   Requires k_nmf_mmatrix and k_nmf_spdata to have been run. 
-;   Runs k_run_nmf multiple times:
-;     1. runs short set of iterations to get basic fit 
-;     2. classifies galaxies based on optical (model) color into nt sets
-;     3. runs k_run_nmf nt times, once on each set, to get starting points
-;     4. then runs k_run_nmf over and over again (up to 100 times) with
-;        1000 iterations each time
+;   nt - maximum number of templates to fit for (default 4)
 ; REVISION HISTORY:
 ;   09-Apr-2005  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
 pro k_fit_templates, nt=nt, nprime=nprime
 
-if(NOT keyword_set(nprime)) then nprime=2000
-if(NOT keyword_set(subprime)) then subprime=1.
+if(NOT keyword_set(nt)) then nt=4
 
-;; 1. initial fits
-k_run_nmf, nt=nt, niter=10, /reset, /qa
-k_run_nmf, nt=nt, niter=100, /qa
-k_run_nmf, nt=nt, niter=nprime, /qa
+spawn, 'mkdir -p photo1'
+cd, 'photo1'
+k_nmf_mmatrix, /nodust, /noel
+k_nmf_spdata, nsdss_spec=0L, nlrg_spec=0L, /few
+k_run_nmf, nt=1L, niter=1000L, /reset, /qa
+cd, '../'
 
-;; 2. split sample
+spawn, 'mkdir -p photo2'
+cd, 'photo2'
+spawn, 'cp ../photo1/k_nmf_mmatrix.fits .'
+spawn, 'cp ../photo1/k_nmf_early.fits .'
+spawn, 'cp ../photo1/k_nmf_spdata.fits .'
+spawn, 'cp ../photo1/k_nmf_rawspec.fits .'
+spawn, 'cp ../photo1/k_nmf_soln.fits .'
+templates1=mrdfits('k_nmf_soln.fits',0)
+coeffs1=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates1,/dim))[0]
+ng=(size(coeffs1,/dim))[1]
+templates=fltarr(nb,2)
+templates[*,0]=templates1*(0.95+0.1*randomu(seed, nb))+0.01/float(nb)
+templates[*,1]=templates1*(0.95+0.1*randomu(seed, nb))+0.01/float(nb)
+mwrfits, templates, 'k_nmf_soln.fits', /create
+k_run_nmf, nt=2L, niter=10000L, /qa
+cd, '../'
 
-;;     a. read in data
+spawn, 'mkdir -p photo3'
+cd, 'photo3'
+spawn, 'cp ../photo2/k_nmf_mmatrix.fits .'
+spawn, 'cp ../photo2/k_nmf_early.fits .'
+spawn, 'cp ../photo2/k_nmf_spdata.fits .'
+spawn, 'cp ../photo2/k_nmf_rawspec.fits .'
+spawn, 'cp ../photo2/k_nmf_soln.fits .'
+templates2=mrdfits('k_nmf_soln.fits',0)
+coeffs2=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates2,/dim))[0]
+ng=(size(coeffs2,/dim))[1]
+templates=fltarr(nb,3)
+templates[*,0]=templates2[*,0]*(0.95+0.1*randomu(seed, nb))+0.01/float(nb)
+templates[*,1]=templates2[*,1]*(0.95+0.1*randomu(seed, nb))+0.01/float(nb)
+templates[*,2]=0.5*(templates2[*,0]+templates2[*,1])* $
+  (0.5+1.0*randomu(seed, nb))+0.01/float(nb)
+mwrfits, templates, 'k_nmf_soln.fits', /create
+k_run_nmf, nt=3L, niter=20000L, /qa
+cd, '../'
+
+spawn, 'mkdir -p photo4'
+cd, 'photo4'
+spawn, 'cp ../photo3/k_nmf_mmatrix.fits .'
+spawn, 'cp ../photo3/k_nmf_early.fits .'
+spawn, 'cp ../photo3/k_nmf_spdata.fits .'
+spawn, 'cp ../photo3/k_nmf_rawspec.fits .'
+spawn, 'cp ../photo3/k_nmf_soln.fits .'
+templates3=mrdfits('k_nmf_soln.fits',0)
+coeffs3=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates3,/dim))[0]
+ng=(size(coeffs3,/dim))[1]
+templates=fltarr(nb,4)
+templates[*,0]=templates3[*,0]*(0.95+0.1*randomu(seed, nb))+0.01/float(nb)
+templates[*,1]=templates3[*,1]*(0.95+0.1*randomu(seed, nb))+0.01/float(nb)
+templates[*,2]=templates3[*,2]*(0.95+0.1*randomu(seed, nb))+0.01/float(nb)
+templates[*,3]=0.333*(templates3[*,0]+templates3[*,1]+templates3[*,2])* $
+  (0.1+1.8*randomu(seed, nb))+0.1/float(nb)
+mwrfits, templates, 'k_nmf_soln.fits', /create
+k_run_nmf, nt=4L, niter=40000L, /qa
+cd, '../'
+
+spawn, 'mkdir -p photo2m'
+cd, 'photo2m'
+spawn, 'cp ../photo2/k_nmf_mmatrix.fits .'
+spawn, 'cp ../photo2/k_nmf_early.fits .'
+spawn, 'cp ../photo2/k_nmf_rawspec.fits .'
+spawn, 'cp ../photo2/k_nmf_soln.fits .'
+k_nmf_spdata, nsdss_spec=0L, nlrg_spec=0L
+k_run_nmf, nt=2L, niter=5000L, /qa
+templates2=mrdfits('k_nmf_soln.fits',0)
+coeffs2=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates2,/dim))[0]
+ng=(size(coeffs2,/dim))[1]
+templates=fltarr(nb,2)
+templates[*,0]=templates2[*,0]*(0.99+0.02*randomu(seed, nb))+0.001/float(nb)
+templates[*,1]=templates2[*,1]*(0.99+0.02*randomu(seed, nb))+0.001/float(nb)
+mwrfits, templates, 'k_nmf_soln.fits', /create
+k_run_nmf, nt=2L, niter=10000L, /qa
+cd, '../'
+
+spawn, 'mkdir -p photo3m'
+cd, 'photo3m'
+spawn, 'cp ../photo3/k_nmf_mmatrix.fits .'
+spawn, 'cp ../photo3/k_nmf_early.fits .'
+spawn, 'cp ../photo3/k_nmf_rawspec.fits .'
+spawn, 'cp ../photo3/k_nmf_soln.fits .'
+spawn, 'cp ../photo2m/k_nmf_spdata.fits .'
+k_run_nmf, nt=3L, niter=5000L, /qa
+templates3=mrdfits('k_nmf_soln.fits',0)
+coeffs3=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates3,/dim))[0]
+ng=(size(coeffs3,/dim))[1]
+templates=fltarr(nb,3)
+templates[*,0]=templates3[*,0]*(0.99+0.02*randomu(seed, nb))+0.001/float(nb)
+templates[*,1]=templates3[*,1]*(0.99+0.02*randomu(seed, nb))+0.001/float(nb)
+templates[*,2]=templates3[*,2]*(0.99+0.02*randomu(seed, nb))+0.001/float(nb)
+mwrfits, templates, 'k_nmf_soln.fits', /create
+k_run_nmf, nt=3L, niter=40000L, /qa
+cd, '../'
+
+spawn, 'mkdir -p photo4m'
+cd, 'photo4m'
+spawn, 'cp ../photo4/k_nmf_mmatrix.fits .'
+spawn, 'cp ../photo4/k_nmf_early.fits .'
+spawn, 'cp ../photo4/k_nmf_rawspec.fits .'
+spawn, 'cp ../photo4/k_nmf_soln.fits .'
+spawn, 'cp ../photo2m/k_nmf_spdata.fits .'
+k_run_nmf, nt=4L, niter=5000L, /qa
+templates4=mrdfits('k_nmf_soln.fits',0)
+coeffs4=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates4,/dim))[0]
+ng=(size(coeffs4,/dim))[1]
+templates=fltarr(nb,4)
+templates[*,0]=templates4[*,0]*(0.99+0.02*randomu(seed, nb))+0.001/float(nb)
+templates[*,1]=templates4[*,1]*(0.99+0.02*randomu(seed, nb))+0.001/float(nb)
+templates[*,2]=templates4[*,2]*(0.99+0.02*randomu(seed, nb))+0.001/float(nb)
+templates[*,3]=templates4[*,3]*(0.99+0.02*randomu(seed, nb))+0.001/float(nb)
+mwrfits, templates, 'k_nmf_soln.fits', /create
+k_run_nmf, nt=4L, niter=40000L, /qa
+cd, '../'
+
+spawn, 'mkdir -p dust2m'
+cd, 'dust2m'
+k_nmf_mmatrix, /noel
 hdr=headfits('k_nmf_mmatrix.fits')
-nspec=long(sxpar(hdr,'NSPEC'))
-nzf=long(sxpar(hdr,'NZ'))
-mmatrix=mrdfits('k_nmf_mmatrix.fits',0,hdr)
-zf=mrdfits('k_nmf_mmatrix.fits',6)
-datastr=mrdfits('k_nmf_spdata.fits',1)
-vals=mrdfits('k_nmf_spdata.fits',2)
-ivar=mrdfits('k_nmf_spdata.fits',3)
-xx=mrdfits('k_nmf_spdata.fits',4)
-zhelio=mrdfits('k_nmf_spdata.fits',7)
-data=create_struct(datastr, $
-                   'val', fltarr(n_elements(vals)), $
-                   'x', fltarr(n_elements(vals)))
-data.val=vals
-data.x=xx
-data_ivar=create_struct(datastr, $
-                        'val', fltarr(n_elements(vals)), $
-                        'x', fltarr(n_elements(vals)))
-data_ivar.val=ivar
-data_ivar.x=xx
+ndusts=long(sxpar(hdr, 'NDUST'))
+nmets=long(sxpar(hdr, 'NMET'))
+nages=long(sxpar(hdr, 'NAGE'))
+spawn, 'cp ../photo2m/k_nmf_soln.fits .'
+spawn, 'cp ../photo2m/k_nmf_spdata.fits .'
+templates2=mrdfits('k_nmf_soln.fits',0)
+coeffs2=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates2,/dim))[0]
+ng=(size(coeffs2,/dim))[1]
+templates=fltarr(nb*ndusts,2)
+scale=fltarr(ndusts)+0.01
+scale[0]=1.
+for j=0L, 2L-1L do $
+  for i=0L, ndusts-1L do $
+  templates[i*nmets*nages:(i+1)*nmets*nages-1L,j]= $
+  scale[i]*(templates2[*,j]*(1.00+0.00*randomu(seed, nb))+0.0001/float(nb))
+mwrfits, templates, 'k_nmf_soln.fits', /create
+mwrfits, coeffs2, 'k_nmf_soln.fits'
+k_run_nmf, nt=2L, niter=10000L, /qa
+cd, '../'
 
-;;     b. read in the results
-filterlist=mrdfits('k_nmf_mmatrix.fits',5)
-templates=mrdfits('k_nmf_soln.fits')
-coeffs=mrdfits('k_nmf_soln.fits',1)
-nt=(size(templates, /dim))[1]
+spawn, 'mkdir -p dust4m'
+cd, 'dust4m'
+spawn, 'cp ../dust2m/k_nmf_mmatrix.fits .'
+hdr=headfits('k_nmf_mmatrix.fits')
+ndusts=long(sxpar(hdr, 'NDUST'))
+nmets=long(sxpar(hdr, 'NMET'))
+nages=long(sxpar(hdr, 'NAGE'))
+spawn, 'cp ../photo4m/k_nmf_soln.fits .'
+spawn, 'cp ../photo4m/k_nmf_spdata.fits .'
+templates4=mrdfits('k_nmf_soln.fits',0)
+coeffs4=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates4,/dim))[0]
+ng=(size(coeffs4,/dim))[1]
+templates=fltarr(nb*ndusts,4)
+scale=fltarr(ndusts)+0.01
+scale[0]=1.
+for j=0L, 4L-1L do $
+  for i=0L, ndusts-1L do $
+  templates[i*nmets*nages:(i+1)*nmets*nages-1L,j]= $
+  scale[i]*(templates4[*,j]*(1.00+0.00*randomu(seed, nb))+0.0001/float(nb))
+mwrfits, templates, 'k_nmf_soln.fits', /create
+mwrfits, coeffs4, 'k_nmf_soln.fits'
+k_run_nmf, nt=4L, niter=50000L, /qa
+cd, '../'
 
-;;     c. get u-g for model
-model={val:fltarr(2L*data.ny), $
-       x:fltarr(2L*data.ny), $
-       nx:data.nx, $
-       ny:data.ny, $
-       rowstart:lonarr(data.ny), $
-       nxrow:lonarr(data.ny)}
-iu=where(strtrim(string(filterlist),2) eq 'sdss_u0.par')
-ir=where(strtrim(string(filterlist),2) eq 'sdss_r0.par')
-xu=nspec+iu[0]*nzf+0L
-xr=nspec+ir[0]*nzf+0L
-for i=0L, model.ny-1L do begin
-    model.rowstart[i]=i*2L
-    model.nxrow[i]=2L
-    model.x[model.rowstart[i]]=xu
-    model.x[model.rowstart[i]+1L]=xr
-endfor
-mcoeffs=templates#coeffs
-mmeval, model, transpose(mmatrix), mcoeffs
-umag=-2.5*alog10(model.val[model.rowstart])
-rmag=-2.5*alog10(model.val[model.rowstart+1L])
-umr=umag-rmag
-
-;;       c. classify by umr
-isort=sort(umr)
-ipos=lonarr(n_elements(umr))
-ipos[isort]=lindgen(n_elements(umr))
-iclass=long(float(nt)*float(ipos)/float(n_elements(umr)))
-
-save, filename='prime.sav'
-
-;; 3. run nmf fitting for each separately
-for i=0L, nt-1L do begin
-    spawn, 'mkdir -p prime'+strtrim(string(i),2)
-    cd, 'prime'+strtrim(string(i),2)
-    spawn, 'cp ../k_nmf_mmatrix.fits .'
-    spawn, 'cp ../k_nmf_mmatrix.fits .'
-
-    hdr=headfits('../k_nmf_spdata.fits')
-    datastrfull=mrdfits('../k_nmf_spdata.fits',1)
-    valsfull=mrdfits('../k_nmf_spdata.fits',2)
-    ivarfull=mrdfits('../k_nmf_spdata.fits',3)
-    xxfull=mrdfits('../k_nmf_spdata.fits',4)
-    lambda=mrdfits('../k_nmf_spdata.fits',5)
-    zdistfull=mrdfits('../k_nmf_spdata.fits',6)
-    zheliofull=mrdfits('../k_nmf_spdata.fits',7)
-    
-    iuse=where(iclass eq i, nuse)
-    nusenew=long(nuse*subprime)
-    iuse=iuse[shuffle_indx(nuse,num_sub=nusenew)]
-    nuse=n_elements(iuse)
-    datastr={nx:datastrfull.nx, $
-             ny:nuse, $
-             rowstart:lonarr(nuse), $
-             nxrow:lonarr(nuse)}
-    vals=fltarr(long(total(datastrfull.nxrow[iuse])))
-    ivar=fltarr(long(total(datastrfull.nxrow[iuse])))
-    xx=lonarr(long(total(datastrfull.nxrow[iuse])))
-    ix=0L
-    for j=0L, nuse-1L do begin
-        vals[ix:ix+datastrfull.nxrow[iuse[j]]-1]= $
-          valsfull[datastrfull.rowstart[iuse[j]]: $
-                   datastrfull.rowstart[iuse[j]]+datastrfull.nxrow[iuse[j]]-1]
-        ivar[ix:ix+datastrfull.nxrow[iuse[j]]-1]= $
-          ivarfull[datastrfull.rowstart[iuse[j]]: $
-                   datastrfull.rowstart[iuse[j]]+datastrfull.nxrow[iuse[j]]-1]
-        xx[ix:ix+datastrfull.nxrow[iuse[j]]-1]= $
-          xxfull[datastrfull.rowstart[iuse[j]]: $
-                 datastrfull.rowstart[iuse[j]]+datastrfull.nxrow[iuse[j]]-1]
-        datastr.rowstart[j]=ix
-        datastr.nxrow[j]=datastrfull.nxrow[iuse[j]]
-        ix=ix+datastrfull.nxrow[iuse[j]]
-    endfor
-    zdist=zdistfull[iuse]
-    zhelio=zheliofull[iuse]
-    outfile='k_nmf_spdata.fits'
-    mwrfits, 0, outfile, hdr, /create
-    mwrfits, datastr, outfile
-    mwrfits, vals, outfile
-    mwrfits, ivar, outfile
-    mwrfits, xx, outfile
-    mwrfits, lambda, outfile
-    mwrfits, zdist, outfile
-    mwrfits, zhelio, outfile
-
-    k_run_nmf, nt=1, niter=nprime, /reset, /qa
-    cd, '../'
-endfor
-
-alltemplates=mrdfits('prime0/k_nmf_soln.fits')
-for i=1L, nt-1L do $
-  alltemplates=[alltemplates, mrdfits('prime'+strtrim(string(i),2)+ $
-                                      '/k_nmf_soln.fits')]
-alltemplates=reform(alltemplates, n_elements(alltemplates)/nt, nt)
-mwrfits, alltemplates, 'k_nmf_soln.fits', /create
-
-k_run_nmf, nt=nt, niter=nprime, /qa
-
-for i=0L, 99L do $
-  k_run_nmf, nt=nt, niter=nstep, /qa
+spawn, 'mkdir -p spec4m'
+cd, 'spec4m'
+k_nmf_mmatrix
+k_nmf_spdata, /spchop
+data=mrdfits('k_nmf_spdata.fits',1)
+ngals=n_elements(data.rowstart)
+hdr=headfits('k_nmf_mmatrix.fits')
+nextra=long(sxpar(hdr, 'NEXTRA'))
+spawn, 'cp ../dust4m/k_nmf_soln.fits .'
+templates4=mrdfits('k_nmf_soln.fits',0)
+coeffs4=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates4,/dim))[0]
+ng4=(size(coeffs4,/dim))[1]
+templates=fltarr(nb+nextra,4)
+templates[0:nb-1, 0:3]= templates4
+templates[nb:nb+nextra-1, 0:3]=0.1/float(nb)
+coeffs=fltarr(4,ngals)
+coeffs[0:3,0:ng4-1L]=coeffs4
+coeffs[0:3,ng4:ngals-1L]=0.3
+mwrfits, templates, 'k_nmf_soln.fits', /create
+mwrfits, coeffs4, 'k_nmf_soln.fits'
+k_run_nmf, nt=4L, niter=50000L, /qa
+cd, '../'
 
 end

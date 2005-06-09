@@ -209,11 +209,12 @@ for ifilter=0L, nfilter-3L do begin
     igood=where(colerr[ifilter,*] gt 0. and $
                 colerr[ifilter+1L,*] gt 0., ngood)
     if(ngood gt 0) then begin
-        djs_plot, col[ifilter,igood], col[ifilter+1L,igood], psym=4, $
-          color='red', $
+        djs_plot, col[ifilter,igood], col[ifilter+1L,igood], psym=8, $
+          color='red', symsize=0.2, $
           xtitle=filternames[ifilter]+'-'+filternames[ifilter+1], $
           ytitle=filternames[ifilter+1]+'-'+filternames[ifilter+2]
-        djs_oplot, mcol[ifilter,igood], mcol[ifilter+1,igood], psym=4, $
+        djs_oplot, mcol[ifilter,igood], mcol[ifilter+1,igood], psym=8, $
+	symsize=0.2, $
           xtitle=filternames[ifilter]+'-'+filternames[ifilter+1], $
           ytitle=filternames[ifilter+1]+'-'+filternames[ifilter+2]
         ;djs_oploterr, col[ifilter,igood], col[ifilter+1,igood], $
@@ -231,7 +232,7 @@ for i=0L, nsubsp-1L do begin
     yra=minmax(data.val[icurr])*[0.7,1.3]
     djs_plot, lambda[xcurr], model.val[icurr], color='red', $
       xra=[1000., 10000.], /xlog, yra=yra
-    djs_oplot, lambda[xcurr], data.val[icurr], psym=4, /xlog, symsize=0.3
+    djs_oplot, lambda[xcurr], data.val[icurr], psym=8, /xlog, symsize=0.2
     djs_oplot, lambda[xcurr], data.val[icurr], /xlog
 endfor
 

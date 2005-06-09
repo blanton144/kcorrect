@@ -48,24 +48,36 @@
 ;-
 ;------------------------------------------------------------------------------
 pro k_nmf_spdata, mmatrix=mmatrix, sample=sample, flux=flux, $
-                  galexblue=galexblue
+                  galexblue=galexblue, nsdss_spec=nsdss_spec, $
+                  nlrg_spec=nlrg_spec, spchop=spchop
 
-if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
-if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
-if(NOT keyword_set(sample)) then sample='sample15'
-if(NOT keyword_set(flux)) then flux='petro'
-if(NOT keyword_set(nlrg_photo)) then nlrg_photo=800L
-if(NOT keyword_set(nlrg_spec)) then nlrg_spec=100L
-if(NOT keyword_set(nsdss_photo)) then nsdss_photo=2000L
-if(NOT keyword_set(nsdss_spec)) then nsdss_spec=400L
-if(NOT keyword_set(ngalex)) then ngalex=2000L
-if(NOT keyword_set(ndeep)) then ndeep=2000L
-if(NOT keyword_set(ngoods)) then ngoods=1000L
-if(NOT keyword_set(nswire)) then nswire=0L
-if(NOT keyword_set(seed1)) then seed1=1001L
-if(NOT keyword_set(omega0)) then omega0=0.3
-if(NOT keyword_set(omegal0)) then omegal0=0.7
-if(NOT keyword_set(velmodtype)) then velmodtype='sigv150'
+if(n_elements(mmatrix) eq 0) then mmatrix='k_nmf_mmatrix.fits'
+if(n_elements(outfile) eq 0) then outfile='k_nmf_spdata.fits'
+if(n_elements(sample) eq 0) then sample='sample15'
+if(n_elements(flux) eq 0) then flux='petro'
+if(keyword_set(few)) then begin
+    if(n_elements(nlrg_photo) eq 0) then nlrg_photo=300L
+    if(n_elements(nlrg_spec) eq 0) then nlrg_spec=20L
+    if(n_elements(nsdss_photo) eq 0) then nsdss_photo=1000L
+    if(n_elements(nsdss_spec) eq 0) then nsdss_spec=80L
+    if(n_elements(ngalex) eq 0) then ngalex=800L
+    if(n_elements(ndeep) eq 0) then ndeep=800L
+    if(n_elements(ngoods) eq 0) then ngoods=1000L
+    if(n_elements(nswire) eq 0) then nswire=0L
+endif else begin
+    if(n_elements(nlrg_photo) eq 0) then nlrg_photo=2000L
+    if(n_elements(nlrg_spec) eq 0) then nlrg_spec=400L
+    if(n_elements(nsdss_photo) eq 0) then nsdss_photo=7000L
+    if(n_elements(nsdss_spec) eq 0) then nsdss_spec=1600L
+    if(n_elements(ngalex) eq 0) then ngalex=4000L
+    if(n_elements(ndeep) eq 0) then ndeep=4000L
+    if(n_elements(ngoods) eq 0) then ngoods=1000L
+    if(n_elements(nswire) eq 0) then nswire=0L
+endelse
+if(n_elements(seed1) eq 0) then seed1=1001L
+if(n_elements(omega0) eq 0) then omega0=0.3
+if(n_elements(omegal0) eq 0) then omegal0=0.7
+if(n_elements(velmodtype) eq 0) then velmodtype='sigv150'
 seed=seed1
 
 ;; relative weights
@@ -100,20 +112,25 @@ avloglam=alog10(lambda[0:nspec-1])
 filterlist=strtrim(mrdfits(mmatrix, 5), 2)
 zf=mrdfits(mmatrix, 6)
 
+keep=bytarr(n_elements(avloglam))+1
+if(keyword_set(spchop)) then begin
+    wave=10.^avloglam
+    keep=bytarr(n_elements(avloglam))
+    ikeep=where((wave gt 3700. and wave lt 4300.) OR $
+                (wave gt 6450. and wave lt 6800.) OR $
+                (wave gt 4700. and wave lt 5100.), nkeep)
+    if(nkeep gt 0) then $
+      keep[ikeep]=1
+endif
+
 ;; set up indices
 ntotal=0L
-if(nsdss_spec gt 0) then $
-  isdss_spec   =ntotal+lindgen(nsdss_spec)
-ntotal=ntotal+nsdss_spec
 if(nsdss_photo gt 0) then $
   isdss_photo  =ntotal+lindgen(nsdss_photo)
 ntotal=ntotal+nsdss_photo
 if(nlrg_photo gt 0) then $
   ilrg_photo   =ntotal+lindgen(nlrg_photo)
 ntotal=ntotal+nlrg_photo
-if(nlrg_spec gt 0) then $
-  ilrg_spec    =ntotal+lindgen(nlrg_spec)
-ntotal=ntotal+nlrg_spec
 if(ngoods gt 0) then $
   igoods       =ntotal+lindgen(ngoods)
 ntotal=ntotal+ngoods
@@ -126,6 +143,12 @@ ntotal=ntotal+ngalex
 if(ndeep gt 0) then $
   ideep        =ntotal+lindgen(ndeep)
 ntotal=ntotal+ndeep
+if(nsdss_spec gt 0) then $
+  isdss_spec   =ntotal+lindgen(nsdss_spec)
+ntotal=ntotal+nsdss_spec
+if(nlrg_spec gt 0) then $
+  ilrg_spec    =ntotal+lindgen(nlrg_spec)
+ntotal=ntotal+nlrg_spec
 
 ;; create full matrix
 datastr={nx:n_elements(lambda), $
@@ -273,7 +296,6 @@ if(ngoods gt 0) then begin
     endfor
 endif
 
-
 if(nsdss_spec gt 0) then begin
 ;; sdss spectra
     postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='bsafe', $
@@ -293,7 +315,7 @@ if(nsdss_spec gt 0) then begin
     for i=0L, n_elements(postcat)-1L do $
       block_ivar[*,i]=block_ivar[*,i]*absrc^2*10.^(-0.8*dm[i])
     for i=0L, n_elements(postcat)-1L do begin
-        igood=where(block_ivar[*,i] gt 0., ngood)
+        igood=where(block_ivar[*,i] gt 0. and keep gt 0, ngood)
         if(ngood gt 0) then begin
             if(keyword_set(data)) then begin
                 data=[data, block_flux[igood,i]]
@@ -419,7 +441,7 @@ if(nlrg_spec gt 0) then begin
         absrc=3.631*2.99792*10.^(15-2.*avloglam)
         block_flux=block_flux/absrc*10.^(0.4*dm[i])
         block_ivar=block_ivar*absrc^2*10.^(-0.8*dm[i])
-        igood=where(block_ivar gt 0., ngood)
+        igood=where(block_ivar gt 0. and keep gt 0, ngood)
         if(ngood gt 0) then begin
             if(keyword_set(data)) then begin
                 data=[data, block_flux[igood]]

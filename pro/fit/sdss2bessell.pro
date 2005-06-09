@@ -142,6 +142,13 @@ reconstruct_maggies=reconstruct_maggies/(1.+band_shift)
 kcorrect=reconstruct_maggies/rmaggies
 kcorrect=2.5*alog10(kcorrect)
 
+smaggies=10.^(-0.4*k_solar_magnitudes(filterlist=filterlist, $
+                                      band_shift=band_shift))
+mtol=fltarr(n_elements(filterlist), n_elements(redshift))
+mm=total(coeffs,1)
+for i=0L, n_elements(filterlist)-1L do $
+  mtol[i,*]=mm/reconstruct_maggies[i,*]*smaggies[i]
+
 if(keyword_set(vega)) then begin
     for i=0L, n_elements(filterlist)-1L do begin
         v2ab=k_vega2ab(filterlist=filterlist[i], /kurucz, $
@@ -150,14 +157,9 @@ if(keyword_set(vega)) then begin
         ;; M=m-DM-K, so adding v2ab to K makes M=m-DM-K-v2ab,
         ;; equivalent to M=m-DM-K+ab2v
         kcorrect[i,*]=kcorrect[i,*]+v2ab[0]
+        mtol[i,*]=mtol[i,*]*10.^(-0.4*v2ab[0])
     endfor
 endif
-
-smaggies=10.^(-0.4*k_solar_magnitudes(filterlist=filterlist))
-mtol=fltarr(n_elements(filterlist), n_elements(redshift))
-mm=total(coeffs,1)
-for i=0L, n_elements(filterlist)-1L do $
-  mtol[i,*]=mm/reconstruct_maggies[i,*]*smaggies[i]
 
 if(arg_present(absmag)) then begin
     absmag=fltarr(n_elements(filterlist), n_elements(redshift))
