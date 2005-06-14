@@ -3,7 +3,8 @@
 
 <H1> Photometric Redshifts</H1>
 
-<p> <b>The photo-z code is NOT sufficiently tested for the v4
+<p> <b>WARNING: Except for use with the /lrg flag for Luminous Red
+Galaxies, the photo-z code is NOT sufficiently tested for the v4
 templates</b> </p>
  
 <p> Once one has constructed the SED templates, it is trivial to use
@@ -11,17 +12,16 @@ them to calculate photometric redshifts. </p>
 
 <p> Fitting photometric redshifts just requires fitting the
 coefficients for a number of redshifts and minimizing the chi^2
-residuals for the fits. I provide routines here to do so. They take
-about 70 ms an object on a 1GHz Pentium III and are reasonably
-accurate -- the 5-sigma clipped estimate of the redshift errors is
-about 0.05. </p>
+residuals for the fits. I provide routines here to do so. </p>
 
-<p> A piece of advice on the *type* of magnitudes to use for
+<p> A piece of advice on the <i>type</i> of magnitudes to use for SDSS
 photometric redshifts. For modern versions of PHOTO (v5_4 and later)
-it is best to simply use the model magnitudes for all galaxies. </p>
+it is best to simply use the model magnitudes for all galaxies. (And
+indeed this is what we use in <a
+href="kcorrect_help.html#SDSS_KPHOTOZ"> sdss_kphotoz</a>.  </p>
 
-<p> The IDL routine <b>kphotoz</b> works in a way which is extremely
-similar to the <b>kcorrect</b> routine.
+<p> The IDL routine <a href="kcorrect_help.html#KPHOTOZ">kphotoz</a> works in a way which is extremely
+similar to the <a href="kcorrect_help.html#KCORRECT">kcorrect</a> routine.
 <pre>
 IDL> kphotoz
 Syntax - kphotoz, maggies, maggies_ivar, photoz [ , $
@@ -38,7 +38,8 @@ kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
 </pre>
 </p>
 Again, there is large overhead, so one-at-a-time is not the way to
-call <b>kphotoz</b>. As for <b>kcorrect</b>, you can avoid spending
+call <a href="kcorrect_help.html#KPHOTOZ">kphotoz</a>. As for <a
+href="kcorrect_help.html#KCORRECT">kcorrect</a>, you can avoid spending
 this overhead more than once either by feeding it lists of objects or
 as follows:
 <pre>
@@ -50,16 +51,16 @@ kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
          photoz, rmatrix=rmatrix, zvals=zvals
 </pre>
 Finally, the /sdssfix option fixes SDSS magnitudes in the same way as
-for <b>kcorrect</b>.
+for <a href="kcorrect_help.html#KCORRECT">kcorrect</a>.
 
-<p>By default, <b>kphotoz</b> uses a very simple prior (equal to the
+<p>By default, <a href="kcorrect_help.html#KPHOTOZ">kphotoz</a> uses a very simple prior (equal to the
 redshift z) to push the fits away from z=0. You can turn this off with
 the flag /noprior, or specify your own prior using the inputs zprior
 (which indicates the redshift grid) and lprior (which indicates the
 natural log of the prior). </p>
 
-<p> The stand-alone program <b>fit_photoz</b> works in the same way as
-<b>fit_coeffs</b>: 
+<p> The stand-alone program <i>fit_photoz</i> works in the same way as
+<i>fit_coeffs</i>: 
 <pre>
 apeiron.[v3_1].27 % fit_photoz --help
 Usage: cat <maggies file> | fit_photoz [--vfile <vfile> --lfile <lfile>
@@ -84,8 +85,9 @@ you.
 
 <p> The photo-z code can also be accessed through the C library
 libkcorrect.so. Follow the directions in the <a href="index.html#clib">
-main page</a> for using this library. Instead of <b>k_fit_coeffs</b>,
-you will be calling <b>k_fit_photoz</b>, as in:
+main page</a> for using this library. Instead of <a
+href="kcorrect_help.html#K_FIT_COEFFS">k_fit_coeffs</a>,
+you will be calling <a href="kcorrect_help.html#K_FIT_PHOTOZ">k_fit_photoz</a>, as in:
 <pre>
 k_fit_photoz(photoz, coeffs, rmatrix, nk, nv, zprior, lprior, nprior, 
              zvals, nz, maggies, maggies_ivar, ngalaxy, tolerance,

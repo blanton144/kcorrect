@@ -57,10 +57,37 @@ endif else begin
     vlim=mrdfits(vlimfile,1)
 endelse
 
+filterlist=['sdss_u0.par', $
+            'sdss_g0.par', $
+            'sdss_r0.par', $
+            'sdss_i0.par', $
+            'sdss_z0.par']
+k_load_vmatrix, vmatrix, lambda, vname=vname
+kc=sdss_kcorrect(cat.z, calibobj=cat, band_shift=0.0, rmaggies=rmaggies, $
+                 omaggies=omaggies, oivar=oivar, vname=vname, $
+                 absmag=absmag, mtol=mtol, coeffs=coeffs)
+nt=(size(coeffs,/dim))[0]
+tmtol=fltarr(nt)
+k_reconstruct_maggies, identity(nt), replicate(0.001,nt), rmaggies0, $
+  vmatrix=vmatrix, lambda=lambda, filterlist=filterlist
+for j=0, nt-1L do $
+  tmtol[j]=1./rmaggies0[2,j]* $
+  10.^(-0.4*k_solar_magnitudes(filterlist=filterlist[2]))
+tgmr=-2.5*alog10(rmaggies0[1,*]/rmaggies0[2,*])
+k_print, filename='sdss_mtol_main.ps', pold=pold, xold=xold, yold=yold, $
+  axis_char_scale=1.1
+!P.MULTI=[0,1,1]
+hogg_usersym, 10, /fill
+djs_plot, absmag[1,*]-absmag[2,*], alog10(mtol[2,*]), psym=8, symsize=0.4, $
+  xra=[-0.31,1.79],yra=[-1.59, 1.29], xtitle='!8g-r!6', ytitle='(M/L)(r)'
+djs_oplot, tgmr, alog10(tmtol), psym=8, symsize=2., color='red'
+k_end_print, pold=pold, xold=xold, yold=yold
+stop
+
 kcb=sdss2bessell(vlim.z, calibobj=vlim, band_shift=0.0, rmaggies=rmaggies, $
                  omaggies=omaggies, oivar=oivar, vname=vname, $
                  absmag=absmag, mtol=mtol, /vega, coeffs=coeffs)
-k_print, filename='sdss_mtol_main.ps', pold=pold, xold=xold, yold=yold, $
+k_print, filename='sdss_mtol_main_bcomp.ps', pold=pold, xold=xold, yold=yold, $
   axis_char_scale=1.1
 !P.MULTI=[0,1,1]
 hogg_usersym, 10, /fill

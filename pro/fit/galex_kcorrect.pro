@@ -110,6 +110,19 @@ if(n_params() lt 1 OR $
     return, -1
 endif 
 
+if(n_elements(in_vname) gt 0) then begin
+    if(n_elements(vname) gt 0) then begin
+        if(vname ne in_vname) then begin
+            rmatrix=0
+            zvals=0
+        endif
+    endif
+    vname=in_vname
+endif else begin
+    if(n_elements(vname) eq 0) then $
+      vname='default'
+endelse
+
 ;; need to reset rmatrix if band_shift changes
 if(n_elements(in_band_shift) gt 0) then begin
     if(n_elements(band_shift) ne 0) then begin
@@ -158,7 +171,8 @@ filterlist=['galex_FUV.par', 'galex_NUV.par', 'sdss_u0.par', $
             'sdss_g0.par', 'sdss_r0.par', 'sdss_i0.par', 'sdss_z0.par']
 kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, rmaggies=rmaggies, $
-  filterlist=filterlist, vname=vname, omega0=omega0, omegal0=omegal0
+  filterlist=filterlist, vname=vname, omega0=omega0, omegal0=omegal0, $
+  absmag=absmag, amivar=amivar, mtol=mtol, mass=mass
 
 if(arg_present(omaggies)) then $
   omaggies=mgy

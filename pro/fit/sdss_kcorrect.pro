@@ -124,6 +124,9 @@ if(n_params() lt 1 OR $
     return, -1
 endif 
 
+if(keyword_set(lrg)) then $
+  in_vname='lrg1'
+
 if(n_elements(in_vname) gt 0) then begin
     if(n_elements(vname) gt 0) then begin
         if(vname ne in_vname) then begin
@@ -164,6 +167,9 @@ if(keyword_set(nmgy) AND keyword_set(ivar)) then begin
 endif
 if(n_tags(tsobj) gt 0 OR n_tags(calibobj) gt 0) then $
   sdss_to_maggies, mgy, mgy_ivar, calibobj=calibobj, tsobj=tsobj, flux=flux
+
+if(keyword_set(lrg)) then $
+  mgy_ivar[0,*]=0.
 
 ;; call kcorrect
 kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $

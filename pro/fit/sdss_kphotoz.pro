@@ -2,7 +2,7 @@
 ; NAME:
 ;   sdss_kphotoz
 ; PURPOSE:
-;   calculate photometric redshifts from SDSS input
+;   calculate photometric redshifts from SDSS input (v4 use ONLY for LRGs)
 ; CALLING SEQUENCE:
 ;   photoz= sdss_kphotoz([nmgy=, ivar=, mag=, err=, $
 ;                         calibobj=, tsobj=, flux=, band_shift=,$
@@ -63,6 +63,10 @@
 ;   omaggies, oivar - [5, N] maggies and inverse variances used for fit
 ;                           (after extinction, AB correction, etc)  (ugriz)
 ; COMMENTS:
+;   For the v4 templates, this has not be sufficiently well-tested.
+;   Use it ONLY with the /lrg flag described above (for which the
+;   template is known to be good).
+; 
 ;   This is a simple wrapper on kphotoz.pro which is almost always
 ;   just what you want. It keeps a version of rmatrix and zvals in
 ;   memory to save time, recalculating them each time you change
