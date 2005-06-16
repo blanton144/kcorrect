@@ -71,13 +71,13 @@
 function deep_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         zcat=zcat, band_shift=in_band_shift, chi2=chi2, $
                         coeffs=coeffs, rmaggies=rmaggies, omaggies=omaggies, $
-                        oivar=oivar, vname=vname, mass=mass, mtol=mtol, $
+                        oivar=oivar, vname=in_vname, mass=mass, mtol=mtol, $
                         absmag=absmag, amivar=amivar, sdss=sdss, $
                         rmatrix=rmatrix, closest=closest, obands=obands, $
                         omega0=omega0, omegal0=omegal0
 
 common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
-  deep_rmatrix, deep_zvals
+  deep_rmatrix, deep_zvals, vname
 
 if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
@@ -96,21 +96,34 @@ if(keyword_set(sdss)) then $
                       'sdss_u0.par', $
                       'sdss_g0.par']
 
-;; need to reset rmatrix if band_shift changes
-if(n_elements(in_band_shift) gt 0) then begin
-    if(n_elements(band_shift) ne 0) then begin
-        if(band_shift ne in_band_shift) then begin
-            rmatrix=0
-            zvals=0
-        endif
-        band_shift=in_band_shift
-    endif else begin
-        band_shift=in_band_shift
-    endelse 
+if(n_elements(in_vname) gt 0) then begin
+    use_vname=in_vname
 endif else begin
-    if(n_elements(band_shift) eq 0) then $
-      band_shift=0.
+    if(keyword_set(lrg)) then $
+      use_vname='lrg1' $
+    else $
+      use_vname='default'
 endelse
+if(n_elements(vname) gt 0) then begin
+    if(vname ne use_vname) then begin
+        rmatrix=0
+        zvals=0
+    endif
+endif
+vname=use_vname
+
+;; need to reset rmatrix if band_shift changes
+if(n_elements(in_band_shift) gt 0) then $
+  use_band_shift=in_band_shift $
+else $
+  use_band_shift=0. 
+if(n_elements(band_shift) gt 0) then begin
+    if(band_shift ne use_band_shift) then begin
+        rmatrix=0
+        zvals=0
+    endif
+endif
+band_shift=use_band_shift
 
 ;; need to reset rmatrix if filterlist changes
 if(n_elements(out_filterlist) gt 0) then begin

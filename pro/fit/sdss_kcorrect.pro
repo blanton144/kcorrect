@@ -42,9 +42,9 @@
 ;                     moduli [default 0.3, 0.7]
 ; OPTIONAL KEYWORDS:
 ;   lrg - do "luminous red galaxy" fit; this means changing vname to
-;         'lrg1' and ignoring the u-band (setting ivar[0,*]=0); this
-;         uses a single template appropriate for the SDSS Luminous Red
-;         Galaxy sample
+;         'lrg1', using "model" fluxes, and ignoring the u-band
+;         (setting ivar[0,*]=0); this uses a single template
+;         appropriate for the SDSS Luminous Red Galaxy sample
 ; OUTPUTS:
 ;   kcorrect - [5, ngals] K-corrections in ugriz satisfying
 ;                m = M + DM(z) + K(z)
@@ -125,36 +125,36 @@ if(n_params() lt 1 OR $
 endif 
 
 if(keyword_set(lrg)) then $
-  in_vname='lrg1'
+  flux='model'
 
 if(n_elements(in_vname) gt 0) then begin
-    if(n_elements(vname) gt 0) then begin
-        if(vname ne in_vname) then begin
-            rmatrix=0
-            zvals=0
-        endif
-    endif
-    vname=in_vname
+    use_vname=in_vname
 endif else begin
-    if(n_elements(vname) eq 0) then $
-      vname='default'
+    if(keyword_set(lrg)) then $
+      use_vname='lrg1' $
+    else $
+      use_vname='default'
 endelse
+if(n_elements(vname) gt 0) then begin
+    if(vname ne use_vname) then begin
+        rmatrix=0
+        zvals=0
+    endif
+endif
+vname=use_vname
 
 ;; need to reset rmatrix if band_shift changes
-if(n_elements(in_band_shift) gt 0) then begin
-    if(n_elements(band_shift) ne 0) then begin
-        if(band_shift ne in_band_shift) then begin
-            rmatrix=0
-            zvals=0
-        endif
-        band_shift=in_band_shift
-    endif else begin
-        band_shift=in_band_shift
-    endelse 
-endif else begin
-    if(n_elements(band_shift) eq 0) then $
-      band_shift=0.
-endelse
+if(n_elements(in_band_shift) gt 0) then $
+  use_band_shift=in_band_shift $
+else $
+  use_band_shift=0. 
+if(n_elements(band_shift) gt 0) then begin
+    if(band_shift ne use_band_shift) then begin
+        rmatrix=0
+        zvals=0
+    endif
+endif
+band_shift=use_band_shift
 
 if(keyword_set(mag) AND keyword_set(err)) then begin
     mgy=(10.D)^(-(0.4D)*(mags))
