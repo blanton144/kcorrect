@@ -16,6 +16,7 @@ install :
 	- cp -r redshifts $(KCORRECT_DIR)/data
 	- cp -r seds $(KCORRECT_DIR)/data
 	- cp -r templates $(KCORRECT_DIR)/data
+	- cp -r test $(KCORRECT_DIR)/data
 
 clean :
 	- /bin/rm -f *~ core
