@@ -1,5 +1,0 @@
-make test GALEX+SDSS data
-make test TWOMASS+SDSS data
-make test SDSS data
-make test GST data
-make test SWIRE data
