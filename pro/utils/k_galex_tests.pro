@@ -72,8 +72,12 @@ if(NOT file_test(vlimfile)) then begin
              kc.absmag[2] gt -21.5 and kc.absmag[2] lt -21.2 and $
              (im.vagc_select and 4) gt 0 and mag lt 17.6)
     help,ii
+    kc=kc[ii]
+    im=im[ii]
+    galex=galex[ii]
+    objs=objs[ii]
     
-    if(n_elements(ii) gt 10000) then begin
+    if(n_elements(galex) gt 10000) then begin
         ii=shuffle_indx(n_elements(galex), num_sub=10000)
         kc=kc[ii]
         im=im[ii]
@@ -88,9 +92,9 @@ if(NOT file_test(vlimfile)) then begin
                         struct_trimtags(galex[0], select_tags='*', $
                                         except_tags='id'))
     vlim=replicate(vlim1, n_elements(im))
-    struct_assign, im, cat
-    struct_assign, kc, cat, /nozero
-    struct_assign, galex, cat, /nozero
+    struct_assign, im, vlim
+    struct_assign, kc, vlim, /nozero
+    struct_assign, galex, vlim, /nozero
     mwrfits, vlim, vlimfile, /create
 endif else begin
     vlim=mrdfits(vlimfile,1)
@@ -102,9 +106,9 @@ filterlist=['sdss_u0.par', $
             'sdss_i0.par', $
             'sdss_z0.par']
 k_load_vmatrix, vmatrix, lambda, vname=vname
-kc=sdss_kcorrect(cat.z, calibobj=cat, band_shift=0.0, rmaggies=rmaggies, $
-                 omaggies=omaggies, oivar=oivar, vname=vname, $
-                 absmag=absmag, mtol=mtol, coeffs=coeffs)
+kc=galex_kcorrect(cat.z, calibobj=cat, galex=cat, band_shift=0.0, $
+                  rmaggies=rmaggies, omaggies=omaggies, oivar=oivar, $
+                  vname=vname, absmag=absmag, mtol=mtol, coeffs=coeffs)
 nt=(size(coeffs,/dim))[0]
 tmtol=fltarr(nt)
 k_reconstruct_maggies, identity(nt), replicate(0.001,nt), rmaggies0, $
@@ -139,11 +143,11 @@ k_print, filename='galex_resid.ps', $
 
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
-!X.OMARGIN=0
-!Y.OMARGIN=0
+!X.OMARGIN=10.
+!Y.OMARGIN=10.
 !P.MULTI=[0,2,3]
-ranges=[[-1.09, 1.09], $
-        [-1.09, 1.09], $
+ranges=[[-1.99, 1.99], $
+        [-1.99, 1.99], $
         [-1.09, 1.09], $
         [-0.29, 0.29], $
         [-0.29, 0.29], $
@@ -157,15 +161,16 @@ ytitle=['\Delta!8(F-N)!6', $
 xchs=[0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
 ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
 
-for i=0, 5 do begin  & $
-  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
-  xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
-  xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
-  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
-  xtitle='!8z!6', xch=xchs[i], ych=ychs[i] & $
-if (i mod 2) eq 1 then $
-axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
-  ytitle=textoidl(ytitle[i]),ycharsize=2.4 & $
+for i=0, 5 do begin  
+    ii=where(abs(cresid[i,*]) lt 1.e+6)
+    hogg_scatterplot, cat[ii].z, cresid[i,ii], psym=3, $
+      xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
+      xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
+      quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
+      xtitle='!8z!6', xch=xchs[i], ych=ychs[i] 
+    if (i mod 2) eq 1 then $
+      axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+      ytitle=textoidl(ytitle[i]),ycharsize=2.4 
 endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
@@ -181,11 +186,11 @@ k_print, filename='galex_predicted.ps', $
 
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
-!X.OMARGIN=0
-!Y.OMARGIN=0
+!X.OMARGIN=10.
+!Y.OMARGIN=10.
 !P.MULTI=[0,2,3]
-ranges=[[-1.09, 1.09], $
-        [-1.09, 1.09], $
+ranges=[[-1.99, 1.99], $
+        [-1.99, 1.99], $
         [-1.09, 1.09], $
         [-0.29, 0.29], $
         [-0.29, 0.29], $
@@ -199,15 +204,16 @@ ytitle=['\Delta!8(F-N)!6', $
 xchs=[0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
 ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
 
-for i=0, 5 do begin  & $
-  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
-  xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
-  xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
-  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
-  xtitle='!8z!6', xch=xchs[i], ych=ychs[i] & $
-if (i mod 2) eq 1 then $
-axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
-  ytitle=textoidl(ytitle[i]),ycharsize=2.4 & $
+for i=0, 5 do begin  
+    ii=where(abs(cresid[i,*]) lt 1.e+6)
+    hogg_scatterplot, cat[ii].z, cresid[i,ii], psym=3, $
+      xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
+      xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
+      quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
+      xtitle='!8z!6', xch=xchs[i], ych=ychs[i] 
+    if (i mod 2) eq 1 then $
+      axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+      ytitle=textoidl(ytitle[i]),ycharsize=2.4 
 endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
@@ -221,8 +227,8 @@ k_print, filename='galex_colors_main.ps', pold=pold, xold=xold, yold=yold, $
 
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
-!X.OMARGIN=0
-!Y.OMARGIN=0
+!X.OMARGIN=10.
+!Y.OMARGIN=10.
 !P.MULTI=[0,2,3]
 ranges=[[-0.49,2.49], $
         [-0.2,3.9], $
@@ -239,17 +245,18 @@ ytitle=['!8^{0.1}(F-N)!6', $
 xchs=[0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
 ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
 
-for i=0, 5 do begin  & $
-  hogg_scatterplot, vlim.z, absmag[i,*]-absmag[i+1,*], psym=3, $
-  xra=[0.041, 0.179], yra=ranges[*,i], /cond, $
-  xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
-  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
-  xtitle='!8z!6', xch=xchs[i], ych=ychs[i] & $
-if (i mod 2) eq 1 then $
-axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
-  ytitle=textoidl(ytitle[i]),ycharsize=2.4 & $
+for i=0, 5 do begin  
+    hogg_scatterplot, vlim.z, absmag[i,*]-absmag[i+1,*], psym=3, $
+      xra=[0.041, 0.179], yra=ranges[*,i], /cond, $
+      xnpix=15, ynpix=15, exp=0.5, satfrac=0.001, $
+      quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
+      xtitle='!8z!6', xch=xchs[i], ych=ychs[i] 
+    if (i mod 2) eq 1 then $
+      axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+      ytitle=textoidl(ytitle[i]),ycharsize=2.
 endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
+
 
 end

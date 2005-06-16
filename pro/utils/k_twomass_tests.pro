@@ -20,7 +20,7 @@ if(NOT file_test(twomassfile)) then begin
     im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)
     sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,columns='z', nrow=28800)
     
-    ii=where(twomass.twomass_tag ge 0 AND sp.z gt 0.01 AND sp.z lt 0.3)
+    ii=where(twomass.twomass_tag ge 0 AND sp.z gt 0.01 AND sp.z lt 0.3, nii)
     sp=sp[ii]
     im=im[ii]
     twomass=twomass[ii]
@@ -61,8 +61,8 @@ k_print, filename='twomass_resid.ps', $
 
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
-!X.OMARGIN=0
-!Y.OMARGIN=0
+!X.OMARGIN=10
+!Y.OMARGIN=10
 !P.MULTI=[0,2,4]
 ranges=[[-1.09, 1.09], $
         [-0.29, 0.29], $
@@ -94,8 +94,6 @@ endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
 
-stop
-
 cresid=fltarr(7, n_elements(cat))
 for i=0L, 6L do $
   cresid[i,*]=(-2.5*alog10(rmaggies1[i,*]/rmaggies1[i+1,*]))- $
@@ -107,8 +105,8 @@ k_print, filename='twomass_predicted.ps', $
 
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
-!X.OMARGIN=0
-!Y.OMARGIN=0
+!X.OMARGIN=10
+!Y.OMARGIN=10
 !P.MULTI=[0,2,4]
 ranges=[[-1.09, 1.09], $
         [-0.29, 0.29], $
@@ -156,8 +154,8 @@ k_print, filename='twomass_colors_main.ps', pold=pold, xold=xold, yold=yold, $
 
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
-!X.OMARGIN=0
-!Y.OMARGIN=0
+!X.OMARGIN=10
+!Y.OMARGIN=10
 !P.MULTI=[0,2,4]
 ranges=[[0.11,2.9], $
         [0.21,1.19], $
@@ -188,5 +186,7 @@ axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
 endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
+
+stop
 
 end

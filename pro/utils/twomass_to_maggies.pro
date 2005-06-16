@@ -26,7 +26,7 @@
 ;   2MASS AB magnitudes. As of 2005-04-18, this yields [0.91, 1.39,
 ;   1.85] for AB-Vega in JHKs respectively.
 ;
-;   It ALWAYS applies a minimum error of [0.05, 0.05, 0.05] in
+;   It ALWAYS applies a minimum error of [0.03, 0.03, 0.03] in
 ;   JHKs
 ;
 ;   Requires you to have the dust maps so that dust_getval can find
@@ -40,7 +40,7 @@ pro twomass_to_maggies, twomass, maggies, ivar
 
 common com_g2m, vega2ab
 
-minerrors=[0.05, 0.05, 0.05]
+minerrors=[0.03, 0.03, 0.03]
 red_fac=[0.902, 0.576, 0.367]
 names=['j','h','k']
 

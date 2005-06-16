@@ -110,8 +110,8 @@ k_print, filename='sdss_resid_main.ps', $
 
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
-!X.OMARGIN=0
-!Y.OMARGIN=0
+!X.OMARGIN=10
+!Y.OMARGIN=10
 !P.MULTI=[0,2,2]
 ranges=[[-0.49, 0.49], $
         [-0.19, 0.19], $
@@ -144,8 +144,8 @@ k_print, filename='sdss_colors_main.ps', pold=pold, xold=xold, yold=yold, $
   axis_char_scale=1.1
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
-!X.OMARGIN=0
-!Y.OMARGIN=0
+!X.OMARGIN=10
+!Y.OMARGIN=10
 !P.MULTI=[0,2,2]
 ranges=[[0.11,2.9], $
         [0.21,1.19], $

@@ -35,7 +35,7 @@ endelse
 
 cat.petroflux_ivar[0]=0.
 kc=sdss_kcorrect(cat.z, calibobj=cat, band_shift=0.3, rmaggies=rmaggies, $
-                 omaggies=omaggies, oivar=oivar, vname=vname, flux='model')
+                 omaggies=omaggies, oivar=oivar, vname=vname, /lrg)
 cresid=fltarr(4, n_elements(cat))
 for i=0L, 3L do $
   cresid[i,*]=(-2.5*alog10(rmaggies[i,*]/rmaggies[i+1,*]))- $
@@ -47,8 +47,8 @@ k_print, filename='sdss_resid_lrg.ps', $
 
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
-!X.OMARGIN=0
-!Y.OMARGIN=0
+!X.OMARGIN=10
+!Y.OMARGIN=10
 !P.MULTI=[0,2,2]
 ranges=[[-1.49, 1.49], $
         [-0.49, 0.49], $
@@ -84,8 +84,8 @@ k_print, filename='sdss_colors_lrg.ps', pold=pold, xold=xold, yold=yold, $
 
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
-!X.OMARGIN=0
-!Y.OMARGIN=0
+!X.OMARGIN=10
+!Y.OMARGIN=10
 !P.MULTI=[0,2,2]
 ranges=[[-0.41,4.9], $
         [0.51,2.49], $
