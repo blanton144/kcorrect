@@ -97,7 +97,7 @@ $(BIN)/reconstruct_maggies: $(OBJECTS) $(LIB)/libkcorrect.$(SO_EXT) \
 # Install things in their proper places in $(BASEDIR)
 #
 install : 
-	cp $$f/*.c $(KCORRECT_DIR)/src/ 
+	cp *.c $(KCORRECT_DIR)/src 
 	-@ cp Makefile $(KCORRECT_DIR)/src
 
 clean :
