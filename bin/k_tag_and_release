@@ -7,6 +7,7 @@ cvs rtag $1 kcorrect
 mkdir tmp
 cd tmp
 cvs -d "blanton@spectro.princeton.edu:/usr/local/cvsroot" export -r $1 kcorrect
+rm -f kcorrect/user_list
 tar -cvf kcorrect.$1.tar kcorrect
 gzip -v kcorrect.$1.tar
 mv kcorrect.$1.tar.gz ../docs/html
