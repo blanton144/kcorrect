@@ -5,7 +5,7 @@
 
 SHELL = /bin/sh
 #
-SUBDIRS = fit seds test utils samples
+SUBDIRS = fit lf seds test utils samples
 
 all :;
 
