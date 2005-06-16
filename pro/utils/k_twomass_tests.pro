@@ -25,7 +25,7 @@ if(NOT file_test(twomassfile)) then begin
     im=im[ii]
     twomass=twomass[ii]
 
-    if(nii gt 100000) then begin
+    if(nii gt 10000) then begin
         ii=shuffle_indx(n_elements(twomass), num_sub=10000)
         sp=sp[ii]
         im=im[ii]
@@ -50,7 +50,7 @@ kc0=twomass_kcorrect(cat.z, twomass=cat, calibobj=cat, band_shift=0.1, $
                      rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar, $
                      vname=vname)
 
-cresid=fltarr(7, n_elements(sp))
+cresid=fltarr(7, n_elements(cat))
 for i=0L, 6L do $
   cresid[i,*]=(-2.5*alog10(rmaggies0[i,*]/rmaggies0[i+1,*]))- $
   (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
@@ -68,9 +68,9 @@ ranges=[[-1.09, 1.09], $
         [-0.29, 0.29], $
         [-0.29, 0.29], $
         [-0.39, 0.39], $
-        [-0.39, 0.39], $
-        [-0.39, 0.39], $
-        [-0.39, 0.39]]
+        [-1.09, 1.09], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09]]
 ytitle=['\Delta!8(u-g)!6', $
         '\Delta!8(g-r)!6', $
         '\Delta!8(r-i)!6', $
@@ -82,7 +82,7 @@ xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
 ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
 
 for i=0, 6 do begin  & $
-  hogg_scatterplot, sp.z, cresid[i,*], psym=3, $
+  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
   xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
   xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
@@ -94,7 +94,9 @@ endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
 
-cresid=fltarr(7, n_elements(sp))
+stop
+
+cresid=fltarr(7, n_elements(cat))
 for i=0L, 6L do $
   cresid[i,*]=(-2.5*alog10(rmaggies1[i,*]/rmaggies1[i+1,*]))- $
   (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
@@ -107,14 +109,14 @@ k_print, filename='twomass_predicted.ps', $
 !Y.MARGIN=[0,0]
 !X.OMARGIN=0
 !Y.OMARGIN=0
-!P.MULTI=[0,2,3]
+!P.MULTI=[0,2,4]
 ranges=[[-1.09, 1.09], $
         [-0.29, 0.29], $
         [-0.29, 0.29], $
         [-0.39, 0.39], $
-        [-0.39, 0.39], $
-        [-0.39, 0.39], $
-        [-0.39, 0.39]]
+        [-1.09, 1.09], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09]]
 ytitle=['\Delta!8(u-g)!6', $
         '\Delta!8(g-r)!6', $
         '\Delta!8(r-i)!6', $
@@ -126,7 +128,7 @@ xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
 ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
 
 for i=0, 6 do begin  & $
-  hogg_scatterplot, sp.z, cresid[i,*], psym=3, $
+  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
   xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
   xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
@@ -138,10 +140,10 @@ endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
 
-dm=lf_distmod(sp.z)
+dm=lf_distmod(cat.z)
 absm=22.5-2.5*alog10(cat.petroflux[2])-cat.extinction[2]-dm-kc1[2,*]
 mag=22.5-2.5*alog10(cat.petroflux[2])-cat.extinction[2]
-ii=where(sp.z gt 0.05 and sp.z lt 0.17 and $
+ii=where(cat.z gt 0.05 and cat.z lt 0.17 and $
          absm gt -21.5 and absm lt -21.2 and $
          (cat.vagc_select and 4) gt 0 and mag lt 17.6)
 help,ii
@@ -175,7 +177,7 @@ xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
 ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
 
 for i=0, 6 do begin  & $
-  hogg_scatterplot, sp[ii].z, absmag[i,*]-absmag[i+1,*], psym=3, $
+  hogg_scatterplot, cat[ii].z, absmag[i,*]-absmag[i+1,*], psym=3, $
   xra=[0.041, 0.179], yra=ranges[*,i], /cond, $
   xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $

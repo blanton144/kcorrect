@@ -191,6 +191,36 @@ mwrfits, coeffs4, 'k_nmf_soln.fits'
 k_run_nmf, nt=4L, niter=50000L, /qa
 cd, '../'
 
+spawn, 'mkdir -p dust5m'
+cd, 'dust5m'
+spawn, 'cp ../dust4m/k_nmf_mmatrix.fits .'
+spawn, 'cp ../dust4m/k_nmf_early.fits .'
+spawn, 'cp ../dust4m/k_nmf_rawspec.fits .'
+hdr=headfits('k_nmf_mmatrix.fits')
+ndusts=long(sxpar(hdr, 'NDUST'))
+nmets=long(sxpar(hdr, 'NMET'))
+nages=long(sxpar(hdr, 'NAGE'))
+spawn, 'cp ../dust4m/k_nmf_spdata.fits .'
+spawn, 'cp ../dust4m/k_nmf_soln.fits .'
+templates4=mrdfits('k_nmf_soln.fits',0)
+coeffs4=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates4,/dim))[0]
+ng=(size(coeffs4,/dim))[1]
+templates=fltarr(nb,5)
+coeffs=fltarr(5,ng)
+templates[*,0]=templates4[*,0]*(0.97+0.06*randomu(seed, nb))+0.0001/float(nb)
+templates[*,1]=templates4[*,1]*(0.97+0.06*randomu(seed, nb))+0.0001/float(nb)
+templates[*,2]=templates4[*,2]*(0.97+0.06*randomu(seed, nb))+0.0001/float(nb)
+templates[*,3]=templates4[*,3]*(0.97+0.06*randomu(seed, nb))+0.0001/float(nb)
+templates[*,4]=(total(templates4, 2))/4.*(0.95+0.1*randomu(seed, nb))+ $
+  0.0001/float(nb)
+coeffs[0:3, *]=coeffs4
+coeffs[4,*]=0.005*total(coeffs4,1)
+mwrfits, templates, 'k_nmf_soln.fits', /create
+mwrfits, coeffs, 'k_nmf_soln.fits'
+k_run_nmf, nt=5L, niter=50000L, /qa
+cd, '../'
+
 spawn, 'mkdir -p spec4m'
 cd, 'spec4m'
 k_nmf_mmatrix
@@ -213,6 +243,30 @@ coeffs[0:3,ng4:ngals-1L]=0.3
 mwrfits, templates, 'k_nmf_soln.fits', /create
 mwrfits, coeffs4, 'k_nmf_soln.fits'
 k_run_nmf, nt=4L, niter=50000L, /qa
+cd, '../'
+
+spawn, 'mkdir -p spec5m'
+cd, 'spec5m'
+spawn, 'cp ../spec4m/k_nmf_mmatrix.fits .'
+spawn, 'cp ../spec4m/k_nmf_spdata.fits .'
+data=mrdfits('k_nmf_spdata.fits',1)
+ngals=n_elements(data.rowstart)
+hdr=headfits('k_nmf_mmatrix.fits')
+nextra=long(sxpar(hdr, 'NEXTRA'))
+spawn, 'cp ../dust5m/k_nmf_soln.fits .'
+templates5=mrdfits('k_nmf_soln.fits',0)
+coeffs5=mrdfits('k_nmf_soln.fits',1)
+nb=(size(templates5,/dim))[0]
+ng5=(size(coeffs5,/dim))[1]
+templates=fltarr(nb+nextra,5)
+templates[0:nb-1, 0:4]= templates5+1.e-5
+templates[nb:nb+nextra-1, 0:4]=0.01/float(nb)
+coeffs=fltarr(5,ngals)
+coeffs[0:4,0:ng5-1L]=coeffs5+1.e-5
+coeffs[0:4,ng5:ngals-1L]=0.2
+mwrfits, templates, 'k_nmf_soln.fits', /create
+mwrfits, coeffs, 'k_nmf_soln.fits'
+k_run_nmf, nt=5L, niter=50000L, /qa
 cd, '../'
 
 end

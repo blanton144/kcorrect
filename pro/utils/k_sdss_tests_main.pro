@@ -78,11 +78,10 @@ k_print, filename='sdss_mtol_main.ps', pold=pold, xold=xold, yold=yold, $
   axis_char_scale=1.1
 !P.MULTI=[0,1,1]
 hogg_usersym, 10, /fill
-djs_plot, absmag[1,*]-absmag[2,*], alog10(mtol[2,*]), psym=8, symsize=0.4, $
+djs_plot, absmag[1,*]-absmag[2,*], alog10(mtol[2,*]), psym=8, symsize=0.1, $
   xra=[-0.31,1.79],yra=[-1.59, 1.29], xtitle='!8g-r!6', ytitle='(M/L)(r)'
-djs_oplot, tgmr, alog10(tmtol), psym=8, symsize=2., color='red'
+djs_oplot, tgmr, alog10(tmtol), psym=8, symsize=1., color='red'
 k_end_print, pold=pold, xold=xold, yold=yold
-stop
 
 kcb=sdss2bessell(vlim.z, calibobj=vlim, band_shift=0.0, rmaggies=rmaggies, $
                  omaggies=omaggies, oivar=oivar, vname=vname, $
@@ -91,7 +90,7 @@ k_print, filename='sdss_mtol_main_bcomp.ps', pold=pold, xold=xold, yold=yold, $
   axis_char_scale=1.1
 !P.MULTI=[0,1,1]
 hogg_usersym, 10, /fill
-djs_plot, absmag[1,*]-absmag[3,*], alog10(mtol[3,*]), psym=8, symsize=0.4, $
+djs_plot, absmag[1,*]-absmag[3,*], alog10(mtol[3,*]), psym=8, symsize=0.1, $
   xra=[0.01,1.79],yra=[-0.59, 0.89], xtitle='!8B-R!6', ytitle='(M/L)(R)'
 djs_oplot, [0.4,1.6], -0.82+0.85*[0.4,1.6], th=4, color='red'
 djs_oplot, [0.4,1.6], 0.4-0.82+0.85*[0.4,1.6], th=4, color='red'

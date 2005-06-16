@@ -1,4 +1,4 @@
-pro test_spec
+pro test_spec, vname=vname
 
 postcat=hogg_mrdfits(vagc_name('post_catalog', sample='sample15', $
                                letter='bsafe', post='1'), 1, nrow=28800)
@@ -19,9 +19,10 @@ hdm=fltarr(num)
 d4000m=fltarr(num)
 
 for i=0L, num-1L do begin
+    range=[3700., 4300.]
     fit_sdss_fiber, sp[i].plate, sp[i].fiberid, $
       mjd=sp[i].mjd, loglam=loglam, flux=flux, model=model, ivar=ivar, $
-      vname='nmf20', /usev, cmodel=cmodel
+      vname=vname, /usev, cmodel=cmodel, range=range
     d4000[i]=get_d4000n(loglam, flux, ivar, ivar=d4000ivar)
     d4000err[i]=1./sqrt(d4000ivar)
     hdstruct=get_line(loglam, flux,  ivar,lname='HDELTA')

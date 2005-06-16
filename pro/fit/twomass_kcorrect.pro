@@ -103,7 +103,7 @@ function twomass_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                            mass=mass, mtol=mtol, absmag=absmag, $
                            amivar=amivar, omega0=omega0, omegal0=omegal0
 
-common com_galex_kcorrect, rmatrix, zvals, band_shift
+common com_twomass_kcorrect, rmatrix, zvals, band_shift
 
 if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $

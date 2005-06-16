@@ -79,7 +79,9 @@ colors, as well as to develop galaxy classification algorithms. </p>
 <a name="new">
 <h3> What's new in v4</h3>
 
-<p> There are three main things that are new in the latest version:</p>
+<p> There are three main things that are new in the latest
+version:</p>
+
 <ol> 
 <li> The templates have been extended to work in the rest-frame
 ultraviolet, and still work in the optical and near infrared. In
@@ -90,14 +92,15 @@ with data up to redshifts of 1.5 or 2.0 in DEEP2 and GOODS.
 results from Bruzual-Charlot models, the fits have a natural physical
 meaning and one can make physical conclusions about recent
 star-formation histories and stellar masses. <b>These are NOT ready
-for prime-time, as it were</b>
+for prime-time, as it were.</b>
+<li> The <a href="#abmags">SDSS AB corrections</a> have changed somewhat. 
 <li> I have added a bunch of higher level IDL routines to perform common
 tasks, like K-correcting SDSS data, GOODS data, GALEX data, DEEP2
 data, and 2MASS data, in addition to taking SDSS data and simulating
 DEEP2 or GOODS observations at higher redshift. When possible, users
 should stick to these high-level routines.
-<li> The <a href="#abmags">SDSS AB corrections</a> have changed somewhat. 
 </ol>
+</p>
 
 <p> The new templates were obtained using a clever algorithm called
 "nonnegative matrix factorization," which finds the best set of N
@@ -991,7 +994,7 @@ magnitude), etc. Many thanks to Ivan for pointing out the error.
 <h3> Acknowledgements</h3>
 
 <p> This work was funded in part by a GALEX Archival research grant
-(##).</p>
+(Program 38).<p>
 
 <p> Sam Roweis provided irreplaceable help in teaching me the
 algorithms used in this code. David Hogg tracked down many of the
@@ -1034,6 +1037,10 @@ Aeronautics and Space Administration and the National Science
 Foundation.</p>
 
 <h3> GALEX credits</h3>
+
+The Galaxy Evolution Exploroer (GALEX) is a NASA Small Explorer. The
+mission was developed in cooperation with the Centre National d'Etudes
+Spatiales of France and the Korean Ministry of Science and Technology.
 
 <h3> DEEP2 credits</h3>
 

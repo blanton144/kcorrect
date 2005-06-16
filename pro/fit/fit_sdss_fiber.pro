@@ -15,6 +15,7 @@
 ;   vname - name of fit to use (default 'default')
 ;   omega0, omegal0 - cosmological parameters for calculating distance
 ;                     moduli [default 0.3, 0.7]
+;   range - [2] range of fit in wavelength
 ; OPTIONAL KEYWORDS:
 ;   usevdisp - use correct vdisp for fit 
 ;   nolines - output model without lines
@@ -43,7 +44,7 @@ pro fit_sdss_fiber, in_plate, in_fiberid, mjd=in_mjd, slist=slist, $
                     usevdisp=usevdisp, flux=flux, ivar=ivar, loglam=loglam, $
                     cmodel=cmodel, age=age, mass=mass, b300=b300, $
                     metallicity=metallicity, nolines=nolines, plot=plot, $
-                    omega0=omega0, omegal0=omegal0
+                    omega0=omega0, omegal0=omegal0, range=range
                     
 
 if(n_tags(slist) gt 0) then begin
@@ -63,6 +64,15 @@ sdss_spec_block, plate, fiberid, mjd, block_flux=flux, block_ivar=ivar, $
   block_lambda=lambda, avloglam=loglam, /deextinct
 flux=flux*1.e-17
 ivar=ivar*1.e+34
+
+if(keyword_set(range)) then begin
+    newivar=ivar*0.
+    irange=where(lambda gt range[0] and $
+                 lambda lt range[1], nrange)
+    if(nrange eq 0) then return
+    newivar[irange]=ivar[irange]
+    ivar=newivar
+endif
 
 if(keyword_set(usevdisp)) then vdisp=zans.vdisp
 k_fit_spec, flux, ivar, coeffs, vname=vname, vdisp=vdisp, templates=templates

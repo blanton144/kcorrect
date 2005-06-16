@@ -17,7 +17,7 @@
 ;   maggies - [2, N] output in AB maggies in FUV and NUV filters
 ;   ivar - [2, N] inverse variance of maggies
 ; COMMENTS:
-;   It also ALWAYS applies a minimum error of [0.05, 0.05] in [FUV, NUV]
+;   It also ALWAYS applies a minimum error of [0.02, 0.02] in [FUV, NUV]
 ;
 ;   If the GALEX structure has a .E_BV entry, we use that for the
 ;   GALEX extinction, but we call dust_getval() to read the SFD maps
@@ -31,8 +31,8 @@ pro galex_to_maggies, galex, maggies, ivar
 common com_galex_to_maggies, nuv_leff, fuv_leff, extvoebv, nuv_extoextv, $
   fuv_extoextv
 
-minfuverror=0.05
-minnuverror=0.05
+minfuverror=0.02
+minnuverror=0.02
 
 maggies=fltarr(2,n_elements(galex))
 ivar=fltarr(2,n_elements(galex))

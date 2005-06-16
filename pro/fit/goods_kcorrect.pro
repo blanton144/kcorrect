@@ -88,7 +88,7 @@ function goods_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                          rmatrix=rmatrix, obands=obands, omega0=omega0, $
                          omegal0=omegal0
 
-common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
+common com_goods_kcorrect, out_rmatrix, out_zvals, band_shift, $
   goods_rmatrix, goods_zvals
 
 if(n_params() lt 1 OR $

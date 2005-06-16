@@ -18,10 +18,10 @@ if(NOT file_test(gstfile)) then begin
     calibobj=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_sdss_imaging.fits',1, $
                           nrow=28800)
     galex=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_galex.fits', 1, $
-                       nrow=28800, columns=['e_bv', 'fuv_mag', 'fuv_magerr', $
+                       nrow=28800, columns=['galex_tag', 'e_bv', 'fuv_mag', 'fuv_magerr', $
                                             'nuv_mag', 'nuv_magerr'])
     twomass=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_twomass.fits', 1, $
-                         columns=['ra', 'decl', $
+                         columns=['twomass_tag', 'ra', 'decl', $
                                  'j_m_ext', 'j_msig_ext', 'j_flg_ext', $
                                  'h_m_ext', 'h_msig_ext', 'h_flg_ext', $
                                  'k_m_ext', 'k_msig_ext', 'k_flg_ext'], $
@@ -29,13 +29,13 @@ if(NOT file_test(gstfile)) then begin
     sp=hogg_mrdfits(vagc_name('object_sdss_spectro'),1,columns='z', nrow=28800)
     
     ii=where(sp.z gt 0.01 and sp.z lt 0.6 and twomass.twomass_tag ge 0 and $
-             galex.galex_tag ge 0)
+             galex.galex_tag ge 0, nii)
     sp=sp[ii]
     calibobj=calibobj[ii]
     galex=galex[ii]
     twomass=twomass[ii]
 
-    if(nii gt 100000) then begin
+    if(nii gt 10000) then begin
         ii=shuffle_indx(n_elements(twomass), num_sub=10000)
         sp=sp[ii]
         calibobj=calibobj[ii]
@@ -43,14 +43,15 @@ if(NOT file_test(gstfile)) then begin
         twomass=twomass[ii]
     endif
     
-    cat1=create_struct(im[0], $
+    cat1=create_struct(calibobj[0], $
                        sp[0], $
-                       twomass[0], $
+                       struct_trimtags(twomass[0], select_tags='*', $
+                                       except_tags='ra'), $
                        struct_trimtags(galex[0], select_tags='*', $
                                        except_tags='id'))
-    cat=replicate(cat1, n_elements(im))
+    cat=replicate(cat1, n_elements(calibobj))
     struct_assign, sp, cat
-    struct_assign, im, cat, /nozero
+    struct_assign, calibobj, cat, /nozero
     struct_assign, twomass, cat, /nozero
     struct_assign, galex, cat, /nozero
     mwrfits, cat, gstfile, /create
