@@ -1,5 +1,8 @@
 GOODS_KCORRECT - fix bug in goods_filterlist, add arbitrary filterlist
-  input, and add appm output
+  input, and add appm output, and fix bug in obands usage
+DEEP_KCORRECT - fix bug in obands
+GOODS_TO_MAGGIES - change error flags 
+K_GOODS_TESTS - compare magnitude, not colors
 
 -------------------------------------------------------------------------------
 v4_0 (June 16, 2005) 

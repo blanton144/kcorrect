@@ -130,43 +130,45 @@ k_end_print
 
 kc=goods_kcorrect(gz.z, goods=gphoto,absmag=absmag, vname=vname, $
                   rmaggies=rmaggies,omaggies=omaggies)
-cresid=fltarr(6, n_elements(gz))
-for i=0L, 5L do $
-  cresid[i,*]=(-2.5*alog10(rmaggies[i,*]/rmaggies[i+1,*]))- $
-  (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
+resid=fltarr(7, n_elements(gz))
+for i=0L, 6L do $
+  resid[i,*]=(-2.5*alog10(rmaggies[i,*]))- $
+  (-2.5*alog10(omaggies[i,*]))
 
 k_print, filename='k_test_goods_resid.ps', yold=yold, xold=xold, pold=pold
 !X.MARGIN=[0,2]
 !Y.MARGIN=[0,0]
 !X.OMARGIN=0
 !Y.OMARGIN=0
-!P.MULTI=[0,2,3]
-ranges=[[-0.69, 0.69], $
-        [-0.69, 0.69], $
-        [-0.69, 0.69], $
-        [-0.69, 0.69], $
-        [-0.69, 0.69], $
-        [-0.69, 0.69]]
-ytitle=['\Delta!8(B-V)!6', $
-        '\Delta!8(V-i)!6', $
-        '\Delta!8(i-z)!6', $
-        '\Delta!8(z-J)!6', $
-        '\Delta!8(J-H)!6', $
-        '\Delta!8(H-K!ds!n)!6']
-xchs=[0.001, 0.001, 0.001, 0.001,1.1, 1.1]
-ychs=[1.1, 0.001, 1.1, 0.001, 1.1, 0.001]
+!P.MULTI=[0,2,4]
+ranges=[[-0.49, 0.49], $
+        [-0.49, 0.49], $
+        [-0.49, 0.49], $
+        [-0.49, 0.49], $
+        [-0.49, 0.49], $
+        [-0.49, 0.49], $
+        [-0.49, 0.49]]
+ytitle=['\Delta!8B!6', $
+        '\Delta!8V!6', $
+        '\Delta!8i!6', $
+        '\Delta!8z!6', $
+        '\Delta!8J!6', $
+        '\Delta!8H!6', $
+        '\Delta!8K!ds!n!6']
+xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 1.1, 1.1]
+ychs=[1.1, 0.001, 1.1, 0.001, 1.1, 0.001, 1.1, 0.001]
 
-for i=0, 5 do begin  
-    hogg_scatterplot, gz.z, cresid[i,*], psym=3, $
+for i=0, 6 do begin  
+    ii=where(abs(resid[i,*]) lt 1.e+6)
+    hogg_scatterplot, gz[ii].z, resid[i,ii], psym=3, $
       xra=[0.01, 2.1], yra=ranges[*,i], /cond, $
-      xnpix=15, ynpix=15, exp=0.5, satfrac=0.001, $
+      xnpix=10, ynpix=15, exp=0.5, satfrac=0.001, $
       quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
       xtitle='!8z!6', xch=xchs[i], ych=ychs[i] 
     if (i mod 2) eq 1 then $
       axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
       ytitle=textoidl(ytitle[i]),ycharsize=1.1 
 endfor
-
 k_end_print, pold=pold, xold=xold, yold=yold
 
 end
