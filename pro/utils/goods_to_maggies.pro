@@ -54,15 +54,17 @@ for iband=0L, 6L do begin
     itag_m=tag_indx(goods[0], names[iband]+'mag_magauto')
     itag_msig=tag_indx(goods[0], names[iband]+'magerr_magauto')
     indx=where(goods.(itag_m) gt 0. AND $
-               goods.(itag_msig) gt 0. AND $
+               goods.(itag_msig) ge 0. AND $
                goods.(itag_m) ne 99. and $
-               goods.(itag_msig) ne 99., count)
+               goods.(itag_msig) ne 99. and $
+               goods.(itag_m) ne -99. and $
+               goods.(itag_msig) ne -99., count)
     if(count gt 0) then begin
         maggies[iband, indx]=10.^(-0.4*(goods[indx].(itag_m) $
                                         -ebv[indx]*dfactors[iband]))
+        sig=goods[indx].(itag_msig)> 0.001
         ivar[iband, indx]= $
-          1./(0.4*alog(10.)*maggies[iband,indx]* $
-              goods[indx].(itag_msig))^2
+          1./(0.4*alog(10.)*(maggies[iband,indx]*sig)^2)
     endif
 endfor
 
