@@ -108,6 +108,8 @@ if(n_elements(vname) gt 0) then begin
     if(vname ne use_vname) then begin
         rmatrix=0
         zvals=0
+        out_rmatrix=0
+        out_zvals=0
     endif
 endif
 vname=use_vname
@@ -119,8 +121,8 @@ else $
   use_band_shift=0. 
 if(n_elements(band_shift) gt 0) then begin
     if(band_shift ne use_band_shift) then begin
-        rmatrix=0
-        zvals=0
+        out_rmatrix=0
+        out_zvals=0
     endif
 endif
 band_shift=use_band_shift
@@ -129,8 +131,8 @@ band_shift=use_band_shift
 if(n_elements(out_filterlist) gt 0) then begin
     for i=0L, n_elements(out_filterlist)-1L do begin
         if(new_out_filterlist[i] ne out_filterlist[i]) then begin
-            rmatrix=0
-            zvals=0
+            out_rmatrix=0
+            out_zvals=0
         endif
     endfor
 endif 
@@ -201,16 +203,16 @@ if(arg_present(absmag)) then begin
     for i=0L, n_elements(out_filterlist)-1L do $
       absmag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])- $
       lf_distmod(redshift, omega0=omega0, omegal0=omegal0)
-    for i=0L, n_elements(out_filterlist)-1L do begin
-        ig=where(oivar[i,*] gt 0. AND omaggies[i,*] gt 0., ng)
-        for j=0L, ng-1L do begin
-            absmag[i,ig[j]]=-2.5*alog10(omaggies[obands[i,j],ig[j]])- $
-              lf_distmod(redshift[ig[j]],omega0=omega0,omegal0=omegal0)- $
-              kcorrect[i,ig[j]]
-            amivar[i,ig[j]]=omaggies[obands[i,j],ig[j]]^2* $
-              oivar[obands[i,j],ig[j]]* $
-              (0.4*alog(10.))^2
-        endfor
+    for j=0L, n_elements(redshift)-1L do begin
+        igood=where(oivar[obands[*,j],j] gt 0. and $
+                    omaggies[obands[*,j],j] gt 0., ngood)
+        if(ngood gt 0) then begin
+            absmag[igood,j]=-2.5*alog10(omaggies[obands[igood,j],j])- $
+              lf_distmod(redshift[j],omega0=omega0,omegal0=omegal0)- $
+              kcorrect[igood,j]
+            amivar[igood,j]=omaggies[obands[igood,j],j]^2* $
+              oivar[obands[igood,j],j]*(0.4*alog(10.))^2
+        endif
     endfor
 endif
 

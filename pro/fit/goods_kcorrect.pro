@@ -68,11 +68,12 @@
 ; OPTIONAL OUTPUTS:
 ;   coeffs - coefficients of fit
 ;   chi2 - chi^2 of fit
-;   rmaggies - [7, N] reconstructed maggies from the fit (BRI)
+;   rmaggies - [7, N] reconstructed maggies from the fit (BVizJHK)
 ;   omaggies, oivar - [7, N] maggies and inverse variances used for fit
 ;                           (after extinction correction, etc)
-;                           (BRI)
+;                           (BVizJHK)
 ;   obands - [Nf, N] which input bands the K-corrections refer to 
+;   appm - [Nf, N] apparent magnitudes in output bands
 ; COMMENTS:
 ;   This is a simple wrapper on kcorrect.pro.  It keeps a version of
 ;   rmatrix and zvals in memory to save time, recalculating them each
@@ -142,6 +143,8 @@ if(n_elements(vname) gt 0) then begin
     if(vname ne use_vname) then begin
         rmatrix=0
         zvals=0
+        out_rmatrix=0
+        out_zvals=0
     endif
 endif
 vname=use_vname
@@ -153,20 +156,25 @@ else $
   use_band_shift=0. 
 if(n_elements(band_shift) gt 0) then begin
     if(band_shift ne use_band_shift) then begin
-        rmatrix=0
-        zvals=0
+        out_rmatrix=0
+        out_zvals=0
     endif
 endif
 band_shift=use_band_shift
 
 ;; need to reset rmatrix if filterlist changes
 if(n_elements(out_filterlist) gt 0) then begin
-    for i=0L, n_elements(out_filterlist)-1L do begin
-        if(new_out_filterlist[i] ne out_filterlist[i]) then begin
-            rmatrix=0
-            zvals=0
-        endif
-    endfor
+    if(n_elements(out_filterlist) eq n_elements(new_out_filterlist)) then begin
+        for i=0L, n_elements(out_filterlist)-1L do begin
+            if(new_out_filterlist[i] ne out_filterlist[i]) then begin
+                out_rmatrix=0
+                out_zvals=0
+            endif
+        endfor
+    endif else begin
+        out_rmatrix=0
+        out_zvals=0
+    endelse
 endif 
 out_filterlist=new_out_filterlist
 
@@ -238,16 +246,16 @@ if(arg_present(absmag)) then begin
     for i=0L, n_elements(out_filterlist)-1L do $
       absmag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])- $
       lf_distmod(redshift, omega0=omega0, omegal0=omegal0)
-    for i=0L, n_elements(out_filterlist)-1L do begin
-        ig=where(oivar[i,*] gt 0. AND omaggies[i,*] gt 0., ng)
-        for j=0L, ng-1L do begin
-            absmag[i,ig[j]]=-2.5*alog10(omaggies[obands[i,j],ig[j]])- $
-              lf_distmod(redshift[ig[j]],omega0=omega0,omegal0=omegal0)- $
-              kcorrect[i,ig[j]]
-            amivar[i,ig[j]]=omaggies[obands[i,j],ig[j]]^2* $
-              oivar[obands[i,j],ig[j]]* $
-              (0.4*alog(10.))^2
-        endfor
+    for j=0L, n_elements(redshift)-1L do begin
+        igood=where(oivar[obands[*,j],j] gt 0. and $
+                    omaggies[obands[*,j],j] gt 0., ngood)
+        if(ngood gt 0) then begin
+            absmag[igood,j]=-2.5*alog10(omaggies[obands[igood,j],j])- $
+              lf_distmod(redshift[j],omega0=omega0,omegal0=omegal0)- $
+              kcorrect[igood,j]
+            amivar[igood,j]=omaggies[obands[igood,j],j]^2* $
+              oivar[obands[igood,j],j]*(0.4*alog(10.))^2
+        endif
     endfor
 endif
 
@@ -268,18 +276,20 @@ if(arg_present(appm)) then begin
 
     appmcorrect=fltarr(n_elements(out_filterlist), n_elements(redshift))
     for j=0L, n_elements(out_filterlist)-1L do $
-      appmcorrect[j,*]=appm_maggies[j,*]/rmaggies[appm_obands[j],*]
+      appmcorrect[j,*]=app_maggies[j,*]/rmaggies[appm_obands[j],*]
     appmcorrect=2.5*alog10(appmcorrect)
 
     appm=fltarr(n_elements(out_filterlist), n_elements(redshift))
     for i=0L, n_elements(out_filterlist)-1L do $
       appm[i,*]=-2.5*alog10(app_maggies[i,*])
-    for i=0L, n_elements(out_filterlist)-1L do begin
-        ig=where(oivar[i,*] gt 0. AND omaggies[i,*] gt 0., ng)
-        if(ng gt 0) then $
-          appm[i,ig]=-2.5*alog10(omaggies[appm_obands[i],ig])- $
-          appmcorrect[i,ig]
+    for j=0L, n_elements(redshift)-1L do begin
+        igood=where(oivar[appm_obands,j] gt 0. and $
+                    omaggies[appm_obands,j] gt 0., ngood)
+        if(ngood gt 0) then $
+          appm[igood,j]=-2.5*alog10(omaggies[appm_obands[igood],j])- $
+          appmcorrect[igood,j]
     endfor
+    
 endif
 
 rmatrix=out_rmatrix
