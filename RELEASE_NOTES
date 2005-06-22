@@ -1,3 +1,6 @@
+GOODS_KCORRECT - fix bug in goods_filterlist, add arbitrary filterlist
+  input, and add appm output
+
 -------------------------------------------------------------------------------
 v4_0 (June 16, 2005) 
 use spec5m templates as defaults, remove extraneous stuff

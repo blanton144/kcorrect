@@ -37,19 +37,33 @@
 ;   vname - name of fit to use [defaults to 'default']
 ;   omega0, omegal0 - cosmological parameters for calculating distance
 ;                     moduli [default 0.3, 0.7]
+;   filterlist - [Nf] output filter list; default is:
+;                   ['galex_NUV.par', $
+;                    'bessell_U.par', $
+;                    'bessell_B.par', $
+;                    'bessell_V.par', $
+;                    'bessell_R.par', $
+;                    'bessell_I.par']
+;                unless /sdss is set, in which case: 	
+;                   ['galex_NUV.par', $
+;                    'sdss_u0.par', $
+;                    'sdss_g0.par', $
+;                    'sdss_r0.par', $
+;                    'sdss_i0.par', $
+;                    'sdss_z0.par']
 ; OUTPUTS:
-;   kcorrect - [6, N] K-corrections from BVizJHK to NUBVRI (or Nugriz 
+;   kcorrect - [Nf, N] K-corrections from BVizJHK to NUBVRI (or Nugriz 
 ;              /sdss is set). The closest input band is used for each
 ;              output band (which ones are decided upon is output in
 ;              "obands"). K-corrections satisfy
 ;                m_R = M_Q + DM(z) + K_QR(z)
 ;              based on the best fit sum of templates. All magnitudes
 ;              are AB. 
-;   mtol - [6, N] mass-to-light ratios from model in each output band
+;   mtol - [Nf, N] mass-to-light ratios from model in each output band
 ;   mass - [N] total mass from model in each band
-;   absmag - [6, N] absolute magnitude (for missing data, substitutes
+;   absmag - [Nf, N] absolute magnitude (for missing data, substitutes
 ;            model fit) in each output band
-;   amivar - [6, N] inverse variance of absolute magnitude (for
+;   amivar - [Nf, N] inverse variance of absolute magnitude (for
 ;            missing data = 0) in each output band
 ; OPTIONAL OUTPUTS:
 ;   coeffs - coefficients of fit
@@ -58,7 +72,7 @@
 ;   omaggies, oivar - [7, N] maggies and inverse variances used for fit
 ;                           (after extinction correction, etc)
 ;                           (BRI)
-;   obands - [6, N] which input bands the K-corrections refer to 
+;   obands - [Nf, N] which input bands the K-corrections refer to 
 ; COMMENTS:
 ;   This is a simple wrapper on kcorrect.pro.  It keeps a version of
 ;   rmatrix and zvals in memory to save time, recalculating them each
@@ -86,10 +100,10 @@ function goods_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                          oivar=oivar, vname=in_vname, mass=mass, mtol=mtol, $
                          absmag=absmag, amivar=amivar, sdss=sdss, $
                          rmatrix=rmatrix, obands=obands, omega0=omega0, $
-                         omegal0=omegal0
+                         omegal0=omegal0, filterlist=filterlist, appm=appm
 
 common com_goods_kcorrect, out_rmatrix, out_zvals, band_shift, $
-  goods_rmatrix, goods_zvals, vname
+  goods_rmatrix, goods_zvals, vname, out_filterlist
 
 if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
@@ -113,6 +127,8 @@ if(keyword_set(sdss)) then $
                       'sdss_r0.par', $
                       'sdss_i0.par', $
                       'sdss_z0.par']
+if(keyword_set(filterlist)) then $
+  new_out_filterlist=filterlist
 
 if(n_elements(in_vname) gt 0) then begin
     use_vname=in_vname
@@ -196,7 +212,7 @@ reconstruct_maggies=reconstruct_maggies/(1.+band_shift)
 
 obands=lindgen(n_elements(out_filterlist))#replicate(1L, n_elements(redshift))
 
-lambda_in=k_lambda_eff(filterlist=deep_filterlist)
+lambda_in=k_lambda_eff(filterlist=goods_filterlist)
 lambda_out=k_lambda_eff(filterlist=out_filterlist, band_shift=band_shift)
 for i=0L, n_elements(redshift)-1L do begin
     for j=0L, n_elements(lambda_out)-1L do begin
@@ -232,6 +248,37 @@ if(arg_present(absmag)) then begin
               oivar[obands[i,j],ig[j]]* $
               (0.4*alog(10.))^2
         endfor
+    endfor
+endif
+
+if(arg_present(appm)) then begin
+    ;; get apparent magnitudes in output bands 
+    k_reconstruct_maggies,coeffs,redshift, $
+      app_maggies,rmatrix=out_rmatrix,zvals=out_zvals
+
+    ;; get comparisons
+    appm=fltarr(n_elements(out_filterlist), n_elements(redshift))
+    appm_obands=lindgen(n_elements(out_filterlist))
+    lambda_in=k_lambda_eff(filterlist=goods_filterlist)
+    lambda_out=k_lambda_eff(filterlist=out_filterlist, band_shift=band_shift)
+    for j=0L, n_elements(lambda_out)-1L do begin
+        dmin=min(abs(lambda_in-lambda_out[j]), imin)
+        appm_obands[j]= imin
+    endfor
+
+    appmcorrect=fltarr(n_elements(out_filterlist), n_elements(redshift))
+    for j=0L, n_elements(out_filterlist)-1L do $
+      appmcorrect[j,*]=appm_maggies[j,*]/rmaggies[appm_obands[j],*]
+    appmcorrect=2.5*alog10(appmcorrect)
+
+    appm=fltarr(n_elements(out_filterlist), n_elements(redshift))
+    for i=0L, n_elements(out_filterlist)-1L do $
+      appm[i,*]=-2.5*alog10(app_maggies[i,*])
+    for i=0L, n_elements(out_filterlist)-1L do begin
+        ig=where(oivar[i,*] gt 0. AND omaggies[i,*] gt 0., ng)
+        if(ng gt 0) then $
+          appm[i,ig]=-2.5*alog10(omaggies[appm_obands[i],ig])- $
+          appmcorrect[i,ig]
     endfor
 endif
 
