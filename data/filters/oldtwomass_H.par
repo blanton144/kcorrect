@@ -7,22 +7,15 @@
 #
 # Instrument: 2MASS Cameras in Mt. Hopkins, AZ, and CTIO, Chile
 # 
-# Determined by: Cohen et al 2003 notes on the web page are:
+# Determined by: 2MASS team; notes on the web page are:
 # 			  
-# "Table 1 - 2MASS Isophotal Bandpasses and Fluxes-for-0-magnitude from Cohen et al. (2003) Band 	Lambda (µm) 	Bandwidth (µm) 	Fnu - 0 mag (Jy) 	Flambda - 0 mag (W cm-2 µm-1)
-#  J 	1.235 ± 0.006 	0.162 ± 0.001 	1594 ± 27.8 	3.129E-13 ± 5.464E-15
-#  H 	1.662 ± 0.009 	0.251 ± 0.002 	1024 ± 20.0 	1.133E-13 ± 2.212E-15
-#  Ks 	2.159 ± 0.011 	0.262 ± 0.002 	666.7 ± 12.6 	4.283E-14 ± 8.053E-16
-# 
-# "Figures 1, 2, and 3 present the 2MASS J, H and Ks relative spectral 
-#  response curves (RSRs), peak-normalized to unity. These curves are 
-#  derived by Cohen et al. (2003) and are photon-counting RSRs suitable 
-#  for integrating over stellar spectra when using or generating synthetic 
-#  photometry. These RSRs are consistent with the absolute calibration of 
-#  2MASS given in Table 1 above. "
+#   "We thank Martin Cohen for providing us with the NICMOS3 data
+#    (originally from the manufacturer Rockwell, as obtained by Leslie
+#    Hunt), the atmospheric models, and the resulting total response
+#    curves.
 #
-# The full reference is:
-#  Cohen, Wheaton & Megeath (2003), AJ, 126, 1090
+#   "[Last Updated: 2000 June 27 by W. Wheaton. Modified 2000 Sep 13
+#     by S. Van Dyk.] "
 #
 # Date of determination: Unknown (see previous note for upper limit)
 #
@@ -30,10 +23,26 @@
 #
 # Notes:
 #
+# These curves obtained from:
+#
+# http://www.ipac.caltech.edu/2mass/releases/second/doc/sec3_1b1.tbl12.html
+# 
+# Apparently the differences between the two sites are small enough
+# that the 2MASS folks choose to ignore it.  
+# 
+# According to the web pages, these curves include mirror
+# reflectivity, dewar window transmission, camera coatings, dichroic
+# effects, filters, detector QE, as well as "representative
+# atmospheric transmission at the observatory sites." The quantum
+# efficiencies appear to have been determined from the NICMOS3 array
+# "similar to those used in the 2MASS cameras". They do not make 
+# clear on the site whether they used the ATRAN or PLEXUS atmospheric
+# models.
+#
 # I am not in a position to judge the quality of these curves, but
 # have no reason to doubt them.
 #
-# Michael Blanton 2005-07-06
+# Michael Blanton 2002-08-19
 #
 
 typedef struct {

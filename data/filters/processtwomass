@@ -8,10 +8,11 @@
 
 @bands=("J","H","Ks");
 $twomassdir="twomass";
+$i=0;
 foreach $band (@bands) {
-	print "$twomassdir/${band}total.html\n";
+	print "$twomassdir/sec6_4a.tbl$i.html\n";
 	
-	open(ifp,"$twomassdir/${band}total.html");
+	open(ifp,"$twomassdir/sec6_4a.tbl$i.html");
 	$nlines=0;
 	while(<ifp>) {
 		chomp;
@@ -47,4 +48,5 @@ foreach $band (@bands) {
 	}
 	close(ifp);
 	close(ofp);
+  $i++;
 }

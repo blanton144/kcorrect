@@ -39,7 +39,10 @@ foreach $band (@bands) {
 		split;
 		if($_[0]>0) {
 			if(!($line=~/^\#/)) {
-				print ofp "KFILTER $line";
+        chop $line;
+        @words=split(' ', $line);
+        $words[1]=$words[1]/($words[0]/5000.);
+				print ofp "KFILTER $words[0] $words[1]\n";
 			}
 		}
 	}
