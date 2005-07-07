@@ -133,15 +133,18 @@ if(n_tags(calibobj) gt 0) then begin
     sdss_ivar=calibobj.(iivar)
     iextinction=tag_indx(calibobj[0], 'extinction')
     if(iextinction eq -1) then begin
-        splog, 'ERROR: calibobj MUST have .extinction'
-        return
-    endif
-    if(n_elements(calibobj[0].(iextinction)) ne 5) then begin
+        red_fac = [5.155, 3.793, 2.751, 2.086, 1.479 ]
+        euler,calibobj.ra,calibobj.dec,ll,bb,1
+        extinction= red_fac # dust_getval(ll, bb, /interp, /noloop)
+    endif else begin
+        extinction=calibobj.extinction
+    endelse
+    if(n_elements(extinction[*,0]) ne 5) then begin
         splog, 'ERROR: calibobj.extinction MUST have five elements!'
         return
     endif
-    sdss_nmgy=sdss_nmgy*10.^(0.4*calibobj.extinction)
-    sdss_ivar=sdss_ivar*10.^(-0.8*calibobj.extinction)
+    sdss_nmgy=sdss_nmgy*10.^(0.4*extinction)
+    sdss_ivar=sdss_ivar*10.^(-0.8*extinction)
     maggies=sdss_nmgy*1.e-9
     ivar=sdss_ivar*1.e+18
     k_abfix, maggies, ivar
