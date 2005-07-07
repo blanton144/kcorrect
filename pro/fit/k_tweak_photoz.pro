@@ -11,7 +11,7 @@
 ;   01-May-2003  Written by Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-function k_tweak_photoz, vname=vname
+pro k_tweak_photoz, vname=vname
 
 datastr=mrdfits('k_nmf_spdata.fits',1)
 vals=mrdfits('k_nmf_spdata.fits',2)
@@ -51,10 +51,13 @@ for ifilter=0L, n_elements(filterlist)-1L do begin
     endfor 
 endfor
 
+coeffs=mrdfits('k_nmf_soln.fits',1)
 k_load_vmatrix, vmatrix, lambda, vname='test', vpath='.'
 k_tweak_templates, maggies, ivar, zhelio, coeffs, vmatrix, lambda, $
   vmatrix_tweaked=vmatrix_tweaked, maggies_factor=maggies_factor, $
   filterlist=filterlist
+
+stop
 
 end
 ;------------------------------------------------------------------------------

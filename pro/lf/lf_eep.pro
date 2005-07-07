@@ -58,7 +58,7 @@ absmmin=(absmmin > sample_absmmin) < sample_absmmax
 absmmax=(absmmax > sample_absmmin) < sample_absmmax
 absmag_evol=k_evolve(absmag, zz, q0, q1, qz0)
 
-soname=filepath('libkcorrect.'+idlutils_so_ext(), $
+soname=filepath('libkcorrect.'+kcorrect_so_ext(), $
                 root_dir=getenv('KCORRECT_DIR'), subdirectory='lib')
 retval=call_external(soname, 'idl_lf_eep', float(zz), $
                      float(absmag_evol),float(absmmin),float(absmmax), $
