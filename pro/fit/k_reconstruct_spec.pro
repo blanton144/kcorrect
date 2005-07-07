@@ -132,6 +132,8 @@ if(newname) then begin
         tmass=total(templates[0:nages*nmets*ndusts-1L,*], 1)
         i300=where(age lt 3.e+8, n300)
         tmass300=total(templates[i300, *], 1)
+        i1000=where(age lt 1.e+9, n1000)
+        tmass1000=total(templates[i1000, *], 1)
         tmetallicity= $
           total((reform(metallicities[met], nages*nmets*ndusts, 1)# $
                  replicate(1., nt))* $
@@ -152,10 +154,11 @@ if(newname) then begin
         mwrfits, tspec_v300_nd, tspecfile
         mwrfits, tspec_v300_nl_nd, tspecfile
         mwrfits, lspec_v300, tspecfile
-        mwrfits, tmass, tspecfile
-        mwrfits, tmetallicity, tspecfile
-        mwrfits, tage, tspecfile
-        mwrfits, tmass300, tspecfile
+        mwrfits, [tmass], tspecfile
+        mwrfits, [tmetallicity], tspecfile
+        mwrfits, [tage], tspecfile
+        mwrfits, [tmass300], tspecfile
+        mwrfits, [tmass1000], tspecfile
     endif else begin
         loglam=mrdfits(tspecfile, 0, hdr)
         nt=long(sxpar(hdr,'NT'))
