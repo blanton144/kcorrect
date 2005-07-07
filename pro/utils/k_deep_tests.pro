@@ -67,6 +67,38 @@ endif else begin
     restore, savfile
 endelse 
 
+hogg_usersym, 10, /fill
+k_print, filename='k_test_sdss2deep_both.ps'
+hogg_usersym, 10, /fill
+!P.MULTI=[0,1,2]
+!Y.MARGIN=0
+djs_plot, deep_redshift, bri[0,*]-bri[1,*], psym=8, symsize=0.2, $
+  xra=[0.5, 1.5], xcharsize=0.0001, ycharsize=1.4, $
+  ytitle='!8B-R!6', yra=[-0.3,4.5], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95]
+djs_oplot, deep.zhelio, deep.magb-deep.magr, psym=8, symsize=0.2, $
+  color='red'
+djs_plot, deep_redshift, bri[1,*]-bri[2,*], psym=8, symsize=0.2 , $
+  xra=[0.5, 1.5], xcharsize=1.4, ycharsize=1.4, xtitle='!6redshift!8 z!6', $
+  ytitle='!8R-I!6', yra=[-0.3,2.3], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95]
+djs_oplot, deep.zhelio, deep.magr-deep.magi, psym=8, symsize=0.2, $
+  color='red'
+k_end_print
+
+hogg_usersym, 10, /fill
+k_print, filename='k_test_sdss2deep_sdss.ps'
+hogg_usersym, 10, /fill
+!P.MULTI=[0,1,2]
+!Y.MARGIN=0
+djs_plot, deep_redshift, bri[0,*]-bri[1,*], psym=8, symsize=0.2, $
+  xra=[0.5, 1.5], xcharsize=0.0001, ycharsize=1.4, $
+  ytitle='!8B-R!6', yra=[-0.3,4.5], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95]
+djs_plot, deep_redshift, bri[1,*]-bri[2,*], psym=8, symsize=0.2, $
+  xra=[0.5, 1.5], xcharsize=1.4, ycharsize=1.4, xtitle='!6redshift!8 z!6', $
+  ytitle='!8R-I!6', yra=[-0.3,2.3], quantiles=[0.05, 0.2, 0.5, 0.8, 0.95]
+k_end_print
+
+stop
+
 k_print, filename='k_test_sdss2deep.ps'
 hogg_usersym, 10, /fill
 !P.MULTI=[0,1,2]

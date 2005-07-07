@@ -9,7 +9,7 @@
 ;   02-May-2005  MRB, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro k_plot_bc_colors
+pro k_plot_bc_colors, redshift=redshift
 
 salpeter=0
 isolib='Padova1994'
@@ -60,44 +60,50 @@ nmets=6   ;; metallicities to use
 mets=[0,1,2,3,4,5]
 umg=fltarr(nuse, nmets)
 gmr=fltarr(nuse, nmets)
-for im= 0L, nmets-1L do begin
-    flux= (k_im_read_bc03(met=mets[im], isolib=isolib, salpeter=salpeter)).flux[*,iuse]
-    for it=0, nuse-1L do begin
-        maggies=k_project_filters(lambda, flux[*,it], band_shift=0.1, $
+rmi=fltarr(nuse, nmets)
+imz=fltarr(nuse, nmets)
+for im= 0L, nmets-1L do begin & $
+    flux= (k_im_read_bc03(met=mets[im], isolib=isolib, salpeter=salpeter)).flux[*,iuse] & $
+    for it=0, nuse-1L do begin & $
+        maggies=k_project_filters(lambda, flux[*,it], band_shift=redshift, $
                                   filterlist=['sdss_u0.par', 'sdss_g0.par', $
-                                              'sdss_r0.par'])
-        umg[it,im]=-2.5*alog10(maggies[0]/maggies[1])
-        gmr[it,im]=-2.5*alog10(maggies[1]/maggies[2])
-    endfor
+                                              'sdss_r0.par', 'sdss_i0.par', $
+                                              'sdss_z0.par']) & $
+        umg[it,im]=-2.5*alog10(maggies[0]/maggies[1]) & $
+        gmr[it,im]=-2.5*alog10(maggies[1]/maggies[2]) & $
+        rmi[it,im]=-2.5*alog10(maggies[2]/maggies[3]) & $
+        imz[it,im]=-2.5*alog10(maggies[2]/maggies[3]) & $
+    endfor & $
 endfor
 
-postcat=hogg_mrdfits(vagc_name('post_catalog', sample='sample15', $
-                               letter='bsafe', post='1'), 1, nrow=28800)
-ii=where(postcat.z gt 0.07 and postcat.z lt 0.13)
+postcat=hogg_mrdfits(vagc_name('post_catalog', sample='drtwo14', $
+                               letter='safe', post='1'), 1, nrow=28800)
+ii=where(postcat.z gt redshift-0.03 and postcat.z lt redshift+0.03 and $
+         (postcat.letter_mask and 32) eq 0, nii)
 postcat=postcat[ii]
-postcat=postcat[shuffle_indx(n_elements(postcat), num_sub=10000)]
+if(nii gt 10000) then $
+  postcat=postcat[shuffle_indx(n_elements(postcat), num_sub=10000)]
 im=mrdfits(vagc_name('object_sdss_imaging'),1,row=postcat.object_position)
-kc=sdss_kcorrect(postcat.z, calibobj=im, absmag=mabsm, band_shift=0.1, $
+kc=sdss_kcorrect(postcat.z, calibobj=im, absmag=mabsm, band_shift=redshift, $
                  flux='model')
-kc=sdss_kcorrect(postcat.z, calibobj=im, absmag=pabsm, band_shift=0.1, $
-                 flux='petro')
 
-k_print, filename='bc_umg.ps'
-djs_plot,[0],[0], /nodata, /xlog, xra=[500000., 1.4e+10], $
-  yra=[-0.5, 2.8]
-for im= 0L, nmets-1L do $
-  djs_oplot,ages, umg[*,im], /xlog
-k_end_print
+lrgs=mrdfits(getenv('KCORRECT_DIR')+'/data/test/sdss_tests_lrg.fits',1)
+ii=where(lrgs.z gt redshift-0.03 and lrgs.z lt redshift+0.03)
+lrgs=lrgs[ii]
+kc=sdss_kcorrect(lrgs.z, calibobj=lrgs, absmag=labsm, band_shift=redshift, $
+                 /lrg)
 
-k_print, filename='bc_umg_gmr.ps'
-djs_plot,[0],[0], /nodata, xra=[-0.5, 2.8], yra=[-0.5,1.5]
-djs_oplot, pabsm[0,*]-pabsm[1,*], $
-  pabsm[1,*]-pabsm[2,*], psym=3, color='red'
+hogg_usersym, 10, /fill
+
+k_print, filename='bc_umg_imz.'+strtrim(string(f='(f40.2)', redshift),2)+'.ps'
+djs_plot,[0],[0], /nodata, xra=[-0.2, 2.9], yra=[-0.2,0.65]
 djs_oplot, mabsm[0,*]-mabsm[1,*], $
-  mabsm[1,*]-mabsm[2,*], psym=3, color='green'
+  mabsm[3,*]-mabsm[4,*], psym=8, color='blue', symsize=0.2
+;djs_oplot, labsm[1,*]-labsm[2,*], $
+  ;labsm[3,*]-labsm[4,*], psym=8, color='red', symsize=0.2
+colors=['blue', 'cyan', 'green', 'orange', 'red', 'black']
 for im= 0L, nmets-1L do $
-  djs_oplot,umg[*,im], gmr[*,im]
-
+  djs_oplot,umg[*,im], imz[*,im], th=4, color=colors[im]
 k_end_print
 
 stop

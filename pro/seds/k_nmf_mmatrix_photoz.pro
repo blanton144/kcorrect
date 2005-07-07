@@ -1,6 +1,6 @@
 ;+
 ; NAME:
-;   k_nmf_mmatrix
+;   k_nmf_mmatrix_photoz
 ; PURPOSE:
 ;   make grid of BC03 model spectra for fitting
 ; CALLING SEQUENCE:
@@ -34,18 +34,20 @@
 ;   29-Jul-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_nmf_mmatrix, prefix=prefix, back=back, lmin=lmin, lmax=lmax, $
-                   dusts=dusts , filterlist=filterlist, minzf=minzf, $
-                   maxzf=maxzf, nzf=nzf, nagesmax=nagesmax, noel=noel, $
-                   isolib=isolib, nodust=nodust
+pro k_nmf_mmatrix_photoz, prefix=prefix, back=back, lmin=lmin, lmax=lmax, $
+                          dusts=dusts , filterlist=filterlist, minzf=minzf, $
+                          maxzf=maxzf, nzf=nzf, nagesmax=nagesmax, noel=noel, $
+                          isolib=isolib, nodust=nodust
 
+nodust=1
+noel=1
 if(NOT keyword_set(isolib)) then isolib='Padova1994'
 if(NOT keyword_set(back)) then back=0.5  ;; how many Gyrs earlier?
 if(NOT keyword_set(lmin)) then lmin=600.
 if(NOT keyword_set(lmax)) then lmax=3200000.
 if(NOT keyword_set(prefix)) then prefix='k_nmf'
 if(NOT keyword_set(navloglam)) then navloglam=10000L
-if(NOT keyword_set(nagesmax)) then nagesmax=10
+if(NOT keyword_set(nagesmax)) then nagesmax=5
 if(NOT keyword_set(vdisp)) then vdisp=300.
 if(NOT keyword_set(minzf)) then minzf=0.
 if(NOT keyword_set(maxzf)) then maxzf=2.
@@ -98,7 +100,7 @@ norm_lmin=800. ;; limits when testing whether two BC03 models are similar
 norm_lmax=23000.
 ;; metallicities to use
 mets=[0,1,2,3,4,5]
-mets=[2,3,4,5]
+mets=[4]
 nmets=n_elements(mets)   
 sigma=vdisp/(2.99792e+5*alog(10.))  ;; smoothing sigma in log lambda
 outfile=prefix+'_mmatrix.fits'  ;; output files
@@ -304,7 +306,7 @@ nextra=nextra+nel
 
 ;; 3.5 dust from draine
 ndraine=0L 
-if(1) then begin
+if(0) then begin
 drainefiles=['spec_2.2.dat','spec_2.5.dat','spec_2.8.dat']
 ndraine=n_elements(drainefiles)
 drainegrid=fltarr(navloglam, ndraine)
@@ -329,6 +331,29 @@ earlyspgrid[*,nages*nmets*ndusts+nextra: $
             nages*nmets*ndusts+nextra+ndraine-1L]= drainegrid
 endif
 nextra=nextra+ndraine
+
+;; 3.7 add totally arbitrary components!
+sarb=0.005
+arblo=1200.
+arbhi=24000.
+narb=long((alog10(arbhi)-alog10(arblo))/sarb)
+carb=alog10(arblo)+(alog10(arbhi)-alog10(arblo))*(findgen(narb)+0.5)/ $
+  float(narb)
+rsarb=carb[1]-carb[0]
+arbgrid=fltarr(navloglam, narb)
+for i=0L, narb-1L do $
+  arbgrid[*,i]=k_bspline2((avloglam-carb[i])/rsarb)
+tmp_spgrid=spgrid
+spgrid=fltarr(navloglam,nages*nmets*ndusts+nextra+narb)
+spgrid[*,0L:nages*nmets*ndusts+nextra-1L]=tmp_spgrid
+spgrid[*,nages*nmets*ndusts+nextra: $
+       nages*nmets*ndusts+nextra+narb-1L]=arbgrid
+tmp_earlyspgrid=earlyspgrid
+earlyspgrid=fltarr(navloglam,nages*nmets*ndusts+nextra+narb)
+earlyspgrid[*,0L:nages*nmets*ndusts+nextra-1L]=tmp_earlyspgrid
+earlyspgrid[*,nages*nmets*ndusts+nextra: $
+            nages*nmets*ndusts+nextra+narb-1L]= arbgrid
+nextra=nextra+narb
 
 ;; 3. now make all filters at all redshifts
 lambda=fltarr(navloglam+1L)
