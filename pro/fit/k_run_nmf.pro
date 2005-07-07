@@ -21,7 +21,7 @@
 ;-
 ;------------------------------------------------------------------------------
 pro k_run_nmf, niter=niter, nt=nt, qa=qa, reset=reset, zdust=zdust, $
-               zextra=zextra
+               zextra=zextra, lextra=lextra
 
 if(NOT keyword_set(niter)) then niter=1000L
 if(NOT keyword_set(nt)) then nt=4
@@ -88,6 +88,12 @@ endif else begin
         nc=(size(templates,/dim))[0]
         for i=0L, nt-1L do $
           templates[n_elements(age):nc-1L,i]=0.
+    endif
+    if(keyword_set(lextra)) then begin
+        nc=(size(templates,/dim))[0]
+        for i=0L, nt-1L do $
+          templates[n_elements(age):nc-1L,i]= $
+          templates[n_elements(age):nc-1L,i]*1.e-3
     endif
 endelse
 ttot=total(templates, 1)
