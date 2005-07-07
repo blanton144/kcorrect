@@ -12,8 +12,8 @@
  * Mike Blanton
  * 5/2003 */
 
-#define ZRES 0.10
-#define TOL 0.02
+#define ZRES 0.05
+#define TOL 0.005
 #define MAXITER 3000
 #define FREEVEC(a) {if((a)!=NULL) free((char *) (a)); (a)=NULL;}
 

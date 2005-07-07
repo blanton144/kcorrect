@@ -1,8 +1,25 @@
+DEEP_KCORRECT - fix bug in obands
+FIT_SDSS_FIBER - add vdisp keyword
 GOODS_KCORRECT - fix bug in goods_filterlist, add arbitrary filterlist
   input, and add appm output, and fix bug in obands usage
-DEEP_KCORRECT - fix bug in obands
 GOODS_TO_MAGGIES - change error flags 
+KCORRECT - add met, age, b300 and b1000 outputs
+KEYNOTE_PLOTS - make plots for presentations
+K_FIT_IMAGE - experimental image-fitting code
+K_FIT_TEMPLATES - change data used
 K_GOODS_TESTS - compare magnitude, not colors
+K_NMF_SPDATA - tweak data used
+K_NMF_SPDATA_SWIRE - gather data to play with SWIRE
+K_NMF_SPDATA_PHOTOZ - gather data to play with photo-z's
+K_RECONSTRUCT_SPEC - add 1 gyr output
+K_TWEAK_PHOTOZ - template tweaking code to improve photo-z's (experimental)
+SDSS_TO_MAGGIES - find extincition from dust maps if not in struct
+
+data/templates/k_nmf_spec.lrg1.fits - include more data 
+data/filters/bessell_*.par - changed to per photon (were previously,
+  and erroneously, given in the per energy units listed in the Bessell paper)
+data/filters/twomass_*.par - changed to latest 2mass files (seem exactly
+  the same as old)
 
 -------------------------------------------------------------------------------
 v4_0 (June 16, 2005) 

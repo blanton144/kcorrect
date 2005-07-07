@@ -13,19 +13,48 @@
 ;------------------------------------------------------------------------------
 function k_tweak_photoz, vname=vname
 
-sample='drtwo14'
-postcat=hogg_mrdfits(vagc_name('post_catalog', sample=sample, letter='safe', $
-                               post='1'), 1, nrow=28800)
-postcat=postcat[where((postcat.letter_mask and 32) eq 0)]
-indx_photo=shuffle_indx(n_elements(postcat), num_sub=10000, seed=seed)
-postcat=postcat[indx_photo]
-im=mrdfits(vagc_name('object_sdss_imaging'),1,row=postcat.object_position)
-kc=sdss_kcorrect(postcat.z, calibobj=im, omaggies=maggies, oivar=ivar, $
-                 coeffs=coeffs, vname=vname, vmatrix=vmatrix, lambda=lambda)
+datastr=mrdfits('k_nmf_spdata.fits',1)
+vals=mrdfits('k_nmf_spdata.fits',2)
+ivar=mrdfits('k_nmf_spdata.fits',3)
+xx=mrdfits('k_nmf_spdata.fits',4)
+hdr=headfits('k_nmf_mmatrix.fits')
+nzf=long(sxpar(hdr, 'NZ'))
+nspec=long(sxpar(hdr, 'NSPEC'))
+zf=mrdfits('k_nmf_mmatrix.fits',6)
+filterlist=strtrim(string(mrdfits('k_nmf_mmatrix.fits',5)),2)
+data=create_struct(datastr, $
+                   'val', fltarr(n_elements(vals)), $
+                   'x', fltarr(n_elements(vals)))
+data.val=vals
+data.x=xx
+data_ivar=create_struct(datastr, $
+                        'val', fltarr(n_elements(vals)), $
+                        'x', fltarr(n_elements(vals)))
+data_ivar.val=ivar
+data_ivar.x=xx
+zhelio=mrdfits('k_nmf_spdata.fits',7)
+iz=long(floor((nzf-1.)*(zhelio-zf[0])/(zf[nzf-1]-zf[0])+0.5))
 
-k_load_vmatrix, vmatrix, lambda, vname=vname
-k_tweak_templates,maggies,ivar, postcat.z, coeffs, vmatrix, lambda, $
-  vmatrix_tweaked=vmatrix_tweaked, maggies_factor=maggies_factor
+maggies=fltarr(n_elements(filterlist), n_elements(zhelio))
+ivar=fltarr(n_elements(filterlist), n_elements(zhelio))
+
+for ifilter=0L, n_elements(filterlist)-1L do begin
+    fstart=nspec+ifilter*nzf
+    fend=nspec+(ifilter+1L)*nzf-1L
+    for j=0L, n_elements(zhelio)-1L do begin
+        currx=data.rowstart[j]+lindgen(data.nxrow[j])
+        ii=where(data.x[currx] ge fstart AND data.x[currx] le fend, nii)
+        if(nii gt 0) then begin
+            maggies[ifilter, j]= data.val[currx[ii[0]]]
+            ivar[ifilter, j]= data_ivar.val[currx[ii[0]]]
+        endif
+    endfor 
+endfor
+
+k_load_vmatrix, vmatrix, lambda, vname='test', vpath='.'
+k_tweak_templates, maggies, ivar, zhelio, coeffs, vmatrix, lambda, $
+  vmatrix_tweaked=vmatrix_tweaked, maggies_factor=maggies_factor, $
+  filterlist=filterlist
 
 end
 ;------------------------------------------------------------------------------
