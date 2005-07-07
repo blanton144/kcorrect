@@ -106,7 +106,8 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               chi2=chi2, maxiter=maxiter, verbose=verbose, nz=nz, $
               zmin=zmin, zmax=zmax, abfix=abfix, minerrors=minerrors, $
               rmaggies=rmaggies, mass=mass, mtol=mtol, vname=vname, $
-              absmag=absmag, amivar=amivar, omega0=omega0, omegal0=omegal0
+              absmag=absmag, amivar=amivar, omega0=omega0, omegal0=omegal0, $
+              mets=mets, b300=b300, ages=ages, b1000=b1000
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
@@ -184,6 +185,26 @@ mtol=fltarr(n_elements(filterlist), n_elements(redshift))
 mm=total(coeffs,1)
 for i=0L, n_elements(filterlist)-1L do $
   mtol[i,*]=mm/reconstruct_maggies[i,*]*smaggies[i]
+
+; get metallicity
+tspecfile=getenv('KCORRECT_DIR')+'/data/templates/k_nmf_spec.'+ $
+  vname+'.fits'
+tmass=mrdfits(tspecfile, 10)
+tmetallicity=mrdfits(tspecfile, 11)
+tage=mrdfits(tspecfile, 12)
+tmass300=mrdfits(tspecfile, 13)
+tmass1000=mrdfits(tspecfile, 14)
+b300=fltarr(n_elements(redshift))
+b1000=fltarr(n_elements(redshift))
+mets=fltarr(n_elements(redshift))
+ages=fltarr(n_elements(redshift))
+for i=0L, n_elements(redshift)-1L do begin
+    mass=total(tmass*coeffs[*,i])
+    b300[i]=total(tmass300*coeffs[*,i])/total(tmass*coeffs[*,i])
+    b1000[i]=total(tmass1000*coeffs[*,i])/total(tmass*coeffs[*,i])
+    ages[i]=total(tmass*tage*coeffs[*,i])/mass
+    mets[i]=total(tmass*tmetallicity*coeffs[*,i])/mass
+endfor
 
 ; get kcorrection
 kcorrect=reconstruct_maggies/rmaggies
