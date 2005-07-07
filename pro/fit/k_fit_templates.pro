@@ -18,7 +18,7 @@ if(NOT keyword_set(nt)) then nt=4
 spawn, 'mkdir -p photo1'
 cd, 'photo1'
 k_nmf_mmatrix, /nodust, /noel
-k_nmf_spdata, nsdss_spec=0L, nlrg_spec=0L, /few, flux='model'
+k_nmf_spdata, nsdss_spec=0L, nlrg_spec=0L, /few, flux='model', sample='dr4'
 k_run_nmf, nt=1L, niter=1000L, /reset, /qa
 cd, '../'
 
@@ -87,7 +87,7 @@ spawn, 'cp ../photo2/k_nmf_mmatrix.fits .'
 spawn, 'cp ../photo2/k_nmf_early.fits .'
 spawn, 'cp ../photo2/k_nmf_rawspec.fits .'
 spawn, 'cp ../photo2/k_nmf_soln.fits .'
-k_nmf_spdata, nsdss_spec=0L, nlrg_spec=0L, flux='model'
+k_nmf_spdata, nsdss_spec=0L, nlrg_spec=0L, flux='model', sample='dr4'
 k_run_nmf, nt=2L, niter=5000L, /qa
 templates2=mrdfits('k_nmf_soln.fits',0)
 coeffs2=mrdfits('k_nmf_soln.fits',1)
@@ -224,7 +224,7 @@ cd, '../'
 spawn, 'mkdir -p spec4m'
 cd, 'spec4m'
 k_nmf_mmatrix
-k_nmf_spdata, /spchop, flux='model'
+k_nmf_spdata, /spchop, flux='model', sample='dr4'
 data=mrdfits('k_nmf_spdata.fits',1)
 ngals=n_elements(data.rowstart)
 hdr=headfits('k_nmf_mmatrix.fits')
