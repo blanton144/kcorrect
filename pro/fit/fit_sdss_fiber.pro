@@ -44,7 +44,8 @@ pro fit_sdss_fiber, in_plate, in_fiberid, mjd=in_mjd, slist=slist, $
                     usevdisp=usevdisp, flux=flux, ivar=ivar, loglam=loglam, $
                     cmodel=cmodel, age=age, mass=mass, b300=b300, $
                     metallicity=metallicity, nolines=nolines, plot=plot, $
-                    omega0=omega0, omegal0=omegal0, range=range
+                    omega0=omega0, omegal0=omegal0, range=range, $
+                    vdisp=in_vdisp
                     
 
 if(n_tags(slist) gt 0) then begin
@@ -58,10 +59,13 @@ endif else begin
       mjd=in_mjd
 endelse
 
+if(keyword_set(in_vdisp)) then $
+  vdisp=in_vdisp
+
 k_reconstruct_spec, dum, loglam, /init, vname=vname
 readspec, plate, fiberid, mjd=mjd, zans=zans
 sdss_spec_block, plate, fiberid, mjd, block_flux=flux, block_ivar=ivar, $
-  block_lambda=lambda, avloglam=loglam, /deextinct
+  block_lambda=lambda, avloglam=loglam, /deextinct, vdisp=vdisp
 flux=flux*1.e-17
 ivar=ivar*1.e+34
 
