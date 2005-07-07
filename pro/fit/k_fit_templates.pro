@@ -15,6 +15,7 @@ pro k_fit_templates, nt=nt, nprime=nprime
 
 if(NOT keyword_set(nt)) then nt=4
 
+if(0) then begin
 spawn, 'mkdir -p photo1'
 cd, 'photo1'
 k_nmf_mmatrix, /nodust, /noel
@@ -59,6 +60,7 @@ templates[*,2]=0.5*(templates2[*,0]+templates2[*,1])* $
 mwrfits, templates, 'k_nmf_soln.fits', /create
 k_run_nmf, nt=3L, niter=20000L, /qa
 cd, '../'
+endif
 
 spawn, 'mkdir -p photo4'
 cd, 'photo4'

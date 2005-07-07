@@ -49,7 +49,7 @@
 ;------------------------------------------------------------------------------
 pro k_nmf_spdata, mmatrix=mmatrix, sample=sample, flux=flux, $
                   galexblue=galexblue, nsdss_spec=nsdss_spec, $
-                  nlrg_spec=nlrg_spec, spchop=spchop
+                  nlrg_spec=nlrg_spec, spchop=spchop, few=few
 
 if(n_elements(mmatrix) eq 0) then mmatrix='k_nmf_mmatrix.fits'
 if(n_elements(outfile) eq 0) then outfile='k_nmf_spdata.fits'
@@ -77,7 +77,6 @@ endelse
 if(n_elements(seed1) eq 0) then seed1=1001L
 if(n_elements(omega0) eq 0) then omega0=0.3
 if(n_elements(omegal0) eq 0) then omegal0=0.7
-if(n_elements(velmodtype) eq 0) then velmodtype='sigv150'
 seed=seed1
 
 ;; relative weights
@@ -181,13 +180,11 @@ if(ngalex gt 0) then begin
     galex=galex[indx_galex]
     galex_objects=galex_objects[indx_galex]
     galex_lss=galex_lss[indx_galex]
-    galex_vmod=mrdfits(getenv('VAGC_REDUX')+'/velmod_distance/distance_'+ $
-                       velmodtype+'.fits',1, row=galex_objects.object_position)
-    galex_dm=lf_distmod(galex_vmod.zdist)
+    galex_dm=lf_distmod(galex_lss.z)
     galex_sdss=imfull[galex_objects.object_position]
     sdss_to_maggies, sdss_maggies, sdss_ivar, calibobj=galex_sdss, flux=flux
-    zdist[igalex]=galex_vmod.zdist
-    zhelio[igalex]=galex_vmod.zact
+    zdist[igalex]=galex_lss.z
+    zhelio[igalex]=galex_lss.z
     iz=long(floor((nzf-1.)*(zhelio[igalex]-zf[0])/(zf[nzf-1]-zf[0])+0.5))
     for i=0L, n_elements(galex)-1L do begin
         datastr.rowstart[igalex[i]]=currx
@@ -303,13 +300,11 @@ if(nsdss_spec gt 0) then begin
     indx_spec=shuffle_indx(n_elements(postcat), num_sub=nsdss_spec, seed=seed)
     postcat=postcat[indx_spec]
     sp=spfull[postcat.object_position]
-    vmod=mrdfits(getenv('VAGC_REDUX')+'/velmod_distance/distance_'+velmodtype+ $
-                 '.fits',1, row=postcat.object_position)
     sdss_spec_block, sp.plate, sp.fiberid, sp.mjd, $
       block_flux=block_flux, block_ivar=block_ivar, block_lambda=block_lambda, $
       avloglam=avloglam, /deextinct, vdisp=vdisp
     absrc=3.631*2.99792*10.^(15-2.*avloglam)
-    dm=lf_distmod(vmod.zdist)
+    dm=lf_distmod(sp.z)
     for i=0L, n_elements(postcat)-1L do $
       block_flux[*,i]=block_flux[*,i]/absrc*10.^(0.4*dm[i])
     for i=0L, n_elements(postcat)-1L do $
@@ -331,7 +326,7 @@ if(nsdss_spec gt 0) then begin
             currx=currx+ngood
         endif
     endfor
-    zdist[isdss_spec]=vmod.zdist
+    zdist[isdss_spec]=sp.z
     zhelio[isdss_spec]=sp.z
 endif
 
@@ -352,9 +347,7 @@ if(nsdss_photo gt 0) then begin
     maggies[5:7, *]= twomass_maggies
     maggies_ivar[5:7, *]= twomass_ivar
     sp=spfull[postcat.object_position]
-    vmod=mrdfits(getenv('VAGC_REDUX')+'/velmod_distance/distance_'+velmodtype+ $
-                 '.fits',1, row=postcat.object_position)
-    zdist[isdss_photo]=vmod.zdist
+    zdist[isdss_photo]=sp.z
     dm=lf_distmod(zdist[isdss_photo])
     zhelio[isdss_photo]=sp.z
     iz=long(floor((nzf-1.)*(zhelio[isdss_photo]-zf[0])/(zf[nzf-1]-zf[0])+0.5))

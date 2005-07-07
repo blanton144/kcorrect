@@ -98,7 +98,8 @@ function sdss_kphotoz, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                        rmaggies=rmaggies, omaggies=omaggies, $
                        oivar=oivar, vname=in_vname, mass=mass, mtol=mtol, $
                        absmag=absmag, amivar=amivar, omega0=omega0, $
-                       omegal0=omegal0, kcorrect=kcorrect, lrg=lrg
+                       omegal0=omegal0, kcorrect=kcorrect, lrg=lrg, $
+                       noprior=noprior
 
 common com_sdss_kphotoz, rmatrix, zvals, band_shift, vname
 
@@ -145,7 +146,7 @@ if(keyword_set(lrg)) then mgy_ivar[0,*]=0.
 ;; call kcorrect
 kphotoz, mgy, mgy_ivar, photoz, vname=vname, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, $
-  vmatrix=vmatrix, lambda=lambda
+  vmatrix=vmatrix, lambda=lambda, noprior=noprior
 
 kcorrect= sdss_kcorrect(photoz, nmgy=1.e+9*mgy, ivar=mgy_ivar*1.e-18, $
                         band_shift=in_band_shift, chi2=chi2, coeffs=coeffs, $
