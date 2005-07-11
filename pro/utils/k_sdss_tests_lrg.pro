@@ -33,9 +33,10 @@ endif else begin
     cat=mrdfits(testfile,1)
 endelse
 
+cat.modelflux_ivar[0]=0.
 cat.petroflux_ivar[0]=0.
 kc=sdss_kcorrect(cat.z, calibobj=cat, band_shift=0.3, rmaggies=rmaggies, $
-                 omaggies=omaggies, oivar=oivar, vname=vname, /lrg)
+                 omaggies=omaggies, oivar=oivar, vname=vname, flux='model')
 cresid=fltarr(4, n_elements(cat))
 for i=0L, 3L do $
   cresid[i,*]=(-2.5*alog10(rmaggies[i,*]/rmaggies[i+1,*]))- $

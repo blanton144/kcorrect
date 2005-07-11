@@ -57,6 +57,9 @@ k_tweak_templates, maggies, ivar, zhelio, coeffs, vmatrix, lambda, $
   vmatrix_tweaked=vmatrix_tweaked, maggies_factor=maggies_factor, $
   filterlist=filterlist
 
+k_write_ascii_table, vmatrix_tweaked, 'vmatrix.photoz.dat'
+k_write_ascii_table, lambda, 'lambda.photoz.dat'
+
 stop
 
 end
