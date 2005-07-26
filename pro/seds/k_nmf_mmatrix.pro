@@ -304,7 +304,7 @@ nextra=nextra+nel
 
 ;; 3.5 dust from draine
 ndraine=0L 
-if(1) then begin
+if(0) then begin
 drainefiles=['spec_2.2.dat','spec_2.5.dat','spec_2.8.dat']
 ndraine=n_elements(drainefiles)
 drainegrid=fltarr(navloglam, ndraine)

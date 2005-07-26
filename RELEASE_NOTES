@@ -1,4 +1,5 @@
 DEEP_KCORRECT - fix bug in obands
+DEEP_TO_MAGGIES - removed SFD correction, since DEEP2 mags already corrected
 FIT_SDSS_FIBER - add vdisp keyword
 GOODS_KCORRECT - fix bug in goods_filterlist, add arbitrary filterlist
   input, and add appm output, and fix bug in obands usage
@@ -15,8 +16,10 @@ K_RECONSTRUCT_SPEC - add 1 gyr output
 K_TWEAK_PHOTOZ - template tweaking code to improve photo-z's (experimental)
 LF_Z2T - redshift to time routine
 LF_T2Z - time to redshift routine
-SDSS_TO_MAGGIES - find extincition from dust maps if not in struct
+SDSS_TO_MAGGIES - find extinction from dust maps if not in struct
+                  HUGE CHANGE IN Z BAND AB CORRECTIONS
 
+doc/html/index.html - HUGE CHANGE IN Z BAND AB CORRECTIONS
 docs/paper - work on paper
 data/templates/k_nmf_spec.lrg1.fits - include more data 
 data/filters/bessell_*.par - changed to per photon (were previously,
