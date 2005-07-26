@@ -21,6 +21,7 @@ SDSS_TO_MAGGIES - find extinction from dust maps if not in struct
 
 doc/html/index.html - HUGE CHANGE IN Z BAND AB CORRECTIONS
 docs/paper - work on paper
+data/templates/vmatrix.*early.dat - data files for evolution estimates
 data/templates/k_nmf_spec.lrg1.fits - include more data 
 data/filters/bessell_*.par - changed to per photon (were previously,
   and erroneously, given in the per energy units listed in the Bessell paper)
