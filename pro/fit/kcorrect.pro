@@ -213,11 +213,11 @@ b1000=fltarr(n_elements(redshift))
 mets=fltarr(n_elements(redshift))
 ages=fltarr(n_elements(redshift))
 for i=0L, n_elements(redshift)-1L do begin
-    mass=total(tmass*coeffs[*,i])
+    tmp_mass=total(tmass*coeffs[*,i])
     b300[i]=total(tmass300*coeffs[*,i])/total(tmass*coeffs[*,i])
     b1000[i]=total(tmass1000*coeffs[*,i])/total(tmass*coeffs[*,i])
-    ages[i]=total(tmass*tage*coeffs[*,i])/mass
-    mets[i]=total(tmass*tmetallicity*coeffs[*,i])/mass
+    ages[i]=total(tmass*tage*coeffs[*,i])/tmp_mass
+    mets[i]=total(tmass*tmetallicity*coeffs[*,i])/tmp_mass
 endfor
 
 ; get kcorrection
