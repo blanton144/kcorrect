@@ -49,10 +49,14 @@
 ;   kcorrect - [5, ngals] K-corrections in ugriz satisfying
 ;                m = M + DM(z) + K(z)
 ;              based on the best fit sum of templates
+;   evolve   - [5, N] estimated evolution correction E(z), defined as 
+;                m = M + DM(z) + K(z) + E(z)
+;              It is *not* applied to absmag. It is a correction to
+;              the redshift defined by band_shift.
 ;   mtol - [5, ngals] mass-to-light ratios from model in each band
 ;   mass - [ngals] total mass from model in each band
 ;   absmag - [5, ngals] absolute magnitude (for missing data, substitutes
-;            model fit)
+;            model fit). (evolution correction *not* applied)
 ;   amivar - [5, ngals] inverse variance of absolute magnitude (for
 ;            missing data = 0)
 ; OPTIONAL OUTPUTS:
@@ -111,9 +115,9 @@ function sdss_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         oivar=oivar, vname=in_vname, mass=mass, mtol=mtol, $
                         absmag=absmag, amivar=amivar, omega0=omega0, $
                         omegal0=omegal0, lrg=lrg, mets=mets, b300=b300, $
-                        ages=ages, b1000=b1000
+                        ages=ages, b1000=b1000, evolve=evolve
 
-common com_sdss_kcorrect, rmatrix, zvals, band_shift, vname
+common com_sdss_kcorrect, rmatrix, zvals, band_shift, vname, ermatrix
 
 if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
@@ -139,6 +143,7 @@ endelse
 if(n_elements(vname) gt 0) then begin
     if(vname ne use_vname) then begin
         rmatrix=0
+        ermatrix=0
         zvals=0
     endif
 endif
@@ -152,6 +157,7 @@ else $
 if(n_elements(band_shift) gt 0) then begin
     if(band_shift ne use_band_shift) then begin
         rmatrix=0
+        ermatrix=0
         zvals=0
     endif
 endif
@@ -177,7 +183,7 @@ kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, rmaggies=rmaggies, $
   vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
   omega0=omega0, omegal0=omegal0, chi2=chi2, mets=mets, b300=b300, $
-  ages=ages
+  ages=ages, ermatrix=ermatrix, evolve=evolve
 
 if(arg_present(omaggies)) then $
   omaggies=mgy

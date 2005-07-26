@@ -55,6 +55,11 @@
 ;                   input are nonexistent, just use these input
 ;                   coeffs)
 ;   mass          - model mass derived from the coeffs
+;   evolve        - [5, N] estimated evolution correction E(z), defined as 
+;                      m = M + DM(z) + K(z) + E(z)
+;                   Is is *not* applied to absmag. Evolution
+;                   correction is to the redshift defined by
+;                   band_shift.
 ;   absmag        - absolute magnitude (for missing data, substitutes
 ;                   model fit)
 ;   amivar        - absolute magnitude invvar (for missing data = 0)
@@ -65,6 +70,8 @@
 ;   vmatrix       - [nl, nv] templates (to use)/(which were used)
 ;   rmatrix       - look up table for bmatrix and filter information 
 ;                   [nz, nv, nk]
+;   ermatrix      - look up table for bmatrix and filter information 
+;                   for 1.0 Gyr ago (to estimate evolution) [nz, nv, nk]
 ;   zvals         - look up redshift table for rmatrix [N_z]
 ;   zmin,zmax     - minimum and maximum redshifts for lookup table
 ;                   (default 0., 2.)
@@ -91,6 +98,10 @@
 ;   If no band_shift is specified, the K-correction is to z=0.
 ; 
 ;   Defaults to SDSS filters.  
+; 
+;   Never *applies* evolution to absmag results; that is up to you.
+;
+;   For evolution estimates assume h=0.7.
 ; REVISION HISTORY:
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;   19-Jul-2002  Major bug fix (pointed out by I. Baldry) MRB, NYU
@@ -107,7 +118,10 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               zmin=zmin, zmax=zmax, abfix=abfix, minerrors=minerrors, $
               rmaggies=rmaggies, mass=mass, mtol=mtol, vname=vname, $
               absmag=absmag, amivar=amivar, omega0=omega0, omegal0=omegal0, $
-              mets=mets, b300=b300, ages=ages, b1000=b1000
+              mets=mets, b300=b300, ages=ages, b1000=b1000, $
+              ermatrix=ermatrix, evolve=evolve
+
+littleh=0.7 ;; for evolution
 
 ; Need at least 6 parameters
 if (N_params() LT 4) then begin
@@ -226,6 +240,42 @@ if(arg_present(absmag)) then begin
               (0.4*alog(10.))^2
         endif 
     endfor
+endif
+
+if(arg_present(evolve)) then begin
+; calculate the preliminaries
+    if(keyword_set(evname) eq 0 AND $
+       keyword_set(vname) gt 0) then $
+      evname=vname+'early'
+    if(NOT keyword_set(ermatrix) OR NOT keyword_set(zvals)) then begin
+        if(NOT keyword_set(evmatrix) OR NOT keyword_set(lambda)) then $
+          k_load_vmatrix, evmatrix, lambda, vfile=evfile, lfile=lfile, $
+          vpath=vpath, vname=evname
+        k_projection_table,ermatrix,evmatrix,lambda,zvals,filterlist, $ 
+          zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath
+    endif
+
+; now calculate the bandpasses if they were measured 1.0 Gyr ago
+    k_reconstruct_maggies,coeffs,replicate(band_shift,n_elements(redshift)), $
+      emaggies,rmatrix=ermatrix,zvals=zvals
+    emaggies=emaggies/(1.+band_shift)
+    ediff=2.5*alog10(emaggies/reconstruct_maggies)
+
+; how far back in redshift was that?
+    time0=lf_z2t(band_shift, omega0=omega0, omegal0=omegal0)/littleh
+    times=lf_z2t(redshift, omega0=omega0, omegal0=omegal0)/littleh
+    eredshift=lf_t2z((times-1.0)*littleh > 0.1, omega0=omega0, omegal0=omegal0)
+    zdiff=eredshift-redshift
+
+; what is evolution in mags/redshift
+    eper=ediff
+    for i=0L, n_elements(filterlist)-1L do $
+      eper[i,*]=ediff[i,*]/zdiff
+    evolve=eper
+
+; now what is the evolution correction?
+    for i=0L, n_elements(filterlist)-1L do $
+      evolve[i,*]=eper[i,*]*(band_shift-redshift)
 endif
 
 end
