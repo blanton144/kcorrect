@@ -123,6 +123,8 @@ float dm2z(float dm, float omega0, float omegal0);
 float z2add(float z, float omega0, float omegal0);
 /* returns age of universe at redshift z in h^{-1} Gyrs */
 float z2t(float z, float omega0, float omegal0);
+/* returns redshift z given age of universe in h^{-1} Gyrs */
+float t2z(float z, float omega0, float omegal0);
 
 /* NR routines, renamed so as not to overload */
 float *k_vector(long nl, long nh);
