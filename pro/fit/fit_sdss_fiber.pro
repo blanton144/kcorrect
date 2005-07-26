@@ -79,7 +79,8 @@ if(keyword_set(range)) then begin
 endif
 
 if(keyword_set(usevdisp)) then vdisp=zans.vdisp
-k_fit_spec, flux, ivar, coeffs, vname=vname, vdisp=vdisp, templates=templates
+k_fit_spec, flux, ivar, coeffs, vname=vname, vdisp=vdisp, $
+  templates=templates
 k_reconstruct_spec, coeffs, loglam, vname=vname, age=age, $
   metallicity=metallicity, mass=mass, b300=b300, nolines=nolines
 if(arg_present(mass)) then $

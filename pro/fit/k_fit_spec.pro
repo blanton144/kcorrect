@@ -4,11 +4,15 @@
 ; PURPOSE:
 ;   fit a spectrum to the sum of templates 
 ; CALLING SEQUENCE:
-;   k_fit_spec, flux, ivar, coeffs [, vname=, vdisp= ]
+;   k_fit_spec, lambda, flux, ivar, coeffs [, vname=, vdisp= ]
 ; INPUTS:
 ;   flux - [nl] fluxes (aligned with wavelength grid of models)
 ;   ivar - [nl] inverse variances (aligned with wavelength grid of models)
 ; OPTIONAL INPUTS:
+;   lambda - [nl] wavelenths (if flux not aligned)
+;   oflux - [nm] aligned version of flux
+;   oivar - [nm] aligned version of ivar
+;   olambda - [nm] model wavelength grid
 ;   vname - name of fit to use (default 'default')
 ;   vdisp - velocity dispersion to smooth fit to
 ; OUTPUTS:
@@ -19,9 +23,31 @@
 ;-
 ;------------------------------------------------------------------------------
 pro k_fit_spec, flux, ivar, coeffs, vname=vname, vdisp=vdisp, $
-                templates=templates
+                templates=templates, lambda=lambda, oflux=oflux, $
+                oivar=oivar, olambda=olambda
+
+if(NOT keyword_set(ivar)) then begin
+    inz=where(flux ne 0., nnz)
+    minflux=min(abs(flux[inz]))
+    ivar=1./((abs(flux)>minflux)*0.1)^2
+endif
 
 k_reconstruct_spec, dum, loglam, /init, vname=vname, nt=nt
+olambda=10.^loglam
+
+if(keyword_set(lambda)) then begin
+    nf=n_elements(flux)
+    dl=lambda[1]-lambda[0]
+    oflux=interpol([flux[0], flux[0], flux, flux[nf-1], flux[nf-1]], $
+                   alog10([lambda[0]-2.*dl, lambda[0], lambda, $
+                           lambda[nf-1], lambda[nf-1]+2.*dl]), loglam)
+    oivar=interpol([0., 0., ivar, 0., 0.], $
+                   alog10([lambda[0]-2.*dl, lambda[0], lambda, $
+                           lambda[nf-1], lambda[nf-1]+2.*dl]), loglam)
+endif else begin
+    oflux=flux
+    oivar=ivar
+endelse
 
 nl=n_elements(loglam)
 templates=fltarr(nl, nt)
@@ -33,18 +59,18 @@ for i=0L, nt-1L do begin
 endfor
 
 if(NOT keyword_set(verbose)) then verbose=1L
-if(NOT keyword_set(maxiter)) then maxiter=500000
-if(NOT keyword_set(tolerance)) then tolerance=1.e-6
+if(NOT keyword_set(maxiter)) then maxiter=50000L
+if(NOT keyword_set(tolerance)) then tolerance=1.e-13
 
 ; Set source object name
 soname=filepath('libkcorrect.'+kcorrect_so_ext(), $
                 root_dir=getenv('KCORRECT_DIR'), subdirectory='lib')
 
-coeffs=fltarr(nt)
+coeffs=fltarr(nt)+1.
 chi2=fltarr(1)
 niter=0L
 retval=call_external(soname, 'idl_k_fit_spec', float(coeffs), $
-                     float(flux), float(ivar), float(templates), $
+                     float(oflux), float(oivar), float(templates), $
                      long(nt), long(nl),float(tolerance), long(maxiter), $
                      long(niter),float(chi2),long(verbose)) 
 
