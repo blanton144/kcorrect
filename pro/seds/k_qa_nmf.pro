@@ -31,7 +31,7 @@ met=mrdfits('k_nmf_mmatrix.fits',3)
 age=mrdfits('k_nmf_mmatrix.fits',4)
 rawspec=mrdfits('k_nmf_rawspec.fits',0)
 filterlist=string(mrdfits('k_nmf_mmatrix.fits',5))
-early=mrdfits('k_nmf_early.fits',0,earlyhdr)
+emmatrix=mrdfits('k_nmf_early.fits',0,earlyhdr)
 zf=mrdfits('k_nmf_mmatrix.fits',6)
 nspec=long(sxpar(hdr, 'NSPEC'))
 back=long(sxpar(hdr, 'BACK'))
@@ -100,6 +100,18 @@ outlambda[0:nspec-1L]= 10.^(alog10(lambda[0:nspec-1L])-0.5*dlg10l)
 outlambda[nspec]= 10.^(alog10(lambda[nspec-1L])+0.5*dlg10l)
 k_write_ascii_table,outvmatrix,'vmatrix.'+version+'.dat'
 k_write_ascii_table,outlambda,'lambda.'+version+'.dat'
+
+;; make vmatrix and lambda for early
+outevmatrix=emmatrix[0:nspec-1L,*]#templates
+absrc=3.631*2.99792*1.e-2/(lambda[0:nspec-1L])^2
+for i=0L, nt-1L do $
+  outevmatrix[*,i]=outevmatrix[*,i]*absrc
+outlambda=fltarr(nspec+1L)
+dlg10l=alog10(lambda[1])-alog10(lambda[0])
+outlambda[0:nspec-1L]= 10.^(alog10(lambda[0:nspec-1L])-0.5*dlg10l)
+outlambda[nspec]= 10.^(alog10(lambda[nspec-1L])+0.5*dlg10l)
+k_write_ascii_table,outevmatrix,'vmatrix.'+version+'early.dat'
+k_write_ascii_table,outlambda,'lambda.'+version+'early.dat'
 
 set_print, filename='k_qa_nmf.ps'
 
