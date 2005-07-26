@@ -223,6 +223,26 @@ float z2t(float z,
 	return(t);
 } /* end z2t */
 
+/* returns age of universe at redshift z in h^{-1} Gyrs */
+float t2z(float t, 
+					float omega0,
+					float omegal0)
+{
+	unsigned long i, ip1;
+	float st,z;
+
+	if(!zrf_initialized || omega0!=zrf_omega0 || omegal0!=zrf_omegal0) 
+		init_zrf(omega0, omegal0);
+
+	k_locate(zrf_t, ZRF_NUM, (float)t, &i);
+	if(i==ZRF_NUM || i==ZRF_NUM-1) i=ZRF_NUM-2;
+	if(i==-1) i=0;
+	ip1=i+1;
+	st=t-zrf_t[i];
+	z=(zrf_z[i]+st*(zrf_z[ip1]-zrf_z[i])/(zrf_t[ip1]-zrf_t[i]));
+	return(z);
+} /* end t2z */
+
 float ztor_open_integrand(float a)
 {
 	float value;

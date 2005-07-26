@@ -52,6 +52,8 @@ OBJECTS = \
 	idl_ztoV.o \
 	idl_Vtoz.o \
 	idl_z2dm.o \
+	idl_z2t.o \
+	idl_t2z.o \
 	idl_lf_eep.o \
 	idl_lf_select_eep.o \
 	ztransform.o \
