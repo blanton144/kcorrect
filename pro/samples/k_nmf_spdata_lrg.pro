@@ -52,7 +52,7 @@ pro k_nmf_spdata_lrg, mmatrix=mmatrix, sample=sample, flux=flux, $
 
 if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
-if(NOT keyword_set(sample)) then sample='sample15'
+if(NOT keyword_set(sample)) then sample='dr4'
 if(NOT keyword_set(flux)) then flux='model'
 if(NOT keyword_set(nlrg_photo)) then nlrg_photo=4000L
 if(NOT keyword_set(nlrg_spec)) then nlrg_spec=0L

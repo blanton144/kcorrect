@@ -53,7 +53,7 @@ pro k_nmf_spdata, mmatrix=mmatrix, sample=sample, flux=flux, $
 
 if(n_elements(mmatrix) eq 0) then mmatrix='k_nmf_mmatrix.fits'
 if(n_elements(outfile) eq 0) then outfile='k_nmf_spdata.fits'
-if(n_elements(sample) eq 0) then sample='sample15'
+if(n_elements(sample) eq 0) then sample='dr4'
 if(n_elements(flux) eq 0) then flux='petro'
 if(keyword_set(few)) then begin
     if(n_elements(nlrg_photo) eq 0) then nlrg_photo=300L

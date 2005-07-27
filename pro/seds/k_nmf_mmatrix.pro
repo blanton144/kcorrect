@@ -40,16 +40,16 @@ pro k_nmf_mmatrix, prefix=prefix, back=back, lmin=lmin, lmax=lmax, $
                    isolib=isolib, nodust=nodust
 
 if(NOT keyword_set(isolib)) then isolib='Padova1994'
-if(NOT keyword_set(back)) then back=0.5  ;; how many Gyrs earlier?
+if(NOT keyword_set(back)) then back=1.0  ;; how many Gyrs earlier?
 if(NOT keyword_set(lmin)) then lmin=600.
 if(NOT keyword_set(lmax)) then lmax=3200000.
 if(NOT keyword_set(prefix)) then prefix='k_nmf'
 if(NOT keyword_set(navloglam)) then navloglam=10000L
-if(NOT keyword_set(nagesmax)) then nagesmax=10
+if(NOT keyword_set(nagesmax)) then nagesmax=25
 if(NOT keyword_set(vdisp)) then vdisp=300.
 if(NOT keyword_set(minzf)) then minzf=0.
 if(NOT keyword_set(maxzf)) then maxzf=2.
-if(NOT keyword_set(nzf)) then nzf=300
+if(NOT keyword_set(nzf)) then nzf=400
 if(NOT keyword_set(narbitrary)) then $
   narbitrary=long((alog10(lmax)-alog10(lmin))/0.06)
 if(NOT keyword_set(filterlist)) then $
@@ -98,7 +98,6 @@ norm_lmin=800. ;; limits when testing whether two BC03 models are similar
 norm_lmax=23000.
 ;; metallicities to use
 mets=[0,1,2,3,4,5]
-mets=[2,3,4,5]
 nmets=n_elements(mets)   
 sigma=vdisp/(2.99792e+5*alog(10.))  ;; smoothing sigma in log lambda
 outfile=prefix+'_mmatrix.fits'  ;; output files

@@ -20,6 +20,8 @@
 \newcommand{\petronumber}{{{N}_P}}
 \newcommand{\petroratiolim}{{{\mathcal{R}}_{P,\mathrm{lim}}}}
 \newcommand{\band}[2]{\ensuremath{^{{#1}}\!{#2}}}
+\newcommand{\lambdaobs}{\lambda_o}
+\newcommand{\lambdaemit}{\lambda_e}
 
 \setlength{\footnotesep}{9.6pt}
 
@@ -700,7 +702,7 @@ this best-fit LRG spectrum. The top panel shows the star-formation per
 unit time as a function of look-back time.  The thick, straight line
 is the power law:
 \begin{equation}
-\mathrm{SFR} = \left(\frac{t}{t_0})^2,
+\mathrm{SFR} = \left(\frac{t}{t_0}\right)^2,
 \end{equation}
 where $t$ is the look-back time, for $t<13.75$ $h^{-1}$ Gyr, and $t_0=$
 {\bf number}. The bottom panel shows the mean metallicity of the
@@ -838,7 +840,40 @@ $K$-corrections, this method also provides an interpretation of the
 data in terms of a physical model which describes the stellar mass and
 star-formation history of each galaxy.
 
-{\bf kcorrection equations + figure}
+Equation (\ref{eq:definition}) holds if the $K$-correction $K_{QR}$ is
+\begin{equation}
+\label{eq:wavelengthL}
+K_{QR} = -2.5\,\log_{10}\left[\frac{1}{[1+z]}\,
+  \frac{\displaystyle
+  \int\mathrm{d}\lambdaobs\,\lambdaobs\,L_{\lambda}\!\left(\frac{\lambdaobs}{1+z}\right)\,R(\lambdaobs)\,
+    \int\mathrm{d}\lambdaemit\,\lambdaemit\,
+    g^Q_{\lambda}(\lambdaemit)\,Q(\lambdaemit)}
+       {\displaystyle
+  \int\mathrm{d}\lambdaobs\,\lambdaobs\,g^R_{\lambda}(\lambdaobs)\,R(\lambdaobs)\,
+    \int\mathrm{d}\lambdaemit\,\lambdaemit\,
+    L_{\lambda}(\lambdaemit)\,Q(\lambdaemit)}
+\right] \;\;\;.
+\end{equation}
+Here, $R(\lambda)$ and $Q(\lambda)$ represent the response of the
+instrument per unit photon entering the Earth's atmosphere (or the
+telescope aperture for a space instrument).  $g^R_\lambda$ is the flux
+density per unit wavelength (e.g.~ ergs s$^{-1}$ cm$^{-2}$ \AA$^{-1}$)
+for the standard source for band $R$, and similarly for band $Q$. For
+example, if the magnitudes are AB relative, then these represent the
+AB standard source, while if they are AB relative then they represent
+the spectrum of Vega. 
+
+A particularly common special case is when $R=Q$:
+\begin{equation}
+\label{eq:specialL}
+K_{QR} = -2.5\,\log_{10}\left[\frac{1}{[1+z]}\,
+  \frac{\displaystyle
+  \int\mathrm{d}\lambdaobs\,\lambdaobs\,L_{\lambda}\!\left(\frac{\lambdaobs}{1+z}\right)\,R(\lambdaobs)\,}
+       {\displaystyle
+    \int\mathrm{d}\lambdaemit\,\lambdaemit\,
+    L_{\lambda}(\lambdaemit)\,R(\lambdaemit)}
+\right] \;\;\;.
+\end{equation}
 
 For example, consider Figures \ref{galex_kcorrect},
 \ref{sdss_kcorrect} and \ref{twomass_kcorrect}. For a randomly
