@@ -497,9 +497,9 @@ photometry for objects with SDSS redshifts and $ugriz$ photometry (4000
 galaxies; {\bf ref}).
 \item The $BRI$ photometry for high redshift galaxies in the DEEP2 
 DR1 release between $0.6 < z < 1.5$ (4000
-galaxies; {\bf ref}).
+galaxies; \citealt{davis03a, faber03a}).
 \item The $BVizJHK_s$ photometry for GOODS galaxies between $0.5 < z < 2$ (1000
-galaxies; {\bf ref}).
+galaxies; \citealt{giavalisco04a}).
 \end{enumerate}
 The SDSS, 2MASS, and GALEX galaxies were selected from and the matches
 were obtained by the New York University Value-Added Galaxy Catalog
@@ -879,11 +879,41 @@ For example, consider Figures \ref{galex_kcorrect},
 \ref{sdss_kcorrect} and \ref{twomass_kcorrect}. For a randomly
 selected set of galaxies these figures show the $K$-corrections from
 the observed frame bandpasses of GALEX, SDSS, and 2MASS respectively,
-to the rest-frame bandpasses of each survey.
+to the same bandpasses in the rest frame.
 
-[ Figure show K-corrections to z=0 ]
+Often, it makes sense to $K$-correct to a different set of band passes
+than the rest frame. For example, the SDSS Main sample is mostly
+around $z=0.1$, so it does not always make sense to $K$-correct from
+the observed frame $r$ band to the rest frame $r$ band. Doing so means
+applying large and uncertain corrections to all galaxies. If precision
+is not important, this uncertainty might be worth the simplification
+it brings. However, if one is (say) interested in the evolution of
+galaxies, the clustering of galaxies, or something else that requires
+precision, it makes more sense to avoid introducing unnecessary
+uncertainty.
 
-[ note band-shifting ]
+Our solution to this problem is to correct the magnitude to
+blue-shifted bandpasses that correspond to the observed bandpass at
+some intermediate redshift. We denote these bandpasses \band{z}{b},
+where the blue-shift in this case is by a factor $1+z$. For example,
+in the case of SDSS galaxies it makes sense to correct to the
+\band{0.3}{r} bandpass --- the $r$ band blue-shifted to $z=0.1$. This
+bandpass has the property that the $K$-correction is independent of
+the SED of the galaxy. If the magnitudes are AB relative, then the
+$K$-correction to \band{z}{b} for a galaxy at redshift $z$ is simply
+$-2.5\log_{10} (1+z)$.
+
+Figure \ref{main_kcorrect} shows the $K$-corrections from the
+$[ugriz]$ bands to the $\band{0.1}{[ugriz]}$ bands as a function of
+redshift for SDSS galaxies. Note that the $K$-corrections converge at
+$z=0.1$, so that around that redshift (where most galaxies are) the
+uncertainties in the $K$-corrections are minimized. Compare this
+simplicity to Figure \ref{sdss_kcorrect}, where the $K$-corrections at
+redshift $z=0.1$ in the $g$-band range between $0.$ and $0.2$ (and in
+the $u$-band from $0.$ and $0.5$). Most galaxies are near redshift
+$z=0.1$, and obviously the $K$-corrections are not perfect --- why
+introduce a large uncertainty for most galaxies when it can easily be
+avoided?
 
 [ Figure test: against projection of a bunch of spectra ]
 

@@ -7,7 +7,8 @@
 ;   k_nmf_mmatrix [, prefix=, back=, lmin=, lmax=, dusts= ]
 ; OPTIONAL INPUTS:
 ;   prefix - prefix to use for output files (default 'k_nmf')
-;   back - # of Gyrs in the past to use for 'early' file
+;   back - # of Gyrs in the past to use for 'early' file and in future
+;          for 'late' file
 ;   lmin, lmax - limits of spectrum output (Angstroms; default 600, 30000)
 ;   navloglam - number of wavelengths in final output
 ;   nagesmax - maximum number of instantantaneous burst ages to use
@@ -102,6 +103,7 @@ nmets=n_elements(mets)
 sigma=vdisp/(2.99792e+5*alog(10.))  ;; smoothing sigma in log lambda
 outfile=prefix+'_mmatrix.fits'  ;; output files
 earlyfile=prefix+'_early.fits'
+latefile=prefix+'_late.fits'
 rawfile=prefix+'_rawspec.fits'
 
 ;; 1. make stellar pops
@@ -157,12 +159,21 @@ for ia= 0L, nearly-1L do $
   earlygrid[*,iearly[ia],im]= $
   (k_im_read_bc03(met=mets[im], $
                   age=early[iearly[ia]]/1.e+9,isolib=isolib, /vac)).flux
+lategrid=fltarr(nl, nages, nmets)
+late=ages+back*1.e+9
+ilate=where(late gt 0., nlate)
+for ia= 0L, nlate-1L do $
+  for im= 0L, nmets-1L do $
+  lategrid[*,ilate[ia],im]= $
+  (k_im_read_bc03(met=mets[im], $
+                  age=late[ilate[ia]]/1.e+9,isolib=isolib, /vac)).flux
 
 ;;     d. interpolate grid onto flux grid
 avloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
                 (dindgen(navloglam)+0.5)/float(navloglam))
 sfgrid=fltarr(navloglam, nages*nmets)
 earlysfgrid=fltarr(navloglam, nages*nmets)
+latesfgrid=fltarr(navloglam, nages*nmets)
 ninterloglam=20000L
 interloglam=double(alog10(lmin)+(alog10(lmax)-alog10(lmin))* $
                    (dindgen(ninterloglam)+0.5)/float(ninterloglam))
@@ -184,6 +195,12 @@ for im= 0L, nmets-1L do begin
               newloglam=avloglam, newflux=tmp1, maxiter=0 
             earlysfgrid[*,ia+im*nages]=tmp1 
         endif
+        if(late[ia] gt 0.) then begin
+            intergrid=interpol(lategrid[*,ia,im], loglam, interloglam) 
+            combine1fiber, interloglam, intergrid, fltarr(ninterloglam)+1., $
+              newloglam=avloglam, newflux=tmp1, maxiter=0 
+            latesfgrid[*,ia+im*nages]=tmp1 
+        endif
     endfor
 endfor
 
@@ -194,6 +211,7 @@ dfact=3.826/(4.*!DPI)/(3.086)^2*1.e-5
 absrc=3.631*2.99792*1.e-2/(10.^avloglam)^2
 sfgrid=sfgrid*dfact
 earlysfgrid=earlysfgrid*dfact
+latesfgrid=latesfgrid*dfact
 rawgrid=sfgrid
 for ia=0L, nages-1L do $
   for im= 0L, nmets-1L do $
@@ -201,6 +219,9 @@ for ia=0L, nages-1L do $
 for ia=0L, nages-1L do $
   for im= 0L, nmets-1L do $
   earlysfgrid[*,ia+im*nages]=earlysfgrid[*,ia+im*nages]/absrc
+for ia=0L, nages-1L do $
+  for im= 0L, nmets-1L do $
+  latesfgrid[*,ia+im*nages]=latesfgrid[*,ia+im*nages]/absrc
 
 ;;     e. smooth to desired vdisp
 for im= 0L, nmets-1L do begin
@@ -209,12 +230,15 @@ for im= 0L, nmets-1L do begin
           k_smooth(avloglam, sfgrid[*,ia+im*nages], vdisp)
         earlysfgrid[*,ia+im*nages]= $
           k_smooth(avloglam, earlysfgrid[*,ia+im*nages], vdisp)
+        latesfgrid[*,ia+im*nages]= $
+          k_smooth(avloglam, latesfgrid[*,ia+im*nages], vdisp)
     endfor
 endfor
 
 ;; 2. make the dusty grid
 dustygrid=fltarr(navloglam, nages*nmets, ndusts)
 earlydustygrid=fltarr(navloglam, nages*nmets, ndusts)
+latedustygrid=fltarr(navloglam, nages*nmets, ndusts)
 rawdustygrid=fltarr(navloglam, nages*nmets, ndusts)
 dustfact=fltarr(navloglam, ndusts)
 for i=0L, ndusts-1L do $
@@ -227,11 +251,15 @@ for i=0L, ndusts-1L do $
   earlydustygrid[*,j,i]=earlysfgrid[*,j]*dustfact[*,i]
 for i=0L, ndusts-1L do $
   for j=0L, nages*nmets-1L do $
+  latedustygrid[*,j,i]=latesfgrid[*,j]*dustfact[*,i]
+for i=0L, ndusts-1L do $
+  for j=0L, nages*nmets-1L do $
   rawdustygrid[*,j,i]=rawgrid[*,j]*dustfact[*,i]
 
 ;; 3. make lookup table for properties
 spgrid=reform(dustygrid,navloglam,nages*nmets*ndusts)
 earlyspgrid=reform(earlydustygrid,navloglam,nages*nmets*ndusts)
+latespgrid=reform(latedustygrid,navloglam,nages*nmets*ndusts)
 rawspgrid=reform(rawdustygrid,navloglam,nages*nmets*ndusts)
 dust=replicate(dusts[0], nages,nmets,ndusts)
 for i=0L, ndusts-1L do dust[*,*,i]=dusts[i]
@@ -265,6 +293,10 @@ if(NOT keyword_set(noel)) then begin
         earlyspgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
         earlyspgrid[*,0L:nages*nmets*ndusts-1L]=tmp_earlyspgrid
         earlyspgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
+        tmp_latespgrid=latespgrid
+        latespgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
+        latespgrid[*,0L:nages*nmets*ndusts-1L]=tmp_latespgrid
+        latespgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
     endif
     
     atm='K'
@@ -298,6 +330,10 @@ if(NOT keyword_set(noel)) then begin
     earlyspgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
     earlyspgrid[*,0L:nages*nmets*ndusts-1L]=tmp_earlyspgrid
     earlyspgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
+    tmp_latespgrid=latespgrid
+    latespgrid=fltarr(navloglam,nages*nmets*ndusts+nel)
+    latespgrid[*,0L:nages*nmets*ndusts-1L]=tmp_latespgrid
+    latespgrid[*,nages*nmets*ndusts:nages*nmets*ndusts+nel-1L]=emgrid
 endif
 nextra=nextra+nel
 
@@ -326,6 +362,11 @@ earlyspgrid=fltarr(navloglam,nages*nmets*ndusts+nextra+ndraine)
 earlyspgrid[*,0L:nages*nmets*ndusts+nextra-1L]=tmp_earlyspgrid
 earlyspgrid[*,nages*nmets*ndusts+nextra: $
             nages*nmets*ndusts+nextra+ndraine-1L]= drainegrid
+tmp_latespgrid=latespgrid
+latespgrid=fltarr(navloglam,nages*nmets*ndusts+nextra+ndraine)
+latespgrid[*,0L:nages*nmets*ndusts+nextra-1L]=tmp_latespgrid
+latespgrid[*,nages*nmets*ndusts+nextra: $
+            nages*nmets*ndusts+nextra+ndraine-1L]= drainegrid
 endif
 nextra=nextra+ndraine
 
@@ -346,6 +387,12 @@ for i=0L, nages*ndusts*nmets+nextra-1L do $
 k_projection_table, earlyrmatrix, earlypgrid, lambda, zf, filterlist, $
   zmin=minzf, zmax=maxzf, nz=nzf
 earlyrmatrix=earlyrmatrix > 0.
+latepgrid=latespgrid
+for i=0L, nages*ndusts*nmets+nextra-1L do $
+  latepgrid[*,i]=latepgrid[*,i]*absrc
+k_projection_table, latermatrix, latepgrid, lambda, zf, filterlist, $
+  zmin=minzf, zmax=maxzf, nz=nzf
+latermatrix=latermatrix > 0.
   
 ;; 4. prepare output
 
@@ -361,6 +408,13 @@ earlyoutgrid[0:navloglam-1L,*]=earlyspgrid
 for i=0L, (nages*nmets*ndusts)+nextra-1L do $
   earlyoutgrid[navloglam:navloglam+nzf*n_elements(filterlist)-1L,i]= $
   earlyrmatrix[*,i,*]
+
+lateoutgrid=fltarr(navloglam+nzf*n_elements(filterlist),nages*nmets*ndusts+ $
+                    nextra)
+lateoutgrid[0:navloglam-1L,*]=latespgrid
+for i=0L, (nages*nmets*ndusts)+nextra-1L do $
+  lateoutgrid[navloglam:navloglam+nzf*n_elements(filterlist)-1L,i]= $
+  latermatrix[*,i,*]
 
 outlambda=fltarr(navloglam+nzf*n_elements(filterlist))
 outlambda[0:navloglam-1]=10.^(avloglam)
@@ -404,6 +458,20 @@ sxaddpar, hdr, 'NDRAINE', ndraine, 'number of draine models'
 sxaddpar, hdr, 'VDISP', vdisp, 'smoothed to this velocity dispersion (km/s)'
 sxaddpar, hdr, 'BACK', back, 'Gyrs previous to mmatrix'
 mwrfits, earlyoutgrid, earlyfile, hdr, /create
+
+hdr=['']
+sxaddpar, hdr, 'NSPEC', navloglam, 'number of points in spectrum'
+sxaddpar, hdr, 'NZ', nzf, 'number of redshifts'
+sxaddpar, hdr, 'NFILTER', n_elements(filterlist), 'number of filters'
+sxaddpar, hdr, 'NDUST', ndusts, 'number of dusts'
+sxaddpar, hdr, 'NMET', nmets, 'number of metallicities'
+sxaddpar, hdr, 'NAGE', nages, 'number of ages'
+sxaddpar, hdr, 'NEXTRA', nextra, 'number of extra templates'
+sxaddpar, hdr, 'NEL', nel, 'number of emission lines'
+sxaddpar, hdr, 'NDRAINE', ndraine, 'number of draine models'
+sxaddpar, hdr, 'VDISP', vdisp, 'smoothed to this velocity dispersion (km/s)'
+sxaddpar, hdr, 'BACK', back, 'Gyrs previous to mmatrix'
+mwrfits, lateoutgrid, latefile, hdr, /create
 
 hdr=['']
 sxaddpar, hdr, 'NSPEC', navloglam, 'number of points in spectrum'
