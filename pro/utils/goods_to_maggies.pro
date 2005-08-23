@@ -38,7 +38,7 @@
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro goods_to_maggies, goods, maggies, ivar
+pro goods_to_maggies, goods, maggies, ivar, useh=useh
 
 minerrors=replicate(0.02, 7)
 dfactors=[4.32, 3.32, 2.00, 1.54, 0.90, 0.58, 0.37]
@@ -70,6 +70,7 @@ endfor
 
 k_minerror, maggies, ivar, minerrors
 
-ivar[5,*]=0.
+if(NOT keyword_set(useh)) then $
+  ivar[5,*]=0.
 
 end
