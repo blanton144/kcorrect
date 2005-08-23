@@ -54,7 +54,7 @@ if(NOT keyword_set(mmatrix)) then mmatrix='k_nmf_mmatrix.fits'
 if(NOT keyword_set(outfile)) then outfile='k_nmf_spdata.fits'
 if(NOT keyword_set(sample)) then sample='dr4'
 if(NOT keyword_set(flux)) then flux='model'
-if(NOT keyword_set(nlrg_photo)) then nlrg_photo=4000L
+if(NOT keyword_set(nlrg_photo)) then nlrg_photo=5000L
 if(NOT keyword_set(nlrg_spec)) then nlrg_spec=0L
 if(NOT keyword_set(nsdss_photo)) then nsdss_photo=0L
 if(NOT keyword_set(nsdss_spec)) then nsdss_spec=0L
@@ -368,7 +368,7 @@ if(nlrg_photo gt 0) then begin
     indx_lrg_photo=shuffle_indx(n_elements(sp), num_sub=nlrg_photo, seed=seed)
     sp=sp[indx_lrg_photo]
     im=im[indx_lrg_photo]
-    sdss_to_maggies, maggies, maggies_ivar, calibobj=im, flux=flux
+    sdss_to_maggies, maggies, maggies_ivar, calibobj=im, flux='model'
     maggies_ivar[0,*]=0. ;; ignore u-band for LRGs
     zdist[ilrg_photo]=sp.z
     dm=lf_distmod(zdist[ilrg_photo])

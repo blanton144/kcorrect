@@ -47,35 +47,25 @@
 ;   23-Nov-2004  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_nmf_spdata, mmatrix=mmatrix, sample=sample, flux=flux, $
-                  galexblue=galexblue, nsdss_spec=nsdss_spec, $
-                  nlrg_spec=nlrg_spec, spchop=spchop, few=few, $
-                  seed=seed1
+pro k_nmf_spdata_goods, mmatrix=mmatrix, sample=sample, flux=flux, $
+                        galexblue=galexblue, nsdss_spec=nsdss_spec, $
+                        nlrg_spec=nlrg_spec, spchop=spchop, few=few, $
+                        seed=seed1
 
+spchop=1
 if(n_elements(mmatrix) eq 0) then mmatrix='k_nmf_mmatrix.fits'
 if(n_elements(outfile) eq 0) then outfile='k_nmf_spdata.fits'
 if(n_elements(sample) eq 0) then sample='dr4'
 if(n_elements(flux) eq 0) then flux='petro'
-if(keyword_set(few)) then begin
-    if(n_elements(nlrg_photo) eq 0) then nlrg_photo=300L
-    if(n_elements(nlrg_spec) eq 0) then nlrg_spec=20L
-    if(n_elements(nsdss_photo) eq 0) then nsdss_photo=1000L
-    if(n_elements(nsdss_spec) eq 0) then nsdss_spec=80L
-    if(n_elements(ngalex) eq 0) then ngalex=800L
-    if(n_elements(ndeep) eq 0) then ndeep=800L
-    if(n_elements(ngoods) eq 0) then ngoods=1000L
-    if(n_elements(nswire) eq 0) then nswire=0L
-endif else begin
-    if(n_elements(nlrg_photo) eq 0) then nlrg_photo=2000L
-    if(n_elements(nlrg_spec) eq 0) then nlrg_spec=400L
-    if(n_elements(nsdss_photo) eq 0) then nsdss_photo=7000L
-    if(n_elements(nsdss_spec) eq 0) then nsdss_spec=1600L
-    if(n_elements(ngalex) eq 0) then ngalex=4000L
-    if(n_elements(ndeep) eq 0) then ndeep=4000L
-    if(n_elements(ngoods) eq 0) then ngoods=1000L
-    if(n_elements(nswire) eq 0) then nswire=0L
-endelse
-if(n_elements(seed1) eq 0) then seed1=1001L
+if(n_elements(nlrg_photo) eq 0) then nlrg_photo=0L
+if(n_elements(nlrg_spec) eq 0) then nlrg_spec=0L
+if(n_elements(nsdss_photo) eq 0) then nsdss_photo=0L
+if(n_elements(nsdss_spec) eq 0) then nsdss_spec=100L
+if(n_elements(ngalex) eq 0) then ngalex=0L
+if(n_elements(ndeep) eq 0) then ndeep=0L
+if(n_elements(ngoods) eq 0) then ngoods=1000L
+if(n_elements(nswire) eq 0) then nswire=0L
+if(n_elements(seed1) eq 0) then seed1=1002L
 if(n_elements(omega0) eq 0) then omega0=0.3
 if(n_elements(omegal0) eq 0) then omegal0=0.7
 seed=seed1
