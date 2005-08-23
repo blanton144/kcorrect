@@ -55,11 +55,6 @@
 ;                   input are nonexistent, just use these input
 ;                   coeffs)
 ;   mass          - model mass derived from the coeffs
-;   evolve        - [5, N] estimated evolution correction E(z), defined as 
-;                      m = M + DM(z) + K(z) + E(z)
-;                   Is is *not* applied to absmag. Evolution
-;                   correction is to the redshift defined by
-;                   band_shift.
 ;   absmag        - absolute magnitude (for missing data, substitutes
 ;                   model fit)
 ;   amivar        - absolute magnitude invvar (for missing data = 0)
@@ -119,7 +114,7 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               rmaggies=rmaggies, mass=mass, mtol=mtol, vname=vname, $
               absmag=absmag, amivar=amivar, omega0=omega0, omegal0=omegal0, $
               mets=mets, b300=b300, ages=ages, b1000=b1000, $
-              ermatrix=ermatrix, evolve=evolve
+              ermatrix=ermatrix
 
 littleh=0.7 ;; for evolution
 
@@ -246,7 +241,7 @@ if(arg_present(evolve)) then begin
 ; calculate the preliminaries
     if(keyword_set(evname) eq 0 AND $
        keyword_set(vname) gt 0) then $
-      evname=vname+'early'
+      evname=vname+'late'
     if(NOT keyword_set(ermatrix) OR NOT keyword_set(zvals)) then begin
         if(NOT keyword_set(evmatrix) OR NOT keyword_set(lambda)) then $
           k_load_vmatrix, evmatrix, lambda, vfile=evfile, lfile=lfile, $
@@ -264,7 +259,7 @@ if(arg_present(evolve)) then begin
 ; how far back in redshift was that?
     time0=lf_z2t(band_shift, omega0=omega0, omegal0=omegal0)/littleh
     times=lf_z2t(redshift, omega0=omega0, omegal0=omegal0)/littleh
-    eredshift=lf_t2z((times-1.0)*littleh > 0.1, omega0=omega0, omegal0=omegal0)
+    eredshift=lf_t2z((times+0.1)*littleh > 0.1, omega0=omega0, omegal0=omegal0)
     zdiff=eredshift-redshift
 
 ; what is evolution in mags/redshift

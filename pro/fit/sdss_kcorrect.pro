@@ -49,10 +49,6 @@
 ;   kcorrect - [5, ngals] K-corrections in ugriz satisfying
 ;                m = M + DM(z) + K(z)
 ;              based on the best fit sum of templates
-;   evolve   - [5, N] estimated evolution correction E(z), defined as 
-;                m = M + DM(z) + K(z) + E(z)
-;              It is *not* applied to absmag. It is a correction to
-;              the redshift defined by band_shift.
 ;   mtol - [5, ngals] mass-to-light ratios from model in each band
 ;   mass - [ngals] total mass from model in each band
 ;   absmag - [5, ngals] absolute magnitude (for missing data, substitutes
@@ -115,7 +111,7 @@ function sdss_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         oivar=oivar, vname=in_vname, mass=mass, mtol=mtol, $
                         absmag=absmag, amivar=amivar, omega0=omega0, $
                         omegal0=omegal0, lrg=lrg, mets=mets, b300=b300, $
-                        ages=ages, b1000=b1000, evolve=evolve
+                        ages=ages, b1000=b1000
 
 common com_sdss_kcorrect, rmatrix, zvals, band_shift, vname, ermatrix
 
@@ -183,7 +179,7 @@ kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, rmaggies=rmaggies, $
   vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
   omega0=omega0, omegal0=omegal0, chi2=chi2, mets=mets, b300=b300, $
-  ages=ages, ermatrix=ermatrix, evolve=evolve
+  ages=ages, ermatrix=ermatrix
 
 if(arg_present(omaggies)) then $
   omaggies=mgy
