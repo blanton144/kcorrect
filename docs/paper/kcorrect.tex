@@ -759,9 +759,15 @@ residuals as (for example):
 [u_{\mathrm{model}}- g_{\mathrm{model}}] .
 \end{equation}
 In the code described in Section \ref{code}, we used the routine {\tt
-gst\_kcorrect} to perform these fits.  The templates do just as well
-on higher redshift data. For example, Figure \ref{goods} shows the
-color residuals for GOODS data.
+gst\_kcorrect} to perform these fits.  In Figure \ref{fullfits} the
+thick dashed lines show the estimated 1$\sigma$ uncertainties in the
+colors from the photometric catalogs. Relative to the uncertainties,
+there are no significant biases or redshift trends in these fits. Note
+that the galaxies used in this test are distinct from the training set
+on which we fit the five templates.
+
+The templates do just as well on higher redshift data. For example,
+Figure \ref{goods} shows the color residuals for GOODS data.
 
 {\bf comparison to spectra}
 
@@ -910,10 +916,10 @@ $z=0.1$, so that around that redshift (where most galaxies are) the
 uncertainties in the $K$-corrections are minimized. Compare this
 simplicity to Figure \ref{sdss_kcorrect}, where the $K$-corrections at
 redshift $z=0.1$ in the $g$-band range between $0.$ and $0.2$ (and in
-the $u$-band from $0.$ and $0.5$). Most galaxies are near redshift
-$z=0.1$, and obviously the $K$-corrections are not perfect --- why
-introduce a large uncertainty for most galaxies when it can easily be
-avoided?
+the $u$-band from $0.$ and $0.5$). Most SDSS galaxies are near
+redshift $z=0.1$, and obviously the $K$-corrections are not perfect
+--- why introduce a large uncertainty for most galaxies when it can
+easily be avoided?
 
 [ Figure test: against projection of a bunch of spectra ]
 
