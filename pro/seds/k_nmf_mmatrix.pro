@@ -41,7 +41,7 @@ pro k_nmf_mmatrix, prefix=prefix, back=back, lmin=lmin, lmax=lmax, $
                    isolib=isolib, nodust=nodust
 
 if(NOT keyword_set(isolib)) then isolib='Padova1994'
-if(NOT keyword_set(back)) then back=1.0  ;; how many Gyrs earlier?
+if(NOT keyword_set(back)) then back=0.1  ;; how many Gyrs earlier?
 if(NOT keyword_set(lmin)) then lmin=600.
 if(NOT keyword_set(lmax)) then lmax=3200000.
 if(NOT keyword_set(prefix)) then prefix='k_nmf'
@@ -314,7 +314,7 @@ if(NOT keyword_set(noel)) then begin
             filename=getenv('KCORRECT_DIR')+'/data/seds/mappings/'+ $
               model+'_'+sfh+'/spec_Z'+gasmet+'_'+agestr+'_q'+qpar+'_'+model+ $
               '_'+atm+'.ph4'
-            mappings=read_mappings(filename, /vac)
+            mappings=read_mappings(filename, /vac, /nolya)
             for k=0L, n_elements(mappings.lambda)-1L do $
               emgrid[*, i*n_elements(qpars)+j]= $
               emgrid[*, i*n_elements(qpars)+j]+1.e-10* $
