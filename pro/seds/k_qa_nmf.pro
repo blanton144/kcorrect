@@ -32,6 +32,7 @@ age=mrdfits('k_nmf_mmatrix.fits',4)
 rawspec=mrdfits('k_nmf_rawspec.fits',0)
 filterlist=string(mrdfits('k_nmf_mmatrix.fits',5))
 emmatrix=mrdfits('k_nmf_early.fits',0,earlyhdr)
+lmmatrix=mrdfits('k_nmf_late.fits',0,latehdr)
 zf=mrdfits('k_nmf_mmatrix.fits',6)
 nspec=long(sxpar(hdr, 'NSPEC'))
 back=long(sxpar(hdr, 'BACK'))
@@ -70,6 +71,7 @@ coeffs=mrdfits('k_nmf_soln.fits',1)
 nt=n_elements(coeffs)/n_elements(zhelio)
 model=data
 early=data
+late=data
 mcoeffs=templates#coeffs
 mmeval, model, transpose(mmatrix), mcoeffs
 
@@ -112,6 +114,17 @@ outlambda[0:nspec-1L]= 10.^(alog10(lambda[0:nspec-1L])-0.5*dlg10l)
 outlambda[nspec]= 10.^(alog10(lambda[nspec-1L])+0.5*dlg10l)
 k_write_ascii_table,outevmatrix,'vmatrix.'+version+'early.dat'
 k_write_ascii_table,outlambda,'lambda.'+version+'early.dat'
+
+;outlvmatrix=lmmatrix[0:nspec-1L,*]#templates
+;absrc=3.631*2.99792*1.e-2/(lambda[0:nspec-1L])^2
+;for i=0L, nt-1L do $
+;  outlvmatrix[*,i]=outlvmatrix[*,i]*absrc
+;outlambda=fltarr(nspec+1L)
+;dlg10l=alog10(lambda[1])-alog10(lambda[0])
+;outlambda[0:nspec-1L]= 10.^(alog10(lambda[0:nspec-1L])-0.5*dlg10l)
+;outlambda[nspec]= 10.^(alog10(lambda[nspec-1L])+0.5*dlg10l)
+;k_write_ascii_table,outlvmatrix,'vmatrix.'+version+'late.dat'
+;k_write_ascii_table,outlambda,'lambda.'+version+'late.dat'
 
 set_print, filename='k_qa_nmf.ps'
 
