@@ -8,6 +8,7 @@
 ; INPUTS:
 ;   filename - name of file
 ;   /vac - convert to vacuum wavelengths
+;   /nolya - omit lyman alpha
 ; OUTPUTS:
 ;   model - structure containing descriptions of model:
 ;     .RUN - name of run
@@ -20,7 +21,7 @@
 ;   06-May-2005  Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-function read_mappings, filename, vac=vac
+function read_mappings, filename, vac=vac, nolya=nolya
 
 model={run:''}
 
@@ -46,15 +47,18 @@ while(NOT eof(unit)) do begin
     lambda1= float(words[0])
     flux1= float(words[2])
     names1= strjoin(words[3:4])
-    if(NOT keyword_set(lambda)) then begin
-        lambda=lambda1
-        flux=flux1
-        names=names1
-    endif else begin
-        lambda=[lambda,lambda1]
-        flux=[flux,flux1]
-        names=[names,names1]
-    endelse
+    if(lambda1 lt 1210. OR lambda1 gt 1220. OR keyword_set(nolya) eq 0) then $
+      begin
+        if(NOT keyword_set(lambda)) then begin
+            lambda=lambda1
+            flux=flux1
+            names=names1
+        endif else begin
+            lambda=[lambda,lambda1]
+            flux=[flux,flux1]
+            names=[names,names1]
+        endelse
+    endif
 endwhile
 
 free_lun, unit
