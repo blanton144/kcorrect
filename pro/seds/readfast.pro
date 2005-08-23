@@ -60,7 +60,7 @@ pro readfast, filename, data, header, double=double, skipline=skipline, $
         endif
         if not keyword_set(filename) then message, 'Please specify a file to read.'
         
-        file = findfile(filename,count=nfiles) ; check that the file exists
+        file = file_search(filename,count=nfiles) ; check that the file exists
         if nfiles eq 1L then if file[0] eq '' then message, 'File not found.'
         if nfiles gt 1L then message, 'Multiple files found.'
            
