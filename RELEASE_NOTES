@@ -1,28 +1,38 @@
-DEEP_KCORRECT - fix bug in obands
+DEEP_KCORRECT - fix bug in obands, fix to bug in common block tracking
 DEEP_TO_MAGGIES - removed SFD correction, since DEEP2 mags already corrected
 FIT_SDSS_FIBER - add vdisp keyword
+GALEX_TO_MAGGIES - improvements submitted by David Schiminovich
 GOODS_KCORRECT - fix bug in goods_filterlist, add arbitrary filterlist
-  input, and add appm output, and fix bug in obands usage
+  input, and add appm output, and fix bug in obands usage, fix to bug in 
+  common block tracking
 GOODS_TO_MAGGIES - change error flags 
-KCORRECT - add met, age, b300 and b1000 outputs, plus evolve output
+KCORRECT - add met, age, b300 and b1000 outputs
 KEYNOTE_PLOTS - make plots for presentations
 K_FIT_IMAGE - experimental image-fitting code
 K_FIT_TEMPLATES - change data used
 K_GOODS_TESTS - compare magnitude, not colors
+K_NMF_MMATRIX - trim lyman alpha from MAPPINGS inputs
+K_NMF_MMATRIX_LRG - increase library of models
 K_NMF_SPDATA - tweak data used
 K_NMF_SPDATA_SWIRE - gather data to play with SWIRE
 K_NMF_SPDATA_PHOTOZ - gather data to play with photo-z's
+K_NMF_SPDATA_LRG - gather data to fit especially to LRGs
+K_NMF_SPDATA_GOODS - gather data to fit especially to the GOODS data
 K_RECONSTRUCT_SPEC - add 1 gyr output
 K_TWEAK_PHOTOZ - template tweaking code to improve photo-z's (experimental)
 LF_Z2T - redshift to time routine
 LF_T2Z - time to redshift routine
+READFAST - replace findfile with file_search
+READ_MAPPINGS - add code to exclude Lyman alpha from outputs
 SDSS_TO_MAGGIES - find extinction from dust maps if not in struct
                   HUGE CHANGE IN Z BAND AB CORRECTIONS
+SFH_RECONSTRUCT - code to return info about star-formation history given coeffs
 
 doc/html/index.html - HUGE CHANGE IN Z BAND AB CORRECTIONS
 docs/paper - work on paper
 data/templates/vmatrix.*early.dat - data files for evolution estimates
-data/templates/k_nmf_spec.lrg1.fits - include more data 
+data/templates/k_nmf_*.lrg1.fits - include more data and refit with AB fix
+data/test/gst_test.fits - new galex extractions
 data/filters/bessell_*.par - changed to per photon (were previously,
   and erroneously, given in the per energy units listed in the Bessell paper)
 data/filters/twomass_*.par - changed to latest 2mass files (seem exactly

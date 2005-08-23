@@ -7,4 +7,8 @@
 \cp k_nmf_soln.fits $KCORRECT_DIR/data/templates/k_nmf_soln.$1.fits
 \cp vmatrix.test.dat $KCORRECT_DIR/data/templates/vmatrix.$1.dat
 \cp lambda.test.dat $KCORRECT_DIR/data/templates/lambda.$1.dat
+\cp vmatrix.testearly.dat $KCORRECT_DIR/data/templates/vmatrix.${1}early.dat
+\cp lambda.testearly.dat $KCORRECT_DIR/data/templates/lambda.${1}early.dat
+\cp vmatrix.testlate.dat $KCORRECT_DIR/data/templates/vmatrix.${1}late.dat
+\cp lambda.testlate.dat $KCORRECT_DIR/data/templates/lambda.${1}late.dat
 \rm $KCORRECT_DIR/data/templates/k_nmf_spec.$1.fits
