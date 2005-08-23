@@ -108,6 +108,8 @@ if(n_elements(vname) gt 0) then begin
     if(vname ne use_vname) then begin
         rmatrix=0
         zvals=0
+        deep_rmatrix=0
+        deep_zvals=0
         out_rmatrix=0
         out_zvals=0
     endif

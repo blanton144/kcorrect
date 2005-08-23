@@ -101,7 +101,8 @@ function goods_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                          oivar=oivar, vname=in_vname, mass=mass, mtol=mtol, $
                          absmag=absmag, amivar=amivar, sdss=sdss, $
                          rmatrix=rmatrix, obands=obands, omega0=omega0, $
-                         omegal0=omegal0, filterlist=filterlist, appm=appm
+                         omegal0=omegal0, filterlist=filterlist, appm=appm, $
+                         useh=useh
 
 common com_goods_kcorrect, out_rmatrix, out_zvals, band_shift, $
   goods_rmatrix, goods_zvals, vname, out_filterlist
@@ -143,8 +144,12 @@ if(n_elements(vname) gt 0) then begin
     if(vname ne use_vname) then begin
         rmatrix=0
         zvals=0
+        goods_rmatrix=0
+        goods_zvals=0
         out_rmatrix=0
         out_zvals=0
+        vmatrix=0
+        lambda=0
     endif
 endif
 vname=use_vname
@@ -190,7 +195,7 @@ if(n_elements(nmgy) gt 0) then begin
 endif
 
 if(n_tags(goods) gt 0) then $
-  goods_to_maggies, goods, mgy, mgy_ivar
+  goods_to_maggies, goods, mgy, mgy_ivar, useh=useh
 
 ;; call kcorrect
 goods_filterlist=['goods_acs_f435w.par', $
