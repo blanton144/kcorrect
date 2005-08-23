@@ -18,8 +18,7 @@ if(NOT file_test(gstfile)) then begin
     calibobj=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_sdss_imaging.fits',1, $
                           nrow=28800)
     galex=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_galex.fits', 1, $
-                       nrow=28800, columns=['galex_tag', 'e_bv', 'fuv_mag', 'fuv_magerr', $
-                                            'nuv_mag', 'nuv_magerr'])
+                       nrow=28800, columns=['galex_tag'])
     twomass=hogg_mrdfits(getenv('VAGC_REDUX')+'/object_twomass.fits', 1, $
                          columns=['twomass_tag', 'ra', 'decl', $
                                  'j_m_ext', 'j_msig_ext', 'j_flg_ext', $
@@ -35,13 +34,16 @@ if(NOT file_test(gstfile)) then begin
     galex=galex[ii]
     twomass=twomass[ii]
 
-    if(nii gt 10000) then begin
-        ii=shuffle_indx(n_elements(twomass), num_sub=10000)
-        sp=sp[ii]
-        calibobj=calibobj[ii]
-        galex=galex[ii]
-        twomass=twomass[ii]
+    if(nii gt 50000) then begin
+        jj=shuffle_indx(n_elements(twomass), num_sub=50000)
+        sp=sp[jj]
+        calibobj=calibobj[jj]
+        galex=galex[jj]
+        twomass=twomass[jj]
     endif
+
+    galex=mrdfits(getenv('VAGC_REDUX')+'/object_galex.fits', 1, $
+                  row=ii[jj])
     
     cat1=create_struct(calibobj[0], $
                        sp[0], $
