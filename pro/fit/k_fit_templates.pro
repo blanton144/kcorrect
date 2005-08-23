@@ -15,6 +15,7 @@ pro k_fit_templates, nt=nt, nprime=nprime
 
 if(NOT keyword_set(nt)) then nt=4
 
+if(0) then begin
 spawn, 'mkdir -p photo1'
 cd, 'photo1'
 k_nmf_mmatrix, /nodust, /noel
@@ -169,6 +170,7 @@ cd, '../'
 spawn, 'mkdir -p dust4m'
 cd, 'dust4m'
 spawn, 'cp ../dust2m/k_nmf_mmatrix.fits .'
+spawn, 'cp ../dust2m/k_nmf_early.fits .'
 hdr=headfits('k_nmf_mmatrix.fits')
 ndusts=long(sxpar(hdr, 'NDUST'))
 nmets=long(sxpar(hdr, 'NMET'))
@@ -188,8 +190,9 @@ for j=0L, 4L-1L do $
   scale[i]*(templates4[*,j]*(1.00+0.00*randomu(seed, nb))+0.0001/float(nb))
 mwrfits, templates, 'k_nmf_soln.fits', /create
 mwrfits, coeffs4, 'k_nmf_soln.fits'
-k_run_nmf, nt=4L, niter=50000L, /qa
+k_run_nmf, nt=4L, niter=20000L, /qa
 cd, '../'
+
 
 spawn, 'mkdir -p dust5m'
 cd, 'dust5m'
@@ -218,9 +221,16 @@ coeffs[0:3, *]=coeffs4
 coeffs[4,*]=0.005*total(coeffs4,1)
 mwrfits, templates, 'k_nmf_soln.fits', /create
 mwrfits, coeffs, 'k_nmf_soln.fits'
-k_run_nmf, nt=5L, niter=50000L, /qa
+for j=0, 9 do $
+k_run_nmf, nt=5L, niter=10000L, /qa
 cd, '../'
 
+cd, 'dust5m'
+for j=0, 9 do $
+k_run_nmf, nt=5L, niter=10000L, /qa
+cd, '../'
+
+if(0) then begin
 spawn, 'mkdir -p spec4m'
 cd, 'spec4m'
 k_nmf_mmatrix
@@ -244,11 +254,14 @@ mwrfits, templates, 'k_nmf_soln.fits', /create
 mwrfits, coeffs4, 'k_nmf_soln.fits'
 k_run_nmf, nt=4L, niter=50000L, /qa
 cd, '../'
+endif
+endif
 
 spawn, 'mkdir -p spec5m'
 cd, 'spec5m'
-spawn, 'cp ../spec4m/k_nmf_mmatrix.fits .'
-spawn, 'cp ../spec4m/k_nmf_spdata.fits .'
+if(0) then begin
+k_nmf_mmatrix
+k_nmf_spdata, /spchop, flux='petro', sample='dr4'
 data=mrdfits('k_nmf_spdata.fits',1)
 ngals=n_elements(data.rowstart)
 hdr=headfits('k_nmf_mmatrix.fits')
@@ -266,7 +279,21 @@ coeffs[0:4,0:ng5-1L]=coeffs5+1.e-5
 coeffs[0:4,ng5:ngals-1L]=0.2
 mwrfits, templates, 'k_nmf_soln.fits', /create
 mwrfits, coeffs, 'k_nmf_soln.fits'
-k_run_nmf, nt=5L, niter=50000L, /qa
+for i=0L, 99L do $
+k_run_nmf, nt=5L, niter=500L, /qa
+endif
+cd, '../'
+
+spawn, 'mkdir -p spec5mb'
+cd, 'spec5mb'
+spawn, 'cp ../spec5m/k_nmf_mmatrix.fits .'
+spawn, 'cp ../spec5m/k_nmf_early.fits .'
+spawn, 'cp ../spec5m/k_nmf_late.fits .'
+spawn, 'cp ../spec5m/k_nmf_rawspec.fits .'
+spawn, 'cp ../spec5m/k_nmf_soln.fits .'
+k_nmf_spdata, flux='petro', sample='dr4', seed=500
+for i=0L, 999L do $
+k_run_nmf, nt=5L, niter=500L, /qa
 cd, '../'
 
 end
