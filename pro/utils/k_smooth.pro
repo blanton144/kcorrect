@@ -4,11 +4,13 @@
 ; PURPOSE:
 ;   gaussian smooth a spectrum
 ; CALLING SEQUENCE:
-;   k_smooth, loglam, flux, vdisp
+;   outflux= k_smooth(loglam, flux, vdisp)
 ; INPUTS:
 ;   loglam - log_{10} of the wavelength in Angstroms
 ;   flux - input flux
 ;   vdisp - gaussian velocity width in km/s (ignores if < 10 km/s)
+; OUTPUTS:
+;   outflux - smoothed flux
 ; WARNINGS:
 ;   Does NOTHING if vdisp < 10 km/s
 ; REVISION HISTORY:

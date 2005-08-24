@@ -11,6 +11,155 @@
 ;------------------------------------------------------------------------------
 pro paper_plots
 
+twomassfile=getenv('KCORRECT_DIR')+'/data/test/twomass_tests.fits'
+cat=mrdfits(twomassfile,1)
+kc1=twomass_kcorrect(cat.z, calibobj=cat, band_shift=0.1, rmaggies=rmaggies1)
+
+kc0=twomass_kcorrect(cat.z, twomass=cat, calibobj=cat, band_shift=0.1, $
+                     rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar)
+
+cresid=fltarr(7, n_elements(cat))
+for i=0L, 6L do $
+  cresid[i,*]=(-2.5*alog10(rmaggies0[i,*]/rmaggies0[i+1,*]))- $
+  (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
+
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/twomass_resid.ps', $
+  pold=pold, xold=xold, yold=yold, $
+  axis_char_scale=2.4
+
+!X.MARGIN=[0,2]
+!Y.MARGIN=[0,0]
+!X.OMARGIN=10
+!Y.OMARGIN=10
+!P.MULTI=[0,2,4]
+ranges=[[-1.09, 1.09], $
+        [-0.29, 0.29], $
+        [-0.29, 0.29], $
+        [-0.39, 0.39], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09]]
+ytitle=['\Delta!8(u-g)!6', $
+        '\Delta!8(g-r)!6', $
+        '\Delta!8(r-i)!6', $
+        '\Delta!8(i-z)!6', $
+        '\Delta!8(z-J)!6', $
+        '\Delta!8(J-H)!6', $
+        '\Delta!8(H-K_s)!6']
+xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
+ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
+
+for i=0, 6 do begin  & $
+  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
+  xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
+  xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
+  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
+  xtitle='!8z!6', xch=xchs[i], ych=ychs[i] & $
+if (i mod 2) eq 1 then $
+axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+  ytitle=textoidl(ytitle[i]),ycharsize=2.4 & $
+endfor
+
+k_end_print, pold=pold, xold=xold, yold=yold
+
+cresid=fltarr(7, n_elements(cat))
+for i=0L, 6L do $
+  cresid[i,*]=(-2.5*alog10(rmaggies1[i,*]/rmaggies1[i+1,*]))- $
+  (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
+
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/twomass_predicted.ps', $
+  pold=pold, xold=xold, yold=yold, $
+  axis_char_scale=2.4
+
+!X.MARGIN=[0,2]
+!Y.MARGIN=[0,0]
+!X.OMARGIN=10
+!Y.OMARGIN=10
+!P.MULTI=[0,2,4]
+ranges=[[-1.09, 1.09], $
+        [-0.29, 0.29], $
+        [-0.29, 0.29], $
+        [-0.39, 0.39], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09]]
+ytitle=['\Delta!8(u-g)!6', $
+        '\Delta!8(g-r)!6', $
+        '\Delta!8(r-i)!6', $
+        '\Delta!8(i-z)!6', $
+        '\Delta!8(z-J)!6', $
+        '\Delta!8(J-H)!6', $
+        '\Delta!8(H-K_s)!6']
+xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
+ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
+
+for i=0, 6 do begin  & $
+  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
+  xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
+  xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
+  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
+  xtitle='!8z!6', xch=xchs[i], ych=ychs[i] & $
+if (i mod 2) eq 1 then $
+axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+  ytitle=textoidl(ytitle[i]),ycharsize=2.4 & $
+endfor
+
+k_end_print, pold=pold, xold=xold, yold=yold
+
+stop
+
+plates=[401, 401, 401, 401, $
+        401, 401, 401, 401]
+fibers=[101, 121, 501, 533, $
+        111, 171, 45, 342]
+
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/specfit.ps', $
+  xold=xold, yold=yold, pold=pold, axis_char_scale=axis_char_scale
+!P.MULTI=[8,2,4]
+!X.MARGIN=0.
+!Y.MARGIN=0.
+for i=0L, n_elements(plates)-1L do begin
+    xcharsize=0.0001
+    ycharsize=0.0001
+    if(i ge n_elements(plates)-2L) then xcharsize=1.5*axis_char_scale
+    if((i mod 2) eq 0) then ycharsize=1.5*axis_char_scale
+    readspec, plates[i], fibers[i], flux=flux, wave=wave, zans=zans
+    alam=ext_ccm(wave)
+    glactc, zans.plug_ra, zans.plug_dec, 2000., gl, gb, 1, /deg
+    ebv=dust_getval(gl, gb)
+    extvoebv=3.1
+    ext=ebv*alam*extvoebv
+    flux=flux*10.^(0.4*ext)
+    flux=flux*1.e-17
+    lambda=k_lambda_to_edges(wave)
+    tmp_maggies=k_project_filters(lambda, flux, filterlist=['sdss_g0.par', $
+                                                            'sdss_r0.par', $
+                                                            'sdss_i0.par'])
+    tmp_maggies=reform(tmp_maggies, n_elements(tmp_maggies))
+    nmgy=[0., tmp_maggies*1.e+9, 0.]
+    ivar=[0., 1./(0.05*tmp_maggies*1.e+9)^2, 0.]
+    k_load_vmatrix, vm, la
+    kc=sdss_kcorrect(zans.z, nmgy=nmgy, ivar=ivar, coeffs=coeffs)
+                     
+    mlambda=k_lambda_to_centers(la)
+    mflux=vm#coeffs
+    mlambda=mlambda*(1.+zans.z)
+    mflux=mflux/(1.+zans.z)
+    mflux=1.e+17*k_smooth(alog10(mlambda), mflux, 500.)
+    flux=1.e+17*k_smooth(alog10(lambda), flux, 500.)
+    fscale=max(flux)
+    flux=flux/fscale
+    mflux=mflux/fscale
+    djs_plot, lambda, flux, th=8, xra=[3500., 9600.], $
+      xtitle='\lambda (\AA)', $
+      ytitle='!8f(\lambda!8)!6', $
+      xcharsize=xcharsize, yra=max(flux)*[-0.05,1.15], ycharsize=ycharsize
+    djs_oplot, mlambda, mflux, th=4, color='red'
+endfor
+k_end_print
+                 
+stop
+
 gphoto=rsex(getenv('KCORRECT_DIR')+ $
             '/data/redshifts/goods/mb_cdfs_isaac_ks_photz_c1.1_d3.0k.cat')
 gz=rsex(getenv('KCORRECT_DIR')+ $
