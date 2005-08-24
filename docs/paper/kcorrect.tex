@@ -766,10 +766,36 @@ there are no significant biases or redshift trends in these fits. Note
 that the galaxies used in this test are distinct from the training set
 on which we fit the five templates.
 
-The templates do just as well on higher redshift data. For example,
-Figure \ref{goods} shows the color residuals for GOODS data.
+The templates do well on higher redshift data, as well. For example,
+Figure \ref{goods} shows the color residuals for GOODS data. Here we
+find that there are somewhat larger residuals with respect to the
+uncertainties (again shown as the thick dashed lines). We can compare
+this result to that in Figure \ref{goods_special}, which we get by
+fitting to {\it only} the GOODS data (this alternate set of five
+templates is also distributed in the manner that Appendix \ref{format}
+describes). From Figure \ref{goods_special}, we conclude that {\it
+some} of the errors are irreducible, and require either a larger set
+of templates for high redshift galaxies (a possibility we find a
+priori unlikely), or that there are simply errors in the catalogs or
+the input filter curves. For example, in the $z$ and $V$ bands we find
+significant trends between redshifts $z=0.5$ and $1.5$ (echoed in
+Figure \ref{goods}. More significantly, in the $H$ band there is at
+least a 10\% offset in the magnitudes across all redshifts, which is
+almost certainly a catalog error.  {\bf GOODS people: this is your
+challenge! what is going on?} Other errors (such as a large scatter in
+the residuals in the $B$ band and some redshift dependence in the $J$
+band) are clearly due to the fact that the templates are not primarily
+designed for GOODS data. All in all, we recommend using the special
+templates for $K$-corrections within the GOODS data set.
 
-{\bf comparison to spectra}
+We can also test how well these templates recover actual spectra given
+only photometry. To do so, we take eight random SDSS spectra (chosen
+to span color space), project them onto the $g$, $r$ and $i$
+bandpasses, and then fit the five templates to just these three
+fluxes.  Figure \ref{specfit} compares the reconstructed model spectra
+to the original spectrum. The two agree extremely well. Naturally,
+this success depends heavily on the quality of the original stellar
+spectra used in the population synthesis code of \citet{bruzual03a}. 
 
 \subsection{Predictive power of templates}
 

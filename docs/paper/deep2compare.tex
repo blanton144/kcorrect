@@ -1,0 +1,332 @@
+\documentclass[10pt,preprint]{aastex}
+
+\newcommand{\vv}[1]{{\bf #1}}
+\newcommand{\df}{\delta}
+\newcommand{\dfft}{{\tilde{\delta}}}
+\newcommand{\betaft}{{\tilde{\beta}}}
+\newcommand{\erf}{{\mathrm{erf}}}
+\newcommand{\erfc}{{\mathrm{erfc}}}
+\newcommand{\Step}{{\mathrm{Step}}}
+\newcommand{\ee}[1]{\times 10^{#1}}
+\newcommand{\avg}[1]{{\langle{#1}\rangle}}
+\newcommand{\Avg}[1]{{\left\langle{#1}\right\rangle}}
+\def\simless{\mathbin{\lower 3pt\hbox
+	{$\,\rlap{\raise 5pt\hbox{$\char'074$}}\mathchar"7218\,$}}} % < or of order
+\def\simgreat{\mathbin{\lower 3pt\hbox
+	{$\,\rlap{\raise 5pt\hbox{$\char'076$}}\mathchar"7218\,$}}} % > or of order
+\newcommand{\iras}{{\sl IRAS\/}}
+\newcommand{\petroratio}{{{\mathcal{R}}_P}}
+\newcommand{\petroradius}{{{r}_P}}
+\newcommand{\petronumber}{{{N}_P}}
+\newcommand{\petroratiolim}{{{\mathcal{R}}_{P,\mathrm{lim}}}}
+\newcommand{\band}[2]{\ensuremath{^{{#1}}\!{#2}}}
+
+\setlength{\footnotesep}{9.6pt}
+
+\newcounter{thefigs}
+\newcommand{\fignum}{\arabic{thefigs}}
+
+\newcounter{thetabs}
+\newcommand{\tabnum}{\arabic{thetabs}}
+
+\newcounter{address}
+
+\slugcomment{To be submitted to \aj}
+
+\shortauthors{Blanton {\it et al.} (2000)}
+\shorttitle{ Galaxies at low and high redshift}
+
+\begin{document}
+ 
+\title{ Galaxies at low and high redshift: a comparison of SDSS and
+DEEP2}
+
+\author{
+Michael R. Blanton\altaffilmark{\ref{NYU}} and 
+Samuel Roweis
+%Tamas Budavari\altaffilmark{\ref{JHU}},
+%Andrew J. Connolly\altaffilmark{\ref{Pitt}},
+%J.~Brinkmann\altaffilmark{\ref{APO}},
+%Istv\'an Csabai\altaffilmark{\ref{JHU}},
+%Mamoru Doi\altaffilmark{\ref{Tokyo}},
+%Daniel Eisenstein\altaffilmark{\ref{Arizona}},
+%Masataka Fukugita\altaffilmark{\ref{CosmicRay},\ref{IAS}},
+%James E. Gunn\altaffilmark{\ref{Princeton}},
+%David W. Hogg\altaffilmark{\ref{NYU}}, and
+%David J. Schlegel\altaffilmark{\ref{Princeton}}
+%Julianne Dalcanton\altaffilmark{\ref{UW}},
+%Jon Loveday\altaffilmark{\ref{Sussex}},
+%Michael A. Strauss\altaffilmark{\ref{Princeton}},
+%Mark SubbaRao\altaffilmark{\ref{Chicago}},
+%David H. Weinberg\altaffilmark{\ref{Ohio}},
+%John E. Anderson, Jr.\altaffilmark{\ref{Fermilab}},
+%James Annis\altaffilmark{\ref{Fermilab}},
+%Neta A. Bahcall\altaffilmark{\ref{Princeton}},
+%Mariangela Bernardi\altaffilmark{\ref{Chicago}},
+%Robert J. Brunner\altaffilmark{\ref{Caltech}},
+%Scott Burles\altaffilmark{\ref{Fermilab}},
+%Larry Carey\altaffilmark{\ref{UW}},
+%Francisco J. Castander\altaffilmark{\ref{Chicago}, \ref{Pyrenees}},
+%Andrew J. Connolly\altaffilmark{\ref{Pitt}},
+%Istv\'an Csabai\altaffilmark{\ref{JHU}},
+%Douglas Finkbeiner\altaffilmark{\ref{Berkeley}},
+%Scott Friedman\altaffilmark{\ref{JHU}},
+%Joshua A. Frieman\altaffilmark{\ref{Fermilab}},
+%G. S. Hennessy\altaffilmark{\ref{USNO}},
+%Robert B. Hindsley\altaffilmark{\ref{USNO}},
+%Takashi Ichikawa\altaffilmark{\ref{Tokyo}},
+%\v{Z}eljko Ivezi\'{c}\altaffilmark{\ref{Princeton}},
+%Stephen Kent\altaffilmark{\ref{Fermilab}},
+%G. R.~Knapp\altaffilmark{\ref{Princeton}},
+%D. Q.~Lamb\altaffilmark{\ref{Chicago}},
+%R. French Leger\altaffilmark{\ref{UW}},
+%Daniel C. Long\altaffilmark{\ref{APO}},
+%Robert H. Lupton\altaffilmark{\ref{Princeton}},
+%Timothy A.~McKay\altaffilmark{\ref{Michigan}},
+%Avery Meiksin\altaffilmark{\ref{Edinburgh}},
+%Aronne Merelli\altaffilmark{\ref{Caltech}},
+%Jeffrey A. Munn\altaffilmark{\ref{USNO}},
+%Vijay Narayanan\altaffilmark{\ref{Princeton}},
+%Matt Newcomb\altaffilmark{\ref{CarnegieMellon}},
+%R. C. Nichol\altaffilmark{\ref{CarnegieMellon}},
+%Sadanori Okamura\altaffilmark{\ref{Tokyo}},
+%Russell Owen\altaffilmark{\ref{UW}},
+%Jeffrey R.~Pier\altaffilmark{\ref{USNO}},
+%Adrian Pope\altaffilmark{\ref{JHU}},
+%Marc Postman\altaffilmark{\ref{STScI}},
+%Thomas Quinn\altaffilmark{\ref{UW}},
+%Constance M. Rockosi\altaffilmark{\ref{Chicago}},
+%Donald P. Schneider\altaffilmark{\ref{PennState}}, 
+%Kazuhiro Shimasaku\altaffilmark{\ref{Tokyo}},
+%Walter A. Siegmund\altaffilmark{\ref{UW}},
+%Stephen Smee\altaffilmark{\ref{Maryland}},
+%Yehuda Snir\altaffilmark{\ref{CarnegieMellon}},
+%Chris Stoughton\altaffilmark{\ref{Fermilab}},
+%Christopher Stubbs\altaffilmark{\ref{UW}},
+%Alexander S.~Szalay\altaffilmark{\ref{JHU}},
+%Gyula P.~Szokoly\altaffilmark{\ref{Potsdam}},
+%Aniruddha R.~Thakar\altaffilmark{\ref{JHU}},
+%Christy Tremonti\altaffilmark{\ref{JHU}},
+%Douglas L. Tucker\altaffilmark{\ref{Fermilab}},
+%Alan Uomoto\altaffilmark{\ref{JHU}},
+%Dan vanden Berk\altaffilmark{\ref{Fermilab}},
+%Michael S. Vogeley\altaffilmark{\ref{Drexel}},
+%Patrick Waddell\altaffilmark{\ref{UW}},
+%Brian Yanny\altaffilmark{\ref{Fermilab}},
+%Naoki Yasuda\altaffilmark{\ref{NAOJ}},
+%and Donald G.~York\altaffilmark{\ref{Chicago}}
+}
+
+\altaffiltext{1}{Based on observations obtained with the
+Sloan Digital Sky Survey} 
+\setcounter{address}{2}
+\altaffiltext{\theaddress}{
+\stepcounter{address}
+New York University, Department of Physics, 4 Washington Place, New
+York, NY 10003
+\label{NYU}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Physics and Astronomy, The Johns Hopkins University,
+%Baltimore, MD 21218
+%\label{JHU}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%University of Pittsburgh,
+%Department of Physics and Astronomy,
+%3941 O'Hara Street,
+%Pittsburgh, PA 15260
+%\label{Pitt}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Astronomy and Research Center for 
+%the Early Universe,
+%School of Science, University of Tokyo,
+%Tokyo 113-0033, Japan
+%\label{Tokyo}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Steward Observatory, 
+%933 N. Cherry Ave., Tucson, AZ
+%85721
+%\label{Arizona}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Princeton University Observatory, Princeton,
+%NJ 08544
+%\label{Princeton}}
+%\addtocounter{address}{1}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Fermi National Accelerator Laboratory, P.O. Box 500,
+%Batavia, IL 60510
+%\label{Fermilab}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Astronomy, University of Washington,
+%Box 351580,
+%Seattle, WA 98195 
+%\label{UW}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%University of Chicago, Astronomy \&
+%Astrophysics Center, 5640 S. Ellis Ave., Chicago, IL 60637
+%\label{Chicago}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Hubble Fellow 
+%\label{Hubble}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Sussex Astronomy Centre,
+%University of Sussex,
+%Falmer, Brighton BN1 9QJ, UK
+%\label{Sussex}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Ohio State University,
+%Department of Astronomy,
+%Columbus, OH 43210
+%\label{Ohio}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Apache Point Observatory,
+%2001 Apache Point Road,
+%P.O. Box 59, Sunspot, NM 88349-0059
+%\label{APO}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Astronomy, California Institute of Technology,
+%Pasadena, CA 91125
+%\label{Caltech}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Observatoire Midi-Pyr\'en\'ees, 
+%14 ave Edouard Belin, Toulouse, F-31400, France
+%\label{Pyrenees}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%UC Berkeley, Dept. of Astronomy, 601 Campbell Hall, Berkeley, CA  94720-3411
+%\label{Berkeley}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Institute for Cosmic Ray Research, University of
+%Tokyo, Midori, Tanashi, Tokyo 188-8502, Japan
+%\label{CosmicRay}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Institute for Advanced Study, Olden Lane,
+%Princeton, NJ 08540
+%\label{IAS}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%U.S. Naval Observatory,
+%3450 Massachusetts Ave., NW,
+%Washington, DC  20392-5420
+%\label{USNO}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%University of Michigan, Department of Physics,
+%500 East University, Ann Arbor, MI 48109
+%\label{Michigan}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Physics \& Astronomy,
+%The University of Edinburgh,
+%James Clerk Maxwell Building,
+%The King's Buildings,
+%Mayfield Road,
+%Edinburgh EH9 3JZ, UK
+%\label{Edinburgh}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Physics, Carnegie Mellon University, 
+%5000 Forbes Avenue, Pittsburgh, PA 15213-3890 
+%\label{CarnegieMellon}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Space Telescope Science Institute, Baltimore, MD 21218
+%\label{STScI}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Astronomy and Astrophysics,
+%The Pennsylvania State University,
+%University Park, PA 16802
+%\label{PennState}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Astronomy,
+%University of Maryland,
+%College Park, MD 20742-2421 
+%\label{Maryland}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Astrophysikalisches Institut Potsdam,
+%An der Sternwarte 16, D-14482 Potsdam, Germany
+%\label{Potsdam}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%Department of Physics, Drexel University, Philadelphia, PA 19104
+%\label{Drexel}}
+%\altaffiltext{\theaddress}{
+%\stepcounter{address}
+%National Astronomical Observatory, Mitaka, Tokyo 181-8588, Japan
+%\label{NAOJ}}
+%\addtocounter{address}{1}
+%\altaffiltext{\theaddress}{Physics Dept., University of California, Davis, CA 95616
+%\label{UCDavis}}
+%\addtocounter{address}{1}
+%\altaffiltext{\theaddress}{IGPP/Lawrence Livermore National Laboratory
+%\label{IGPP}}
+%\addtocounter{address}{1}
+%\altaffiltext{\theaddress}{Department of Astronomy, University of California, Berkeley, C
+%A 94720-3411
+%\label{Berkeley}}
+%\stepcounter{address}
+%\altaffiltext{\theaddress}{Remote Sensing Division, Code 7215, Naval
+%Research Laboratory, Washington, DC 20375
+%\label{NRL}}
+%\addtocounter{address}{1}
+%\altaffiltext{\theaddress}{U.S. Naval Observatory, Flagstaff Station,
+%P.O. Box 1149,
+%Flagstaff, AZ  86002-1149
+%\label{Flagstaff}}
+
+\clearpage
+
+\begin{abstract}
+The galaxy population has changed significantly in the last half of
+the lifetime of the Universe. The old, red sequence galaxy population
+so prominent today was not very important at redshift $z \sim 1$. The
+blue sequence of galaxies was, at that time, considerably bluer than
+it is now. In this paper, we demonstrate these changes by comparing
+the galaxies at redshift $z\sim 0.1$ in the Sloan Digital Sky Survey
+(SDSS) spectroscopic sample to those in the Deep Extragalactic
+Evolutionary Probe 2 (DEEP2) sample. The SDSS sample is nearly
+complete, so we perform the comparison by predicting what the SDSS
+population would look like at the redshifts probed by DEEP2 and
+applying the DEEP2 flux and color selection to the sample. Our results
+show dramatic changes in the population between these two epochs.
+\end{abstract}
+
+\keywords{galaxies: fundamental parameters --- galaxies: photometry
+--- galaxies: statistics}
+
+\section{Motivation}
+\label{motivation}
+
+The population of galaxies in the Universe is still changing
+dramatically with time. Even within the small range $0 < z < 0.3$ we
+can detect that galaxies are fading with time
+(\citealt{blanton03d}). In clusters
+
+\section{Discussion}
+\label{discussion}
+
+\newpage
+
+%\include{tables}
+
+\include{kcorrect_figures}
+
+\end{document}
