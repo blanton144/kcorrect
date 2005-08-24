@@ -56,7 +56,7 @@
 ;   amivar - [5, ngals] inverse variance of absolute magnitude (for
 ;            missing data = 0)
 ; OPTIONAL OUTPUTS:
-;   coeffs - coefficients of fit
+;   coeffs - [Nt, N] coefficients of fit
 ;   chi2 - chi^2 of fit
 ;   rmaggies - [5, N] reconstructed maggies from the fit (ugriz)
 ;   omaggies, oivar - [5, N] maggies and inverse variances used for fit
