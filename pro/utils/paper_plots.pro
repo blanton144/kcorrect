@@ -11,7 +11,417 @@
 ;------------------------------------------------------------------------------
 pro paper_plots
 
-if(0) then begin
+sample='drtwo14'
+
+sdssfile=getenv('LSS_REDUX')+'/'+sample+'/safe/1/post_catalog.'+sample+ $
+  'safe1.fits'
+post=mrdfits(sdssfile,1)
+post=post[where(post.z lt 0.2)]
+post=post[shuffle_indx(n_elements(post), num_sub=10000)]
+cat=mrdfits(vagc_name('object_sdss_imaging'),1,row=post.object_position)
+kc=sdss_kcorrect(post.z, calibobj=cat, band_shift=0., absmag=absmag, mtol=mtol)
+
+msolar=k_sdss_bell(absmag)
+lsolar=10.^(-0.4*(absmag[2,*]-k_solar_magnitudes(filterlist='sdss_r0.par')))
+mtol_bell=msolar/lsolar
+mtolmin=min(mtol_bell, imin)
+mtolmax=max(mtol_bell, imax)
+iminmax=[imin,imax]
+
+hogg_usersym, 10, /fill
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/mtol.ps', $
+  pold=pold, xold=xold, yold=yold, axis_char_scale=2.4
+hogg_scatterplot, absmag[1,*]-absmag[2,*], alog10(mtol[2,*]), $
+  ytitle=textoidl('!6log_{10}(!8M/L!6)'), $
+  xtitle='!8g-r!6', exp=0.5, satfrac=0.001, $
+  xra=[0.01,0.99], yra=[-0.1, 1.1]
+djs_oplot, [-2., 2.], 1.65*([-2.,2.])-0.54, color='red', th=5
+k_end_print, pold=pold, xold=xold, yold=yold
+stop
+
+sdssfile=getenv('LSS_REDUX')+'/'+sample+'/safe/1/post_catalog.'+sample+ $
+  'safe1.fits'
+post=mrdfits(sdssfile,1)
+post=post[where(post.z lt 0.2)]
+post=post[shuffle_indx(n_elements(post), num_sub=2000)]
+cat=mrdfits(vagc_name('object_sdss_imaging'),1,row=post.object_position)
+kc=sdss_kcorrect(post.z, calibobj=cat, band_shift=0., absmag=absmag)
+
+hogg_usersym, 10, /fill
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/sdss_kcorrect.ps', $
+  pold=pold, xold=xold, yold=yold, axis_char_scale=2.4
+!P.MULTI=[0,1,5]
+!Y.MARGIN=0
+djs_plot, post.z, kc[0,*], psym=8, symsize=0.25, $
+  ytitle='!8K_u(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[0,*])-0.08, max(kc[0,*])+0.08]
+djs_plot, post.z, kc[1,*], psym=8, symsize=0.25, $
+  ytitle='!8K_g(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[1,*])-0.08, max(kc[1,*])+0.08]
+djs_plot, post.z, kc[2,*], psym=8, symsize=0.25, $
+  ytitle='!8K_r(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[2,*])-0.08, max(kc[2,*])+0.08]
+djs_plot, post.z, kc[3,*], psym=8, symsize=0.25, $
+  ytitle='!8K_i(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[3,*])-0.08, max(kc[3,*])+0.08]
+djs_plot, post.z, kc[4,*], psym=8, symsize=0.25, $
+  ytitle='!8K_z(z)!6', xtitle='!6 redshift !8z!6', $
+  yra=[min(kc[4,*])-0.08, max(kc[4,*])+0.08]
+k_end_print, pold=pold, xold=xold, yold=yold
+
+kc=sdss_kcorrect(post.z, calibobj=cat, band_shift=0.1, absmag=absmag)
+
+hogg_usersym, 10, /fill
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/main_kcorrect.ps', $
+  pold=pold, xold=xold, yold=yold, axis_char_scale=2.4
+!P.MULTI=[0,1,5]
+!Y.MARGIN=0
+djs_plot, post.z, kc[0,*], psym=8, symsize=0.25, $
+  ytitle='!8K_{0.1u}(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[0,*])-0.08, max(kc[0,*])+0.08]
+djs_plot, post.z, kc[1,*], psym=8, symsize=0.25, $
+  ytitle='!8K_{0.1g}(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[1,*])-0.08, max(kc[1,*])+0.08]
+djs_plot, post.z, kc[2,*], psym=8, symsize=0.25, $
+  ytitle='!8K_{0.1r}(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[2,*])-0.08, max(kc[2,*])+0.08]
+djs_plot, post.z, kc[3,*], psym=8, symsize=0.25, $
+  ytitle='!8K_{0.1i}(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[3,*])-0.08, max(kc[3,*])+0.08]
+djs_plot, post.z, kc[4,*], psym=8, symsize=0.25, $
+  ytitle='!8K_{0.1z}(z)!6', xtitle='!6 redshift !8z!6', $
+  yra=[min(kc[4,*])-0.08, max(kc[4,*])+0.08]
+k_end_print, pold=pold, xold=xold, yold=yold
+
+stop
+
+galexfile=getenv('KCORRECT_DIR')+'/data/test/galex_tests.fits'
+cat=mrdfits(galexfile,1)
+cat=cat[shuffle_indx(n_elements(cat), num_sub=2000)]
+kc=galex_kcorrect(cat.z, calibobj=cat, galex=galex, band_shift=0.)
+
+hogg_usersym, 10, /fill
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/galex_kcorrect.ps', $
+  pold=pold, xold=xold, yold=yold, axis_char_scale=1.4
+!P.MULTI=[0,1,2]
+!Y.MARGIN=0
+djs_plot, cat.z, kc[0,*], psym=8, symsize=0.25, $
+  ytitle='!8K_F(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[0,*])-0.2, max(kc[0,*])+0.2]
+djs_plot, cat.z, kc[1,*], psym=8, symsize=0.25, $
+  ytitle='!8K_N(z)!6', xtitle='!6 redshift !8z!6', $
+  yra=[min(kc[1,*])-0.2, max(kc[1,*])+0.2]
+k_end_print, pold=pold, xold=xold, yold=yold
+
+stop
+
+twomassfile=getenv('KCORRECT_DIR')+'/data/test/twomass_tests.fits'
+cat=mrdfits(twomassfile,1)
+cat=cat[shuffle_indx(n_elements(cat), num_sub=2000)]
+kc=twomass_kcorrect(cat.z, calibobj=cat, twomass=twomass, band_shift=0.)
+
+hogg_usersym, 10, /fill
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/twomass_kcorrect.ps', $
+  pold=pold, xold=xold, yold=yold, axis_char_scale=2.4
+!P.MULTI=[0,1,3]
+!Y.MARGIN=0
+djs_plot, cat.z, kc[0,*], psym=8, symsize=0.25, $
+  ytitle='!8K_J(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[0,*])-0.2, max(kc[0,*])+0.2]
+djs_plot, cat.z, kc[1,*], psym=8, symsize=0.25, $
+  ytitle='!8K_H(z)!6', xtitle='!6 redshift !8z!6', $
+  xcharsize=0.00001, yra=[min(kc[1,*])-0.2, max(kc[1,*])+0.2]
+djs_plot, cat.z, kc[2,*], psym=8, symsize=0.25, $
+  ytitle='!8K_K(z)!6', xtitle='!6 redshift !8z!6', $
+  yra=[min(kc[2,*])-0.2, max(kc[2,*])+0.2]
+k_end_print, pold=pold, xold=xold, yold=yold
+
+stop
+
+twomassfile=getenv('KCORRECT_DIR')+'/data/test/twomass_tests.fits'
+cat=mrdfits(twomassfile,1)
+kc1=twomass_kcorrect(cat.z, calibobj=cat, band_shift=0.1, rmaggies=rmaggies1)
+kc0=twomass_kcorrect(cat.z, twomass=cat, calibobj=cat, band_shift=0.1, $
+                     rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar)
+
+cresid=fltarr(7, n_elements(cat))
+for i=0L, 6L do $
+  cresid[i,*]=(2.5*alog10(rmaggies0[i,*]/rmaggies0[i+1,*]))- $
+  (2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
+
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/twomass_resid.ps', $
+  pold=pold, xold=xold, yold=yold, $
+  axis_char_scale=2.4
+
+!X.MARGIN=[0,2]
+!Y.MARGIN=[0,0]
+!X.OMARGIN=10
+!Y.OMARGIN=10
+!P.MULTI=[0,2,4]
+ranges=[[-1.09, 1.09], $
+        [-0.29, 0.29], $
+        [-0.29, 0.29], $
+        [-0.39, 0.39], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09]]
+ytitle=['\Delta!8(u-g)!6', $
+        '\Delta!8(g-r)!6', $
+        '\Delta!8(r-i)!6', $
+        '\Delta!8(i-z)!6', $
+        '\Delta!8(z-J)!6', $
+        '\Delta!8(J-H)!6', $
+        '\Delta!8(H-K_s)!6']
+xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
+ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
+
+for i=0, 6 do begin  
+    ii=where(abs(cresid[i,*]) lt 1.e+6 and $
+             oivar[i,*] gt 0 and oivar[i+1,*] gt 0) 
+    magerr0=sqrt(1./omaggies[i,ii]^2/oivar[i,ii])
+    magerr1=sqrt(1./omaggies[i+1,ii]^2/oivar[i+1,ii])
+    err=sqrt(magerr0^2+magerr1^2)
+    typerr=median(err)
+    yra=[-1., 1.]*5.*typerr
+    hogg_scatterplot, cat[ii].z, cresid[i,ii], psym=3, $
+      xra=[0.009, 0.301], yra=yra, /cond, $
+      xnpix=25, ynpix=25, exp=0.5, satfrac=0.001, $
+      quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
+      xtitle='!6redshift !8z!6', xch=xchs[i], ych=ychs[i] 
+    djs_oplot,[-1.,10.], [1.,1.]*typerr, color='red', th=6, linest=2
+    djs_oplot,[-1.,10.], -[1.,1.]*typerr, color='red', th=6, linest=2
+    if (i mod 2) eq 1 then $
+      axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+      ytitle=textoidl(ytitle[i]),ycharsize=2.4 
+endfor
+
+k_end_print, pold=pold, xold=xold, yold=yold
+
+cresid=fltarr(7, n_elements(cat))
+for i=0L, 6L do $
+  cresid[i,*]=(2.5*alog10(rmaggies1[i,*]/rmaggies1[i+1,*]))- $
+  (2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
+
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/twomass_predicted.ps', $
+  pold=pold, xold=xold, yold=yold, $
+  axis_char_scale=2.4
+
+!X.MARGIN=[0,2]
+!Y.MARGIN=[0,0]
+!X.OMARGIN=10
+!Y.OMARGIN=10
+!P.MULTI=[0,2,4]
+ranges=[[-1.09, 1.09], $
+        [-0.29, 0.29], $
+        [-0.29, 0.29], $
+        [-0.39, 0.39], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09]]
+ytitle=['\Delta!8(u-g)!6', $
+        '\Delta!8(g-r)!6', $
+        '\Delta!8(r-i)!6', $
+        '\Delta!8(i-z)!6', $
+        '\Delta!8(z-J)!6', $
+        '\Delta!8(J-H)!6', $
+        '\Delta!8(H-K_s)!6']
+xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
+ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
+
+for i=0, 6 do begin  
+    ii=where(abs(cresid[i,*]) lt 1.e+6 and $
+             oivar[i,*] gt 0 and oivar[i+1,*] gt 0) 
+    magerr0=sqrt(1./omaggies[i,ii]^2/oivar[i,ii])
+    magerr1=sqrt(1./omaggies[i+1,ii]^2/oivar[i+1,ii])
+    err=sqrt(magerr0^2+magerr1^2)
+    typerr=median(err)
+    yra=[-1., 1.]*5.*typerr
+    hogg_scatterplot, cat[ii].z, cresid[i,ii], psym=3, $
+      xra=[0.009, 0.301], yra=yra, /cond, $
+      xnpix=25, ynpix=25, exp=0.5, satfrac=0.001, $
+      quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
+      xtitle='!6redshift !8z!6', xch=xchs[i], ych=ychs[i] 
+    djs_oplot,[-1.,10.], [1.,1.]*typerr, color='red', th=6, linest=2
+    djs_oplot,[-1.,10.], -[1.,1.]*typerr, color='red', th=6, linest=2
+    if (i mod 2) eq 1 then $
+      axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+      ytitle=textoidl(ytitle[i]),ycharsize=2.4 
+endfor
+
+k_end_print, pold=pold, xold=xold, yold=yold
+
+stop
+
+galexfile=getenv('KCORRECT_DIR')+'/data/test/galex_tests.fits'
+cat=mrdfits(galexfile,1)
+kc1=galex_kcorrect(cat.z, calibobj=cat, band_shift=0.1, rmaggies=rmaggies1)
+kc0=galex_kcorrect(cat.z, galex=cat, calibobj=cat, band_shift=0.1, $
+                     rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar)
+
+cresid=fltarr(6, n_elements(cat))
+for i=0L, 5L do $
+  cresid[i,*]=(2.5*alog10(rmaggies0[i,*]/rmaggies0[i+1,*]))- $
+  (2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
+
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/galex_resid.ps', $
+  pold=pold, xold=xold, yold=yold, $
+  axis_char_scale=2.4
+
+!X.MARGIN=[0,2]
+!Y.MARGIN=[0,0]
+!X.OMARGIN=10
+!Y.OMARGIN=10
+!P.MULTI=[0,2,3]
+ranges=[[-1.09, 1.09], $
+        [-0.29, 0.29], $
+        [-0.29, 0.29], $
+        [-0.39, 0.39], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09]]
+ytitle=['\Delta!8(u-g)!6', $
+        '\Delta!8(g-r)!6', $
+        '\Delta!8(r-i)!6', $
+        '\Delta!8(i-z)!6', $
+        '\Delta!8(z-J)!6', $
+        '\Delta!8(J-H)!6', $
+        '\Delta!8(H-K_s)!6']
+xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
+ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
+
+for i=0, 5 do begin  
+    ii=where(abs(cresid[i,*]) lt 1.e+6 and $
+             oivar[i,*] gt 0 and oivar[i+1,*] gt 0) 
+    magerr0=sqrt(1./omaggies[i,ii]^2/oivar[i,ii])
+    magerr1=sqrt(1./omaggies[i+1,ii]^2/oivar[i+1,ii])
+    err=sqrt(magerr0^2+magerr1^2)
+    typerr=median(err)
+    yra=[-1., 1.]*5.*typerr
+    hogg_scatterplot, cat[ii].z, cresid[i,ii], psym=3, $
+      xra=[0.009, 0.301], yra=yra, /cond, $
+      xnpix=25, ynpix=25, exp=0.5, satfrac=0.001, $
+      quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
+      xtitle='!6redshift !8z!6', xch=xchs[i], ych=ychs[i] 
+    djs_oplot,[-1.,10.], [1.,1.]*typerr, color='red', th=6, linest=2
+    djs_oplot,[-1.,10.], -[1.,1.]*typerr, color='red', th=6, linest=2
+    if (i mod 2) eq 1 then $
+      axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+      ytitle=textoidl(ytitle[i]),ycharsize=2.4 
+endfor
+
+k_end_print, pold=pold, xold=xold, yold=yold
+
+cresid=fltarr(6, n_elements(cat))
+for i=0L, 5L do $
+  cresid[i,*]=(2.5*alog10(rmaggies1[i,*]/rmaggies1[i+1,*]))- $
+  (2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
+
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/galex_predicted.ps', $
+  pold=pold, xold=xold, yold=yold, $
+  axis_char_scale=2.4
+
+!X.MARGIN=[0,2]
+!Y.MARGIN=[0,0]
+!X.OMARGIN=10
+!Y.OMARGIN=10
+!P.MULTI=[0,2,3]
+ranges=[[-1.09, 1.09], $
+        [-0.29, 0.29], $
+        [-0.29, 0.29], $
+        [-0.39, 0.39], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09], $
+        [-1.09, 1.09]]
+ytitle=['\Delta!8(u-g)!6', $
+        '\Delta!8(g-r)!6', $
+        '\Delta!8(r-i)!6', $
+        '\Delta!8(i-z)!6', $
+        '\Delta!8(z-J)!6', $
+        '\Delta!8(J-H)!6', $
+        '\Delta!8(H-K_s)!6']
+xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
+ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
+
+for i=0, 5 do begin  
+    ii=where(abs(cresid[i,*]) lt 1.e+6 and $
+             oivar[i,*] gt 0 and oivar[i+1,*] gt 0) 
+    magerr0=sqrt(1./omaggies[i,ii]^2/oivar[i,ii])
+    magerr1=sqrt(1./omaggies[i+1,ii]^2/oivar[i+1,ii])
+    err=sqrt(magerr0^2+magerr1^2)
+    typerr=median(err)
+    yra=[-1., 1.]*5.*typerr
+    hogg_scatterplot, cat[ii].z, cresid[i,ii], psym=3, $
+      xra=[0.009, 0.301], yra=yra, /cond, $
+      xnpix=25, ynpix=25, exp=0.5, satfrac=0.001, $
+      quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
+      xtitle='!6redshift !8z!6', xch=xchs[i], ych=ychs[i] 
+    djs_oplot,[-1.,10.], [1.,1.]*typerr, color='red', th=6, linest=2
+    djs_oplot,[-1.,10.], -[1.,1.]*typerr, color='red', th=6, linest=2
+    if (i mod 2) eq 1 then $
+      axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
+      ytitle=textoidl(ytitle[i]),ycharsize=2.4 
+endfor
+
+k_end_print, pold=pold, xold=xold, yold=yold
+
+stop
+
+gstfile=getenv('KCORRECT_DIR')+'/data/test/gst_tests.fits'
+cat=mrdfits(gstfile, 1)
+kc=gst_kcorrect(cat.z, calibobj=cat, twomass=cat, galex=cat, $
+                omaggies=maggies, rmaggies=rmaggies, band_shift=0., $
+                oivar=ivar)
+colors=fltarr(9, n_elements(cat))
+mcolors=fltarr(9, n_elements(cat))
+for i=0L, 8L do $
+  colors[i,*]=-2.5*alog10(maggies[i,*]/maggies[i+1,*])
+for i=0L, 8L do $
+  mcolors[i,*]=-2.5*alog10(rmaggies[i,*]/rmaggies[i+1,*])
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/fullfits.ps', $
+  xold=xold, yold=yold, pold=pold, xsize=9., ysize=6.
+!P.MULTI=[0,3,3]
+!X.MARGIN=9.
+!Y.MARGIN=3.
+ytitle=['\Delta!8(F-N)!6', $
+        '\Delta!8(N-u)!6', $
+        '\Delta!8(u-g)!6', $
+        '\Delta!8(g-r)!6', $
+        '\Delta!8(r-i)!6', $
+        '\Delta!8(i-z)!6', $
+        '\Delta!8(z-J)!6', $
+        '\Delta!8(J-H)!6', $
+        '\Delta!8(H-K_s)!6']
+yras=[[-0.99, 0.99], $
+      [-0.99, 0.99], $
+      [-0.29, 0.29], $
+      [-0.19, 0.19], $
+      [-0.19, 0.19], $
+      [-0.19, 0.19], $
+      [-0.29, 0.29], $
+      [-0.29, 0.29], $
+      [-0.29, 0.29]]
+isort=sort(cat.z)
+isort=isort[long(findgen(300)*n_elements(isort))/300.]
+for i=0L, 8L do begin
+    ii=where(abs(colors[i,*]-mcolors[i,*]) lt 1.e+6 and $
+             ivar[i,*] gt 0 and ivar[i+1,*] gt 0) 
+    magerr0=sqrt(1./maggies[i,ii]^2/ivar[i,ii])
+    magerr1=sqrt(1./maggies[i+1,ii]^2/ivar[i+1,ii])
+    err=sqrt(magerr0^2+magerr1^2)
+    typerr=median(err)
+    yra=[-1., 1.]*5.*typerr
+    hogg_scatterplot, cat[ii].z, colors[i,ii]-mcolors[i,ii], psym=3, $
+      xra=[0.02, 0.24], yra=yra, $
+      xtitle='!8z!6', ytitle=textoidl(ytitle[i]), ycharsize=axis_char_scale, $
+      /cond, quant=[0.1,0.25, 0.5,0.75, 0.9], exp=0.5, xnpix=20, ynpix=20, $
+      satfrac=0.001
+    djs_oplot,[-1.,10.], [1.,1.]*typerr, color='red', th=6, linest=2
+    djs_oplot,[-1.,10.], -[1.,1.]*typerr, color='red', th=6, linest=2
+endfor
+k_end_print, xold=xold, yold=yold, pold=pold
+
+stop
+
 plates=[518, 1371, 1000, 1739, $
         884, 1401, 826, 528]
 fibers=[129, 369, 482, 356, $
@@ -62,104 +472,6 @@ for i=0L, n_elements(plates)-1L do begin
 endfor
 k_end_print
                  
-stop
-endif
-
-twomassfile=getenv('KCORRECT_DIR')+'/data/test/twomass_tests.fits'
-cat=mrdfits(twomassfile,1)
-kc1=twomass_kcorrect(cat.z, calibobj=cat, band_shift=0.1, rmaggies=rmaggies1)
-
-kc0=twomass_kcorrect(cat.z, twomass=cat, calibobj=cat, band_shift=0.1, $
-                     rmaggies=rmaggies0, omaggies=omaggies, oivar=oivar)
-
-cresid=fltarr(7, n_elements(cat))
-for i=0L, 6L do $
-  cresid[i,*]=(-2.5*alog10(rmaggies0[i,*]/rmaggies0[i+1,*]))- $
-  (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
-
-k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/twomass_resid.ps', $
-  pold=pold, xold=xold, yold=yold, $
-  axis_char_scale=2.4
-
-!X.MARGIN=[0,2]
-!Y.MARGIN=[0,0]
-!X.OMARGIN=10
-!Y.OMARGIN=10
-!P.MULTI=[0,2,4]
-ranges=[[-1.09, 1.09], $
-        [-0.29, 0.29], $
-        [-0.29, 0.29], $
-        [-0.39, 0.39], $
-        [-1.09, 1.09], $
-        [-1.09, 1.09], $
-        [-1.09, 1.09]]
-ytitle=['\Delta!8(u-g)!6', $
-        '\Delta!8(g-r)!6', $
-        '\Delta!8(r-i)!6', $
-        '\Delta!8(i-z)!6', $
-        '\Delta!8(z-J)!6', $
-        '\Delta!8(J-H)!6', $
-        '\Delta!8(H-K_s)!6']
-xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
-ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
-
-for i=0, 6 do begin  & $
-  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
-  xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
-  xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
-  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
-  xtitle='!8z!6', xch=xchs[i], ych=ychs[i] & $
-if (i mod 2) eq 1 then $
-axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
-  ytitle=textoidl(ytitle[i]),ycharsize=2.4 & $
-endfor
-
-k_end_print, pold=pold, xold=xold, yold=yold
-
-cresid=fltarr(7, n_elements(cat))
-for i=0L, 6L do $
-  cresid[i,*]=(-2.5*alog10(rmaggies1[i,*]/rmaggies1[i+1,*]))- $
-  (-2.5*alog10(omaggies[i,*]/omaggies[i+1,*]))
-
-k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/twomass_predicted.ps', $
-  pold=pold, xold=xold, yold=yold, $
-  axis_char_scale=2.4
-
-!X.MARGIN=[0,2]
-!Y.MARGIN=[0,0]
-!X.OMARGIN=10
-!Y.OMARGIN=10
-!P.MULTI=[0,2,4]
-ranges=[[-1.09, 1.09], $
-        [-0.29, 0.29], $
-        [-0.29, 0.29], $
-        [-0.39, 0.39], $
-        [-1.09, 1.09], $
-        [-1.09, 1.09], $
-        [-1.09, 1.09]]
-ytitle=['\Delta!8(u-g)!6', $
-        '\Delta!8(g-r)!6', $
-        '\Delta!8(r-i)!6', $
-        '\Delta!8(i-z)!6', $
-        '\Delta!8(z-J)!6', $
-        '\Delta!8(J-H)!6', $
-        '\Delta!8(H-K_s)!6']
-xchs=[0.001, 0.001, 0.001, 0.001, 0.001, 2.4, 2.4]
-ychs=[2.4, 0.001, 2.4, 0.001, 2.4, 0.001, 2.4, 0.001]
-
-for i=0, 6 do begin  & $
-  hogg_scatterplot, cat.z, cresid[i,*], psym=3, $
-  xra=[0.009, 0.301], yra=ranges[*,i], /cond, $
-  xnpix=20, ynpix=20, exp=0.5, satfrac=0.001, $
-  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], ytitle=textoidl(ytitle[i]), $
-  xtitle='!8z!6', xch=xchs[i], ych=ychs[i] & $
-if (i mod 2) eq 1 then $
-axis,!X.CRANGE[1],!Y.CRANGE[0],yaxis=1, $
-  ytitle=textoidl(ytitle[i]),ycharsize=2.4 & $
-endfor
-
-k_end_print, pold=pold, xold=xold, yold=yold
-
 stop
 
 gphoto=rsex(getenv('KCORRECT_DIR')+ $
@@ -272,60 +584,6 @@ k_end_print, xold=xold, yold=yold, pold=pold
 
 stop
 
-gstfile=getenv('KCORRECT_DIR')+'/data/test/gst_tests.fits'
-cat=mrdfits(gstfile, 1)
-kc=gst_kcorrect(cat.z, calibobj=cat, twomass=cat, galex=cat, $
-                omaggies=maggies, rmaggies=rmaggies, band_shift=0., $
-                oivar=ivar)
-colors=fltarr(9, n_elements(cat))
-mcolors=fltarr(9, n_elements(cat))
-for i=0L, 8L do $
-  colors[i,*]=-2.5*alog10(maggies[i,*]/maggies[i+1,*])
-for i=0L, 8L do $
-  mcolors[i,*]=-2.5*alog10(rmaggies[i,*]/rmaggies[i+1,*])
-k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/fullfits.ps', $
-  xold=xold, yold=yold, pold=pold, xsize=9., ysize=6.
-!P.MULTI=[0,3,3]
-!X.MARGIN=9.
-!Y.MARGIN=3.
-ytitle=['\Delta!8(F-N)!6', $
-        '\Delta!8(N-u)!6', $
-        '\Delta!8(u-g)!6', $
-        '\Delta!8(g-r)!6', $
-        '\Delta!8(r-i)!6', $
-        '\Delta!8(i-z)!6', $
-        '\Delta!8(z-J)!6', $
-        '\Delta!8(J-H)!6', $
-        '\Delta!8(H-K_s)!6']
-yras=[[-0.99, 0.99], $
-      [-0.99, 0.99], $
-      [-0.29, 0.29], $
-      [-0.19, 0.19], $
-      [-0.19, 0.19], $
-      [-0.19, 0.19], $
-      [-0.29, 0.29], $
-      [-0.29, 0.29], $
-      [-0.29, 0.29]]
-isort=sort(cat.z)
-isort=isort[long(findgen(300)*n_elements(isort))/300.]
-for i=0L, 8L do begin
-    ii=where(abs(colors[i,*]-mcolors[i,*]) lt 1.e+6 and $
-             ivar[i,*] gt 0 and ivar[i+1,*] gt 0) 
-    magerr0=sqrt(1./maggies[i,ii]^2/ivar[i,ii])
-    magerr1=sqrt(1./maggies[i+1,ii]^2/ivar[i+1,ii])
-    err=sqrt(magerr0^2+magerr1^2)
-    typerr=median(err)
-    yra=[-1., 1.]*5.*typerr
-    hogg_scatterplot, cat[ii].z, colors[i,ii]-mcolors[i,ii], psym=3, $
-      xra=[0.02, 0.24], yra=yra, $
-      xtitle='!8z!6', ytitle=textoidl(ytitle[i]), ycharsize=axis_char_scale, $
-      /cond, quant=[0.1,0.25, 0.5,0.75, 0.9], exp=0.5, xnpix=20, ynpix=20, $
-      satfrac=0.001
-    djs_oplot,[-1.,10.], [1.,1.]*typerr, color='red', th=6, linest=2
-    djs_oplot,[-1.,10.], -[1.,1.]*typerr, color='red', th=6, linest=2
-endfor
-k_end_print, xold=xold, yold=yold, pold=pold
-
 cat=mrdfits(getenv('KCORRECT_DIR')+'/data/test/sdss_tests_lrg.fits',1)
 kc=sdss_kcorrect(cat.z, calibobj=cat, band_shift=0.3, rmaggies=rmaggies, $
                  omaggies=maggies, oivar=oivar, /lrg)
@@ -385,11 +643,11 @@ for i=0L, 4L do begin
     xcharsize=axis_char_scale
     if(i lt 4) then xcharsize=0.0001
     sfr[*,i]=sfr[*,i]*age*alog(10.)
-    djs_plot, age, sfr[*,i], th=4, xra=[5.e+5, 18.e+9], /xlog, /ylog, $
+    djs_plot, age, sfr[*,i], th=6, xra=[5.e+5, 18.e+9], /xlog, /ylog, $
       xtitle='lookback time (yrs)', xcharsize=xcharsize, $
       yra=minmax(sfr[*,i])*[0.1,10.0], $
       ytitle='!8\Delta!8S/\Delta!8 !6[log_{10} !8t!6]'
-    djs_plot, age, met[*,i], th=4, xra=[5.e+5, 18.e+9], /xlog, $
+    djs_plot, age, met[*,i], th=6, xra=[5.e+5, 18.e+9], /xlog, $
       yra=[-0.01, 0.068], $
       xtitle='lookback time (yrs)', xcharsize=xcharsize, $
       ytitle='metallicity'

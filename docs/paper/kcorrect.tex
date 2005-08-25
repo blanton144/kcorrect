@@ -337,7 +337,6 @@ $K$-correction between a bandpass $R$ used to observe a galaxy at
 redshift $z$ and the desired bandpass $Q$ is defined by the equation
 (\citealt{oke68a, hogg02a}):
 \begin{equation}
-\label{kcorrecteqn}
 m_R = M_Q + \mathrm{DM}(z) + K_{QR}(z) - 5 \log_{10} h 
 \end{equation}
 where $\mathrm{DM}(z) = 25 - 5\log_{10} (d_L / (h^{-1}{\mathrm{~Mpc}}))$ is the
@@ -485,7 +484,7 @@ The training set consists of:
 \begin{enumerate}
 \item SDSS spectroscopic data in the observed range $3800 < \lambda <
 9000$ \AA, for 400 Luminous Red Galaxies between $0.15 < z < 0.5$ (LRGs;
-\citealt{eisenstein02a}) and 1600 Main sample galaxies between $0.001
+\citealt{eisenstein01a}) and 1600 Main sample galaxies between $0.001
 < z < 0.4$ (\citealt{strauss02a})
 \item SDSS photometric data on an independent set of LRGs ($griz$
 photometry only) and Main sample galaxies (using the full $ugriz$
@@ -504,7 +503,7 @@ galaxies; \citealt{giavalisco04a}).
 The SDSS, 2MASS, and GALEX galaxies were selected from and the matches
 were obtained by the New York University Value-Added Galaxy Catalog
 (NYU-VAGC;
-\citealt{blanton05b}).  
+\citealt{blanton05a}).  
 
 The SDSS data processing consists of astrometry \citep{pier03a};
 source identification, deblending and photometry \citep{lupton01a};
@@ -689,7 +688,7 @@ simple iterative method of \citet{sha02a}.
 
 We begin with the simplest case, which is fitting a {\it single}
 template to the photometric data of the LRG sample
-(\citealt{eisenstein02a}). For many of these galaxies, which extend to
+(\citealt{eisenstein01a}). For many of these galaxies, which extend to
 $r<19.5$ and are intrinsically red, the $u$-band flux is extremely
 poorly measured, so we ignore the $u$-band for all LRGs. 
 
@@ -725,18 +724,18 @@ template.
 
 \subsection{Templates for the full data set}
 
-Figure \ref{spec_templates} shows the spectrum from the ultraviolet
-through the near infrared for the resulting templates. Note that there
-is a very old template, a very young template, and several
-intermediate templates, including one which is close to that of an A
-star. 
+The right-most column of Figure \ref{sfh_templates} shows the spectrum
+from the ultraviolet through the near infrared for the resulting
+templates. Note that there is a very old template, a very young
+template, and several intermediate templates, including one which is
+close to that of an A star.
 
-Figure \ref{sfh_templates} shows the star-formation histories and
-metallicities associated with the templates. We have not imposed any
-smoothness criterion on these fits, which explains the ragged
-appearance of these histories. We do not believe the details of these
-fits, since neighboring ages or metallicities are highly degenerate
-with one another. 
+The left and middle columns of Figure \ref{sfh_templates} show the
+star-formation histories and metallicities associated with the
+templates. We have not imposed any smoothness criterion on these fits,
+which explains the ragged appearance of these histories. We do not
+believe the details of these fits, since neighboring ages or
+metallicities are highly degenerate with one another.
 
 In all the results below, we use these five templates, unaltered. That
 is, when we speak below of ``fitting'' the templates, we mean we fix
@@ -813,8 +812,8 @@ of predicting the 2MASS fluxes, with a scatter of 20--30\% {\bf real
 number} --- not far from the uncertainties in the 2MASS fluxes
 themselves. Of course, it is not surprising that it is easy to predict
 the 2MASS fluxes --- stellar spectra are very simple in the NIR, so
-having the $ugriz$-band fluxes from SDSS is very information regarding
-the redder bandpasses. 
+having the $ugriz$-band fluxes from SDSS yields much information
+regarding the redder bandpasses.
 
 However, we will note here that this result flies in the face of a
 persistent insistence that NIR observations are necessary to measure
@@ -833,13 +832,10 @@ fitting} to both SDSS and GALEX data for each galaxy. The latter shows
 the color residuals when we fit {\it only} to the SDSS data and do not
 include GALEX in the fit at all. Without any input from GALEX the
 templates do a significantly worse job at predicting the GALEX
-fluxes. The scatter becomes about $\sigma \sim 0.5$ mag {\bf real
-number}. As is common knowledge, it is more difficult to predict the
-UV fluxes, because dust and recent star-formation are so variable
-among galaxies. However, the median residuals based on are our
-templates still near zero.
-
-[ H alpha color relationship ]
+fluxes. The scatter becomes about $\sigma \sim 0.5$ mag.  As is common
+knowledge, it is more difficult to predict the UV fluxes, because dust
+and recent star-formation are so variable among galaxies. However, the
+median residuals based on are our templates still near zero.
 
 \section{Determining $K$-corrections}
 \label{kcorrect}
@@ -872,7 +868,7 @@ $K$-corrections, this method also provides an interpretation of the
 data in terms of a physical model which describes the stellar mass and
 star-formation history of each galaxy.
 
-Equation (\ref{eq:definition}) holds if the $K$-correction $K_{QR}$ is
+Equation (\ref{kcorrecteqn}) holds if the $K$-correction $K_{QR}$ is
 \begin{equation}
 \label{eq:wavelengthL}
 K_{QR} = -2.5\,\log_{10}\left[\frac{1}{[1+z]}\,
@@ -947,17 +943,25 @@ redshift $z=0.1$, and obviously the $K$-corrections are not perfect
 --- why introduce a large uncertainty for most galaxies when it can
 easily be avoided?
 
-[ Figure test: against projection of a bunch of spectra ]
-
 \section{Physical interpretation of the models}
 
-[ solar magnitudes ]
+In addition to $K$-corrections, these template fits also provide
+physical interpretations of the galaxies, since they correspond to
+actual stellar population synthesis models. For example, 
+Figure \ref{mtol} shows the mass-to-light ratios of galaxies as a
+function of color.
 
-[ Figure mass-to-light ratio ]
+
+[ Figure mass-to-light ratio; Figure compare to whoever ]
 
 [ Figure recent SF ]
 
 \section{Linear relationships between common magnitude systems}
+
+Finally, there some practical relationships between different band
+systems and conventions.
+
+[ solar magnitudes ]
 
 [ vega to ab ]
 

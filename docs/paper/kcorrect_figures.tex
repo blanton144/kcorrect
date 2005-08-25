@@ -9,7 +9,7 @@
 \plotone{spec_lrg.ps}
 \caption{\label{spec_lrg} Best fit LRG spectral template
 	(normalization is for a 1 $M_\odot$ galaxy located 10 pc away, or
-	equivalently a $10^12$ $M_\odot$ galaxy located 10 Mpc away).
+	equivalently a $10^12$ $M_\odot$ galaxy located 10 Mpc away).}
 \end{figure}
 
 \clearpage
@@ -34,6 +34,23 @@
 \figurenum{\fignum}
 \plotone{lrg_colors.ps}
 \caption{\label{lrg_colors} SDSS colors of LRGs as a function of
+	redshift. The greyscale is the conditional distribution of color
+	within each redshift bin. The thin lines are the 10\%, 25\%, 50\%,
+	75\%, and 90\% quantiles of the distribution. The thick line
+	is the prediction of the model. The $u$ band is not included in the
+	fit, and the $u$ magnitudes of most LRGs are poorly known. The other
+	colors fit the models reasonably well. This model, remember, is
+	given incredible freedom, meaning that the above agreement is the
+	best one can do with the stellar population synthesis code of
+	\citet{bruzual03a}. }
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{sfh_templates.ps}
+\caption{\label{sfh_templates} SDSS colors of LRGs as a function of
 	redshift. The greyscale is the conditional distribution of color
 	within each redshift bin. The thin lines are the 10\%, 25\%, 50\%,
 	75\%, and 90\% quantiles of the distribution. The thick line
@@ -100,15 +117,95 @@ original spectra agree very well.}
 \plotone{twomass_resid.ps}
 \caption{\label{twomass_resid} Similar to Figure \ref{fullfits} but
 for galaxies observed in both SDSS and 2MASS and only using SDSS and
-2MASS bands. }
+2MASS bands. The fits are to the SDSS and 2MASS data together.}
 \end{figure}
 
 \clearpage
 \stepcounter{thefigs}
 \begin{figure}
 \figurenum{\fignum}
-\plotone{twomass_resid.ps}
-\caption{\label{twomass_resid} Similar to Figure \ref{fullfits} but
-for galaxies observed in both SDSS and 2MASS and only using SDSS and
-2MASS bands. }
+\plotone{twomass_predicted.ps}
+\caption{\label{twomass_predicted} Similar to Figure
+\ref{twomass_resid} but now the fits are {\it only} to the SDSS
+bands. The residuals in the 2MASS bands remain very small, indicating
+that the 2MASS measurements do not add a lot of information about
+these galaxies.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{galex_resid.ps}
+\caption{\label{galex_resid} Similar to Figure \ref{twomass_resid} but
+for galaxies observed in both SDSS and GALEX and only using SDSS and
+GALEX bands. The fits are to the SDSS and GALEX data together.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{galex_predicted.ps}
+\caption{\label{galex_predicted} Similar to Figure
+\ref{galex_resid} but now the fits are {\it only} to the SDSS
+bands. }
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{galex_kcorrect.ps}
+\caption{\label{galex_kcorrect} $K$-corrections as a function of
+redshift in the GALEX near (N) and far (F) UV bands. }
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{twomass_kcorrect.ps}
+\caption{\label{twomass_kcorrect} $K$-corrections as a function of
+redshift in the 2MASS $J$, $H$ and $K_s$ bands.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{sdss_kcorrect.ps}
+\caption{\label{sdss_kcorrect} $K$-corrections as a function of
+redshift in the SDSS $u$, $g$, $r$, $i$, and $z$ bands.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{sdss_kcorrect.ps}
+\caption{\label{sdss_kcorrect} $K$-corrections as a function of
+redshift in the SDSS $u$, $g$, $r$, $i$, and $z$ bands.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{main_kcorrect.ps}
+\caption{\label{main_kcorrect} Same as Figure \ref{sdss_kcorrect}, but
+$K$-correcting to the \band{0.1}{u}, \band{0.1}{g}, \band{0.1}{r},
+\band{0.1}{i}, and \band{0.1}{z} bands.}  
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{mtol.ps}
+\caption{\label{mtol} Mass-to-light ratios of galaxies (in solar
+units) as a function of galaxy color. The solid line satisfies the
+relationship $\log_{10}(M/L) = 1.65 (g-r) - 0.54$, which has 
+the same slope as that found by \citet{bell01a}, with a higher
+normalization by 0.3 dex.}
 \end{figure}
