@@ -947,23 +947,111 @@ easily be avoided?
 
 In addition to $K$-corrections, these template fits also provide
 physical interpretations of the galaxies, since they correspond to
-actual stellar population synthesis models. For example, 
-Figure \ref{mtol} shows the mass-to-light ratios of galaxies as a
-function of color.
+actual stellar population synthesis models. Indeed, the code outputs
+three parameters relevant to the star-formation history: the current
+mass of stars in the galaxy; the stellar mass-to-light ratio of the
+galaxy; and the fraction of the total amount of star-formation that
+has occurred recently. 
 
+\citet{kauffmann03a} have also calculated stellar masses for SDSS
+galaxies. Roughly, they have calculated the $z$-band stellar
+mass-to-light ratios of models which best fit the H$\delta$ absorption
+and D4000 measurements of the spectra, and then applied those
+mass-to-light ratios to the observed $z$-band luminosities of the
+imaging. Figure \ref{mass_to_garching} shows a galaxy-by-galaxy
+comparison of their stellar masses $M_{\ast,s}$ relative to ours
+$M_\ast$, as a function of $M_\ast$ and of intrinsic $g-r$ color. The
+two sets of masses are very similar to each other, with a scatter of
+only 0.1 dex and trends of less than 0.2 dex with stellar mass. As we
+did, \citet{kauffmann03a} used the library of \citet{bruzual03a} with
+the \citet{chabrier03} initial mass function, which makes some of this
+agreement unsurprising.  To be explicit, the masses in Figure
+\ref{mass_to_garching} correspond to the current mass in stars
+remaining in the galaxy. This mass can differ from the total
+star-formation rate integrated over time, due to the fact that stars
+can die --- and in practice for our fits the total integrated
+star-formation rate is usually about twice as high as the total
+current mass in stars.
 
-[ Figure mass-to-light ratio; Figure compare to whoever ]
+Similarly, Figure \ref{mtol} shows the mass-to-light ratios of SDSS
+galaxies in the $V$ band as a function of color in $B-V$. Here, we
+have calculated the $B$ and $V$ band fluxes based on the template fits
+to each galaxy, as explained in Section \ref{sdss2bessell} below. We
+give the mass-to-light ratio in solar units. The solid line is the
+relationship that \citet{bell01a} give based on their fits to spiral
+galaxies. For blue galaxies ($B-V < 0.8$) this line is indeed a good
+fit to our results. For the typical red galaxy, the \citet{bell01a}
+relation predicts a larger stellar mass than we do. 
 
-[ Figure recent SF ]
+Finally, we can also calculate measures of the recent star-formation
+rate from these fits. Since our fits are to broad-band photometry, and
+not based on emission line measurements, we cannot expect to have
+detailed information about the very recent star-formation
+rate. However, we can try to measure what fraction of the total
+star-formation has occurred in, say, the past 1 Gyr:
+\begin{equation}
+b_{G} = \frac{\int_0^{1\mathrm{~Gyr}} dt\, \mathrm{SFR}(t)}
+{\int_0^{a_{\mathrm{Univ}}} dt\, \mathrm{SFR}(t)}
+\end{equation}
+Note that here $b_G$ is defined in terms of the total integrated
+star-formation history (unlike the stellar masses referred to above)
+as is standard for the $b$ parameter (\citealt{kennicutt98a}). Figure
+\ref{umr_bg} shows the relationship between the rest-frame $u-r$ color
+for SDSS galaxies and $b_G$. For galaxies with $u-r < 2.5$ (redder
+than which galaxies are mostly reddened, edge-on disks) these two
+parameters follow a simple relationship:
+\begin{equation}
+\log_{10} b_g = -0.55 (u-r) - 0.25.
+\end{equation}
 
 \section{Linear relationships between common magnitude systems}
+\label{sdss2bessell}
 
-Finally, there some practical relationships between different band
-systems and conventions.
+The software and templates that we present here are also useful for
+determining simple conversions between bandpasses performing other
+common tasks, such as calculating the absolute magnitude of the Sun in
+various band systems, and calculating the conversion between Vega and
+AB magnitudes. In this section, we present these tools.
 
-[ solar magnitudes ]
+For example, Table \ref{solarmagnitudes} lists the effective
+wavelengths, conversion from Vega to AB magnitudes, and absolute
+magnitudes of the Sun in a number of filters: the GALEX filters, the
+Bessell filters, the SDSS filters, and the 2MASS filters. The listed
+numbers are the results of running the IDL functions {\tt
+k\_lambda\_eff}, {\tt k\_vega2ab}, and {\tt k\_solar\_magnitudes},
+respectively, so the reader can calculate the same thing easily on any
+given filter.  The effective wavelengths listed for each filter use
+the definition
+\begin{equation}
+\label{lden}
+\lambda_{\mathrm{eff}} = \exp\left[ 
+\frac{\int d(\ln\lambda) R(\lambda) \ln\lambda}
+{\int d(\ln\lambda) R(\lambda)} \right],
+\end{equation}
+following \citet{fukugita96a} and \citet{schneider83a}.  For the
+spectrum of Vega in the conversion of AB to Vega magnitudes, we use
+the \citet{kurucz91a} theoretical Vega spectrum (normalized at 5000
+\AA\ to match the \citet{hayes85a} spectrophotometry of Vega). In {\tt
+k\_vega2ab}, the user has the option to use the spectrum of
+\citet{hayes85a} instead.  We use the solar spectrum of
+\citet{kurucz91a} for the calculation of the solar absolute magnitude.
 
-[ vega to ab ]
+For comparison among results from different surveys, one also wants to
+be able to convert the magnitudes in one set of bandpasses to
+magnitudes in another set of bandpasses. An example of doing so is
+given in our piece of code {\tt sdss2bessell}, which takes SDSS input
+magnitudes and outputs absolute magnitudes in the Bessell $U$, $B$,
+$V$, $R$ and $I$ bandpasses. 
+
+However, often one wants to just make quick and dirty comparisons,
+without going through the trouble of running any software. For these
+purposes, we provide Table \ref{lineareqs}, which provides the linear
+relationships among the same bandpasses as those listed in Table
+\ref{solarmagnitudes}. Note that Table \ref{lineareqs} refers to AB
+magnitudes {\it throughout}; use Table \ref{solarmagnitudes} to get
+the relationships to Vega magnitudes.
+
+[ sdss2bessell ]
 
 [ conversions ]
 
@@ -1026,7 +1114,7 @@ and the University of Washington.
 
 \newpage
 
-%\include{tables}
+\include{kcorrect_tables}
 
 \include{kcorrect_figures}
 

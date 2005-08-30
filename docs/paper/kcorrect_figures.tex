@@ -202,10 +202,38 @@ $K$-correcting to the \band{0.1}{u}, \band{0.1}{g}, \band{0.1}{r},
 \stepcounter{thefigs}
 \begin{figure}
 \figurenum{\fignum}
+\plotone{mass_to_garching.ps}
+\caption{\label{mass_to_garching} Our galaxy stellar mass estimates
+	$M_\ast$ compared to those of \citet{kauffmann03a} $M_{s,\ast}$, as
+	a function of stellar mass (top panel) and of color (bottom
+	panel). The greyscale is the conditional distribution
+	$M_{s,\ast}/M_\ast$ on each quantity . The lines are the 10\%, 25\%,
+	50\%, 75\% and 90\% quantiles.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
 \plotone{mtol.ps}
-\caption{\label{mtol} Mass-to-light ratios of galaxies (in solar
-units) as a function of galaxy color. The solid line satisfies the
-relationship $\log_{10}(M/L) = 1.65 (g-r) - 0.54$, which has 
-the same slope as that found by \citet{bell01a}, with a higher
-normalization by 0.3 dex.}
+\caption{\label{mtol} Mass-to-light ratios of galaxies in the $V$ band
+	(in solar units) as a function of galaxy $B-V$ color. The solid line
+	satisfies the relationship $\log_{10}(M/L_V) = 1.40 (g-r) - 0.73$,
+	given by \citet{bell01a} for their sample of spiral galaxies. 
+	Their estimates and ours agree for $B-V < 0.8$, where spiral
+	galaxies dominate the galaxy population.}
+\end{figure}
+
+\clearpage
+\stepcounter{thefigs}
+\begin{figure}
+\figurenum{\fignum}
+\plotone{umr_bg.ps}
+\caption{\label{umr_bg} Fraction of the total star-formation that has
+	occurred in the previous billion years $b_G$, as a function of restframe
+	$u-r$ color, for SDSS galaxies. The greyscale is the conditional
+	distribution of $b_G$ on $u-r$. The lines are the 10\%, 25\%, 50\%,
+	75\% and 90\% quantiles. For $u-r < 2.5$, the median relationship
+	follows the simple form listed in the figure. Galaxies with $u-r >
+	2.5$ are often highly reddened star-forming galaxies.}
 \end{figure}

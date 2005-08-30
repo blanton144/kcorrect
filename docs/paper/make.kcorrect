@@ -7,7 +7,7 @@ ${NAME}.ps: ${NAME}.dvi
 	dvips -N0 -o ${NAME}.ps ${NAME}.dvi
 
 ${NAME}.dvi: ${NAME}.tex ${NAME}_figures.tex ${NAME}_tables.tex \
-	~/nyu-astro/tex/ccpp.bib 
+	~/nyu-astro/tex/ccpp.bib solarmagnitudes.tex
 	latex ${NAME}; bibtex ${NAME}; latex ${NAME}; latex ${NAME}
 
 clean:
