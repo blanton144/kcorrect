@@ -51,32 +51,44 @@
 ;   chi2       - chi^2 of fit
 ;   rmaggies      - reconstructed maggies from the fit
 ; OPTIONAL INPUT/OUTPUTS:
-;   coeffs        - coefficients fit to each template (if maggies
+;   rmaggies      - [nk, ngals] reconstructed maggies in each bands
+;   coeffs        - [nt, ngals] coefficients fit to each template (if maggies
 ;                   input are nonexistent, just use these input
 ;                   coeffs)
-;   mass          - model mass derived from the coeffs
-;   absmag        - absolute magnitude (for missing data, substitutes
-;                   model fit)
-;   amivar        - absolute magnitude invvar (for missing data = 0)
-;   mtol          - model mass-to-light in each *final* bandpass (the
-;                   bandpass you are kcorrecting *to*) in SOLAR UNITS!
+;   mass          - [ngals] model mass derived from the coeffs (current
+;                   surviving stellar mass)
+;   intsfh        - [ngals] total integrated star-formation history (number of
+;                   stars formed total)
+;   mets          - [ngals] average metallicity of currently surviving stars
+
+;   absmag        - [nk, ngals] absolute magnitude (for missing data,
+;                   substitutes model fit)
+
+;   amivar        - [nk, ngals] absolute magnitude invvar (for missing
+;                   data = 0) 
+;   mtol          - [nk, ngals] model mass-to-light in each *final*
+;                   bandpass (the bandpass you are kcorrecting *to*)
+;                   in SOLAR UNITS!
 ;   lambda        - [nl+1] wavelengths for templates (to use)/(which were used)
 ;                   (pixel edges)
 ;   vmatrix       - [nl, nv] templates (to use)/(which were used)
-;   rmatrix       - look up table for bmatrix and filter information 
-;                   [nz, nv, nk]
-;   ermatrix      - look up table for bmatrix and filter information 
-;                   for 1.0 Gyr ago (to estimate evolution) [nz, nv, nk]
-;   zvals         - look up redshift table for rmatrix [N_z]
+;   rmatrix       - [nz, nv, nk] look up table for bmatrix and filter
+;                   information
+;   zvals         - [nz] look up redshift table for rmatrix [N_z]
 ;   zmin,zmax     - minimum and maximum redshifts for lookup table
 ;                   (default 0., 2.)
 ;   nz            - number of redshifts in lookup table (default 1000)
 ; COMMENTS:
-;   For v4_0b templates and later, coefficients are in units of:
-;     1 solar mass / (D/10pc)^2
+;
+;   For v4_0b templates and later, coefficients are in units of: 
+; 
+;     1 solar mass / (D/10pc)^2 
+;
 ;   That is, sum the coefficients and multiply by (D/10pc)^2 to get
-;   masses. (In fact, for Omega0=0.3 and OmegaL0=0.7, this is what the
-;   "mass" keyword returns).
+;   TOTAL INTEGRATED STAR FORMATION. (In fact, for Omega0=0.3 and
+;   OmegaL0=0.7, this is what the "mass" keyword returns). Note that
+;   the total integrated star formation DIFFERS from the current
+;   stellar mass --- which is returned in the mass and mtol variables.
 ;
 ;   If you just want to do SDSS kcorrections, it is better to use the
 ;   wrapper 'sdss_kcorrect'. 
@@ -93,10 +105,6 @@
 ;   If no band_shift is specified, the K-correction is to z=0.
 ; 
 ;   Defaults to SDSS filters.  
-; 
-;   Never *applies* evolution to absmag results; that is up to you.
-;
-;   For evolution estimates assume h=0.7.
 ; REVISION HISTORY:
 ;   24-Jan-2002  Translated to IDL by Mike Blanton, NYU
 ;   19-Jul-2002  Major bug fix (pointed out by I. Baldry) MRB, NYU
@@ -113,8 +121,7 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               zmin=zmin, zmax=zmax, abfix=abfix, minerrors=minerrors, $
               rmaggies=rmaggies, mass=mass, mtol=mtol, vname=vname, $
               absmag=absmag, amivar=amivar, omega0=omega0, omegal0=omegal0, $
-              mets=mets, b300=b300, ages=ages, b1000=b1000, $
-              ermatrix=ermatrix
+              mets=mets, b300=b300, b1000=b1000, intsfh=intsfh
 
 littleh=0.7 ;; for evolution
 
@@ -185,34 +192,37 @@ k_reconstruct_maggies,coeffs,replicate(band_shift,n_elements(redshift)), $
 reconstruct_maggies=reconstruct_maggies/(1.+band_shift)
 k_reconstruct_maggies,coeffs,redshift,rmaggies,rmatrix=rmatrix,zvals=zvals
 
+tspecfile=getenv('KCORRECT_DIR')+'/data/templates/k_nmf_derived.'+ $
+  vname+'.fits'
+tmass=mrdfits(tspecfile, 16)
+tmremain=mrdfits(tspecfile, 17)
+tmetallicity=mrdfits(tspecfile, 18)
+tmass300=mrdfits(tspecfile, 19)
+tmass1000=mrdfits(tspecfile, 20)
+
+mrcoeffs=coeffs*(tmremain#replicate(1., n_elements(redshift)))
 if(arg_present(mass)) then $
-  mass=total(coeffs,1)*10.^(0.4*lf_distmod(redshift, omega0=omega0, $
-                                           omegal0=omegal0))
+  mass=total(mrcoeffs,1)*10.^(0.4*lf_distmod(redshift, omega0=omega0, $
+                                             omegal0=omegal0))
+if(arg_present(intsfh)) then $
+  intsfh=total(coeffs,1)*10.^(0.4*lf_distmod(redshift, omega0=omega0, $
+                                             omegal0=omegal0))
 smaggies=10.^(-0.4*k_solar_magnitudes(filterlist=filterlist, $
                                       band_shift=band_shift))
 mtol=fltarr(n_elements(filterlist), n_elements(redshift))
-mm=total(coeffs,1)
+mm=total(mrcoeffs,1)
 for i=0L, n_elements(filterlist)-1L do $
   mtol[i,*]=mm/reconstruct_maggies[i,*]*smaggies[i]
 
 ; get metallicity
-tspecfile=getenv('KCORRECT_DIR')+'/data/templates/k_nmf_spec.'+ $
-  vname+'.fits'
-tmass=mrdfits(tspecfile, 10)
-tmetallicity=mrdfits(tspecfile, 11)
-tage=mrdfits(tspecfile, 12)
-tmass300=mrdfits(tspecfile, 13)
-tmass1000=mrdfits(tspecfile, 14)
 b300=fltarr(n_elements(redshift))
 b1000=fltarr(n_elements(redshift))
 mets=fltarr(n_elements(redshift))
-ages=fltarr(n_elements(redshift))
 for i=0L, n_elements(redshift)-1L do begin
-    tmp_mass=total(tmass*coeffs[*,i])
     b300[i]=total(tmass300*coeffs[*,i])/total(tmass*coeffs[*,i])
     b1000[i]=total(tmass1000*coeffs[*,i])/total(tmass*coeffs[*,i])
-    ages[i]=total(tmass*tage*coeffs[*,i])/tmp_mass
-    mets[i]=total(tmass*tmetallicity*coeffs[*,i])/tmp_mass
+    tmp_mass=total(tmremain*coeffs[*,i])
+    mets[i]=total(tmremain*tmetallicity*coeffs[*,i])/tmp_mass
 endfor
 
 ; get kcorrection
