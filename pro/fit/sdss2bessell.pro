@@ -80,10 +80,10 @@
 function sdss2bessell, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                        calibobj=calibobj, tsobj=tsobj, flux=flux, $
                        chi2=chi2, coeffs=coeffs, rmaggies=rmaggies, $
-                       omaggies=omaggies, oivar=oivar, vname=vname, $
+                       omaggies=omaggies, oivar=oivar, vname=in_vname, $
                        mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
                        band_shift=in_band_shift, vega=vega, omega0=omega0, $
-                       omegal0=omegal0
+                       omegal0=omegal0, b300=b300, b1000=b1000, intsfh=intsfh
 
 common com_sdss2bessell, rmatrix, zvals, band_shift
 
@@ -96,6 +96,23 @@ if(n_params() lt 1 OR $
     doc_library, 'sdss2bessell'
     return, -1
 endif 
+
+if(n_elements(in_vname) gt 0) then begin
+    use_vname=in_vname
+endif else begin
+    if(keyword_set(lrg)) then $
+      use_vname='lrg1' $
+    else $
+      use_vname='default'
+endelse
+if(n_elements(vname) gt 0) then begin
+    if(vname ne use_vname) then begin
+        rmatrix=0
+        ermatrix=0
+        zvals=0
+    endif
+endif
+vname=use_vname
 
 ;; need to reset rmatrix if band_shift changes
 if(n_elements(in_band_shift) gt 0) then begin
@@ -118,7 +135,8 @@ kcdum=sdss_kcorrect(redshift,nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                     chi2=chi2, coeffs=coeffs, rmaggies=rmaggies, $
                     omaggies=omaggies, oivar=oivar, vname=vname, $
                     mass=mass, mtol=mtol, band_shift=band_shift, $
-                    omega0=omega0, omegal0=omegal0)
+                    omega0=omega0, omegal0=omegal0, b300=b300, $
+                    b1000=b1000, intsfh=intsfh)
 
 ; calculate the preliminaries
 filterlist=['bessell_U.par', $
@@ -142,10 +160,15 @@ reconstruct_maggies=reconstruct_maggies/(1.+band_shift)
 kcorrect=reconstruct_maggies/rmaggies
 kcorrect=2.5*alog10(kcorrect)
 
+tspecfile=getenv('KCORRECT_DIR')+'/data/templates/k_nmf_derived.'+ $
+  vname+'.fits'
+tmremain=mrdfits(tspecfile, 17)
+mrcoeffs=coeffs*(tmremain#replicate(1., n_elements(redshift)))
+
 smaggies=10.^(-0.4*k_solar_magnitudes(filterlist=filterlist, $
                                       band_shift=band_shift))
 mtol=fltarr(n_elements(filterlist), n_elements(redshift))
-mm=total(coeffs,1)
+mm=total(mrcoeffs,1)
 for i=0L, n_elements(filterlist)-1L do $
   mtol[i,*]=mm/reconstruct_maggies[i,*]*smaggies[i]
 
