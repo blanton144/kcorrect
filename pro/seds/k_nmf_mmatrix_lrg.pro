@@ -150,8 +150,13 @@ nl=n_elements(tmp_bc03.flux)
 wave=tmp_bc03.wave
 loglam=alog10(wave)
 grid=fltarr(nl, nages, nmets)
-for im= 0L, nmets-1L do $
-  grid[*,*,im]= (k_im_read_bc03(met=mets[im],isolib=isolib, /vac)).flux[*,iuse]
+mremain=fltarr(nages, nmets)
+for im= 0L, nmets-1L do begin
+    grid[*,*,im]= $
+      (k_im_read_bc03(met=mets[im],isolib=isolib, bc03_extras=bc03info, $
+                      /vac)).flux[*,iuse]
+    mremain[*,im]=bc03info[iuse].m_
+endfor
 earlygrid=fltarr(nl, nages, nmets)
 early=ages-back*1.e+9
 iearly=where(early gt 0., nearly)
@@ -391,6 +396,7 @@ mwrfits, filterlist, outfile
 mwrfits, zf, outfile
 mwrfits, gasmets, outfile
 mwrfits, qpars, outfile
+mwrfits, mremain, outfile
 if(ndraine gt 0) then $
 mwrfits, drainefiles, outfile
 
