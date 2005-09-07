@@ -25,8 +25,13 @@
 ;   model - model spectrum
 ;   cmodel - model of continuum (no lines, and with large scale
 ;            differences median smoothed out with 200 Angstrom box)
-;   mass, age, metallicity - properties of template fit;
-;                            mass is in units of solar masses; age is in yrs
+;   mass, metallicity - properties of template fit;
+;                       mass is in units of solar masses and is the
+;                       currently remaining stellar mass
+;   b300 - star-formation within last 300Myrs relative to average
+;          star-formation rate
+;   b1000 - star-formation within last 1Gyrs relative to average
+;           star-formation rate
 ; EXAMPLE:
 ;  To get a believable galaxy continuum, use the following, and it
 ;  will return the galaxy flux in "flux", the weighting in "ivar", and
@@ -42,7 +47,7 @@
 pro fit_sdss_fiber, in_plate, in_fiberid, mjd=in_mjd, slist=slist, $
                     model=model, coeffs=coeffs, vname=vname, $
                     usevdisp=usevdisp, flux=flux, ivar=ivar, loglam=loglam, $
-                    cmodel=cmodel, age=age, mass=mass, b300=b300, $
+                    cmodel=cmodel, mass=mass, b300=b300, b1000=b1000, $
                     metallicity=metallicity, nolines=nolines, plot=plot, $
                     omega0=omega0, omegal0=omegal0, range=range, $
                     vdisp=in_vdisp
@@ -81,7 +86,7 @@ endif
 if(keyword_set(usevdisp)) then vdisp=zans.vdisp
 k_fit_spec, flux, ivar, coeffs, vname=vname, vdisp=vdisp, $
   templates=templates
-k_reconstruct_spec, coeffs, loglam, vname=vname, age=age, $
+k_reconstruct_spec, coeffs, loglam, vname=vname, $
   metallicity=metallicity, mass=mass, b300=b300, nolines=nolines
 if(arg_present(mass)) then $
   mass=mass*10.^(0.4*lf_distmod(zans.z, omega0=omega0, omegal0=omegal0))
