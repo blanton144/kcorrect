@@ -19,7 +19,7 @@ if(NOT file_test(savfile)) then begin
     igot=where(deep.zquality ge 3 and deep.zhelio gt 0.01 and  $
                deep.zhelio lt 2.) 
 
-    lowz=lowz_read(sample='drtwo14')
+    lowz=lowz_read(sample='dr4')
     ii=where(lowz.absmag[2] lt -16)
     lowz=lowz[ii]
     im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)

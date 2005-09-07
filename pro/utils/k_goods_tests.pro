@@ -25,7 +25,7 @@ if(NOT file_test(savfile)) then begin
     gphoto=gphoto[igot]
     goods_to_maggies, gphoto, goods_maggies, goods_ivar
 
-    lowz=lowz_read(sample='drtwo14')
+    lowz=lowz_read(sample='dr4')
     ii=where(lowz.absmag[2] lt -16)
     lowz=lowz[ii]
     im=hogg_mrdfits(vagc_name('object_sdss_imaging'),1, nrow=28800)
