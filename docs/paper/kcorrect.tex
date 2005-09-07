@@ -46,7 +46,7 @@ ultraviolet to the near infrared}
 
 \author{
 Michael R. Blanton\altaffilmark{\ref{NYU}} and 
-Samuel Roweis
+Sam Roweis
 %Tamas Budavari\altaffilmark{\ref{JHU}},
 %Andrew J. Connolly\altaffilmark{\ref{Pitt}},
 %J.~Brinkmann\altaffilmark{\ref{APO}},
@@ -894,7 +894,7 @@ the spectrum of Vega.
 A particularly common special case is when $R=Q$:
 \begin{equation}
 \label{eq:specialL}
-K_{QR} = -2.5\,\log_{10}\left[\frac{1}{[1+z]}\,
+K_R(z) = -2.5\,\log_{10}\left[\frac{1}{[1+z]}\,
   \frac{\displaystyle
   \int\mathrm{d}\lambdaobs\,\lambdaobs\,L_{\lambda}\!\left(\frac{\lambdaobs}{1+z}\right)\,R(\lambdaobs)\,}
        {\displaystyle
@@ -1047,7 +1047,8 @@ However, often one wants to just make quick and dirty comparisons,
 without going through the trouble of running any software. For these
 purposes, we provide Table \ref{lineareqs}, which provides the linear
 relationships among the same bandpasses as those listed in Table
-\ref{solarmagnitudes}. Note that Table \ref{lineareqs} refers to AB
+\ref{solarmagnitudes}. In fact, these relationships are usually good
+to 0.05 mag or better. Note that Table \ref{lineareqs} refers to AB
 magnitudes {\it throughout}; use Table \ref{solarmagnitudes} to get
 the relationships to Vega magnitudes.
 
@@ -1111,6 +1112,9 @@ and the University of Washington.
 
 \section{Format for templates}
 \label{format}
+
+We have fit several different sets of templates that we are releasing
+with the data. 
 
 \section{$K$-corrections to shifted bandpasses}
 \label{bandshift}
