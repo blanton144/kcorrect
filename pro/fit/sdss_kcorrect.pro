@@ -49,18 +49,25 @@
 ;   kcorrect - [5, ngals] K-corrections in ugriz satisfying
 ;                m = M + DM(z) + K(z)
 ;              based on the best fit sum of templates
-;   mtol - [5, ngals] mass-to-light ratios from model in each band
-;   mass - [ngals] total mass from model in each band
+;   mtol - [5, ngals] current stellar mass-to-light ratios from model
+;          in each band
+;   mass - [ngals] total current stellar mass from model 
+;   mets - [ngals] average metallicity in current stars 
+;   intsfh - [ngals] total integrated star formation history
 ;   absmag - [5, ngals] absolute magnitude (for missing data, substitutes
 ;            model fit). (evolution correction *not* applied)
 ;   amivar - [5, ngals] inverse variance of absolute magnitude (for
 ;            missing data = 0)
 ; OPTIONAL OUTPUTS:
-;   coeffs - [Nt, N] coefficients of fit
+;   coeffs - [Nt, ngals] coefficients of fit
 ;   chi2 - chi^2 of fit
-;   rmaggies - [5, N] reconstructed maggies from the fit (ugriz)
-;   omaggies, oivar - [5, N] maggies and inverse variances used for fit
+;   rmaggies - [5, ngals] reconstructed maggies from the fit (ugriz)
+;   omaggies, oivar - [5, ngals] maggies and inverse variances used for fit
 ;                           (after extinction, AB correction, etc)  (ugriz)
+;   b300 - [ngals] star-formation within last 300Myrs relative to average
+;          star-formation rate
+;   b1000 - [ngals] star-formation within last 1Gyrs relative to average
+;           star-formation rate
 ; COMMENTS:
 ;   This is a simple wrapper on kcorrect.pro which is almost always
 ;   just what you want. It keeps a version of rmatrix and zvals in
@@ -111,7 +118,7 @@ function sdss_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         oivar=oivar, vname=in_vname, mass=mass, mtol=mtol, $
                         absmag=absmag, amivar=amivar, omega0=omega0, $
                         omegal0=omegal0, lrg=lrg, mets=mets, b300=b300, $
-                        ages=ages, b1000=b1000
+                        b1000=b1000, intsfh=intsfh
 
 common com_sdss_kcorrect, rmatrix, zvals, band_shift, vname, ermatrix
 
@@ -179,7 +186,7 @@ kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, rmaggies=rmaggies, $
   vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
   omega0=omega0, omegal0=omegal0, chi2=chi2, mets=mets, b300=b300, $
-  ages=ages, ermatrix=ermatrix
+  ermatrix=ermatrix, intsfh=intsfh, b1000=b1000
 
 if(arg_present(omaggies)) then $
   omaggies=mgy

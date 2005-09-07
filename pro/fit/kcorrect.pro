@@ -78,6 +78,10 @@
 ;   zmin,zmax     - minimum and maximum redshifts for lookup table
 ;                   (default 0., 2.)
 ;   nz            - number of redshifts in lookup table (default 1000)
+;   b300          - star-formation within last 300Myrs relative to
+;                   average star-formation rate
+;   b1000         - star-formation within last 1Gyrs relative to
+;                   average star-formation rate
 ; COMMENTS:
 ;
 ;   For v4_0b templates and later, coefficients are in units of: 

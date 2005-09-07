@@ -44,12 +44,18 @@
 ; OUTPUTS:
 ;   kcorrect - [5, N] K-corrections from ugriz to UBVRI; e.g.:
 ;                   M_U = m_u - DM(z) - K_{uU}(z)
-;   mtol - [5, N] mass-to-light ratios from model in each band
-;   mass - [N] total mass from model in each band
+;   mtol - [5, N] current stellar mass-to-light ratios from model in each band
+;   mass - [N] total current stellar mass from model 
+;   intsfh - [N] total integrated star formation history
+;   mets - [ngals] average metallicity in current stars 
 ;   absmag - [5, N] absolute magnitude (for missing data, substitutes
 ;            model fit) in UBVRI
 ;   amivar - [5, N] inverse variance of absolute magnitude (for
 ;            missing data = 0) in UBVRI
+;   b300 - [N] star-formation within last 300Myrs relative to average
+;          star-formation rate
+;   b1000 - [N] star-formation within last 1Gyrs relative to average
+;           star-formation rate
 ; OPTIONAL OUTPUTS:
 ;   coeffs - coefficients of fit
 ;   chi2 - chi^2 of fit
@@ -68,11 +74,16 @@
 ;   AB, Galactic extinction corrected maggies. Passes optional
 ;   argument "flux" to sdss_to_maggies.
 ;
-;   For v4_0b templates and later, coefficients are in units of:
-;     1 solar mass / (D/10pc)^2
+;
+;   For v4_0b templates and later, coefficients are in units of: 
+; 
+;     1 solar mass / (D/10pc)^2 
+;
 ;   That is, sum the coefficients and multiply by (D/10pc)^2 to get
-;   masses. (In fact, for Omega0=0.3 and OmegaL0=0.7, this is what the
-;   "mass" keyword returns).
+;   TOTAL INTEGRATED STAR FORMATION. (In fact, for Omega0=0.3 and
+;   OmegaL0=0.7, this is what the "mass" keyword returns). Note that
+;   the total integrated star formation DIFFERS from the current
+;   stellar mass --- which is returned in the mass and mtol variables.
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-
@@ -83,7 +94,8 @@ function sdss2bessell, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                        omaggies=omaggies, oivar=oivar, vname=in_vname, $
                        mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
                        band_shift=in_band_shift, vega=vega, omega0=omega0, $
-                       omegal0=omegal0, b300=b300, b1000=b1000, intsfh=intsfh
+                       omegal0=omegal0, b300=b300, b1000=b1000, mets=mets, $
+                       intsfh=intsfh
 
 common com_sdss2bessell, rmatrix, zvals, band_shift
 
