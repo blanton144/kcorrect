@@ -34,7 +34,7 @@
 ;              based on the best fit sum of templates. All magnitudes
 ;              are AB.
 ;   mtol - [3, N] mass-to-light ratios from model in each output band
-;   mass - [N] total mass from model in each band
+;   mass - [N] total current stellar mass from model in each band
 ;   absmag - [3, N] absolute magnitude (for missing data, substitutes
 ;            model fit) in each output band
 ;   amivar - [3, N] inverse variance of absolute magnitude (for
@@ -59,11 +59,15 @@
 ;   Uses deep_to_maggies to convert zcat structure to Galactic
 ;   extinction corrected maggies with errors.
 ;
-;   For v4_0b templates and later, coefficients are in units of:
-;     1 solar mass / (D/10pc)^2
+;   For v4_0b templates and later, coefficients are in units of: 
+; 
+;     1 solar mass / (D/10pc)^2 
+;
 ;   That is, sum the coefficients and multiply by (D/10pc)^2 to get
-;   masses. (In fact, for Omega0=0.3 and OmegaL0=0.7, this is what the
-;   "mass" keyword returns).
+;   TOTAL INTEGRATED STAR FORMATION. (In fact, for Omega0=0.3 and
+;   OmegaL0=0.7, this is what the "mass" keyword returns). Note that
+;   the total integrated star formation DIFFERS from the current
+;   stellar mass --- which is returned in the mass and mtol variables.
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-

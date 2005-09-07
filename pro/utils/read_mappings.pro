@@ -4,7 +4,7 @@
 ; PURPOSE:
 ;   Read a MAPPINGS III file
 ; CALLING SEQUENCE:
-;   model= read_mappings(filename [, /vac] )
+;   model= read_mappings(filename [, /vac, /nolya] )
 ; INPUTS:
 ;   filename - name of file
 ;   /vac - convert to vacuum wavelengths

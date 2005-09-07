@@ -64,7 +64,7 @@
 ;                m = M + DM(z) + K(z)
 ;              based on the best fit sum of templates
 ;   mtol - [5, ngals] mass-to-light ratios from model in each band
-;   mass - [ngals] total mass from model in each band
+;   mass - [ngals] total current stellar mass from model in each band
 ;   absmag - [5, ngals] absolute magnitude (for missing data, substitutes
 ;            model fit)
 ;   amivar - [5, ngals] inverse variance of absolute magnitude (for
@@ -95,11 +95,15 @@
 ;   galex.  If nmgy or mag, make sure they are Galactic extinction
 ;   corrected and AB calibrated.
 ;
-;   For v4_0b templates and later, coefficients are in units of:
-;     1 solar mass / (D/10pc)^2
+;   For v4_0b templates and later, coefficients are in units of: 
+; 
+;     1 solar mass / (D/10pc)^2 
+;
 ;   That is, sum the coefficients and multiply by (D/10pc)^2 to get
-;   masses. (In fact, for Omega0=0.3 and OmegaL0=0.7, this is what the
-;   "mass" keyword returns).
+;   TOTAL INTEGRATED STAR FORMATION. (In fact, for Omega0=0.3 and
+;   OmegaL0=0.7, this is what the "mass" keyword returns). Note that
+;   the total integrated star formation DIFFERS from the current
+;   stellar mass --- which is returned in the mass and mtol variables.
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-

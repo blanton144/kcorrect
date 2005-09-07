@@ -84,13 +84,18 @@
 ;   extinction corrected.
 ;
 ;   Uses goods_to_maggies to convert goods structure to Galactic
-;   extinction corrected maggies with errors.
+;   extinction corrected maggies with errors. This ignores the H band,
+;   which we think is crap.
 ;
-;   For v4_0b templates and later, coefficients are in units of:
-;     1 solar mass / (D/10pc)^2
+;   For v4_0b templates and later, coefficients are in units of: 
+; 
+;     1 solar mass / (D/10pc)^2 
+;
 ;   That is, sum the coefficients and multiply by (D/10pc)^2 to get
-;   masses. (In fact, for Omega0=0.3 and OmegaL0=0.7, this is what the
-;   "mass" keyword returns).
+;   TOTAL INTEGRATED STAR FORMATION. (In fact, for Omega0=0.3 and
+;   OmegaL0=0.7, this is what the "mass" keyword returns). Note that
+;   the total integrated star formation DIFFERS from the current
+;   stellar mass --- which is returned in the mass and mtol variables.
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-

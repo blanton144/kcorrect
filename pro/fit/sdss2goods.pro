@@ -37,7 +37,7 @@
 ;   vname - name of fit to use (defaults to 'default')
 ; OUTPUTS:
 ;   mag - [7, N] apparent magnitudes in BVizJHK (AB)
-;   mass - [N] total mass from model in each band
+;   mass - [N] total current stellar mass from model in each band
 ; OPTIONAL OUTPUTS:
 ;   coeffs - coefficients of fit
 ;   chi2 - chi^2 of fit
@@ -56,11 +56,15 @@
 ;   AB, Galactic extinction corrected maggies. Passes optional
 ;   argument "flux" to sdss_to_maggies.
 ;
-;   For v4_0b templates and later, coefficients are in units of:
-;     1 solar mass / (D/10pc)^2
+;   For v4_0b templates and later, coefficients are in units of: 
+; 
+;     1 solar mass / (D/10pc)^2 
+;
 ;   That is, sum the coefficients and multiply by (D/10pc)^2 to get
-;   masses. (In fact, for Omega0=0.3 and OmegaL0=0.7, this is what the
-;   "mass" keyword returns).
+;   TOTAL INTEGRATED STAR FORMATION. (In fact, for Omega0=0.3 and
+;   OmegaL0=0.7, this is what the "mass" keyword returns). Note that
+;   the total integrated star formation DIFFERS from the current
+;   stellar mass --- which is returned in the mass and mtol variables.
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-
