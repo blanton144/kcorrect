@@ -11,6 +11,59 @@
 ;------------------------------------------------------------------------------
 pro paper_plots
 
+plates=[518, 1371, 1000, 1739, $
+        884, 1401, 826, 528]
+fibers=[129, 369, 482, 356, $
+        116, 268, 148, 292]
+
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/specfit.ps', $
+  xold=xold, yold=yold, pold=pold, axis_char_scale=axis_char_scale
+!P.MULTI=[8,2,4]
+!X.MARGIN=0.
+!Y.MARGIN=0.
+for i=0L, n_elements(plates)-1L do begin
+    xcharsize=0.0001
+    ycharsize=0.0001
+    if(i ge n_elements(plates)-2L) then xcharsize=1.5*axis_char_scale
+    if((i mod 2) eq 0) then ycharsize=1.5*axis_char_scale
+    readspec, plates[i], fibers[i], flux=flux, wave=wave, zans=zans
+    alam=ext_ccm(wave)
+    glactc, zans.plug_ra, zans.plug_dec, 2000., gl, gb, 1, /deg
+    ebv=dust_getval(gl, gb)
+    extvoebv=3.1
+    ext=ebv*alam*extvoebv
+    flux=flux*10.^(0.4*ext)
+    flux=flux*1.e-17
+    lambda=k_lambda_to_edges(wave)
+    tmp_maggies=k_project_filters(lambda, flux, filterlist=['sdss_g0.par', $
+                                                            'sdss_r0.par', $
+                                                            'sdss_i0.par'])
+    tmp_maggies=reform(tmp_maggies, n_elements(tmp_maggies))
+    nmgy=[0., tmp_maggies*1.e+9, 0.]
+    ivar=[0., 1./(0.05*tmp_maggies*1.e+9)^2, 0.]
+    k_load_vmatrix, vm, la
+    kc=sdss_kcorrect(zans.z, nmgy=nmgy, ivar=ivar, coeffs=coeffs)
+                     
+    mlambda=k_lambda_to_centers(la)
+    mflux=vm#coeffs
+    mlambda=mlambda*(1.+zans.z)
+    mflux=mflux/(1.+zans.z)
+    mflux=1.e+17*k_smooth(alog10(mlambda), mflux, 500.)
+    flux=1.e+17*k_smooth(alog10(lambda), flux, 500.)
+    fscale=max(flux)
+    flux=flux/fscale
+    mflux=mflux/fscale
+    iuse=lindgen(n_elements(lambda)/20L)*20L
+    djs_plot, lambda[iuse], flux[iuse], th=8, xra=[3500., 9600.], $
+      xtitle='\lambda (\AA)', $
+      ytitle='!8f(\lambda!8)!6', $
+      xcharsize=xcharsize, yra=max(flux)*[-0.05,1.15], ycharsize=ycharsize
+    djs_oplot, mlambda, mflux, th=4, color='red'
+endfor
+k_end_print
+
+stop
+
 k_linear_transforms
 
 filterlist=['bessell_U.par', $
@@ -85,8 +138,8 @@ hogg_scatterplot, umr, alog10(b1000), $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], $
   xtitle=textoidl('!8u-r!6'), $
   ytitle=textoidl('!6log_{10}(!8b_G!6)')
-djs_oplot, [0.7, 2.5], [0.7,2.5]*(-0.55)-0.05, th=5, color='dark grey'
-djs_xyouts, 1.4, -0.2, '!6log_{10}(!8b_G!6)!8 = -0.05-0.55(u-r)!6', $
+djs_oplot, [0.7, 2.5], [0.7,2.5]*(-0.55), th=5, color='dark grey'
+djs_xyouts, 1.4, -0.2, '!6log_{10}(!8b_G!6)!8 = -0.55(u-r)!6', $
   charsize=1.5
 k_end_print, pold=pold, xold=xold, yold=yold
 
@@ -231,56 +284,6 @@ djs_plot, cat.z, kc[2,*], psym=8, symsize=0.25, $
   yra=[min(kc[2,*])-0.2, max(kc[2,*])+0.2]
 k_end_print, pold=pold, xold=xold, yold=yold
 
-plates=[518, 1371, 1000, 1739, $
-        884, 1401, 826, 528]
-fibers=[129, 369, 482, 356, $
-        116, 268, 148, 292]
-
-k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/specfit.ps', $
-  xold=xold, yold=yold, pold=pold, axis_char_scale=axis_char_scale
-!P.MULTI=[8,2,4]
-!X.MARGIN=0.
-!Y.MARGIN=0.
-for i=0L, n_elements(plates)-1L do begin
-    xcharsize=0.0001
-    ycharsize=0.0001
-    if(i ge n_elements(plates)-2L) then xcharsize=1.5*axis_char_scale
-    if((i mod 2) eq 0) then ycharsize=1.5*axis_char_scale
-    readspec, plates[i], fibers[i], flux=flux, wave=wave, zans=zans
-    alam=ext_ccm(wave)
-    glactc, zans.plug_ra, zans.plug_dec, 2000., gl, gb, 1, /deg
-    ebv=dust_getval(gl, gb)
-    extvoebv=3.1
-    ext=ebv*alam*extvoebv
-    flux=flux*10.^(0.4*ext)
-    flux=flux*1.e-17
-    lambda=k_lambda_to_edges(wave)
-    tmp_maggies=k_project_filters(lambda, flux, filterlist=['sdss_g0.par', $
-                                                            'sdss_r0.par', $
-                                                            'sdss_i0.par'])
-    tmp_maggies=reform(tmp_maggies, n_elements(tmp_maggies))
-    nmgy=[0., tmp_maggies*1.e+9, 0.]
-    ivar=[0., 1./(0.05*tmp_maggies*1.e+9)^2, 0.]
-    k_load_vmatrix, vm, la
-    kc=sdss_kcorrect(zans.z, nmgy=nmgy, ivar=ivar, coeffs=coeffs)
-                     
-    mlambda=k_lambda_to_centers(la)
-    mflux=vm#coeffs
-    mlambda=mlambda*(1.+zans.z)
-    mflux=mflux/(1.+zans.z)
-    mflux=1.e+17*k_smooth(alog10(mlambda), mflux, 500.)
-    flux=1.e+17*k_smooth(alog10(lambda), flux, 500.)
-    fscale=max(flux)
-    flux=flux/fscale
-    mflux=mflux/fscale
-    iuse=lindgen(n_elements(lambda)/20L)*20L
-    djs_plot, lambda[iuse], flux[iuse], th=8, xra=[3500., 9600.], $
-      xtitle='\lambda (\AA)', $
-      ytitle='!8f(\lambda!8)!6', $
-      xcharsize=xcharsize, yra=max(flux)*[-0.05,1.15], ycharsize=ycharsize
-    djs_oplot, mlambda, mflux, th=4, color='red'
-endfor
-k_end_print
                  
 twomassfile=getenv('KCORRECT_DIR')+'/data/test/twomass_tests.fits'
 cat=mrdfits(twomassfile,1)

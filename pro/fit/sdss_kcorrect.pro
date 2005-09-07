@@ -186,7 +186,7 @@ kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, rmaggies=rmaggies, $
   vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
   omega0=omega0, omegal0=omegal0, chi2=chi2, mets=mets, b300=b300, $
-  ermatrix=ermatrix, intsfh=intsfh, b1000=b1000
+  intsfh=intsfh, b1000=b1000
 
 if(arg_present(omaggies)) then $
   omaggies=mgy
