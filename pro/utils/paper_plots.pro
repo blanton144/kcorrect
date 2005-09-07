@@ -11,33 +11,132 @@
 ;------------------------------------------------------------------------------
 pro paper_plots
 
-sample='drtwo14'
+k_linear_transforms
 
-sdssfile=getenv('LSS_REDUX')+'/'+sample+'/safe/1/post_catalog.'+sample+ $
-  'safe1.fits'
+filterlist=['bessell_U.par', $
+            'bessell_B.par', $
+            'bessell_V.par', $
+            'bessell_R.par', $
+            'bessell_I.par', $
+            'sdss_u0.par', $
+            'sdss_g0.par', $
+            'sdss_r0.par', $
+            'sdss_i0.par', $
+            'sdss_z0.par', $
+            'twomass_J.par', $
+            'twomass_H.par', $
+            'twomass_Ks.par']
+mags=k_solar_magnitudes(filterlist=filterlist)
+lambdaeff=k_lambda_eff(filterlist=filterlist)
+vega2ab=k_vega2ab(filterlist=filterlist, /kurucz)
+mags01=k_solar_magnitudes(filterlist=filterlist, band_shift=0.1)
+lambdaeff01=k_lambda_eff(filterlist=filterlist, band_shift=0.1)
+vega2ab01=k_vega2ab(filterlist=filterlist, /kurucz, band_shift=0.1)
+
+outv2ab=[vega2ab, vega2ab01[5:9]]
+outmags=[mags, mags01[5:9]]
+outleff=[lambdaeff, lambdaeff01[5:9]]
+outmagsvega=outmags-[vega2ab, vega2ab01[5:9]]
+names=['$U$', $
+       '$B$', $
+       '$V$', $
+       '$R$', $
+       '$I$', $
+       '$u$', $
+       '$g$', $
+       '$r$', $
+       '$i$', $
+       '$z$', $
+       '$J$', $
+       '$H$', $
+       '$K_s$', $
+       '\band{0.1}{u}', $
+       '\band{0.1}{g}', $
+       '\band{0.1}{r}', $
+       '\band{0.1}{i}', $
+       '\band{0.1}{z}']
+
+openw, unit, getenv('KCORRECT_DIR')+'/docs/paper/solarmagnitudes.tex', /get_lun
+for i=0L, n_elements(outmags)-1L do $
+  printf, unit, names[i]+' & '+ $
+  strtrim(string(f='(f40.0)', outleff[i]),2)+' & '+ $
+  strtrim(string(f='(f40.2)', outv2ab[i]),2)+' & '+ $
+  strtrim(string(f='(f40.2)', outmags[i]),2)+' & '+ $
+  strtrim(string(f='(f40.2)', outmagsvega[i]),2)+'\cr'
+free_lun,unit
+
+sample='dr4'
+
+sdssfile=getenv('LSS_REDUX')+'/'+sample+'/bsafe/1/post_catalog.'+sample+ $
+  'bsafe1.fits'
+post=mrdfits(sdssfile,1)
+post=post[where(post.z lt 0.2)]
+post=post[shuffle_indx(n_elements(post), num_sub=30000)]
+cat=mrdfits(vagc_name('object_sdss_imaging'),1,row=post.object_position)
+kc=sdss_kcorrect(post.z, calibobj=cat, band_shift=0., absmag=absmag, $
+                 mtol=mtol, mass=mass, intsfh=intsfh, $
+                 b1000=b1000,b300=b300)
+umr=absmag[0,*]-absmag[2,*]
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/umr_bg.ps', $
+  pold=pold, xold=xold, yold=yold, axis_char_scale=1.8
+hogg_scatterplot, umr, alog10(b1000), $
+  xra=[0.5, 3.2], yra=[-2.5,0.1], /cond, $
+  xnpix=25, ynpix=25, exp=0.5, satfrac=0.001, $
+  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], $
+  xtitle=textoidl('!8u-r!6'), $
+  ytitle=textoidl('!6log_{10}(!8b_G!6)')
+djs_oplot, [0.7, 2.5], [0.7,2.5]*(-0.55)-0.05, th=5, color='dark grey'
+djs_xyouts, 1.4, -0.2, '!6log_{10}(!8b_G!6)!8 = -0.05-0.55(u-r)!6', $
+  charsize=1.5
+k_end_print, pold=pold, xold=xold, yold=yold
+
+garching=mrdfits(getenv('VAGC_REDUX')+'/garching/newmasses_dr4.fits',1)
+spherematch,post.ra, post.dec, garching.ra, garching.dec, 1./3600., $
+  m1,m2,d12
+kmass=mass[m1]
+kintsfh=intsfh[m1]
+gmass=garching[m2].smass+alog10(0.7^2)
+hogg_usersym, 10, /fill
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/mass_to_garching.ps', $
+  pold=pold, xold=xold, yold=yold, axis_char_scale=1.8
+!P.MULTI=[0,1,2]
+!Y.MARGIN=3.
+!Y.OMARGIN=0.
+hogg_scatterplot, alog10(kmass), gmass-alog10(kmass), $
+  xra=[8.05, 11.9], yra=[-0.5,0.5], /cond, $
+  xnpix=30, ynpix=30, exp=0.5, satfrac=0.001, $
+  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], $
+  xtitle=textoidl('!6log_{10}(!8M_*h^2!6)'), $
+  ytitle=textoidl('!6log_{10}(!8M_{!6*,s!8}/M_*!6)')
+hogg_scatterplot, absmag[1,m1]-absmag[2,m1], gmass-alog10(kmass), $
+  xra=[0.01, 1.09], yra=[-0.5,0.5], /cond, $
+  xnpix=30, ynpix=30, exp=0.5, satfrac=0.001, $
+  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], $
+  xtitle=textoidl('!8g-r!6'), $
+  ytitle=textoidl('!6log_{10}(!8M_{!6*,G!8}/M_*!6)')
+k_end_print, pold=pold, xold=xold, yold=yold
+
+
+sdssfile=getenv('LSS_REDUX')+'/'+sample+'/bsafe/1/post_catalog.'+sample+ $
+  'bsafe1.fits'
 post=mrdfits(sdssfile,1)
 post=post[where(post.z lt 0.2)]
 post=post[shuffle_indx(n_elements(post), num_sub=10000)]
 cat=mrdfits(vagc_name('object_sdss_imaging'),1,row=post.object_position)
-kc=sdss_kcorrect(post.z, calibobj=cat, band_shift=0., absmag=absmag, mtol=mtol)
-
-msolar=k_sdss_bell(absmag)
-lsolar=10.^(-0.4*(absmag[2,*]-k_solar_magnitudes(filterlist='sdss_r0.par')))
-mtol_bell=msolar/lsolar
-mtolmin=min(mtol_bell, imin)
-mtolmax=max(mtol_bell, imax)
-iminmax=[imin,imax]
+kc=sdss2bessell(post.z, calibobj=cat, band_shift=0., absmag=absmag, $
+                /vega, mtol=mtol)
 
 hogg_usersym, 10, /fill
 k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/mtol.ps', $
-  pold=pold, xold=xold, yold=yold, axis_char_scale=2.4
-hogg_scatterplot, absmag[1,*]-absmag[2,*], alog10(mtol[2,*]), $
-  ytitle=textoidl('!6log_{10}(!8M/L!6)'), $
-  xtitle='!8g-r!6', exp=0.5, satfrac=0.001, $
-  xra=[0.01,0.99], yra=[-0.1, 1.1]
-djs_oplot, [-2., 2.], 1.65*([-2.,2.])-0.54, color='red', th=5
+  pold=pold, xold=xold, yold=yold, axis_char_scale=1.8
+djs_plot,[0],[0],/nodata, $
+  ytitle=textoidl('!6log_{10}(!8M/L_V!6)'), $
+  xtitle='!8B-V!6', exp=0.5, satfrac=0.001, $
+  xra=[0.11,1.09], yra=[-0.4, 0.5]
+bmv=absmag[1,*]-absmag[2,*]
+djs_oplot, bmv, alog10(mtol[2,*]), psym=8, symsize=0.25
+djs_oplot, [-2., 2.], 1.40*([-2.,2.])-0.73, color='red', th=5
 k_end_print, pold=pold, xold=xold, yold=yold
-stop
 
 sdssfile=getenv('LSS_REDUX')+'/'+sample+'/safe/1/post_catalog.'+sample+ $
   'safe1.fits'
@@ -93,8 +192,6 @@ djs_plot, post.z, kc[4,*], psym=8, symsize=0.25, $
   yra=[min(kc[4,*])-0.08, max(kc[4,*])+0.08]
 k_end_print, pold=pold, xold=xold, yold=yold
 
-stop
-
 galexfile=getenv('KCORRECT_DIR')+'/data/test/galex_tests.fits'
 cat=mrdfits(galexfile,1)
 cat=cat[shuffle_indx(n_elements(cat), num_sub=2000)]
@@ -112,8 +209,6 @@ djs_plot, cat.z, kc[1,*], psym=8, symsize=0.25, $
   ytitle='!8K_N(z)!6', xtitle='!6 redshift !8z!6', $
   yra=[min(kc[1,*])-0.2, max(kc[1,*])+0.2]
 k_end_print, pold=pold, xold=xold, yold=yold
-
-stop
 
 twomassfile=getenv('KCORRECT_DIR')+'/data/test/twomass_tests.fits'
 cat=mrdfits(twomassfile,1)
@@ -136,8 +231,57 @@ djs_plot, cat.z, kc[2,*], psym=8, symsize=0.25, $
   yra=[min(kc[2,*])-0.2, max(kc[2,*])+0.2]
 k_end_print, pold=pold, xold=xold, yold=yold
 
-stop
+plates=[518, 1371, 1000, 1739, $
+        884, 1401, 826, 528]
+fibers=[129, 369, 482, 356, $
+        116, 268, 148, 292]
 
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/specfit.ps', $
+  xold=xold, yold=yold, pold=pold, axis_char_scale=axis_char_scale
+!P.MULTI=[8,2,4]
+!X.MARGIN=0.
+!Y.MARGIN=0.
+for i=0L, n_elements(plates)-1L do begin
+    xcharsize=0.0001
+    ycharsize=0.0001
+    if(i ge n_elements(plates)-2L) then xcharsize=1.5*axis_char_scale
+    if((i mod 2) eq 0) then ycharsize=1.5*axis_char_scale
+    readspec, plates[i], fibers[i], flux=flux, wave=wave, zans=zans
+    alam=ext_ccm(wave)
+    glactc, zans.plug_ra, zans.plug_dec, 2000., gl, gb, 1, /deg
+    ebv=dust_getval(gl, gb)
+    extvoebv=3.1
+    ext=ebv*alam*extvoebv
+    flux=flux*10.^(0.4*ext)
+    flux=flux*1.e-17
+    lambda=k_lambda_to_edges(wave)
+    tmp_maggies=k_project_filters(lambda, flux, filterlist=['sdss_g0.par', $
+                                                            'sdss_r0.par', $
+                                                            'sdss_i0.par'])
+    tmp_maggies=reform(tmp_maggies, n_elements(tmp_maggies))
+    nmgy=[0., tmp_maggies*1.e+9, 0.]
+    ivar=[0., 1./(0.05*tmp_maggies*1.e+9)^2, 0.]
+    k_load_vmatrix, vm, la
+    kc=sdss_kcorrect(zans.z, nmgy=nmgy, ivar=ivar, coeffs=coeffs)
+                     
+    mlambda=k_lambda_to_centers(la)
+    mflux=vm#coeffs
+    mlambda=mlambda*(1.+zans.z)
+    mflux=mflux/(1.+zans.z)
+    mflux=1.e+17*k_smooth(alog10(mlambda), mflux, 500.)
+    flux=1.e+17*k_smooth(alog10(lambda), flux, 500.)
+    fscale=max(flux)
+    flux=flux/fscale
+    mflux=mflux/fscale
+    iuse=lindgen(n_elements(lambda)/20L)*20L
+    djs_plot, lambda[iuse], flux[iuse], th=8, xra=[3500., 9600.], $
+      xtitle='\lambda (\AA)', $
+      ytitle='!8f(\lambda!8)!6', $
+      xcharsize=xcharsize, yra=max(flux)*[-0.05,1.15], ycharsize=ycharsize
+    djs_oplot, mlambda, mflux, th=4, color='red'
+endfor
+k_end_print
+                 
 twomassfile=getenv('KCORRECT_DIR')+'/data/test/twomass_tests.fits'
 cat=mrdfits(twomassfile,1)
 kc1=twomass_kcorrect(cat.z, calibobj=cat, band_shift=0.1, rmaggies=rmaggies1)
@@ -249,8 +393,6 @@ for i=0, 6 do begin
 endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
-
-stop
 
 galexfile=getenv('KCORRECT_DIR')+'/data/test/galex_tests.fits'
 cat=mrdfits(galexfile,1)
@@ -364,8 +506,6 @@ endfor
 
 k_end_print, pold=pold, xold=xold, yold=yold
 
-stop
-
 gstfile=getenv('KCORRECT_DIR')+'/data/test/gst_tests.fits'
 cat=mrdfits(gstfile, 1)
 kc=gst_kcorrect(cat.z, calibobj=cat, twomass=cat, galex=cat, $
@@ -420,8 +560,6 @@ for i=0L, 8L do begin
 endfor
 k_end_print, xold=xold, yold=yold, pold=pold
 
-stop
-
 plates=[518, 1371, 1000, 1739, $
         884, 1401, 826, 528]
 fibers=[129, 369, 482, 356, $
@@ -472,8 +610,6 @@ for i=0L, n_elements(plates)-1L do begin
 endfor
 k_end_print
                  
-stop
-
 gphoto=rsex(getenv('KCORRECT_DIR')+ $
             '/data/redshifts/goods/mb_cdfs_isaac_ks_photz_c1.1_d3.0k.cat')
 gz=rsex(getenv('KCORRECT_DIR')+ $
@@ -581,8 +717,6 @@ for i=0L, 5L do begin
     djs_oplot,[-1.,10.], -[1.,1.]*typerr, color='red', th=6, linest=2
 endfor
 k_end_print, xold=xold, yold=yold, pold=pold
-
-stop
 
 cat=mrdfits(getenv('KCORRECT_DIR')+'/data/test/sdss_tests_lrg.fits',1)
 kc=sdss_kcorrect(cat.z, calibobj=cat, band_shift=0.3, rmaggies=rmaggies, $
