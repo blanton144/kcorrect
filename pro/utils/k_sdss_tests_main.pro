@@ -92,8 +92,8 @@ k_print, filename='sdss_mtol_main_bcomp.ps', pold=pold, xold=xold, yold=yold, $
 hogg_usersym, 10, /fill
 djs_plot, absmag[1,*]-absmag[3,*], alog10(mtol[3,*]), psym=8, symsize=0.1, $
   xra=[0.01,1.79],yra=[-0.59, 0.89], xtitle='!8B-R!6', ytitle='(M/L)(R)'
+djs_oplot, [0.4,1.6], -1.22+1.25*[0.4,1.6], th=4, color='red'
 djs_oplot, [0.4,1.6], -0.82+0.85*[0.4,1.6], th=4, color='red'
-djs_oplot, [0.4,1.6], 0.4-0.82+0.85*[0.4,1.6], th=4, color='red'
 k_end_print, pold=pold, xold=xold, yold=yold
 
 kc=sdss_kcorrect(cat.z, calibobj=cat, band_shift=0.1, rmaggies=rmaggies, $
