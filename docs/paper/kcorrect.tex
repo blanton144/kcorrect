@@ -397,13 +397,13 @@ results: the best-fit templates and how well they fit the data.
 
 From the spectroscopic observations we know that galaxy spectra reside
 in a low-dimensional locus. Principal Component Analysis (PCA) of
-galaxy spectra, introduced by \citet{connolly94a} and applied many
-times since then ({\bf more refs}; \citealt{yip05a}), demonstrates
-that most of the variance in the distribution of galaxies in spectral
-space can be explained using a few templates. This means that, in the
-linear space of all possible spectra, galaxies exist in only a small
-locus. Therefore, even with very heterogeneous data, we should be able
-to determine the properties of this locus.
+galaxy spectra, introduced by \citet{connolly95b} and applied many
+times since then, demonstrates that most of the variance in the
+distribution of galaxies in spectral space can be explained using a
+few templates. This means that, in the linear space of all possible
+spectra, galaxies exist in only a small locus. Therefore, even with
+very heterogeneous data, we should be able to determine the properties
+of this locus.
 
 Here we present an approach to combining the heterogeneous data
 described above in order to determine the properties of the locus of
@@ -441,6 +441,7 @@ the form needed for the purposes of NMF. In Appendix \ref{nmf} we describe
 how to solve to NMF problem.
 
 \subsection{The models}
+\label{models}
 
 We begin with a basis set of 485 spectral templates. Of these, 450 are
 a set of instantaneous bursts from \citet{bruzual03a}. There are 6
@@ -519,7 +520,7 @@ classifies the reduced spectra (Schlegel et al., in preparation).
 
 Note that there are 20 different broadband photometric filters listed
 above ($B$ in DEEP2 is different than the $B$ used by GOODS). The {\tt
-kcorrect} product described in Section \ref{code} contains a
+kcorrect} product described in Section \ref{summary} contains a
 tabulation of the response functions for all of these filters.
 
 \subsection{Comparing data and models}
@@ -709,7 +710,7 @@ forming stars as a function of time.
 
 Figure \ref{lrg_colors} shows the LRG colors as a function of
 redshift, with the best fit template color overplotted as the smooth,
-thick line. In the code described in Section \ref{code}, we used the
+thick line. In the code described in Section \ref{summary}, we used the
 routine {\tt sdss\_kcorrect} (with the optional flag {\tt /lrg}) to
 perform these fits. The best fit is a good fit to the data.
 
@@ -757,7 +758,7 @@ residuals as (for example):
 \Delta [u-g] = [u_{\mathrm{obs}}- g_{\mathrm{obs}}] -
 [u_{\mathrm{model}}- g_{\mathrm{model}}] .
 \end{equation}
-In the code described in Section \ref{code}, we used the routine {\tt
+In the code described in Section \ref{summary}, we used the routine {\tt
 gst\_kcorrect} to perform these fits.  In Figure \ref{fullfits} the
 thick dashed lines show the estimated 1$\sigma$ uncertainties in the
 colors from the photometric catalogs. Relative to the uncertainties,
@@ -964,7 +965,7 @@ $M_\ast$, as a function of $M_\ast$ and of intrinsic $g-r$ color. The
 two sets of masses are very similar to each other, with a scatter of
 only 0.1 dex and trends of less than 0.2 dex with stellar mass. As we
 did, \citet{kauffmann03a} used the library of \citet{bruzual03a} with
-the \citet{chabrier03} initial mass function, which makes some of this
+the \citet{chabrier03a} initial mass function, which makes some of this
 agreement unsurprising.  To be explicit, the masses in Figure
 \ref{mass_to_garching} correspond to the current mass in stars
 remaining in the galaxy. This mass can differ from the total
@@ -978,9 +979,9 @@ galaxies in the $V$ band as a function of color in $B-V$. Here, we
 have calculated the $B$ and $V$ band fluxes based on the template fits
 to each galaxy, as explained in Section \ref{sdss2bessell} below. We
 give the mass-to-light ratio in solar units. The solid line is the
-relationship that \citet{bell01a} give based on their fits to spiral
+relationship that \citet{bell01b} give based on their fits to spiral
 galaxies. For blue galaxies ($B-V < 0.8$) this line is indeed a good
-fit to our results. For the typical red galaxy, the \citet{bell01a}
+fit to our results. For the typical red galaxy, the \citet{bell01b}
 relation predicts a larger stellar mass than we do. 
 
 Finally, we can also calculate measures of the recent star-formation
@@ -998,10 +999,10 @@ star-formation history (unlike the stellar masses referred to above)
 as is standard for the $b$ parameter (\citealt{kennicutt98a}). Figure
 \ref{umr_bg} shows the relationship between the rest-frame $u-r$ color
 for SDSS galaxies and $b_G$. For galaxies with $u-r < 2.5$ (redder
-than which galaxies are mostly reddened, edge-on disks) these two
+than which galaxies are mostly reddened, edge-on disks) these two 
 parameters follow a simple relationship:
 \begin{equation}
-\log_{10} b_g = -0.55 (u-r) - 0.25.
+\log_{10} b_g = -0.55 (u-r). 
 \end{equation}
 
 \section{Linear relationships between common magnitude systems}
@@ -1052,17 +1053,52 @@ to 0.05 mag or better. Note that Table \ref{lineareqs} refers to AB
 magnitudes {\it throughout}; use Table \ref{solarmagnitudes} to get
 the relationships to Vega magnitudes.
 
-\section{Public access to the code}
-\label{code}
-
-The code is 
-
 \section{Summary}
-\label{conclusions}
+\label{summary}
 
-[ summarize ]
+We have here described a method for fitting templates to
+nearly-arbitrary sets of spectra and broad-band fluxes. The basic
+concept is that we can recover a small set of templates (based on
+models), nonnegative linear combinations of which can explain a much
+larger set of inhomogeneous observations.  We have applied this method
+to SDSS, GALEX, 2MASS, DEEP2, and GOODS data to come up with a set of
+templates which are effective for describing all of these data sets.
 
-[ this does not describe what constraints photometry puts on the SFH ]
+Nonnegative matrix factorization (NMF) is an effective way to reduce
+the dimensionality of any large data set, and has that in common with
+PCA.  It is, in some sense, a ``nonnegative PCA.''  However, at least
+in the current context the method has several advantages over
+PCA. First, it has a natural physical interpretation associated with
+that spectral subspace, which is the corresponding subspace of all
+possible star-formation histories. Second, it naturally handles data
+uncertainties and missing data, which allows it to ignore that
+variation which is due purely to statistical errors.  Third, it
+handles the complications of observing galaxy spectra photometrically
+using broad-band filters. 
+
+We note here that the general NMF method does not {\tt depend} on
+using a model --- our ``model'' could just have been a set of top hat
+functions or Gaussians on a wavelength grid. In some situations, such
+as datasets for which there are not well-developed theoretical models,
+this approach could be more appropriate.
+
+We have released our results in the form of a templates and a code
+base called {\tt kcorrect} which fits those templates to many types of
+data (SDSS photometric and spectroscopic data, GALEX data, GOODS data,
+DEEP2 data, and 2MASS data). Furthermore, this code returns
+$K$-corrections and a physical interpretation of the photometry. All
+of the plots in this paper were created using code in the
+repository. The code is available from a web page maintained by one of
+the authors\footnote{{\tt
+http://cosmo.nyu.edu/blanton/kcorrect}}. This web page is kept updated
+on improvements in the code and new developments. It consists of a
+{\tt C} language library, stand-alone {\tt C} programs, and IDL
+language wrappers around the {\tt C} library. Thus, one can use the
+basic templates and fitting code using only a machine with a {\tt C}
+compiler. However, there is significant functionality which is
+programmed in the (unfortunately, proprietary) IDL language. These
+routines depend on the {\tt idlutils} library\footnote{{\tt
+http://skymaps.info}}.
 
 \acknowledgments
 
@@ -1113,11 +1149,71 @@ and the University of Washington.
 \section{Format for templates}
 \label{format}
 
-We have fit several different sets of templates that we are releasing
-with the data. 
+We have fit several different sets of templates that we release
+with the code, which we denote:
+\begin{enumerate}
+\item {\tt default}, the default set of five templates, 
+\item {\tt lrg1}, the single template fit to LRGs, and 
+\item {\tt goods}, the five template fit to just the GOODS data.
+\end{enumerate}
+The information about the default set of templates is contained in the
+file {\tt data/templates/k\_nmf\_derived.default.fits} in the {\tt
+kcorrect} project.  This file has 25 Header and Data Units (HDUs),
+each listed in Table \ref{derived} and described in more detail in the
+paragraphs below.  There are similar files for the {\tt lrg1} and {\tt
+goods} template sets.
 
-\section{$K$-corrections to shifted bandpasses}
-\label{bandshift}
+As described in Section \ref{models}, there are $N_{\mathrm{basis}} =
+485$ basis spectra, consisting of 450 different instantaneous burst
+stellar populations ($N_{\mathrm{age}} = 25$ ages, $N_{\mathrm{mets}}
+= 6$ metallicities, and $N_{\mathrm{dust}}=3$ dust properties) plus 35
+different emission line models. The {\tt templates} HDU has the
+coefficients of the five templates in this basis space. 
+
+For each of the five templates, we have the template spectrum {\tt
+spec} in units of ergs s$^{-1}$ cm$^{-2}$ \AA$^{-1}$ per solar mass,
+as it would be observed at 10 pc distance. The wavelength grid is in
+the {\tt lambda} HDU. As noted above, the models are smoothed at 300
+km s$^{-1}$ resolution; the {\tt rawspec} HDUs have the original
+(unsmoothed) models from \citet{bruzual03a}. In addition, we give
+versions without the emission lines (with the {\tt \_nl} suffix) and
+without the dust extinction applied (with the {\tt \_nd} suffix). The
+actual emission-line-only spectra for each template are in the {\tt
+lspec} HDU. Finally, the multiplicative dust extinction factor for
+each template spectrum is given in the {\tt extinction} HDU.
+
+We include the star-formation rate as a function of time in the {\tt
+sfr} HDU (the age grid used is in the {\tt ages} HDU). The time
+differential used to quantify this rate is in the {\tt dage} HDU; to
+get the total number of stars formed at each age, multiply {\tt sfr}
+by {\tt dage}. The average metallicity of the stars formed as a
+function of time is in the {\tt metallicity} HDU.
+
+The total mass formed in each template (in solar masses) is in the
+{\tt mass} HDU --- this is actually just unity for each template. The
+total surviving stellar mass for each template is in the {\tt mremain}
+HDU. The metallicity in the surviving stars is given in the {\tt mets}
+HDU.  The total mass in stars formed in the last 300 Myrs is in the
+{\tt m300} HDU, and the total mass formed in the last 1 Gyr is in the
+{\tt m1000} HDU.
+
+The properties of the 450 stellar population basis vectors are given
+in the four HDU: {\tt basis\_ages}, {\tt basis\_mets}, {\tt
+basis\_dusts}, and {\tt basis\_mremain}. Respectively, these give the
+ages, metallicities, dust properties, and fraction of original stellar
+mass remaining for each instantaneous burst in the grid. The dust 
+properties are given in terms of a structure with four elements which
+refer to the properties in the multiple scattering model of \citet{witt00a}:
+\begin{enumerate}
+\item {\tt GEOMETRY}: the geometry of the dust (e.g. ``shell'') 
+\item {\tt DUST}: the dust extinction curve (e.g. ``MW'' for Milky
+	Way extinction and ``SMC'' for Small Magellanic Cloud type
+	extinction) 
+\item {\tt STRUCTURE}: structure of the dust distribution (``h'' for
+	homogeneous, ``c'' for clumpy)
+\item {\tt TAUV}: the amount of dust (the total optical depth in the
+	$V$ band)
+\end{enumerate}
 
 \newpage
 

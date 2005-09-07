@@ -22,3 +22,62 @@
 \enddata
 \tablecomments{Uses AB magnitudes throughout.}
 \end{deluxetable}
+
+\begin{deluxetable}{llcl}
+\tablewidth{0pt}
+\tablecolumns{4}
+\tablecaption{\label{derived} HDU of {\tt k\_nmf\_derived.default.fits}}
+\tablehead{ Number & Name & Dimensions & Description}
+\startdata
+0 & {\tt templates} & $N_{\mathrm{basis}} \times N_t$ & Coefficients
+in basis space for each template \cr
+1 & {\tt spec} & $N_{\mathrm{spec}} \times N_t$ & Smoothed spectrum of
+each template \cr
+2 & {\tt spec\_nl} & $N_{\mathrm{spec}} \times N_t$ & Smoothed spectrum of
+each template, lines removed \cr
+3 & {\tt spec\_nd} & $N_{\mathrm{spec}} \times N_t$ & Smoothed spectrum of
+each template, without dust \cr
+4 & {\tt spec\_nl\_nd} & $N_{\mathrm{spec}} \times N_t$ & Smoothed spectrum of
+each template, without lines or dust \cr
+5 & {\tt rawspec} & $N_{\mathrm{spec}} \times N_t$ & Unsmoothed spectrum of
+each template \cr
+6 & {\tt rawspec\_nl} & $N_{\mathrm{spec}} \times N_t$ & Unsmoothed spectrum of
+each template, lines removed \cr
+7 & {\tt rawspec\_nd} & $N_{\mathrm{spec}} \times N_t$ & Unsmoothed spectrum of
+each template, without dust \cr
+8 & {\tt rawspec\_nl\_nd} & $N_{\mathrm{spec}} \times N_t$ &
+Unsmoothed spectrum of each template, without lines or dust \cr
+9 & {\tt lspec} & $N_{\mathrm{spec}} \times N_t$ & emission line spectrum \cr
+10 & {\tt extinction} & $N_{\mathrm{spec}} \times N_t$ & extinction as
+a function of wavelength \cr
+11 & {\tt lambda} & $N_{\mathrm{spec}}$ & Wavelength grid (\AA) \cr
+12 & {\tt sfr} & $N_{\mathrm{age}} \times N_t$ & Star-formation rate
+($M_\odot$ per year) as a function of time \cr
+13 & {\tt metallicity} & $N_{\mathrm{age}} \times N_t$ & Average
+metallicity as a function of time \cr
+14 & {\tt ages} & $N_{\mathrm{age}}$ & Age grid (yrs) \cr
+15 & {\tt dage} & $N_{\mathrm{age}}$ & Age bin size (yrs);
+multiply {\tt sfr} for total star-formation in each bin \cr
+16 & {\tt mass} & $N_t$ & total mass formed in each template \cr
+17 & {\tt mremain} & $N_t$ & total current stellar mass in each template \cr
+18 & {\tt mets} & $N_t$ & average metallicity of current stars in each
+template \cr
+19 & {\tt m300} & $N_t$ & total stellar mass formed in last 300 Myrs in each template \cr
+20 & {\tt m1000} & $N_t$ & total stellar mass formed in last 1 Gyr in each template \cr
+21 & {\tt basis\_ages} &
+$N_{\mathrm{age}} \times N_{\mathrm{mets}} \times N_{\mathrm{dust}}$ &
+ages of each stellar population basis vector  \cr
+22 & {\tt basis\_mets} & 
+$N_{\mathrm{age}} \times N_{\mathrm{mets}} \times N_{\mathrm{dust}}$ &
+metallicity of each stellar population basis vector  \cr
+23 & {\tt basis\_dusts} & 
+$N_{\mathrm{age}} \times N_{\mathrm{mets}} \times N_{\mathrm{dust}}$ &
+dust properties of each stellar population basis vector \cr
+24 & {\tt basis\_mremain} & 
+$N_{\mathrm{age}} \times N_{\mathrm{mets}} \times N_{\mathrm{dust}}$ &
+fraction of original stellar mass surviving for age of each basis vector  \cr
+\enddata 
+\tablecomments{All quantities are in floating point (four byte)
+precision, except {\tt dusts} which is an array of structures, whose
+format is described in text.}
+\end{deluxetable}
