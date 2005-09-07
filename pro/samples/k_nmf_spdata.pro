@@ -87,7 +87,7 @@ sdss_photo_weight=[1.,1.,1.,1.,1.]
 lrg_spec_weight=0.003
 lrg_photo_weight=1.0
 deep_weight=1.0
-goods_weight=1.0
+goods_weight=4.0
 swire_weight=0.001
 twomass_weight=1.0
 
