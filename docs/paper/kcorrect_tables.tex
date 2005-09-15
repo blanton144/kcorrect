@@ -57,7 +57,7 @@ a function of wavelength \cr
 metallicity as a function of time \cr
 14 & {\tt ages} & $N_{\mathrm{age}}$ & Age grid (yrs) \cr
 15 & {\tt dage} & $N_{\mathrm{age}}$ & Age bin size (yrs);
-multiply {\tt sfr} for total star-formation in each bin \cr
+{\tt sfr}$\times${\tt dage} $=$ total star-formation in each bin \cr
 16 & {\tt mass} & $N_t$ & total mass formed in each template \cr
 17 & {\tt mremain} & $N_t$ & total current stellar mass in each template \cr
 18 & {\tt mets} & $N_t$ & average metallicity of current stars in each
@@ -75,7 +75,7 @@ $N_{\mathrm{age}} \times N_{\mathrm{mets}} \times N_{\mathrm{dust}}$ &
 dust properties of each stellar population basis vector \cr
 24 & {\tt basis\_mremain} & 
 $N_{\mathrm{age}} \times N_{\mathrm{mets}} \times N_{\mathrm{dust}}$ &
-fraction of original stellar mass surviving for age of each basis vector  \cr
+fraction of original stellar mass surviving for each basis vector  \cr
 \enddata 
 \tablecomments{All quantities are in floating point (four byte)
 precision, except {\tt dusts} which is an array of structures, whose
