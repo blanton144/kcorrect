@@ -172,7 +172,7 @@ for i=0L, neq-1L do begin
       fromcolor=bands[l0]+'-'+bands[l1]
 endfor
 free_lun,unit
-end_print
+k_end_print
 
 
 end

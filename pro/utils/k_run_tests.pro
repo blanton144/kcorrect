@@ -15,7 +15,7 @@ k_sdss_tests, vname=vname
 k_galex_tests, vname=vname
 k_twomass_tests, vname=vname
 k_gst_tests, vname=vname
-k_goods_tests, vname=vname
 k_deep_tests, vname=vname
+k_goods_tests, vname=vname
 
 end
