@@ -1,3 +1,11 @@
+-------------------------------------------------------------------------------
+v4_1_2 (September 21, 2005) 
+
+Documentation changes
+
+-------------------------------------------------------------------------------
+v4_1_0 (Early September, 2005) 
+
 DEEP_KCORRECT - fix bug in obands, fix to bug in common block tracking
 DEEP_TO_MAGGIES - removed SFD correction, since DEEP2 mags already corrected
 FIT_SDSS_FIBER - add vdisp keyword
