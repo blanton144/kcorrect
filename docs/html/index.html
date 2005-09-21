@@ -10,10 +10,6 @@ Photometry</h1>
 
 <h3> Outline</h3>
 
-<p>
-<b> kcorrect v4_0 is still beta. Please use with caution and 
-notify me of any problems or bugs. </b>
-
 <p> This web page documents a code written in C and IDL to calculate
 spectral energy distributions and K-corrections. This version is a
 significant improvement of <a href="v3_2-index.html"> an older
@@ -40,12 +36,11 @@ uncertainties</a>
 <li> <a href="#thanks"> Acknowledgements</a>
 </ol>
 
-<p> <b>WARNING: Except for use with the /lrg flag for Luminous Red
-Galaxies, the photometric redshift code is NOT sufficiently tested for
-the v4 templates</b> </p>
-
 <a name="general">
 <h3> General description</h3>
+
+<p> The code and results are described in an upcoming paper, for which
+their exists a <a href="kcorrect.ps.gz"> draft version</a>. </p>
 
 <p> This IDL code fits very restricted spectral energy distribution
 models to galaxy photometry or spectra in the restframe UV, optical
@@ -91,8 +86,7 @@ with data up to redshifts of 1.5 or 2.0 in DEEP2 and GOODS.
 <li> Because they are based on unaltered stellar evolution synthesis
 results from Bruzual-Charlot models, the fits have a natural physical
 meaning and one can make physical conclusions about recent
-star-formation histories and stellar masses. <b>These are NOT ready
-for prime-time, as it were.</b>
+star-formation histories and stellar masses. 
 <li> The <a href="#abmags">SDSS AB corrections</a> have changed somewhat. 
 <li> I have added a bunch of higher level IDL routines to perform common
 tasks, like K-correcting SDSS data, GOODS data, GALEX data, DEEP2
@@ -121,10 +115,12 @@ href="http://spectro.princeton.edu/"> idlutils</a>. </P>
 are to send your email address to <a href="mb144@nyu.edu">
 mb144@nyu.edu</a>, to cite <a
 href="http://cosmo.nyu.edu/blanton/pubs.html#blanton03b"> Blanton et
-al. 2003</a>, and to specify the version tag (eg. v4_0) of the code
+al. 2003</a>, and to specify the version tag (eg. v4_1_2) of the code
 used. (You can check this in the IDL code using the <a
 href="kcorrect_help.html#K_VERSION">k_version</a>
-command).  </p>
+command).  Note that the paper you should cite is different than the <a
+href="kcorrect.ps.gz"> upcoming paper</a>, which you can cite on its
+publication. </p>
 
 <a name="obtain">
 <h3> Obtaining the software</h3>
@@ -143,7 +139,7 @@ The best way to obtain the code is to simply download the latest
 version from this site. The tagged and released versions, from latest
 to earliest, are:
 <ol>
-<li> <a href="kcorrect.v4_0.tar.gz"> kcorrect.v4_0.tar.gz</a> 
+<li> <a href="kcorrect.v4_1_2.tar.gz"> kcorrect.v4_1_2.tar.gz</a> 
 </ol>
 The earlier version is only included so that you can reproduce old
 results if you like. Note that there have been some usage changes.
@@ -165,9 +161,9 @@ cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot login
 When the above asks for a password, just hit Enter. 
 <li> After this, you can just export any version you want:
 <pre>
-cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v4_0 kcorrect
+cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v4_1_2 kcorrect
 </pre>
-where you can replace v4_0 with whatever version you want.
+where you can replace v4_1_2 with whatever version you want.
 </ol> 
 Please export only based on revision tag, so that we can
 track versions properly. 
@@ -324,7 +320,8 @@ quantities to magnitudes, an object with total flux <i>f</i> in
 maggies
 has magnitude</p>
 <center><i>m</i>&nbsp;=&nbsp;&minus;&nbsp;2.5&nbsp;log<sub>
-10</sub>&nbsp;<i>f</i>&nbsp;&nbsp;&nbsp;.</center> <p> An advantage of
+10</sub>&nbsp;<i>f</i>&nbsp;&nbsp;&nbsp;.</center> 
+<p> An advantage of
 the maggie unit system is that it is linear, and thus can when
 necessary accommodate negative flux estimates. 
 Two notes:
@@ -361,10 +358,7 @@ between making precise measurements and making interpretable ones.</p>
 redshifts based on the templates. This procedure is as simple as
 running the K-correction code at each redshift and finding that
 redshift which provides the best fit in the &chi<sup>2</sup>
-sense. 
-<b>WARNING: Except for use with the /lrg flag for Luminous Red
-Galaxies, the photometric redshift code is NOT sufficiently tested for
-the v4 templates</b> </p>
+sense. </p>
 
 <a name="highlevel">
 <h3> IDL routines for SDSS, GALEX, 2MASS, DEEP2, and GOODS users</h3>
@@ -384,7 +378,7 @@ SDSS K-corrections
 <li> <a href="kcorrect_help.html#SDSS2BESSELL"> sdss2bessell</a>: Take
    SDSS <i>ugriz</i> fluxes and return Bessell <i>UBVRI</i> fluxes
 <li> <a href="kcorrect_help.html#SDSS_KPHOTOZ"> sdss_kphotoz</a>: SDSS
-photometric redshifts <b>WARNING: currenly (v4) only good for LRGs </b>
+photometric redshifts 
 <li> <a href="kcorrect_help.html#GALEX_KCORRECT"> galex_kcorrect</a>:
 GALEX+SDSS K-corrections
 <li> <a href="kcorrect_help.html#TWOMASS_KCORRECT"> twomass_kcorrect</a>:
@@ -446,8 +440,7 @@ so it assumes &Omega;<sub>m</sub> = 0.3 and &Omega;<sub>&Lambda;</sub>
 = 0.7 (though these can be set differently on input).</p>
 
 <p> You will also note some outputs having to do with mass-to-light
-ratios and masses. <b>These are still preliminary and should be used
-with caution</b>.</p>
+ratios and masses. 
 
 <a name="idl">
 <h2>Lower-level IDL routines for K-corrections and photo-z's of arbitrary data</h3>
@@ -821,12 +814,10 @@ k_load_ascii_table calls described above.
 
 Once this overhead has been taken care of (and it is a significant
 amount of time --- a few seconds --- so only do it once!) you can use
-the routines <a
-href="kcorrect_help.html#K_FIT_NONNEG">k_fit_nonneg</a> and <a
-href="kcorrect_help.html#K_RECONSTRUCT_MAGGIES">k_reconstruct_maggies</a>.
+the routines <b>k_fit_nonneg</b> and <b>k_reconstruct_maggies</b>.
 
 <ol>
-<li> <a href="kcorrect_help.html#K_FIT_NONNEG">k_fit_nonneg</a> is called as:
+<li> <b>k_fit_nonneg</b> is called as:
 <pre>
 k_fit_nonneg(coeffs, rmatrix, nk, nv, zvals, nz, maggies, maggies_ivar,
             redshift, ngalaxy, tolerance, maxiter, niter, chi2,
@@ -834,7 +825,7 @@ k_fit_nonneg(coeffs, rmatrix, nk, nv, zvals, nz, maggies, maggies_ivar,
 </pre>
 The array coeffs should be of the size (nv*ngalaxy), and the coefficients
 are returned in it. 
-<li> <a href="kcorrect_help.html#K_RECONSTRUCT_MAGGIES">k_reconstruct_maggies</a> is called as:
+<li> <b>k_reconstruct_maggies</b> is called as:
 <pre>
 k_reconstruct_maggies(zvals, nz, rmatrix, nk, nv, coeffs, redshift, 
                       reconstruct_maggies, ngalaxy)
