@@ -17,13 +17,11 @@ function k_lambda_to_edges, lambda_centers
 
 nlambda=n_elements(lambda_centers)
 lambda_edges=fltarr(nlambda+1)
-dlambda=fltarr(nlambda)
-dlambda[0]=(lambda_centers[1]-lambda_centers[0])
-dlambda[nlambda-1]=(lambda_centers[nlambda-1]-lambda_centers[nlambda-2])
-dlambda[1:nlambda-2]=0.5*(lambda_centers[2:nlambda-1]- $
-                          lambda_centers[0:nlambda-3])
-lambda_edges[0:nlambda-1]=lambda_centers-0.5*dlambda
-lambda_edges[1:nlambda]=lambda_centers+0.5*dlambda
+lambda_edges[1:nlambda-1]= $
+  0.5*(lambda_centers[0:nlambda-2]+lambda_centers[1:nlambda-1])
+lambda_edges[0]=lambda_centers[0]-(lambda_edges[1]-lambda_centers[0])
+lambda_edges[nlambda]=lambda_centers[nlambda-1L]+ $
+  (lambda_centers[nlambda-1]-lambda_edges[nlambda-1])
 
 return,lambda_edges
 

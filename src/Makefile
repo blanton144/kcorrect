@@ -38,6 +38,8 @@ OBJECTS = \
   k_read_ascii_table.o \
   k_nonneg_solve.o \
 	k_interpolate.o \
+	idl_k_binspec.o \
+	k_binspec.o \
 	k_utils.o \
 	k_qromo.o \
 	k_midpnt.o \
