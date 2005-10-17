@@ -115,7 +115,7 @@ href="http://spectro.princeton.edu/"> idlutils</a>. </P>
 are to send your email address to <a href="mb144@nyu.edu">
 mb144@nyu.edu</a>, to cite <a
 href="http://cosmo.nyu.edu/blanton/pubs.html#blanton03b"> Blanton et
-al. 2003</a>, and to specify the version tag (eg. v4_1_2) of the code
+al. 2003</a>, and to specify the version tag (eg. v4_1_3) of the code
 used. (You can check this in the IDL code using the <a
 href="kcorrect_help.html#K_VERSION">k_version</a>
 command).  Note that the paper you should cite is different than the <a
@@ -139,7 +139,7 @@ The best way to obtain the code is to simply download the latest
 version from this site. The tagged and released versions, from latest
 to earliest, are:
 <ol>
-<li> <a href="kcorrect.v4_1_2.tar.gz"> kcorrect.v4_1_2.tar.gz</a> 
+<li> <a href="kcorrect.v4_1_3.tar.gz"> kcorrect.v4_1_3.tar.gz</a> 
 </ol>
 The earlier version is only included so that you can reproduce old
 results if you like. Note that there have been some usage changes.
@@ -161,9 +161,9 @@ cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot login
 When the above asks for a password, just hit Enter. 
 <li> After this, you can just export any version you want:
 <pre>
-cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v4_1_2 kcorrect
+cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v4_1_3 kcorrect
 </pre>
-where you can replace v4_1_2 with whatever version you want.
+where you can replace v4_1_3 with whatever version you want.
 </ol> 
 Please export only based on revision tag, so that we can
 track versions properly. 
@@ -911,9 +911,8 @@ in one band at the expense of the other bands. </p>
 
 <p> Using this code on a number of SDSS galaxies, we have estimated
 the linear relationships between a number of different bandpass
-systems, <b>all in the AB system</b>. <a
-href="linear.ps">This short document</a> shows all of the
-relevant results. </p>
+systems. The <a href="kcorrect.ps.gz"> kcorrect paper</a> has a table 
+with these relationships.
 
 
 <a name="known">

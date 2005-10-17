@@ -25,6 +25,7 @@
 ;   vname - name of fit to use (defaults to 'default')
 ;   omega0, omegal0 - cosmological parameters for calculating distance
 ;                     moduli [default 0.3, 0.7]
+;   filterlist - list of filters to K-correct to
 ; OPTIONAL KEYWORDS:
 ;   /closest - use closest bands for K-corrections
 ; OUTPUTS:
@@ -78,7 +79,8 @@ function deep_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         oivar=oivar, vname=in_vname, mass=mass, mtol=mtol, $
                         absmag=absmag, amivar=amivar, sdss=sdss, $
                         rmatrix=rmatrix, closest=closest, obands=obands, $
-                        omega0=omega0, omegal0=omegal0
+                        omega0=omega0, omegal0=omegal0, $
+                        filterlist=in_filterlist
 
 common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
   deep_rmatrix, deep_zvals, vname
@@ -99,6 +101,8 @@ if(keyword_set(sdss)) then $
   new_out_filterlist=['galex_NUV.par', $
                       'sdss_u0.par', $
                       'sdss_g0.par']
+if(keyword_set(in_filterlist)) then $
+  new_out_filterlist=in_filterlist
 
 if(n_elements(in_vname) gt 0) then begin
     use_vname=in_vname
@@ -135,6 +139,10 @@ band_shift=use_band_shift
 
 ;; need to reset rmatrix if filterlist changes
 if(n_elements(out_filterlist) gt 0) then begin
+    if(n_elements(out_filterlist) ne n_elements(new_out_filterlist)) then begin
+        out_rmatrix=0
+        out_zvals=0
+    endif
     for i=0L, n_elements(out_filterlist)-1L do begin
         if(new_out_filterlist[i] ne out_filterlist[i]) then begin
             out_rmatrix=0
