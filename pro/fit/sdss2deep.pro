@@ -78,6 +78,8 @@ function sdss2deep, sdss_redshift, deep_redshift, nmgy=nmgy, ivar=ivar, $
 
 common com_sdss2deep, rmatrix, zvals, band_shift
 
+closest=1L
+
 if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
     ((keyword_set(mag) eq 0 OR keyword_set(err) eq 0)) AND $
@@ -87,6 +89,12 @@ if(n_params() lt 1 OR $
     doc_library, 'sdss2deep'
     return, -1
 endif 
+
+sdss_filterlist=['sdss_u0.par', $
+                 'sdss_g0.par', $
+                 'sdss_r0.par', $
+                 'sdss_i0.par', $
+                 'sdss_z0.par']
 
 kcdum=sdss_kcorrect(sdss_redshift,nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                     calibobj=calibobj, tsobj=tsobj, flux=flux, $
@@ -110,25 +118,47 @@ endif
 k_reconstruct_maggies,coeffs, deep_redshift, $
   reconstruct_maggies,rmatrix=rmatrix,zvals=zvals
 
-offset=reconstruct_maggies/rmaggies[0:2,*]
+obands=lindgen(n_elements(filterlist))#replicate(1L, n_elements(sdss_redshift))
+
+if(keyword_set(closest)) then begin
+    lambda_in=k_lambda_eff(filterlist=sdss_filterlist)
+    lambda_out=k_lambda_eff(filterlist=filterlist)
+    for i=0L, n_elements(sdss_redshift)-1L do begin
+        for j=0L, n_elements(lambda_out)-1L do begin
+            dmin=min(abs(lambda_in/(1.+sdss_redshift[i])- $
+                         lambda_out[j]/(1.+deep_redshift[i])), imin)
+            obands[j, i]= imin
+        endfor
+    endfor
+endif
+
+offset=fltarr(n_elements(filterlist), n_elements(sdss_redshift))
+for i=0L, n_elements(sdss_redshift)-1L do $
+  for j=0L, n_elements(filterlist)-1L do $
+  offset[j,i]=reconstruct_maggies[j,i]/rmaggies[obands[j,i],i]
 offset=2.5*alog10(offset)
 
 bri=fltarr(n_elements(filterlist), n_elements(sdss_redshift))
 bri_ivar=fltarr(n_elements(filterlist), n_elements(sdss_redshift))
-for i=0L, n_elements(filterlist)-1L do $
-  bri[i,*]=-2.5*alog10(reconstruct_maggies[i,*])- $
-  lf_distmod(sdss_redshift, omega0=omega0, omegal0=omegal0)+ $
-  lf_distmod(deep_redshift, omega0=omega0, omegal0=omegal0)
-for i=0L, n_elements(filterlist)-1L do begin
-    ig=where(oivar[i,*] gt 0. AND omaggies[i,*] gt 0., ng)
-    if(ng gt 0) then begin
-        bri[i,ig]=-2.5*alog10(omaggies[i,ig])- $
-          lf_distmod(sdss_redshift[ig], omega0=omega0, omegal0=omegal0)+ $
-          lf_distmod(deep_redshift[ig], omega0=omega0, omegal0=omegal0)- $
-          offset[i,ig]
-        bri_ivar[i,ig]=omaggies[i,ig]^2*oivar[i,ig]* $
-          (0.4*alog(10.))^2
-    endif 
+dm_sdss=lf_distmod(sdss_redshift, omega0=omega0, omegal0=omegal0)
+dm_deep=lf_distmod(deep_redshift, omega0=omega0, omegal0=omegal0)
+for j=0L, n_elements(filterlist)-1L do $
+  bri[j,*]=-2.5*alog10(reconstruct_maggies[j,*])-dm_sdss+dm_deep 
+
+for i=0L, n_elements(sdss_filterlist)-1L do begin
+    for j=0L, n_elements(filterlist)-1L do begin
+        ifrom=where(obands[j,*] eq i, nfrom)
+        if(nfrom gt 0) then begin
+            ig=where(oivar[i,ifrom] gt 0. AND $
+                     omaggies[i,ifrom] gt 0., ng)
+            if(ng gt 0) then begin
+                ig=ifrom[ig]
+                bri[j,ig]=-2.5*alog10(omaggies[i,ig])- $
+                  dm_sdss[ig]+dm_deep[ig]-offset[j,ig]
+                bri_ivar[j,ig]=omaggies[i,ig]^2*oivar[i,ig]*(0.4*alog(10.))^2
+            endif
+        endif
+    endfor
 endfor
 
 return, bri
