@@ -34,6 +34,7 @@
 ;                                          'sdss_z0.par']]
 ;   filterpath    - path to filters [default $KCORRECT_DIR/data/filters]
 ;   /verbose      - call k_fit_nonneg verbosely
+;   /silent       - shut up
 ;   maxiter       - maximum number of iterations for fit [default 3000]
 ;   omega0, omegal0 - cosmological parameters for calculating distance
 ;                     moduli [default 0.3, 0.7]
@@ -125,7 +126,7 @@ pro kcorrect, maggies, maggies_ivar, redshift, kcorrect, $
               zmin=zmin, zmax=zmax, abfix=abfix, minerrors=minerrors, $
               rmaggies=rmaggies, mass=mass, mtol=mtol, vname=vname, $
               absmag=absmag, amivar=amivar, omega0=omega0, omegal0=omegal0, $
-              mets=mets, b300=b300, b1000=b1000, intsfh=intsfh
+              mets=mets, b300=b300, b1000=b1000, intsfh=intsfh, silent=silent
 
 littleh=0.7 ;; for evolution
 
@@ -148,7 +149,7 @@ if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
       k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
       vpath=vpath, vname=vname
     k_projection_table,rmatrix,vmatrix,lambda,zvals,filterlist, $ 
-      zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath
+      zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath, silent=silent
 endif
 
 ; Calculate the coefficients if needed
@@ -198,11 +199,11 @@ k_reconstruct_maggies,coeffs,redshift,rmaggies,rmatrix=rmatrix,zvals=zvals
 
 tspecfile=getenv('KCORRECT_DIR')+'/data/templates/k_nmf_derived.'+ $
   vname+'.fits'
-tmass=mrdfits(tspecfile, 16)
-tmremain=mrdfits(tspecfile, 17)
-tmetallicity=mrdfits(tspecfile, 18)
-tmass300=mrdfits(tspecfile, 19)
-tmass1000=mrdfits(tspecfile, 20)
+tmass=mrdfits(tspecfile, 16, silent=silent)
+tmremain=mrdfits(tspecfile, 17, silent=silent)
+tmetallicity=mrdfits(tspecfile, 18, silent=silent)
+tmass300=mrdfits(tspecfile, 19, silent=silent)
+tmass1000=mrdfits(tspecfile, 20, silent=silent)
 
 mrcoeffs=coeffs*(tmremain#replicate(1., n_elements(redshift)))
 if(arg_present(mass)) then $
@@ -212,7 +213,7 @@ if(arg_present(intsfh)) then $
   intsfh=total(coeffs,1)*10.^(0.4*lf_distmod(redshift, omega0=omega0, $
                                              omegal0=omegal0))
 smaggies=10.^(-0.4*k_solar_magnitudes(filterlist=filterlist, $
-                                      band_shift=band_shift))
+                                      band_shift=band_shift, silent=silent))
 mtol=fltarr(n_elements(filterlist), n_elements(redshift))
 mm=total(mrcoeffs,1)
 for i=0L, n_elements(filterlist)-1L do $
@@ -239,16 +240,19 @@ if(arg_present(absmag)) then begin
     for i=0L, n_elements(filterlist)-1L do $
       absmag[i,*]=-2.5*alog10(reconstruct_maggies[i,*])- $
       lf_distmod(redshift, omega0=omega0,omegal0=omegal0)
-    for i=0L, n_elements(filterlist)-1L do begin
-        ig=where(use_maggies_ivar[i,*] gt 0. AND use_maggies[i,*] gt 0., ng)
-        if(ng gt 0) then begin
-            absmag[i,ig]=-2.5*alog10(use_maggies[i,ig])- $
-              lf_distmod(redshift[ig], omega0=omega0, omegal0=omegal0)- $
-              kcorrect[i,ig]
-            amivar[i,ig]=use_maggies[i,ig]^2*use_maggies_ivar[i,ig]* $
-              (0.4*alog(10.))^2
-        endif 
-    endfor
+    if(keyword_set(use_maggies) gt 0) then begin
+        for i=0L, n_elements(filterlist)-1L do begin
+            ig=where(use_maggies_ivar[i,*] gt 0. AND use_maggies[i,*] gt 0., $
+                     ng)
+            if(ng gt 0) then begin
+                absmag[i,ig]=-2.5*alog10(use_maggies[i,ig])- $
+                  lf_distmod(redshift[ig], omega0=omega0, omegal0=omegal0)- $
+                  kcorrect[i,ig]
+                amivar[i,ig]=use_maggies[i,ig]^2*use_maggies_ivar[i,ig]* $
+                  (0.4*alog(10.))^2
+            endif 
+        endfor
+    endif
 endif
 
 if(arg_present(evolve)) then begin
@@ -261,7 +265,7 @@ if(arg_present(evolve)) then begin
           k_load_vmatrix, evmatrix, lambda, vfile=evfile, lfile=lfile, $
           vpath=vpath, vname=evname
         k_projection_table,ermatrix,evmatrix,lambda,zvals,filterlist, $ 
-          zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath
+          zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath, silent=silent
     endif
 
 ; now calculate the bandpasses if they were measured 1.0 Gyr ago
