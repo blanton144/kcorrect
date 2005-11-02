@@ -13,6 +13,7 @@
 ;   filterpath - path in which to look for filters
 ;   band_shift - shift to apply to band passes
 ;   solarname - name of solar model
+;   /silent - shut up
 ; OUTPUTS:
 ;   solar_magnitudes - absolute magnitude of sun in specified bands
 ; EXAMPLES:
@@ -31,7 +32,8 @@
 ;-
 ;------------------------------------------------------------------------------
 function k_solar_magnitudes,band_shift=band_shift,filterpath=filterpath, $
-                            filterlist=filterlist, solarname=solarname
+                            filterlist=filterlist, solarname=solarname, $
+                            silent=silent
 
 if(n_elements(band_shift) eq 0) then band_shift=0.
 if(NOT keyword_set(solarname)) then solarname='lcbsun.ori'
@@ -40,7 +42,8 @@ if(NOT keyword_set(filterlist)) then $
               'sdss_z0.par']
 
 ; read in the sun and put it at 10pc
-k_read_basel,lambda,flux,getenv('KCORRECT_DIR')+'/data/basel/'+solarname
+k_read_basel,lambda,flux,getenv('KCORRECT_DIR')+'/data/basel/'+solarname, $
+  silent=silent
 nspectra=n_elements(flux)/n_elements(lambda)
 lambda=lambda*10.
 pctocm=3.086e+18
@@ -53,7 +56,8 @@ flux=flux*(solarradtocm/(10.*pctocm))^2  ; from solar radius to 10 pc
 ; get answer in maggies
 lambda_edges=k_lambda_to_edges(lambda)
 maggies=k_project_filters(lambda_edges,flux,filterlist=filterlist, $
-                          filterpath=filterpath,band_shift=band_shift)
+                          filterpath=filterpath,band_shift=band_shift, $
+                          silent=silent)
 solarmags=reform(-2.5*alog10(maggies),n_elements(maggies))
 
 if(n_elements(solarmags) eq 1) then solarmags=solarmags[0]

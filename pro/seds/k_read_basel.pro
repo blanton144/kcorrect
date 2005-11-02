@@ -7,6 +7,8 @@
 ;   k_read_basel, lambda, flux, filename [, teff=, logg=, mh=, vturb=, xh= ]
 ; INPUTS:
 ;   filename - file containing Basel format spectrum
+; OPTIONAL KEYWORDS:
+;   /silent - shut up
 ; OUTPUTS:
 ;   lambda - wavelengths at pixel centers
 ;   flux - flux at each pixel
@@ -18,7 +20,7 @@
 ;-
 ;------------------------------------------------------------------------------
 pro k_read_basel,lambda,flux,filename,teff=teff,logg=logg, mh=mh,vturb=vturb, $
-                 xh=xh
+                 xh=xh, silent=silent
 
 ; Need at least 3 parameters
 if (N_params() LT 3) then begin
@@ -44,8 +46,10 @@ while(NOT eof(unit)) do begin
     readf,unit,tmpflux
     nunits=nunits+1L
 end
-outstr=strtrim(string(nunits),2)+' block(s) of spectra'
-klog,outstr
+if(NOT keyword_set(silent)) then begin
+    outstr=strtrim(string(nunits),2)+' block(s) of spectra'
+    klog,outstr
+endif
 close,unit
 free_lun,unit
 

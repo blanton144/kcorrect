@@ -13,6 +13,8 @@
 ;   filterlist - list of filters (default to sdss set)
 ;   filterpath - paths to look for filters in
 ;   band_shift - blueward shift of bandpasses
+; KEYWORDS:
+;   silent        - shut up
 ; COMMENTS:
 ;   More or less a wrapper on k_projection_table.
 ;   Outputs are in maggies (10.^(-0.4*magnitude)). 
@@ -21,7 +23,8 @@
 ;-
 ;------------------------------------------------------------------------------
 function k_project_filters,lambda,flux,filterlist=filterlist, $
-                           filterpath=filterpath,band_shift=band_shift
+                           filterpath=filterpath,band_shift=band_shift, $
+                           silent=silent
 
 if(NOT keyword_set(band_shift)) then band_shift=0.
 if(NOT keyword_set(filterlist)) then $
@@ -29,7 +32,8 @@ if(NOT keyword_set(filterlist)) then $
               'sdss_z0.par']
 
 k_projection_table, maggies, flux, lambda, zvals, filterlist, $
-  zmin=0., zmax=0., nz=1, filterpath=filterpath, band_shift=band_shift
+  zmin=0., zmax=0., nz=1, filterpath=filterpath, band_shift=band_shift, $
+  silent=silent
 maggies=maggies
 
 return,maggies
