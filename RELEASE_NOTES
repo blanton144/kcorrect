@@ -1,5 +1,30 @@
 -------------------------------------------------------------------------------
+
+DEEP_KCORRECT - add /silent; add filterlist keyword to give list of
+  three filters to K-correct to
+KCORRECT - add /silent; fix behavior when fluxes not input
+K_PROJECT_FILTERS - add /silent
+K_SOLAR_MAGNITUDES - add /silent
+K_READ_BASEL - add /silent
+MEASURE_DEEP_STACK - stack SDSS photometry for DEEP2 galaxies
+SDSS2DEEP - use closest bands to K-correct from (changes red colors by
+  0.1 mag --- this version is more correct)
+SDSS_KCORRECT - fix typo affecting magnitude inputs
+STACK_AND_MEASURE - code for stacking SDSS photometry (depends on photoop)
+
+data/redshifts/deep/get_deep - get pcat files too
+
+-------------------------------------------------------------------------------
+v4_1_3 (October, 2005)
+
+K_BINSPEC - add function to bin spectra in a simple way
+
+-------------------------------------------------------------------------------
 v4_1_2 (September 21, 2005) 
+
+K_LAMBDA_TO_EDGES - fix small bug 
+K_LINEAR_TRANSFORMS - fix small bug
+PAPER_PLOTS - change form of plot slightly
 
 Documentation changes
 
