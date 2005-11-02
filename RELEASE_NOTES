@@ -1,7 +1,8 @@
 -------------------------------------------------------------------------------
+v4_1_4 (October, 2005)
 
 DEEP_KCORRECT - add /silent; add filterlist keyword to give list of
-  three filters to K-correct to
+  three filters to K-correct to; add intsfh keyword
 KCORRECT - add /silent; fix behavior when fluxes not input
 K_PROJECT_FILTERS - add /silent
 K_SOLAR_MAGNITUDES - add /silent
