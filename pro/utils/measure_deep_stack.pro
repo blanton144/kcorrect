@@ -49,6 +49,8 @@ stack=replicate(create_struct(deep[0], $
                               'sdss_absmag', fltarr(5), $
                               'fake_deep_absmag', fltarr(3), $
                               'deep_absmag', fltarr(3), $
+                              'fake_deep_absmag_ext', fltarr(3), $
+                              'deep_absmag_ext', fltarr(3), $
                               'bessell_absmag', fltarr(5)), $
                 n_elements(m1))
 struct_assign, deep[m2], stack
@@ -67,6 +69,12 @@ kc=deep_kcorrect(stack.z, mag=stack.sdss_bri, $
                              'bessell_R.par', $
                              'bessell_I.par'])
 stack.fake_deep_absmag=fake_deep_absmag
+kc=deep_kcorrect(stack.z, zcat=stack, absmag=deep_absmag_ext)
+stack.deep_absmag_ext=deep_absmag_ext
+kc=deep_kcorrect(stack.z, mag=stack.sdss_bri, $
+                 err=replicate(0.1, 3, n_elements(stack)), $
+                 absmag=fake_deep_absmag_ext)
+stack.fake_deep_absmag_ext=fake_deep_absmag_ext
 kc=sdss2bessell(stack.z, calibobj=stack, absmag=bessell_absmag, flux='model')
 stack.bessell_absmag=bessell_absmag
 kc=sdss_kcorrect(stack.z, calibobj=stack, absmag=sdss_absmag, flux='model')
@@ -98,6 +106,22 @@ djs_plot, stack[ii].z, sdss_bmr0[ii]-deep_bmr0[ii], psym=8, symsize=0.5, $
   xra=[0.05, 0.29], yra=[-1.,1.], xti='z', yti='\Delta (B-R)_0'
 k_end_print
 
+k_print, filename=getenv('EVOLUTION_DIR')+'/tex/deep2_lowz_comp.ps'
+!P.MULTI=[0,1,2]
+deep_umb0=stack.deep_absmag_ext[1]-stack.deep_absmag_ext[2]
+fake_deep_umb0_ext=stack.fake_deep_absmag_ext[1]-stack.fake_deep_absmag_ext[2]
+fake_deep_umb0=stack.bessell_absmag[0]-stack.bessell_absmag[1]
+djs_plot, stack[ii].z, deep_umb0[ii]-fake_deep_umb0_ext[ii], psym=8, $
+  symsize=0.5, $
+  xra=[0.05, 0.29], yra=[-1.,1.], xti='!6redshift !8z!6', $
+  yti='\Delta!8(U-B)_0!6', xch=0.001
+djs_xyouts, 0.07, -0.8, charsize=1.3, $
+  '!8Converting to DEEP2-like data!6'
+djs_plot, stack[ii].z, deep_umb0[ii]-fake_deep_umb0[ii], psym=8, symsize=0.5, $
+  xra=[0.05, 0.29], yra=[-1.,1.], xti='z', yti='\Delta!8(U-B)_0!6'
+djs_xyouts, 0.07, -0.8, charsize=1.3, $
+  '!8Converting SDSS data directly!6'
+k_end_print 
 save
 
 end
