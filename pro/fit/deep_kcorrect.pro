@@ -28,6 +28,7 @@
 ;   filterlist - list of filters to K-correct to
 ; OPTIONAL KEYWORDS:
 ;   /closest - use closest bands for K-corrections
+;   /silent - shut up
 ; OUTPUTS:
 ;   kcorrect - [3, N] K-corrections from BRI to NUV, U, and B (or NUV,
 ;              u, g if /sdss is set) satisfying
@@ -80,7 +81,7 @@ function deep_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         absmag=absmag, amivar=amivar, sdss=sdss, $
                         rmatrix=rmatrix, closest=closest, obands=obands, $
                         omega0=omega0, omegal0=omegal0, $
-                        filterlist=in_filterlist
+                        filterlist=in_filterlist, silent=silent
 
 common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
   deep_rmatrix, deep_zvals, vname
@@ -88,7 +89,8 @@ common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
 if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
     ((keyword_set(mag) eq 0 OR keyword_set(err) eq 0)) AND $
-    (n_tags(zcat) eq 0))) $
+    (n_tags(zcat) eq 0) AND $
+    (n_elements(coeffs) eq 0))) $
   then begin
     doc_library, 'deep_kcorrect'
     return, -1
@@ -153,13 +155,15 @@ endif
 out_filterlist=new_out_filterlist
 
 
-mgy=fltarr(3, n_elements(redshift))
-mgy_ivar=fltarr(3, n_elements(redshift))
 if(n_elements(mag) gt 0) then begin
+    mgy=fltarr(3, n_elements(redshift))
+    mgy_ivar=fltarr(3, n_elements(redshift))
     mgy[*,*]=10.^(-0.4*mag)
     mgy_ivar[*,*]=1./(0.4*alog(10.)*mgy*err)^2.
 endif
 if(n_elements(nmgy) gt 0) then begin
+    mgy=fltarr(3, n_elements(redshift))
+    mgy_ivar=fltarr(3, n_elements(redshift))
     mgy[*,*]=nmgy*1.e-9
     mgy_ivar[*,*]=ivar*1.e+18
 endif
@@ -172,7 +176,7 @@ deep_filterlist=['deep_B.par', 'deep_R.par', 'deep_I.par']
 kcorrect, mgy, mgy_ivar, redshift, kcdum, band_shift=band_shift, $
   rmatrix=deep_rmatrix, zvals=deep_zvals, coeffs=coeffs, rmaggies=rmaggies, $
   vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
-  filterlist=deep_filterlist
+  filterlist=deep_filterlist, silent=silent
 
 ; calculate the preliminaries
 if(NOT keyword_set(out_rmatrix) OR NOT keyword_set(out_zvals)) then begin
@@ -180,7 +184,7 @@ if(NOT keyword_set(out_rmatrix) OR NOT keyword_set(out_zvals)) then begin
       k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $
       vpath=vpath, vname=vname
     k_projection_table,out_rmatrix,vmatrix,lambda,out_zvals,out_filterlist, $ 
-      zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath
+      zmin=zmin,zmax=zmax,nz=nz,filterpath=filterpath, silent=silent
 endif
 
 k_reconstruct_maggies,coeffs,replicate(band_shift,n_elements(redshift)), $
