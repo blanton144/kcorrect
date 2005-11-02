@@ -37,6 +37,7 @@
 ;              are AB.
 ;   mtol - [3, N] mass-to-light ratios from model in each output band
 ;   mass - [N] total current stellar mass from model in each band
+;   intsfh - [N] total integrated star formation history
 ;   absmag - [3, N] absolute magnitude (for missing data, substitutes
 ;            model fit) in each output band
 ;   amivar - [3, N] inverse variance of absolute magnitude (for
@@ -81,7 +82,7 @@ function deep_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         absmag=absmag, amivar=amivar, sdss=sdss, $
                         rmatrix=rmatrix, closest=closest, obands=obands, $
                         omega0=omega0, omegal0=omegal0, $
-                        filterlist=in_filterlist, silent=silent
+                        filterlist=in_filterlist, silent=silent, intsfh=intsfh
 
 common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
   deep_rmatrix, deep_zvals, vname
@@ -176,7 +177,7 @@ deep_filterlist=['deep_B.par', 'deep_R.par', 'deep_I.par']
 kcorrect, mgy, mgy_ivar, redshift, kcdum, band_shift=band_shift, $
   rmatrix=deep_rmatrix, zvals=deep_zvals, coeffs=coeffs, rmaggies=rmaggies, $
   vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
-  filterlist=deep_filterlist, silent=silent
+  filterlist=deep_filterlist, silent=silent, intsfh=intsfh
 
 ; calculate the preliminaries
 if(NOT keyword_set(out_rmatrix) OR NOT keyword_set(out_zvals)) then begin
