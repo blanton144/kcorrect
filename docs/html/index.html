@@ -34,7 +34,12 @@ uncertainties</a>
 <li> <a href="#linear"> <b>Linear relationships between bandpasses</b></a>
 <li> <a href="#known"> Known problems</a>
 <li> <a href="#thanks"> Acknowledgements</a>
+<li> <a href="http://howdy.physics.nyu.edu/index.php/Kcorrect"> Frequently Asked Questions</a> (on the wiki)
 </ol>
+
+<b>kcorrect now has a <a
+href="http://howdy.physics.nyu.edu/index.php/Kcorrect">wiki</a>, to which anyone
+may contribute if they so desire.</b>
 
 <a name="general">
 <h3> General description</h3>
@@ -106,7 +111,7 @@ templates which consists of predictions of stellar evolution synthesis
 models, but you could simply use a set of discrete delta functions if
 you liked. This method has a bunch of potential applications in
 astronomy. The code is NMF_SPARSE in <a
-href="http://spectro.princeton.edu/"> idlutils</a>. </P>
+href="http://spectro.princeton.edu/idlspec2d_install.html"> idlutils</a>. </P>
 
 <a name="conditions">
 <h3> Conditions of use</h3>
@@ -115,7 +120,7 @@ href="http://spectro.princeton.edu/"> idlutils</a>. </P>
 are to send your email address to <a href="mb144@nyu.edu">
 mb144@nyu.edu</a>, to cite <a
 href="http://cosmo.nyu.edu/blanton/pubs.html#blanton03b"> Blanton et
-al. 2003</a>, and to specify the version tag (eg. v4_1_3) of the code
+al. 2003</a>, and to specify the version tag (eg. v4_1_4) of the code
 used. (You can check this in the IDL code using the <a
 href="kcorrect_help.html#K_VERSION">k_version</a>
 command).  Note that the paper you should cite is different than the <a
@@ -132,14 +137,14 @@ because it will allow me to contact users in case of any improvements
 or bug fixes.</p>
 
 <p> Note that the IDL code depends
-on the <a href="http://spectro.princeton.edu/idlutils_doc.html">
+on the <a href="http://spectro.princeton.edu/idlspec2d_install.html">
 idlutils</a> package.
 
 The best way to obtain the code is to simply download the latest
 version from this site. The tagged and released versions, from latest
 to earliest, are:
 <ol>
-<li> <a href="kcorrect.v4_1_3.tar.gz"> kcorrect.v4_1_3.tar.gz</a> 
+<li> <a href="kcorrect.v4_1_4.tar.gz"> kcorrect.v4_1_4.tar.gz</a> 
 </ol>
 The earlier version is only included so that you can reproduce old
 results if you like. Note that there have been some usage changes.
@@ -161,9 +166,9 @@ cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot login
 When the above asks for a password, just hit Enter. 
 <li> After this, you can just export any version you want:
 <pre>
-cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v4_1_3 kcorrect
+cvs -d :pserver:anonymous@spectro.princeton.edu:/usr/local/cvsroot export -r v4_1_4 kcorrect
 </pre>
-where you can replace v4_1_3 with whatever version you want.
+where you can replace v4_1_4 with whatever version you want.
 </ol> 
 Please export only based on revision tag, so that we can
 track versions properly. 
@@ -228,7 +233,7 @@ using the utilities described below, or run the stand-alone C code.
 </ol>
 
 <p> The IDL code depends on the <a
-href="http://spectro.princeton.edu/idlutils_doc.html"> idlutils</a>
+href="http://spectro.princeton.edu/idlspec2d_install.html"> idlutils</a>
 package.</p>
 
 <p>
@@ -367,7 +372,7 @@ sense. </p>
 The easiest interface to the code, if it is available to you, is the
 IDL code. The detailed <a href="kcorrect_help.html"> documentation</a>
 is available for all of the routines.  The IDL code depends on the <a
-href="http://spectro.princeton.edu/idlutils_doc.html"> idlutils</a>
+href="http://spectro.princeton.edu/idlspec2d_install.html"> idlutils</a>
 package.
 </p>
 
@@ -865,7 +870,7 @@ it has not always been possible to figure out.</p>
 <p> The files are in a special SDSS format called FTCL described at <a
 href="http://www.sdss.org/dr2/data/parfiles.html"> the SDSS DR2
 site</a>. IDL code (in particular, yanny_readone()) exists in <a
-href="http://spectro.princeton.edu"> idlutils</a> to read in such files. </p>
+href="http://spectro.princeton.edu/idlspec2d_install"> idlutils</a> to read in such files. </p>
 
 <p>It turns out that the SDSS filters do not have the
 responses they were designed to have, but <a
