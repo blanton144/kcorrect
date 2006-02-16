@@ -12,16 +12,17 @@
 ; OUTPUTS:
 ;   outflux - smoothed flux
 ; WARNINGS:
-;   Does NOTHING if vdisp < 10 km/s
+;   Does NOTHING if vdisp < 1 km/s
 ; REVISION HISTORY:
 ;   05-May-2005  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
 function k_smooth, loglam,flux,vdisp
 
-if vdisp GT 10.0 then begin
+if vdisp GT 1.0 then begin
     nlambda= n_elements(loglam)
-    pixsize= alog(10.)*2.99792e+5*(loglam[nlambda-1]-loglam[0])/double(nlambda)
+    pixsize= $
+      abs(alog(10.)*2.99792e+5*(loglam[nlambda-1]-loglam[0])/double(nlambda))
     smoothing= vdisp/pixsize    ; pixels
     npix= long(4.0*ceil(smoothing))*2L+3
     klam= findgen(npix)-float(npix-1.)/2.

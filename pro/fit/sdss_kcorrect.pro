@@ -126,6 +126,7 @@ if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
     ((keyword_set(mag) eq 0 OR keyword_set(err) eq 0)) AND $
     (n_tags(calibobj) eq 0) AND $
+    (n_elements(coeffs) eq 0) AND $
     (n_tags(tsobj) eq 0))) $
   then begin
     doc_library, 'sdss_kcorrect'
@@ -179,6 +180,7 @@ if(n_tags(tsobj) gt 0 OR n_tags(calibobj) gt 0) then $
   sdss_to_maggies, mgy, mgy_ivar, calibobj=calibobj, tsobj=tsobj, flux=flux
 
 if(keyword_set(lrg)) then $
+  if(keyword_set(mgy_ivar)) then $
   mgy_ivar[0,*]=0.
 
 ;; call kcorrect

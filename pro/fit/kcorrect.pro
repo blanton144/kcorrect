@@ -223,12 +223,19 @@ for i=0L, n_elements(filterlist)-1L do $
 b300=fltarr(n_elements(redshift))
 b1000=fltarr(n_elements(redshift))
 mets=fltarr(n_elements(redshift))
-for i=0L, n_elements(redshift)-1L do begin
-    b300[i]=total(tmass300*coeffs[*,i])/total(tmass*coeffs[*,i])
-    b1000[i]=total(tmass1000*coeffs[*,i])/total(tmass*coeffs[*,i])
-    tmp_mass=total(tmremain*coeffs[*,i])
-    mets[i]=total(tmremain*tmetallicity*coeffs[*,i])/tmp_mass
-endfor
+if((size(coeffs))[0] eq 2) then begin
+    for i=0L, n_elements(redshift)-1L do begin
+        b300[i]=total(tmass300*coeffs[*,i])/total(tmass*coeffs[*,i])
+        b1000[i]=total(tmass1000*coeffs[*,i])/total(tmass*coeffs[*,i])
+        tmp_mass=total(tmremain*coeffs[*,i])
+        mets[i]=total(tmremain*tmetallicity*coeffs[*,i])/tmp_mass
+    endfor
+endif else begin
+    b300=total(tmass300*coeffs)/total(tmass*coeffs)
+    b1000=total(tmass1000*coeffs)/total(tmass*coeffs)
+    tmp_mass=total(tmremain*coeffs)
+    mets=total(tmremain*tmetallicity*coeffs)/tmp_mass
+endelse
 
 ; get kcorrection
 kcorrect=reconstruct_maggies/rmaggies

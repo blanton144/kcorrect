@@ -304,16 +304,17 @@ calculating $K$-corrections and converting among observations of
 galaxies at various wavelengths. In principle, we could apply this
 method to galaxy data at any redshift and in any set of
 wavelengths. The implementation we present here is suitable for
-ultraviolet, optical, and near-infrared observations. Since we base
-the templates on stellar population synthesis results, the results are
-intepretable in terms of approximate stellar masses and star-formation
-histories. We present templates fit with this method to data from
-GALEX, Sloan Digital Sky Survey spectroscopy and photometry, the
-Two-Micron All Sky Survey, the Deep Extragalactic Evolutionary Probe
-and Great Observatories Origins Deep Survey.  In addition, we present
-software for using such data to estimate $K$-corrections, evolution
-corrections, stellar masses, and recent star-formation rates. This
-software is suitable for analyzing many other data sets as well.
+ultraviolet, optical, and near-infrared observations in the redshift
+range $0 < z < 1.5$. Since we base the templates on stellar population
+synthesis results, the results are intepretable in terms of
+approximate stellar masses and star-formation histories. We present
+templates fit with this method to data from GALEX, Sloan Digital Sky
+Survey spectroscopy and photometry, the Two-Micron All Sky Survey, the
+Deep Extragalactic Evolutionary Probe and Great Observatories Origins
+Deep Survey.  In addition, we present software for using such data to
+estimate $K$-corrections, stellar masses, and recent star-formation
+rates. This software is suitable for analyzing many other data sets as
+well.
 \end{abstract}
 
 \keywords{galaxies: fundamental parameters --- galaxies: photometry
@@ -322,7 +323,7 @@ software is suitable for analyzing many other data sets as well.
 \section{Motivation}
 \label{motivation}
 
-New surveys at a low and high redshift have provided us with estimates
+New surveys at low and high redshift have provided us with estimates
 of galaxy spectral energy distributions (SEDs) for an enormous number
 of galaxies. When comparing populations of galaxies at different
 redshifts in these surveys, we need to use comparable measurements of
@@ -344,7 +345,7 @@ bolometric distance modulus calculated from the luminosity distance
 $d_L$, and $M_Q$ is the absolute magnitude. The absolute magnitude is
 defined as the apparent magnitude an object would have if were
 observed 10 pc away, in bandpass $Q$, at rest.  The traditional
-definition of the $K$-correction takes $Q=R$. however, we note that in
+definition of the $K$-correction takes $Q=R$. However, we note that in
 practice many surveys do perform $K$-corrections from one observed
 bandpass $R$ to another bandpass $Q$ in the rest frame. This practice
 is particularly common when dealing with high redshift observations.
@@ -355,11 +356,12 @@ describes the stellar mass and star-formation history of each galaxy.
 The templates are designed to work well for a wide range of data sets.
 We constrain them with photometry and spectroscopy of the Sloan
 Digital Sky Survey (SDSS; \citealt{york00a}) the Galaxy Evolution
-Explorer (GALEX; {\bf ref})) in the ultraviolet, and the Two-Micron
-All Sky Survey (2MASS; \citealt{skrutskie97a}) in the near infrared
-(NIR). In addition, at higher redshifts, we use constraints from the
-Deep Extragalactic Evolutionary Probe 2 (DEEP2; \citealt{davis03a,
-faber03a}) and the Great Observatories Origins Deep Survey (GOODS;
+Explorer (GALEX; \citealt{martin05a}) in the ultraviolet, and the
+Two-Micron All Sky Survey (2MASS; \citealt{skrutskie97a}) in the near
+infrared (NIR). In addition, at higher redshifts, we use constraints
+from the Deep Extragalactic Evolutionary Probe 2 (DEEP2;
+\citealt{davis03a, faber03a}) and the Great Observatories Origins Deep
+Survey (GOODS;
 \citealt{giavalisco04a}).  These and other data sets provide a huge set of
 information about galaxy colors and spectra which we can use to help
 understand their star-formation histories.
@@ -376,7 +378,7 @@ Web{\footnote {\tt http://cosmo.nyu.edu/blanton/kcorrect/}}. It
 consists of a core C library which performs most of the complex and
 computationally intensive tasks, plus an IDL library that provides a
 high-level interface.  This software is an update of two major earlier
-releases ({\tt v1\_16}, \citealt{blanton03b}; {\tt v3\_2}). The
+releases ({\tt v1\_16}; \citealt{blanton03b}; {\tt v3\_2}). The
 improvement over the latest version is twofold. First, we have
 improved the templates such that they successfully fit galaxies in the
 restframe UV, as observed by GALEX, DEEP2, and GOODS. Second, because
@@ -389,6 +391,12 @@ templates, given a set of models and a set of data. We also describe
 the data and models used here. In Section \ref{results}, we show the
 results: the best-fit templates and how well they fit the data. 
 
+Where necessary, we have assumed cosmological parameters $\Omega_0 =
+0.3$, $\Omega_\Lambda = 0.7$, and $H_0 = 100$ $h$ km s$^{-1}$
+Mpc$^{-1}$ (with $h=1$). All magnitudes are (unless otherwise noted)
+AB-relative.  Except where noted, I will always be referring to the
+version of the {\tt kcorrect} software labeled {\tt
+v4\_1\_4}. 
 
 \section{Finding the templates}
 \label{algorithm}
@@ -410,9 +418,9 @@ described above in order to determine the properties of the locus of
 galaxy spectra. Rather than taking the model-free approach used by
 PCA, we here restrict the space of possible spectra to those predicted
 from the high resolution stellar population synthesis model of
-\citet{bruzual03a} and the emission line models of {\bf mappings
-ref}.  This approach both constrains the problem appropriately and
-yields a natural theoretical interpretation of the results in terms of
+\citet{bruzual03a} and the nebular emission line models of \citet{kewley01a}.
+This approach both constrains the problem appropriately and yields a
+natural theoretical interpretation of the results in terms of
 star-formation histories.
 
 In a nutshell, our algorithm does the following. Given the
@@ -422,7 +430,10 @@ template star-formation histories which best predict those
 observations in the $\chi^2$ sense. Given the entire set of galaxy
 observations available, it also fits for those template star-formation
 histories. The technical name for this algorithm is Nonnegative Matrix
-Factorization (NMF).
+Factorization (NMF). Note that this problem is not the same as the
+well-known nonnegative least squares problem, which would fit for the
+best-fit nonnegative linear combination of templates, but not for the
+form of the templates themselves.
 
 This approach is similar to PCA in that it finds the small spectral
 subspace in which galaxies exist, and can in some ways be thought of
@@ -433,48 +444,62 @@ corresponding subspace of all possible star-formation
 histories. Second, it naturally handles data uncertainties and missing
 data, which allows it to ignore that variation which is due purely to
 statistical errors.  Third, it handles the complications of observing
-galaxy spectra photometrically using broad-band filters.
+galaxy spectra photometrically using broad-band filters of galaxies at
+varying redshifts, whereas standard PCA requires a constant grid of
+observations in rest-frame wavelength space.
 
-In this section, we describe how to take the astrophysical
-models and the astronomical observations, and to pose the problem in
-the form needed for the purposes of NMF. In Appendix \ref{nmf} we describe
+In this section, we describe how to take the astrophysical models and
+the astronomical observations, and to pose the problem in the form
+needed for the purposes of NMF. Section \ref{models} describes the
+basis set of models, Section \ref{In Appendix \ref{nmf} we describe
 how to solve to NMF problem.
 
 \subsection{The models}
 \label{models}
 
 We begin with a basis set of 485 spectral templates. Of these, 450 are
-a set of instantaneous bursts from \citet{bruzual03a}. There are 6
-metallicities (0.005, 0.02, 0.2, 0.4, 1, and 2.5 times solar). For
-each metallicity there are 25 ages (between 1 Myr and 13.75 Gyr,
-spaced almost logarithmically in age).  For each age and metallicity
-there are 3 choices of dust model: (1) no dust extinction; (2) $\tau_V
-= 3$ dust with Milky Way type extinction (as input into the models of
+a set of instantaneous bursts from \citet{bruzual03a}, using the
+\citet{chabrier03a} stellar initial mass function and the Padova1994
+isochrones. We select 6 metallicities (0.005, 0.02, 0.2, 0.4, 1, and
+2.5 times solar). For each metallicity we select 25 ages (between 1
+Myr and 13.75 Gyr, spaced almost logarithmically in age).  For each
+age and metallicity we make 3 choices of dust model: (1) no dust
+extinction; (2) $\tau_V = 3$ dust with Milky Way type extinction (as
+input into the models of
 \citealt{witt00a} with a ``homogeneous'' distribution and ``shell''
 geometry); (3) $\tau_V = 3$ dust with SMC type extinction (from the
 same models). We smooth each template to $300$ km s$^{-1}$ velocity
-dispersion. 
+dispersion (we will smooth the SDSS spectra in the training set to the
+same resolution). 
 
-The remaining 35 templates are from MAPPINGS-III {\bf ref} models of
-emission from ionized gas. We choose the predictions for an 8 Myr old
-continuous star-formation history with 5 possible metalliciticites
-(0.5, 0.2, 0.4, 1.0, and 2. times solar) and 7 possible ionization
-parameters ($q= 5\times 10^6$, $10^7$, $2\times 10^7$, $4\times 10^7$,
-$8 \times 10^7$, $1.5\times 10^8$, and $3\times 10^8$ cm s$^{-1}$). We
-take the spectra (given as a set of delta functions) and smooth them
-to $300$ km s$^{-1}$ velocity dispersion. {\bf LOPPED OFF LYMAN ALPHA}
+The remaining 35 templates are from MAPPINGS-III (\citealt{kewley01a})
+models of emission from ionized gas. We choose the predictions for an
+8 Myr old continuous star-formation history with 5 possible
+metalliciticites (0.5, 0.2, 0.4, 1.0, and 2. times solar) and 7
+possible ionization parameters ($q= 5\times 10^6$, $10^7$, $2\times
+10^7$, $4\times 10^7$, $8 \times 10^7$, $1.5\times 10^8$, and $3\times
+10^8$ cm s$^{-1}$). We take the spectra (given as a set of delta
+functions) and smooth them to $300$ km s$^{-1}$ velocity
+dispersion. The one alteration we make to all of these templates is to
+remove Ly$\alpha$, because it is generally much larger than observed
+in real galaxies.
 
 Let us refer to these 485 basis templates as $M_{\lambda,
 j}(\lambda)$, expressed in units of ergs s$^{-1}$ \AA$^{-1}$.
 
-We seek five templates $F_{\lambda, i}(\lambda)$ which are built from
-nonnegative combinations of the original basis set of $N$ templates:
+We seek to reduce this full basis space to a subspace in which
+galaxies actually exist. In particular, we seek five templates
+$F_{\lambda, i}(\lambda)$ built from nonnegative combinations of the
+original basis set of $N$ templates:
 \begin{equation}
 F_{\lambda, i}(\lambda) = \sum_j b_{ij} M_{\lambda, j}(\lambda),
 \end{equation}
-in units of ergs s$^{-1}$ \AA$^{-1}$.  For each galaxy $k$
-we want our model ${\hat{F}_\lambda}(\lambda)$ for their spectrum to
-be a nonegative sum of these five templates:
+in units of ergs s$^{-1}$ \AA$^{-1}$. In principle, we could seek any
+number of templates; from our experiments, we have found that five
+turns out to be a number large enough to explain the data we use
+here. For each galaxy $k$ we want our model
+${\hat{F}_\lambda}(\lambda)$ for their spectrum to be a nonegative sum
+of these five templates:
 \begin{equation}
 {\hat{F}}_{\lambda,_k}(\lambda) = \sum_i a_{ki} F_{\lambda,i}(\lambda).
 \end{equation}
@@ -489,12 +514,12 @@ The training set consists of:
 < z < 0.4$ (\citealt{strauss02a})
 \item SDSS photometric data on an independent set of LRGs ($griz$
 photometry only) and Main sample galaxies (using the full $ugriz$
-photometry). We use 2000 LRGs and 7000 Main sample galaxies.  For
-these galaxies we include 2MASS $JHK_s$ data ({\bf ref}) where
-available.
+photometry) in the same redshift ranges. We use 2000 LRGs and 7000
+Main sample galaxies.  For these galaxies we include 2MASS $JHK_s$
+extended source catalog data (\citealt{jarrett00a}) where available.
 \item GALEX DR1 far UV ($\sim 1500$ \AA) and near UV ($\sim 2300$ \AA)
-photometry for objects with SDSS redshifts and $ugriz$ photometry (4000
-galaxies; {\bf ref}).
+photometry for Main sample SDSS galaxies with redshifts and $ugriz$
+photometry (4000 galaxies; \citealt{martin05a}).
 \item The $BRI$ photometry for high redshift galaxies in the DEEP2 
 DR1 release between $0.6 < z < 1.5$ (4000
 galaxies; \citealt{davis03a, faber03a}).
@@ -516,7 +541,14 @@ recalibrated our photometry using the ``ubercalibration'' procedure
 described in \citet{blanton05a}.  Descriptions of these pipelines also
 exist in \citet{stoughton02a}.  An automated pipeline called {\tt
 idlspec2d} (in this case {\tt v4\_9}) measures the redshifts and
-classifies the reduced spectra (Schlegel et al., in preparation).
+classifies the reduced spectra (Schlegel et al., in preparation). We
+use the Petrosian magnitudes for the SDSS data (except where noted
+below for the LRG-only sample).
+
+For the GALEX and GOODS data we use ``auto'' magnitudes, which are the
+Kron-like magnitudes from SExtractor (\citealt{bertin96a}).  For 2MASS
+we use the ``extrapolated'' magnitudes from the Extended Source
+Catalog (\citealt{jarrett00a}).
 
 Note that there are 20 different broadband photometric filters listed
 above ($B$ in DEEP2 is different than the $B$ used by GOODS). The {\tt
@@ -543,8 +575,9 @@ integral of the numerator over wavelength (the total luminosity) is
 constant with redshift, and the total flux is related to the total
 luminosity by the inverse square law.  In addition, we smooth each
 spectrum by such an amount that, given its estimated velocity
-dispersion, its total velocity dispserion after smoothing is 300 km
-s$^{-1}$.
+dispersion, its total velocity dispersion after smoothing is 300 km
+s$^{-1}$ (there are a small number of galaxies with larger velocity
+dispersions, which we leave unchanged).
 
 Note that if we discretize the spectra to wavelengths $\lambda_l$, the
 relationship between the predicted SED for a galaxy $k$ and the basis
@@ -652,13 +685,15 @@ redshift for our expression of $\chi^2$, and set $1/\sigma_{kp}^2 = 0$
 for the rest of the values of the index $p$ so that we zero-weight
 those predictions.
 
-$\eta_{jp}$ and $M_{jl}$ are totally fixed, and we combine them into a
-single matrix $M_{jn}$ and the indices $p$ and $l$ into a single index
-$n$. We can similarly combine our observations $\mu_{kp}$ and
-$F_{\lambda, k}(\lambda_l)$ and their uncertainties $\sigma_{kp}$ and 
-$\sigma_{k}(\lambda_l)$ into vectors $x_{kn}$ and $\sigma_{kn}$.
-Then we can combine the Equations \ref{chi2spec} and \ref{chi2photo}
-into a single equation:
+The matrices $\eta_{jp}$ (related to the broad-band fluxes) and
+$M_{jl}$ (related to the spectra) are totally fixed, and we combine
+them into a single matrix $M_{jn}$ and the indices $p$ and $l$ into a
+single index $n$, to handle both the broad-band fluxes and spectra
+simultaneously. We can similarly combine our observations $\mu_{kp}$
+and $F_{\lambda, k}(\lambda_l)$ and their uncertainties $\sigma_{kp}$
+and $\sigma_{k}(\lambda_l)$ into vectors $x_{kn}$ and $\sigma_{kn}$.
+Then we can combine the Equations \ref{chi2spec} and
+\ref{chi2photo} into a single equation:
 \begin{equation}
 \label{chi2}
 \chi^2 = \sum_{kn} \left[ 
@@ -701,14 +736,11 @@ outside that range it is an extrapolation.
 
 Figure \ref{sfh_lrg} shows the star-formation history corresponding to
 this best-fit LRG spectrum. The top panel shows the star-formation per
-unit time as a function of look-back time.  The thick, straight line
-is the power law:
-\begin{equation}
-\mathrm{SFR} = \left(\frac{t}{t_0}\right)^2,
-\end{equation}
-where $t$ is the look-back time, for $t<13.75$ $h^{-1}$ Gyr, and $t_0=$
-{\bf number}. The bottom panel shows the mean metallicity of the
-forming stars as a function of time.
+unit time as a function of look-back time.  The bottom panel shows the
+mean metallicity of the forming stars as a function of time.  When
+considering these plots and those below, do remember that although
+these results are our best-fit, the parameters are highly degenerate
+(especially in, for example, neighboring age bins). 
 
 Figure \ref{lrg_colors} shows the LRG colors as a function of
 redshift, with the best fit template color overplotted as the smooth,
@@ -736,15 +768,18 @@ close to that of an A star.
 The left and middle columns of Figure \ref{sfh_templates} show the
 star-formation histories and metallicities associated with the
 templates. We have not imposed any smoothness criterion on these fits,
-which explains the ragged appearance of these histories. We do not
-believe the details of these fits, since neighboring ages or
-metallicities are highly degenerate with one another.
+which explains the ragged appearance of these histories.  The details
+of these fits are weakly constrained due to degeneracies within and
+among the templates, but we show them here for completeness.
 
 In all the results below, we use these five templates, unaltered. That
 is, when we speak below of ``fitting'' the templates, we mean we fix
 $b_{ij}$ to the five templates shown in this section and fit only for
-$a_{ki}$. In general below, the tests we perform are not to the
-training set but to independent sets of galaxies.
+$a_{ki}$. Since we have determined these templates to be appropriate
+for the data sets we include in the training set, they end up
+providing good fits to most other galaxies from the parent data sets.
+In general below, the tests we perform are not to the training set but
+to independent sets of galaxies.
 
 In Appendix \ref{format} we describe the form in which we release the
 star-formation histories and spectra associated with these templates.
@@ -781,23 +816,25 @@ of templates for high redshift galaxies (a possibility we find a
 priori unlikely), or that there are simply errors in the catalogs or
 the input filter curves. For example, in the $z$ and $V$ bands we find
 significant trends between redshifts $z=0.5$ and $1.5$ (echoed in
-Figure \ref{goods}. More significantly, in the $H$ band there is at
+Figure \ref{goods}). More significantly, in the $H$ band there is at
 least a 10\% offset in the magnitudes across all redshifts, which is
-almost certainly a catalog error.  {\bf GOODS people: this is your
-challenge! what is going on?} Other errors (such as a large scatter in
-the residuals in the $B$ band and some redshift dependence in the $J$
-band) are clearly due to the fact that the templates are not primarily
-designed for GOODS data. All in all, we recommend using the special
-templates for $K$-corrections within the GOODS data set.
+almost certainly a catalog error. Other errors (such as a large
+scatter in the residuals in the $B$ band and some redshift dependence
+in the $J$ band) are clearly due to the fact that the templates are
+not primarily designed for GOODS data. All in all, we recommend using
+the special templates for $K$-corrections within the GOODS data set.
 
 We can also test how well these templates recover actual spectra given
 only photometry. To do so, we take eight random SDSS spectra (chosen
 to span color space), project them onto the $g$, $r$ and $i$
 bandpasses, and then fit the five templates to just these three
 fluxes.  Figure \ref{specfit} compares the reconstructed model spectra
-to the original spectrum. The two agree extremely well. Naturally,
-this success depends heavily on the quality of the original stellar
-spectra used in the population synthesis code of \citet{bruzual03a}. 
+to the original spectrum. The two agree well in general, though some
+features (like the emission lines) are not reproduced well. 
+Naturally, this success is mostly due to the quality of the original
+stellar spectra used in the population synthesis code of
+\citet{bruzual03a}. These results encourage us that by using
+broad-band data we can infer $K$-corrections of galaxies. 
 
 \subsection{Predictive power of templates}
 
@@ -811,12 +848,12 @@ former shows the color residuals of {\it fitting} to both SDSS and
 2MASS data for each galaxy. The latter shows the color residuals when
 we fit {\it only} to the SDSS data and do not include 2MASS in the fit
 at all. Without any input from 2MASS the templates do a very good job
-of predicting the 2MASS fluxes, with a scatter of 20--30\% {\bf real
-number} --- not far from the uncertainties in the 2MASS fluxes
-themselves. Of course, it is not surprising that it is easy to predict
-the 2MASS fluxes --- stellar spectra are very simple in the NIR, so
-having the $ugriz$-band fluxes from SDSS yields much information
-regarding the redder bandpasses.
+of predicting the 2MASS fluxes, with a scatter of 20--30\% --- not far
+from the uncertainties in the 2MASS fluxes themselves. Of course, it
+is not surprising that it is easy to predict the 2MASS fluxes ---
+stellar spectra are very simple in the NIR, so having the $ugriz$-band
+fluxes from SDSS yields much information regarding the redder
+bandpasses.
 
 However, we will note here that this result flies in the face of a
 persistent insistence that NIR observations are necessary to measure
@@ -827,7 +864,9 @@ data is best to use for calculating the stellar mass function.  Basing
 it on 2MASS data only improves slightly the stellar mass estimate of
 each galaxy, while restricting (and thus biasing) the sample
 significantly at the lowest luminosities and surface brightnesses
-relative to the SDSS.
+relative to the SDSS. Of course, if at high redshift galaxies have
+a very different locus of their SEDs, then perhaps this statement is
+less true for them.
 
 In addition, consider Figures \ref{galex_resid} and
 \ref{galex_predicted}. The former shows the color residuals of {\it
@@ -863,7 +902,7 @@ calculated from the luminosity distance $d_L$, and $M_Q$ is the
 absolute magnitude. The absolute magnitude is defined as the apparent
 magnitude an object would have if were observed 10 pc away, in
 bandpass $Q$, at rest.  The traditional definition of the
-$K$-correction takes $Q=R$. however, we note that in practice many
+$K$-correction takes $Q=R$. However, we note that in practice many
 surveys do perform $K$-corrections from one observed bandpass $R$ to
 another bandpass $Q$ in the rest frame. This practice is particularly
 common when dealing with high redshift observations.  In addition to
@@ -928,7 +967,7 @@ blue-shifted bandpasses that correspond to the observed bandpass at
 some intermediate redshift. We denote these bandpasses \band{z}{b},
 where the blue-shift in this case is by a factor $1+z$. For example,
 in the case of SDSS galaxies it makes sense to correct to the
-\band{0.3}{r} bandpass --- the $r$ band blue-shifted to $z=0.1$. This
+\band{0.1}{r} bandpass --- the $r$ band blue-shifted to $z=0.1$. This
 bandpass has the property that the $K$-correction is independent of
 the SED of the galaxy. If the magnitudes are AB relative, then the
 $K$-correction to \band{z}{b} for a galaxy at redshift $z$ is simply
@@ -965,16 +1004,13 @@ imaging. Figure \ref{mass_to_garching} shows a galaxy-by-galaxy
 comparison of their stellar masses $M_{\ast,s}$ relative to ours
 $M_\ast$, as a function of $M_\ast$ and of intrinsic $g-r$ color. The
 two sets of masses are very similar to each other, with a scatter of
-only 0.1 dex and trends of less than 0.2 dex with stellar mass. As we
-did, \citet{kauffmann03a} used the library of \citet{bruzual03a} with
-the \citet{chabrier03a} initial mass function, which makes some of this
-agreement unsurprising.  To be explicit, the masses in Figure
-\ref{mass_to_garching} correspond to the current mass in stars
-remaining in the galaxy. This mass can differ from the total
-star-formation rate integrated over time, due to the fact that stars
-can die --- and in practice for our fits the total integrated
-star-formation rate is usually about twice as high as the total
-current mass in stars.
+only 0.1 dex and trends of less than 0.2 dex with stellar mass.  To be
+explicit, the masses in Figure \ref{mass_to_garching} correspond to
+the current mass in stars remaining in the galaxy. This mass can
+differ from the total star-formation rate integrated over time, due to
+the fact that stars can die --- and in practice for our fits the total
+integrated star-formation rate is usually about twice as high as the
+total current mass in stars.
 
 Similarly, Figure \ref{mtol} shows the mass-to-light ratios of SDSS
 galaxies in the $V$ band as a function of color in $B-V$. Here, we
@@ -996,16 +1032,19 @@ star-formation has occurred in, say, the past 1 Gyr:
 b_{G} = \frac{\int_0^{1\mathrm{~Gyr}} dt\, \mathrm{SFR}(t)}
 {\int_0^{a_{\mathrm{Univ}}} dt\, \mathrm{SFR}(t)}
 \end{equation}
-Note that here $b_G$ is defined in terms of the total integrated
+where the definition here is meant to be similar to the birthrate
+parameter $b$ in \citet{kennicutt94a} and references therein.  Note
+that here $b_G$ is defined in terms of the total integrated
 star-formation history (unlike the stellar masses referred to above)
-as is standard for the $b$ parameter (\citealt{kennicutt98a}). Figure
-\ref{umr_bg} shows the relationship between the rest-frame $u-r$ color
-for SDSS galaxies and $b_G$. For galaxies with $u-r < 2.5$ (redder
-than which galaxies are mostly reddened, edge-on disks) these two 
-parameters follow a simple relationship:
+as is standard for the $b$ parameter. Figure \ref{umr_bg} shows the
+relationship between the rest-frame $u-r$ color for SDSS galaxies and
+$b_G$. For galaxies with $u-r < 2.5$ (redder than which galaxies are
+mostly reddened, edge-on disks) these two parameters follow a simple
+relationship:
 \begin{equation}
 \log_{10} b_g = -0.55 (u-r). 
 \end{equation}
+Note, however, the large scatter (about 0.3 dex at 1$\sigma$). 
 
 \section{Linear relationships between common magnitude systems}
 \label{sdss2bessell}
@@ -1104,8 +1143,9 @@ http://skymaps.info}}.
 
 \acknowledgments
 
-The authors would like to thank Alison Coil, David W. Hogg, David
-Schiminovich, 
+The authors would like to thank Alison Coil, Michael Cooper, David
+W. Hogg, John Moustakas, Leonidas Moustakas, and David Schiminovich
+for their detailed comments and feedback. {\bf funding}
 
 This publication makes use of data products from the Two Micron All
 Sky Survey, which is a joint project of the University of

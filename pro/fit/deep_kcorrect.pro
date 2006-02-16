@@ -155,18 +155,17 @@ if(n_elements(out_filterlist) gt 0) then begin
 endif 
 out_filterlist=new_out_filterlist
 
-
-if(n_elements(mag) gt 0) then begin
+if(keyword_set(mag) or keyword_set(nmgy)) then begin
     mgy=fltarr(3, n_elements(redshift))
     mgy_ivar=fltarr(3, n_elements(redshift))
-    mgy[*,*]=10.^(-0.4*mag)
-    mgy_ivar[*,*]=1./(0.4*alog(10.)*mgy*err)^2.
-endif
-if(n_elements(nmgy) gt 0) then begin
-    mgy=fltarr(3, n_elements(redshift))
-    mgy_ivar=fltarr(3, n_elements(redshift))
-    mgy[*,*]=nmgy*1.e-9
-    mgy_ivar[*,*]=ivar*1.e+18
+    if(n_elements(mag) gt 0) then begin
+        mgy[*,*]=10.^(-0.4*mag)
+        mgy_ivar[*,*]=1./(0.4*alog(10.)*mgy*err)^2.
+    endif
+    if(n_elements(nmgy) gt 0) then begin
+        mgy[*,*]=nmgy*1.e-9
+        mgy_ivar[*,*]=ivar*1.e+18
+    endif
 endif
 
 if(n_tags(zcat) gt 0) then $

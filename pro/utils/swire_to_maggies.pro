@@ -42,7 +42,7 @@
 pro swire_to_maggies, swire, maggies, ivar
 
 red_fac=[5.08248, 3.73964, 2.71230, 2.05665, 1.45819, 0., 0., 0., 0., 0.]
-abfix=[0.79, -0.09, 0.16, 0.39, 0.57, 0., 0. ,0., 0. ,0.]
+abfix=[0., 0.0, 0., 0., 0., 0., 0. ,0., 0. ,0.]
 
 maggies=fltarr(10, n_elements(swire))
 ivar=fltarr(10, n_elements(swire))
@@ -53,7 +53,8 @@ ebv=dust_getval(gl,gb, /interp, /noloop)
 i=0
 ftag=tag_indx(swire[0], 'ap_m_u')
 utag=tag_indx(swire[0], 'msig_u')
-ig=where(swire.(utag) ne -99., ng)
+ig=where(swire.(utag) ne -99. AND swire.(utag) ne 0. AND $
+         swire.(ftag) ne -99. AND swire.(ftag) ne 0., ng)
 if(ng gt 0) then begin
     maggies[i,ig]= 10.^(-0.4*swire[ig].(ftag))*10.^(0.4*ebv[ig]*red_fac[i])
     ivar[i,ig]= 1./(0.4*alog(10.)*maggies[i,ig]*swire[ig].(utag))^2
@@ -62,7 +63,8 @@ endif
 i=1
 ftag=tag_indx(swire[0], 'ap_m_g')
 utag=tag_indx(swire[0], 'msig_g')
-ig=where(swire.(utag) ne -99., ng)
+ig=where(swire.(utag) ne -99. AND swire.(utag) ne 0. AND $
+         swire.(ftag) ne -99. AND swire.(ftag) ne 0., ng)
 if(ng gt 0) then begin
     maggies[i,ig]= 10.^(-0.4*swire[ig].(ftag))*10.^(0.4*ebv[ig]*red_fac[i])
     ivar[i,ig]= 1./(0.4*alog(10.)*maggies[i,ig]*swire[ig].(utag))^2
@@ -71,7 +73,8 @@ endif
 i=2
 ftag=tag_indx(swire[0], 'ap_m_r')
 utag=tag_indx(swire[0], 'msig_r')
-ig=where(swire.(utag) ne -99., ng)
+ig=where(swire.(utag) ne -99. AND swire.(utag) ne 0. AND $
+         swire.(ftag) ne -99. AND swire.(ftag) ne 0., ng)
 if(ng gt 0) then begin
     maggies[i,ig]= 10.^(-0.4*swire[ig].(ftag))*10.^(0.4*ebv[ig]*red_fac[i])
     ivar[i,ig]= 1./(0.4*alog(10.)*maggies[i,ig]*swire[ig].(utag))^2
@@ -80,7 +83,8 @@ endif
 i=3
 ftag=tag_indx(swire[0], 'ap_m_i')
 utag=tag_indx(swire[0], 'msig_i')
-ig=where(swire.(utag) ne -99., ng)
+ig=where(swire.(utag) ne -99. AND swire.(utag) ne 0. AND $
+         swire.(ftag) ne -99. AND swire.(ftag) ne 0., ng)
 if(ng gt 0) then begin
     maggies[i,ig]= 10.^(-0.4*swire[ig].(ftag))*10.^(0.4*ebv[ig]*red_fac[i])
     ivar[i,ig]= 1./(0.4*alog(10.)*maggies[i,ig]*swire[ig].(utag))^2
@@ -89,15 +93,16 @@ endif
 i=4
 ftag=tag_indx(swire[0], 'ap_m_z')
 utag=tag_indx(swire[0], 'msig_z')
-ig=where(swire.(utag) ne -99., ng)
+ig=where(swire.(utag) ne -99. AND swire.(utag) ne 0. AND $
+         swire.(ftag) ne -99. AND swire.(ftag) ne 0., ng)
 if(ng gt 0) then begin
     maggies[i,ig]= 10.^(-0.4*swire[ig].(ftag))*10.^(0.4*ebv[ig]*red_fac[i])
     ivar[i,ig]= 1./(0.4*alog(10.)*maggies[i,ig]*swire[ig].(utag))^2
 endif
 
 i=5
-ftag=tag_indx(swire[0], 'flux_ap_36')
-utag=tag_indx(swire[0], 'uncf_ap_36')
+ftag=tag_indx(swire[0], 'flux_ap5_36')
+utag=tag_indx(swire[0], 'uncf_ap5_36')
 ig=where(swire.(utag) ne -99., ng)
 if(ng gt 0) then begin
     maggies[i,ig]= swire[ig].(ftag)*1.e-6/3631.*10.^(0.4*ebv[ig]*red_fac[i])
@@ -105,8 +110,8 @@ if(ng gt 0) then begin
 endif
 
 i=6
-ftag=tag_indx(swire[0], 'flux_ap_45')
-utag=tag_indx(swire[0], 'uncf_ap_45')
+ftag=tag_indx(swire[0], 'flux_ap5_45')
+utag=tag_indx(swire[0], 'uncf_ap5_45')
 ig=where(swire.(utag) ne -99., ng)
 if(ng gt 0) then begin
     maggies[i,ig]= swire[ig].(ftag)*1.e-6/3631.*10.^(0.4*ebv[ig]*red_fac[i])
@@ -114,8 +119,8 @@ if(ng gt 0) then begin
 endif
 
 i=7
-ftag=tag_indx(swire[0], 'flux_ap_58')
-utag=tag_indx(swire[0], 'uncf_ap_58')
+ftag=tag_indx(swire[0], 'flux_ap5_58')
+utag=tag_indx(swire[0], 'uncf_ap5_58')
 ig=where(swire.(utag) ne -99., ng)
 if(ng gt 0) then begin
     maggies[i,ig]= swire[ig].(ftag)*1.e-6/3631.*10.^(0.4*ebv[ig]*red_fac[i])
@@ -123,8 +128,8 @@ if(ng gt 0) then begin
 endif
 
 i=8
-ftag=tag_indx(swire[0], 'flux_ap_80')
-utag=tag_indx(swire[0], 'uncf_ap_80')
+ftag=tag_indx(swire[0], 'flux_ap5_80')
+utag=tag_indx(swire[0], 'uncf_ap5_80')
 ig=where(swire.(utag) ne -99., ng)
 if(ng gt 0) then begin
     maggies[i,ig]= swire[ig].(ftag)*1.e-6/3631.*10.^(0.4*ebv[ig]*red_fac[i])
@@ -132,8 +137,8 @@ if(ng gt 0) then begin
 endif
 
 i=9
-ftag=tag_indx(swire[0], 'flux_ap_24')
-utag=tag_indx(swire[0], 'uncf_ap_24')
+ftag=tag_indx(swire[0], 'flux_ap5_24')
+utag=tag_indx(swire[0], 'uncf_ap5_24')
 ig=where(swire.(utag) ne -99., ng)
 if(ng gt 0) then begin
     maggies[i,ig]= swire[ig].(ftag)*1.e-6/3631.*10.^(0.4*ebv[ig]*red_fac[i])
