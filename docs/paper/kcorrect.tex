@@ -1,4 +1,6 @@
 \documentclass[10pt,preprint]{aastex}
+\usepackage{amsmath}
+\usepackage{epsfig}
 
 \newcommand{\vv}[1]{{\bf #1}}
 \newcommand{\df}{\delta}
@@ -22,6 +24,45 @@
 \newcommand{\band}[2]{\ensuremath{^{{#1}}\!{#2}}}
 \newcommand{\lambdaobs}{\lambda_o}
 \newcommand{\lambdaemit}{\lambda_e}
+
+\def\beq#1\eeq{\begin{equation}#1\end{equation}}
+\def\beqa#1\eeqa{\begin{align}#1\end{align}}
+\def\beqq#1\eeqq{\begin{equation*}#1\end{equation*}}
+\def\beqqa#1\eeqqa{\begin{align*}#1\end{align*}}
+\def\bseq#1\eseq{\begin{subequations}#1\end{subequations}}
+
+\newcommand{\T}{^{\scriptscriptstyle \top}}
+\newcommand{\iT}{^{\scriptscriptstyle -\top}}
+\newcommand{\inv}{^{-1}}
+
+\newcommand{\ie}{i.e.}
+
+\newcommand{\Log}{\mathrm{Log}}
+\newcommand{\trace}{\mathrm{Tr}}
+\newcommand{\detM}{\det(M)}
+
+\newcommand{\XX}{X}
+\newcommand{\XXt}{\tilde{X}}
+\newcommand{\XXh}{\hat{X}}
+\newcommand{\Xij}{X_{ij}}
+\newcommand{\Xijh}{\hat{X}_{ij}}
+\renewcommand{\AA}{A}
+\newcommand{\AAt}{\tilde{A}}
+\newcommand{\WW}{W}
+\newcommand{\WWt}{\tilde{W}}
+\newcommand{\Wik}{W_{ik}}
+\newcommand{\HH}{H}
+\newcommand{\HHt}{\tilde{H}}
+\newcommand{\Hkj}{H_{kj}}
+\newcommand{\BB}{B}
+\newcommand{\BBt}{\tilde{B}}
+\newcommand{\MM}{M}
+\newcommand{\MMt}{\tilde{M}}
+\newcommand{\Aik}{A_{ik}}
+\newcommand{\Bkr}{B_{kr}}
+\newcommand{\Mrj}{M_{rj}}
+\newcommand{\sij}{\sigma_{ij}}
+
 
 \setlength{\footnotesep}{9.6pt}
 
@@ -451,7 +492,7 @@ observations in rest-frame wavelength space.
 In this section, we describe how to take the astrophysical models and
 the astronomical observations, and to pose the problem in the form
 needed for the purposes of NMF. Section \ref{models} describes the
-basis set of models, Section \ref{In Appendix \ref{nmf} we describe
+basis set of models, Section {\bf redo} In Appendix \ref{nmf} we describe
 how to solve to NMF problem.
 
 \subsection{The models}
@@ -1186,7 +1227,170 @@ and the University of Washington.
 \section{Nonnegative matrix factorization (NMF)}
 \label{nmf}
 
-[sam sam sam sam]
+\subsection{Standard NMF}
+The standard non-negative matrix factorization (NMF) problem, as
+originally posed by Lee and Seung\cite{??}, is to approximate a data
+matrix $\XX$ (of size $n\times d$) as the outer product of two
+rank-$k$ non-negative matrices $\WW$ and $\HH$. For example, in this
+paper, $\XX$ represents the fluxes at $n$ different wavelengths for
+$d$ different galaxies, $\HH$ represents a set of templates to build
+each galaxy from, and $\WW$ represents, for each galaxy, the weights
+to give each template. This factorization is similar in spirit to
+singular value decomposition (SVD) and principal components analysis
+(PCA) but crucially, in NMF, $\XX$, $\WW$ and $\HH$ are all
+constrained to have non-negative entries. This changes the problem
+fundamentally, since no ``cancellation'' of positive and negative
+basis functions or coefficients is possible -- all approximation
+interactions are strictly additive. The goal, as with SVD or PCA, is
+to minmize the squared approximation error (Frobenius norm):
+\beqa
+\chi^2 &= \|\XX-\WW\HH\|^2\\
+%&= \|\XX-\XXh\|^2\\
+&= \sum_{ij} \left(\Xij - \sum_k \Wik\Hkj \right)^2
+\eeqa
+In their seminal papers\cite{??}, Lee and Seung show that this approximation
+error in non-increasing under the following very simple multiplicative
+update rules: 
+\beqa
+\Wik &\leftarrow \Wik \frac{[\XX\HH\T]_{ik}}{[\WW\HH\HH\T]_{ik}}\\
+\Hkj &\leftarrow \Hkj \frac{[\WW\T\XX]_{kj}}{[\WW\T\WW\HH]_{kj}}
+\eeqa
+$[M]_{ab}$ denotes the $(ab)$ element of the matrix valued expression
+$M$. $\HH\T$ is the transpose of matrix $\HH$.
+
+These rules are remarkable because, although they make finite (not
+infinitesimal) adjustments to the elements of the approximation
+matrices, they have no step-size parameters and are always guaranteed
+to reduce the error (or leave it invariant once they have converged).
+$\chi^2$ is in general a ``non-convex'' function of $\WW$ and $\HH$,
+meaning we cannot guarantee there is only one local
+minimum. Therefore, the procedure does not necessarily find the global
+optimum. But in practice, even with random initialization, these rules
+tend to converge to good solutions when the data matrix $\XX$ is
+highly structured. {\bf explain!}
+
+\subsection{NMF in the space of coefficients for a known basis}
+The factorization problem we face in this paper is a slight variation on the
+basic NMF setup described above. We wish to approximate $\XX$ by the
+product $\AA\BB\MM$, 
+where $\MM$ is a given (fixed) basis matrix of size $r \times d$
+and the optimization is over the matrices $\AA$ (of size
+$n\times k$) and $\BB$ (of size $k\times r$). All matrices
+$\XX,\AA,\BB\,\MM$ have non-negative entries. This can be thought of
+as performing non-negative matrix factorization on the coefficients of
+an approximation, given a fixed (non-negative) basis, described by the
+columns of $\MM$. Once again, the objective we wish to minimize is the
+squared approximation error: 
+\beqa
+\chi^2 &= \|\XX-\AA\BB\MM\|^2\\
+&= \sum_{ij} \left(\Xij - \sum_{kr} \Aik\Bkr\Mrj \right)^2
+\eeqa
+In the case of this paper, this generalization allows us to express
+the templates in terms of star-formation histories, but to compare the
+predicted fluxes for the star-formation histories through the $\MM$
+matrix to the observed fluxes $\XX$.
+
+Of course, in the very special case where $\MM$ is an invertible
+matrix, this problem can be transformed into the original NMF problem above by
+right multiplying the data matrix by $\MM\inv$. However, in most
+situations, including ours, $\MM$ has many fewer rows than columns, and
+as such is far from invertible. Fortunately, however, it is possible
+to derive multiplicative updates for this extended problem 
+which minimze the error directly, even when $\MM$ is not invertible.
+
+First, by thinking of the tensor product $\BB\MM$ as a single
+non-negative matrix $\HH$, we can trivially derive a multiplicative
+update equation for the elements of $\AA$ by using the $\WW$ update
+provided above: 
+\beq
+\Aik \leftarrow \Aik 
+\frac{[\XX\MM\T\BB\T]_{ik}}{[\AA\BB\MM\MM\T\BB\T]_{ik}}
+\eeq
+By Lee and Seung's original proof, this update is guaranteed (for any
+non-negative matrices $\XX$,$\MM$ and $\BB$) not to increase the
+approximation error. 
+
+Our main algorithmic contribution is to derive a similar update equation
+for the elements of $\BB$:
+\beq
+\Bkr \leftarrow \Bkr
+\frac{[\AA\T\XX\MM\T]_{kr}}{[\AA\T\AA\BB\MM\MM\T]_{kr}}
+\eeq
+Following the technique outlined in \cite{??}, it can still be shown
+that the error is nonincreasing under the application of this update.
+
+\subsection{Nonuniform uncertainties}
+When different entries $\Xij$ of the data matrix have different
+uncertainties, the natural objective function is the weighted approximation
+error (which also corresponds to the negative log likelihood under a
+Gaussian noise assumption):
+\beq
+\chi^2 = \sum_{ij} \left( \frac{\Xij - 
+\sum_k \Wik\Hkj}{\sij}\right)^2
+\eeq
+
+This case can easily be handled since during the update for $\WW$ the
+elements of $\HH$ are fixed and vice versa and the updates are
+guaranteed not to increase the cost for any nonnegative matrices.
+%In particular, define $\XXt_{ij}=\Xij/\sij$,
+%$\WWt(j)_{ik}=\Wik/\sij$ and 
+%$\HHt(i)_{kj}=\Hkj/\sij$. 
+In particular, when updating $\WW$, we can rewrite the cost function as
+\beq
+\chi^2 = \sum_{ij} \left( \frac{\Xij}{\sij} - 
+\sum_k \Wik\frac{\Hkj}{\sij}\right)^2
+%= \sum_{ij} \left(\XXt_{ij} - 
+%\sum_k \Wik\HHt(i)_{kj}\right)^2
+\eeq
+yielding updates of the form:
+\beq
+\Wik \leftarrow \Wik 
+\left( \sum_j \frac{\Xij\Hkj}{\sij^2} \right) / 
+\left( \sum_{mj} \frac{W_{im}H_{mj}\Hkj}{\sij^2}\right)
+%\Wik \leftarrow \Wik \frac{[\XXt\HHt(i)\T]_{ik}}{[\WW\HHt(i)\HHt(i)\T]_{ik}}
+\eeq
+
+and similarly, when updating $\HH$, we can rewrite the cost function as
+\beq
+\chi^2 = \sum_{ij} \left( \frac{\Xij}{\sij} - 
+\sum_k \frac{\Wik}{\sij}\Hkj\right)^2
+%= \sum_{ij} \left(\XXt_{ij} - 
+%\sum_k \WWt(j)_{ik}\Hkj\right)^2
+\eeq
+yielding updates of the form:
+\beq
+\Hkj \leftarrow \Hkj
+\left( \sum_i \frac{\Wik\Xij}{\sij^2}\right) /
+\left( \sum_{mi} \frac{\Wik{}W_{im}H_{mj}}{\sij^2}\right)
+%\Hkj \leftarrow \Hkj \frac{[\WWt(j)\T\XX]_{kj}}{[\WWt(j)\T\WWt(j)\HH]_{kj}}
+\eeq
+
+This argument can be equally applied to our extended model, yeilding
+the final update equations which are actually implemented in the
+kcorrect code:
+\centerline{\fbox{\parbox{4.3in}{
+\beqa 
+\Aik &\leftarrow \Aik 
+\left( \sum_{rj} \frac{\Xij\Mrj\Bkr}{\sij^2}\right) / 
+\left( \sum_{mnrj} \frac{A_{im}B_{mr}M_{rj}M_{jn}B_{kn}}{\sij^2}\right) \\
+\Bkr &\leftarrow \Bkr
+\left( \sum_{ij} \frac{\Aik\Xij\Mrj}{\sij^2}\right) / 
+\left( \sum_{mnij} \frac{A_{ik}A_{im}B_{mn}M_{nj}M_{rj}}{\sij^2}\right)
+\eeqa
+}}}
+
+%\centerline{\fbox{\parbox{2.6in}{
+%\beqa
+%\Aik &\leftarrow \Aik 
+%\frac{[\XXt\MMt(i)\T\BB\T]_{ik}}{[\AA\BB\MMt(i)\MMt(i)\T\BB\T]_{ik}}\\
+%\Bkr &\leftarrow \Bkr
+%\frac{[\AAt(?)\T\AAt(?)\BB\MM\MM\T]_{kr}}{[\AAt(?)\T\XXt\MM\T]_{kr}}
+%\eeqa
+%}~~}}\\[.2in]
+%pwhere $\XXt_{ij}=\Xij/\sij$, $\MMt(i)_{rj} = \Mrj/\sij$ and
+%$\AAt(?)_{ik}=\Aik/??$. 
+%}}}
+
 
 \section{Format for templates}
 \label{format}
