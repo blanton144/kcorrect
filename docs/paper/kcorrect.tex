@@ -44,24 +44,24 @@
 \newcommand{\XX}{X}
 \newcommand{\XXt}{\tilde{X}}
 \newcommand{\XXh}{\hat{X}}
-\newcommand{\Xij}{X_{ij}}
-\newcommand{\Xijh}{\hat{X}_{ij}}
+\newcommand{\Xkn}{X_{kn}}
+\newcommand{\Xknh}{\hat{X}_{kn}}
 \renewcommand{\AA}{A}
 \newcommand{\AAt}{\tilde{A}}
 \newcommand{\WW}{W}
 \newcommand{\WWt}{\tilde{W}}
-\newcommand{\Wik}{W_{ik}}
+\newcommand{\Wki}{W_{ki}}
 \newcommand{\HH}{H}
 \newcommand{\HHt}{\tilde{H}}
-\newcommand{\Hkj}{H_{kj}}
+\newcommand{\Hin}{H_{in}}
 \newcommand{\BB}{B}
 \newcommand{\BBt}{\tilde{B}}
 \newcommand{\MM}{M}
 \newcommand{\MMt}{\tilde{M}}
-\newcommand{\Aik}{A_{ik}}
-\newcommand{\Bkr}{B_{kr}}
-\newcommand{\Mrj}{M_{rj}}
-\newcommand{\sij}{\sigma_{ij}}
+\newcommand{\Aki}{A_{ki}}
+\newcommand{\Bij}{B_{ij}}
+\newcommand{\Mjn}{M_{jn}}
+\newcommand{\skn}{\sigma_{kn}}
 
 
 \setlength{\footnotesep}{9.6pt}
@@ -87,7 +87,7 @@ ultraviolet to the near infrared}
 
 \author{
 Michael R. Blanton\altaffilmark{\ref{NYU}} and 
-Sam Roweis
+Sam Roweis\altaffilmark{\ref{UToronto}}
 %Tamas Budavari\altaffilmark{\ref{JHU}},
 %Andrew J. Connolly\altaffilmark{\ref{Pitt}},
 %J.~Brinkmann\altaffilmark{\ref{APO}},
@@ -161,14 +161,18 @@ Sam Roweis
 %and Donald G.~York\altaffilmark{\ref{Chicago}}
 }
 
-\altaffiltext{1}{Based on observations obtained with the
-Sloan Digital Sky Survey} 
-\setcounter{address}{2}
+\setcounter{address}{0}
 \altaffiltext{\theaddress}{
 \stepcounter{address}
-New York University, Department of Physics, 4 Washington Place, New
+New York University, Center for Cosmology and Particle Physics, 4 Washington Place, New
 York, NY 10003
 \label{NYU}}
+\setcounter{address}{1}
+\altaffiltext{\theaddress}{
+\stepcounter{address}
+University of Toronto, Dept. of Computer Science, 6 King's College
+Rd., Toronto, Ontario M5S 3G4, CANADA
+\label{UToronto}}
 %\altaffiltext{\theaddress}{
 %\stepcounter{address}
 %Department of Physics and Astronomy, The Johns Hopkins University,
@@ -394,23 +398,26 @@ In addition to $K$-corrections, this method also provides an
 interpretation of the data in terms of a physical model which
 describes the stellar mass and star-formation history of each galaxy.
 
-The templates are designed to work well for a wide range of data sets.
-We constrain them with photometry and spectroscopy of the Sloan
-Digital Sky Survey (SDSS; \citealt{york00a}) the Galaxy Evolution
-Explorer (GALEX; \citealt{martin05a}) in the ultraviolet, and the
-Two-Micron All Sky Survey (2MASS; \citealt{skrutskie97a}) in the near
-infrared (NIR). In addition, at higher redshifts, we use constraints
-from the Deep Extragalactic Evolutionary Probe 2 (DEEP2;
-\citealt{davis03a, faber03a}) and the Great Observatories Origins Deep
-Survey (GOODS;
-\citealt{giavalisco04a}).  These and other data sets provide a huge set of
-information about galaxy colors and spectra which we can use to help
-understand their star-formation histories.
+The method is designed to work well for a wide range of data sets.  It
+uses photometry and spectroscopy of the Sloan Digital Sky Survey
+(SDSS; \citealt{york00a}) the Galaxy Evolution Explorer (GALEX;
+\citealt{martin05a}) in the ultraviolet, and the Two-Micron All Sky
+Survey (2MASS; \citealt{skrutskie97a}) in the near infrared (NIR). In
+addition, at higher redshifts, we use constraints from the Deep
+Extragalactic Evolutionary Probe 2 (DEEP2; \citealt{davis03a,
+faber03a}) and the Great Observatories Origins Deep Survey (GOODS;
+\citealt{giavalisco04a}).  These and other data sets provide a huge
+set of information about galaxy colors and spectra which we can use to
+help understand their star-formation histories.
 
-We note that the methods used here are generally useful. Using these
-methods to develop templates has the advantage that one can easily
-search a large space of models in order to find the few templates
-necessary in order to explain a given set of data.
+We note that some of the algorithmic techniques used here may have
+applications in other areas of astrophysics. First, nonnegative matrix
+factorization (NMF; \citealt{lee00a}), and the extensions to it we
+describe here, is a particularly useful variant on principal component
+analysis. Second, the nonnegative least squares algorithm of
+\citet{sha02a} has the virtue of being extremely simple to implement.
+These methods may find other applications in image analysis, spectroscopic
+analysis, and model fitting in astrophysics.
 
 We also release the templates in electronic form as well as an
 implementation of the methods used to fit the templates to data. This
@@ -420,7 +427,7 @@ consists of a core C library which performs most of the complex and
 computationally intensive tasks, plus an IDL library that provides a
 high-level interface.  This software is an update of two major earlier
 releases ({\tt v1\_16}; \citealt{blanton03b}; {\tt v3\_2}). The
-improvement over the latest version is twofold. First, we have
+improvement over the previous version is twofold. First, we have
 improved the templates such that they successfully fit galaxies in the
 restframe UV, as observed by GALEX, DEEP2, and GOODS. Second, because
 the templates are now completely model-based, the fits have a physical
@@ -430,14 +437,22 @@ also has a number of new useful functions.
 In Section \ref{algorithm}, we describe how to find suitable
 templates, given a set of models and a set of data. We also describe
 the data and models used here. In Section \ref{results}, we show the
-results: the best-fit templates and how well they fit the data. 
+results: the best-fit templates and how well they fit the data.  In
+Section \ref{kcorrect}, we describe how to convert our results into an
+estimate of the $K$-correction. In Section \ref{physical}, we describe
+the physical interpretation of the templates and of fits to data.  In
+Section \ref{sdss2bessell}, we present some simplified, linear
+transformations between various bandpasses. In Section \ref{summary},
+we summarize our results. Appendix \ref{nmf} describes the NMF
+algorithm.  Appendix \ref{format} describes the electronic format of
+our results.
 
 Where necessary, we have assumed cosmological parameters $\Omega_0 =
 0.3$, $\Omega_\Lambda = 0.7$, and $H_0 = 100$ $h$ km s$^{-1}$
-Mpc$^{-1}$ (with $h=1$). All magnitudes are (unless otherwise noted)
-AB-relative.  Except where noted, I will always be referring to the
-version of the {\tt kcorrect} software labeled {\tt
-v4\_1\_4}. 
+Mpc$^{-1}$ (with $h=1$), unless otherwise noted. All magnitudes are
+(unless otherwise noted) AB-relative.  Except where noted, I will
+always be referring to the version of the {\tt kcorrect} software
+labeled {\tt v4\_1\_4}.
 
 \section{Finding the templates}
 \label{algorithm}
@@ -445,55 +460,55 @@ v4\_1\_4}.
 \subsection{Overview}
 
 From the spectroscopic observations we know that galaxy spectra reside
-in a low-dimensional locus. Principal Component Analysis (PCA) of
+in a low-dimensional subspace. Principal Component Analysis (PCA) of
 galaxy spectra, introduced by \citet{connolly95b} and applied many
 times since then, demonstrates that most of the variance in the
 distribution of galaxies in spectral space can be explained using a
 few templates. This means that, in the linear space of all possible
-spectra, galaxies exist in only a small locus. Therefore, even with
+spectra, galaxies exist in only a small subspace. Therefore, even with
 very heterogeneous data, we should be able to determine the properties
-of this locus.
+of this subspace.
 
-Here we present an approach to combining the heterogeneous data
-described above in order to determine the properties of the locus of
-galaxy spectra. Rather than taking the model-free approach used by
-PCA, we here restrict the space of possible spectra to those predicted
-from the high resolution stellar population synthesis model of
-\citet{bruzual03a} and the nebular emission line models of \citet{kewley01a}.
-This approach both constrains the problem appropriately and yields a
-natural theoretical interpretation of the results in terms of
-star-formation histories.
+Here we present an approach to combining heterogeneous data in order
+to determine the properties of the subspace of galaxy spectra. Rather
+than taking the model-free approach used by PCA, we here restrict the
+space of possible spectra to those predicted from the high resolution
+stellar population synthesis model of \citet{bruzual03a} and the
+nebular emission line models of \citet{kewley01a}.  This approach both
+constrains the problem appropriately and yields a natural theoretical
+interpretation of the results in terms of star-formation histories.
 
 In a nutshell, our algorithm does the following. Given the
 observations (and uncertainties of those observations) available for
 each galaxy, it finds the nonnegative linear combination of $N$
 template star-formation histories which best predict those
 observations in the $\chi^2$ sense. Given the entire set of galaxy
-observations available, it also fits for those template star-formation
-histories. The technical name for this algorithm is Nonnegative Matrix
-Factorization (NMF). Note that this problem is not the same as the
-well-known nonnegative least squares problem, which would fit for the
-best-fit nonnegative linear combination of templates, but not for the
-form of the templates themselves.
+observations available, it also fits for the $N$ template
+star-formation histories. The technical name for this algorithm is
+Nonnegative Matrix Factorization (NMF; \citealt{lee99a, lee00a}), and
+we describe it in detail in Appendix \ref{nmf}. Note that this problem
+is not the same as the well-known nonnegative least squares problem,
+which would fit for the best-fit nonnegative linear combination of
+templates, but not for the form of the templates themselves.
 
 This approach is similar to PCA in that it finds the small spectral
 subspace in which galaxies exist, and can in some ways be thought of
 as ``nonnegative PCA.''  However, our method has several advantages
-over the standard PCA approach. First, it has a natural physical
-interpretation associated with that spectral subspace, which is the
-corresponding subspace of all possible star-formation
-histories. Second, it naturally handles data uncertainties and missing
-data, which allows it to ignore that variation which is due purely to
-statistical errors.  Third, it handles the complications of observing
-galaxy spectra photometrically using broad-band filters of galaxies at
-varying redshifts, whereas standard PCA requires a constant grid of
-observations in rest-frame wavelength space.
+over the standard PCA approach. First, the results yield, along with a
+subspace in the space of all possible spectra, a natural
+interpretation, which is the corresponding subspace in the space of
+all possible star-formation histories. Second, it naturally handles
+data uncertainties and missing data, which allows it to ignore that
+variation which is due purely to statistical errors.  Third, it
+handles the complications of observing galaxy spectra photometrically
+using broad-band filters of galaxies at varying redshifts, whereas
+standard PCA requires a constant grid of observations in rest-frame
+wavelength space.
 
-In this section, we describe how to take the astrophysical models and
-the astronomical observations, and to pose the problem in the form
-needed for the purposes of NMF. Section \ref{models} describes the
-basis set of models, Section {\bf redo} In Appendix \ref{nmf} we describe
-how to solve to NMF problem.
+In the following subsections, we introduce the basis set of models we
+use here (\S\ref{models}), the data we fit to (\S\ref{data}), and how
+we combine the two to set up the NMF problem (\S\ref{setupnmf}).  In
+Appendix \ref{nmf} we describe how to actually solve to NMF problem.
 
 \subsection{The models}
 \label{models}
@@ -525,15 +540,15 @@ dispersion. The one alteration we make to all of these templates is to
 remove Ly$\alpha$, because it is generally much larger than observed
 in real galaxies.
 
-Let us refer to these 485 basis templates as $M_{\lambda,
-j}(\lambda)$, expressed in units of ergs s$^{-1}$ \AA$^{-1}$.
+Let us refer to these 485 basis templates as $M_{j}(\lambda)$,
+expressed in units of ergs s$^{-1}$ \AA$^{-1}$.
 
 We seek to reduce this full basis space to a subspace in which
 galaxies actually exist. In particular, we seek five templates
-$F_{\lambda, i}(\lambda)$ built from nonnegative combinations of the
+$F_{i}(\lambda)$ built from nonnegative combinations of the
 original basis set of $N$ templates:
 \begin{equation}
-F_{\lambda, i}(\lambda) = \sum_j b_{ij} M_{\lambda, j}(\lambda),
+F_{i}(\lambda) = \sum_j b_{ij} M_{j}(\lambda),
 \end{equation}
 in units of ergs s$^{-1}$ \AA$^{-1}$. In principle, we could seek any
 number of templates; from our experiments, we have found that five
@@ -542,10 +557,11 @@ here. For each galaxy $k$ we want our model
 ${\hat{F}_\lambda}(\lambda)$ for their spectrum to be a nonegative sum
 of these five templates:
 \begin{equation}
-{\hat{F}}_{\lambda,_k}(\lambda) = \sum_i a_{ki} F_{\lambda,i}(\lambda).
+{\hat{F}}_{k}(\lambda) = \sum_i a_{ki} F_{i}(\lambda).
 \end{equation}
 
 \subsection{The data}
+\label{data}
 
 The training set consists of:
 \begin{enumerate}
@@ -597,19 +613,20 @@ kcorrect} product described in Section \ref{summary} contains a
 tabulation of the response functions for all of these filters.
 
 \subsection{Comparing data and models}
+\label{setupnmf}
 
 The data consist of spectra and bandband photometric measurements of
 galaxies at a number of redshifts, and we have to relate the models to
 these measurements.
 
 For the spectra, we take the observed spectrum
-$f_{\lambda,k}(\lambda)$ (in ergs cm$^{-2}$ s$^{-1}$ \AA$^{-1}$) of
+$f_{k}(\lambda)$ (in ergs cm$^{-2}$ s$^{-1}$ \AA$^{-1}$) of
 each galaxy $k$ at redshift $z$ (corresponding to a luminosity
 distance $d_L(z)$ in cm; see \citealt{hogg99a}) and calculate the
 restframe luminosity per unit wavelength:
 \begin{equation}
-{{F}}_{\lambda, k}(\lambda) = 
-{{f}}_{\lambda, k}[\lambda (1+z)](1+z) (4 \pi d_L^2),
+{{F}}_{k}(\lambda) = 
+{{f}}_{k}[\lambda (1+z)](1+z) (4 \pi d_L^2),
 \end{equation}
 That is, the spectrum is shifted due to the redshift, while the
 integral of the numerator over wavelength (the total luminosity) is
@@ -632,11 +649,11 @@ expression for the contribution to $\chi^2$ from each wavelength
 $\lambda_l$ in the spectrum is then quite simple:
 \begin{eqnarray}
 \label{chi2spec}
-\chi_{kl}^2 &=& \left[\frac{F_{\lambda,k}(\lambda_l) -
-{\hat{F}}_{\lambda,k}(\lambda_l)} 
+\chi_{kl}^2 &=& \left[\frac{F_{k}(\lambda_l) -
+{\hat{F}}_{k}(\lambda_l)} 
 {\sigma^2_k(\lambda_l)}\right]^2 \cr
 &=&
-\left[\frac{F_{\lambda,k}(\lambda_l) -
+\left[\frac{F_{k}(\lambda_l) -
 \sum_{ij} a_{ki} b_{ij} M_{jl}
 }{\sigma^2_k(\lambda_l)}\right]^2. 
 \end{eqnarray}
@@ -651,22 +668,21 @@ broadband fluxes at each redshift.
 Here we express the flux for each galaxy $k$ in units of AB maggies
 $\mu_p$, which are defined as what one would measure in bandpass $p$
 relative to the AB standard source. For example, if we transform our
-spectral energy density basis function $M_{\lambda, j}(\lambda)$ to a flux
-density $m_{\lambda, j}(\lambda)$, we can calculate the contribution of
+spectral energy density basis function $M_{j}(\lambda)$ to a flux
+density $m_{j}(\lambda)$, we can calculate the contribution of
 that basis function to the predicted maggies as:
 \begin{equation}
 \label{maggies}
 \mu_{jp} = 
-\frac{\int_0^{\infty} d\lambda \lambda R_p(\lambda) {m}_{\lambda, j}(\lambda)}
-{\int_0^\infty d\lambda \lambda R_p(\lambda) f_{\lambda,
-\mathrm{AB}}(\lambda) }
+\frac{\int_0^{\infty} d\lambda \lambda R_p(\lambda) {m}_{j}(\lambda)}
+{\int_0^\infty d\lambda \lambda R_p(\lambda) f_{\mathrm{AB}}(\lambda) }
 \end{equation}
 Here, the response function $R_p(\lambda)$ is proportional to the
 contribution to the detector signal of a photon with wavelength
 $\lambda$ entering the Earth's atmosphere (or entering the telescope
-for a space telescope). The AB standard source is $f_{\lambda,
-\mathrm{AB}}(\lambda) d\lambda = f_{\nu,
-\mathrm{AB}} (\nu) d\nu$ and $f_{\nu, \mathrm{AB}}=3631$ Jy $= 3.631 \times
+for a space telescope). The AB standard source is $f_{
+\mathrm{AB}}(\lambda) d\lambda = f_{
+\mathrm{AB}} (\nu) d\nu$ and $f_{\mathrm{AB}}(\nu)=3631$ Jy $= 3.631 \times
 10^{-20}$ erg s$^{-1}$ cm$^{-2}$ Hz$^{-1}$. Of course maggies $\mu$
 are related to magnitudes $m$ as:
 \begin{equation}
@@ -679,7 +695,7 @@ In this context it is worth noting that many authors
 (e.g. \citealt{bessell90a}) tabulate the contribution to the detector
 signal per {\it unit of energy} in photons of wavelength $\lambda$
 instead of per {\it photon} with wavelength $\lambda$.  We will refer here
-to that quantity as $R_p'(\lambda)$, though in the literature it is
+to the former quantity as $R_p'(\lambda)$, though in the literature it is
 often referred to without a prime (and without any explicit
 definition!). Clearly $R_p(\lambda) \propto R_p'(\lambda)/\lambda$,
 since the higher the frequency of the photon, at a fixed response per
@@ -731,7 +747,7 @@ $M_{jl}$ (related to the spectra) are totally fixed, and we combine
 them into a single matrix $M_{jn}$ and the indices $p$ and $l$ into a
 single index $n$, to handle both the broad-band fluxes and spectra
 simultaneously. We can similarly combine our observations $\mu_{kp}$
-and $F_{\lambda, k}(\lambda_l)$ and their uncertainties $\sigma_{kp}$
+and $F_{k}(\lambda_l)$ and their uncertainties $\sigma_{kp}$
 and $\sigma_{k}(\lambda_l)$ into vectors $x_{kn}$ and $\sigma_{kn}$.
 Then we can combine the Equations \ref{chi2spec} and
 \ref{chi2photo} into a single equation:
@@ -743,8 +759,8 @@ Then we can combine the Equations \ref{chi2spec} and
 \end{equation}
 There is a simple method that we describe in Appendix \ref{nmf} called
 nonnegative matrix factorization (NMF) to iterate to the nonnegative
-$a_{ki}$ and $b_{ij}$ which minimize Equation \ref{chi2}. The basic
-method is implemented in a public piece of code named {\tt
+$a_{ki}$ and $b_{ij}$ which locally minimize Equation \ref{chi2}. The
+basic method is implemented in a public piece of code named {\tt
 NMF\_SPARSE} in the {\tt idlutils} distribution of IDL
 utilities.\footnote{\tt http://skymaps.info}. As the name implies, our
 implementation takes advantage of the fact that many of the matrix
@@ -752,13 +768,18 @@ operations are on very sparse matrices (for example, for each galaxy
 with photometric data there are {\it no} spectroscopic data points and
 {\it only} photometric data at a single redshift).
 
-{\bf nonconvexity; not reproducible}
+As we describe in Appendix \ref{nmf}, the NMF problem is not convex:
+that is, there are multiple local minima. Our method finds one of the
+local minima, but is not guaranteed to find the global minimum. Thus,
+the reader who tries to reproduce our results using our methods or
+others may (depending on their initial conditions) find different
+local minima of $\chi^2$ than do we.
 
 Once we have fit for $b_{ij}$ using the training set, we can minimize
 Equation \ref{chi2} for any other galaxy using any nonnegative least
-squares algorithm (since the minimization of Equation \ref{chi2} has a
-linear form in that case).  When we do so here we use the beautifully
-simple iterative method of \citet{sha02a}.
+squares algorithm to determine $a_{ki}$ (since the minimization of
+Equation \ref{chi2} has a linear form in that case).  When we do so
+here we use the beautifully simple iterative method of \citet{sha02a}.
 
 \section{Results}
 \label{results}
@@ -781,7 +802,8 @@ unit time as a function of look-back time.  The bottom panel shows the
 mean metallicity of the forming stars as a function of time.  When
 considering these plots and those below, do remember that although
 these results are our best-fit, the parameters are highly degenerate
-(especially in, for example, neighboring age bins). 
+(especially in, for example, neighboring age bins).  We show these
+merely to illustrate the general nature of the fits.
 
 Figure \ref{lrg_colors} shows the LRG colors as a function of
 redshift, with the best fit template color overplotted as the smooth,
@@ -800,8 +822,12 @@ template.
 
 \subsection{Templates for the full data set}
 
-The right-most column of Figure \ref{sfh_templates} shows the spectrum
-from the ultraviolet through the near infrared for the resulting
+We next apply the method to the full data set and fit for five
+templates. From experiments, we found that we needed five to
+adequately explain the data. More than five templates would allow us
+to explain the data better, but only marginally so.  The right-most
+column of Figure \ref{sfh_templates} shows the spectrum from the
+ultraviolet through the near infrared for the resulting
 templates. Note that there is a very old template, a very young
 template, and several intermediate templates, including one which is
 close to that of an A star.
@@ -849,21 +875,22 @@ Figure \ref{goods} shows the color residuals for GOODS data. Here we
 find that there are somewhat larger residuals with respect to the
 uncertainties (again shown as the thick dashed lines). We can compare
 this result to that in Figure \ref{goods_special}, which we get by
-fitting to {\it only} the GOODS data (this alternate set of five
-templates is also distributed in the manner that Appendix \ref{format}
-describes). From Figure \ref{goods_special}, we conclude that {\it
-some} of the errors are irreducible, and require either a larger set
-of templates for high redshift galaxies (a possibility we find a
-priori unlikely), or that there are simply errors in the catalogs or
-the input filter curves. For example, in the $z$ and $V$ bands we find
-significant trends between redshifts $z=0.5$ and $1.5$ (echoed in
-Figure \ref{goods}). More significantly, in the $H$ band there is at
-least a 10\% offset in the magnitudes across all redshifts, which is
-almost certainly a catalog error. Other errors (such as a large
-scatter in the residuals in the $B$ band and some redshift dependence
-in the $J$ band) are clearly due to the fact that the templates are
-not primarily designed for GOODS data. All in all, we recommend using
-the special templates for $K$-corrections within the GOODS data set.
+fitting a new set of templates to {\it only} the GOODS data (this
+alternate set of five templates is also distributed in the manner that
+Appendix \ref{format} describes). From Figure \ref{goods_special}, we
+conclude that {\it some} of the errors are irreducible, and require
+either a larger set of templates for high redshift galaxies (a
+possibility we find a priori unlikely), or that there are simply
+errors in the catalogs or the input filter curves. For example, in the
+$z$ and $V$ bands we find significant trends between redshifts $z=0.5$
+and $1.5$ (echoed in Figure \ref{goods}). More significantly, in the
+$H$ band there is at least a 10\% offset in the magnitudes across all
+redshifts, which is almost certainly a catalog or filter curve
+error. Other errors (such as a large scatter in the residuals in the
+$B$ band and some redshift dependence in the $J$ band) are clearly due
+to the fact that the templates are not primarily designed for GOODS
+data. All in all, we recommend using the special templates for
+$K$-corrections within the GOODS data set.
 
 We can also test how well these templates recover actual spectra given
 only photometry. To do so, we take eight random SDSS spectra (chosen
@@ -871,11 +898,13 @@ to span color space), project them onto the $g$, $r$ and $i$
 bandpasses, and then fit the five templates to just these three
 fluxes.  Figure \ref{specfit} compares the reconstructed model spectra
 to the original spectrum. The two agree well in general, though some
-features (like the emission lines) are not reproduced well. 
+features (like the emission lines) are not reproduced well.
 Naturally, this success is mostly due to the quality of the original
 stellar spectra used in the population synthesis code of
-\citet{bruzual03a}. These results encourage us that by using
-broad-band data we can infer $K$-corrections of galaxies. 
+\citet{bruzual03a}. We are not suggesting that $gri$ photometry
+contains as much information as the full spectra. However, these
+results encourage us that by using broad-band data we can infer
+$K$-corrections of galaxies.
 
 \subsection{Predictive power of templates}
 
@@ -927,8 +956,7 @@ Given a model spectrum for the galaxy, the determination of the
 $K$-correction is straightforward. Here we give the relevant formulae
 for the $K$-corrections, leaving the derivation to \citet{hogg02a}.
 Then, we show the typical $K$-corrections for the data we have fit
-to. Finally, we test our method on actual spectra projected on
-bandpasses to make sure that it works properly.
+to. 
 
 The $K$-correction between a bandpass $R$ used to observe a galaxy at
 redshift $z$ and the desired bandpass $Q$ is defined by the equation
@@ -1027,6 +1055,7 @@ redshift $z=0.1$, and obviously the $K$-corrections are not perfect
 easily be avoided?
 
 \section{Physical interpretation of the models}
+\label{physical}
 
 In addition to $K$-corrections, these template fits also provide
 physical interpretations of the galaxies, since they correspond to
@@ -1042,7 +1071,7 @@ mass-to-light ratios of models which best fit the H$\delta$ absorption
 and D4000 measurements of the spectra, and then applied those
 mass-to-light ratios to the observed $z$-band luminosities of the
 imaging. Figure \ref{mass_to_garching} shows a galaxy-by-galaxy
-comparison of their stellar masses $M_{\ast,s}$ relative to ours
+comparison of their stellar masses $M_{\ast,s}$ relative to our
 $M_\ast$, as a function of $M_\ast$ and of intrinsic $g-r$ color. The
 two sets of masses are very similar to each other, with a scatter of
 only 0.1 dex and trends of less than 0.2 dex with stellar mass.  To be
@@ -1086,6 +1115,18 @@ relationship:
 \log_{10} b_g = -0.55 (u-r). 
 \end{equation}
 Note, however, the large scatter (about 0.3 dex at 1$\sigma$). 
+
+We do not want to overstate the validity of these physical
+interpretations. They are sufficiently good physical interpretations
+to explain broad band data, but are not uniquely so. Certainly more
+detailed spectroscopic analysis can provide better constraints on
+star-formation histories and stellar masses. 
+
+One particular weakness for high redshift data is that the templates
+always assume that there is 14 Gyrs of star-formation history.  Thus,
+{\tt kcorrect} may greatly overestimate the stellar masses of galaxies
+at $z \sim 1$ (for example), where the actual star-formation history
+must last only 6 Gyrs.
 
 \section{Linear relationships between common magnitude systems}
 \label{sdss2bessell}
@@ -1158,7 +1199,7 @@ variation which is due purely to statistical errors.  Third, it
 handles the complications of observing galaxy spectra photometrically
 using broad-band filters. 
 
-We note here that the general NMF method does not {\tt depend} on
+We note here that the general NMF method does not {\it depend} on
 using a model --- our ``model'' could just have been a set of top hat
 functions or Gaussians on a wavelength grid. In some situations, such
 as datasets for which there are not well-developed theoretical models,
@@ -1185,8 +1226,10 @@ http://skymaps.info}}.
 \acknowledgments
 
 The authors would like to thank Alison Coil, Michael Cooper, David
-W. Hogg, John Moustakas, Leonidas Moustakas, and David Schiminovich
-for their detailed comments and feedback. {\bf funding}
+W. Hogg, John Moustakas, Leonidas Moustakas, David Schiminovich, Risa
+Wechsler, and Andrew West for their detailed comments and
+feedback. This work was funded by a GALEX Archival Program (38) and an
+HST Archival Research grant (AR-9912).
 
 This publication makes use of data products from the Two Micron All
 Sky Survey, which is a joint project of the University of
@@ -1219,8 +1262,8 @@ the Max-Planck-Institute for Astrophysics (MPA), New Mexico State
 University, Princeton University, the United States Naval Observatory,
 and the University of Washington.
  
-\bibliographystyle{../../../nyu-astro/tex/apj}
-\bibliography{../../../nyu-astro/tex/apj-jour,../../../nyu-astro/tex/ccpp}
+\bibliographystyle{/home/users/mb144/nyu-astro/tex/apj}
+\bibliography{/home/users/mb144/nyu-astro/tex/apj-jour,/home/users/mb144/nyu-astro/tex/ccpp} 
 
 \appendix
 
@@ -1229,11 +1272,11 @@ and the University of Washington.
 
 \subsection{Standard NMF}
 The standard non-negative matrix factorization (NMF) problem, as
-originally posed by Lee and Seung\cite{??}, is to approximate a data
-matrix $\XX$ (of size $n\times d$) as the outer product of two
-rank-$k$ non-negative matrices $\WW$ and $\HH$. For example, in this
-paper, $\XX$ represents the fluxes at $n$ different wavelengths for
-$d$ different galaxies, $\HH$ represents a set of templates to build
+originally posed by \cite{lee00a}, is to approximate a data
+matrix $\XX$ (of size $N_k\times N_n$) as the outer product of two
+rank-$N_i$ non-negative matrices $\WW$ and $\HH$. For example, in this
+paper, $\XX$ represents the fluxes at $N_n$ different wavelengths for
+$N_k$ different galaxies, $\HH$ represents a set of $N_i$ templates to build
 each galaxy from, and $\WW$ represents, for each galaxy, the weights
 to give each template. This factorization is similar in spirit to
 singular value decomposition (SVD) and principal components analysis
@@ -1246,14 +1289,14 @@ to minmize the squared approximation error (Frobenius norm):
 \beqa
 \chi^2 &= \|\XX-\WW\HH\|^2\\
 %&= \|\XX-\XXh\|^2\\
-&= \sum_{ij} \left(\Xij - \sum_k \Wik\Hkj \right)^2
+&= \sum_{kn} \left(\Xkn - \sum_i \Wki\Hin \right)^2
 \eeqa
-In their seminal papers\cite{??}, Lee and Seung show that this approximation
+In their seminal papers, \cite{lee00a} show that this approximation
 error in non-increasing under the following very simple multiplicative
 update rules: 
 \beqa
-\Wik &\leftarrow \Wik \frac{[\XX\HH\T]_{ik}}{[\WW\HH\HH\T]_{ik}}\\
-\Hkj &\leftarrow \Hkj \frac{[\WW\T\XX]_{kj}}{[\WW\T\WW\HH]_{kj}}
+\Wki &\leftarrow \Wki \frac{[\XX\HH\T]_{ki}}{[\WW\HH\HH\T]_{ki}}\\
+\Hin &\leftarrow \Hin \frac{[\WW\T\XX]_{in}}{[\WW\T\WW\HH]_{in}}
 \eeqa
 $[M]_{ab}$ denotes the $(ab)$ element of the matrix valued expression
 $M$. $\HH\T$ is the transpose of matrix $\HH$.
@@ -1266,16 +1309,16 @@ $\chi^2$ is in general a ``non-convex'' function of $\WW$ and $\HH$,
 meaning we cannot guarantee there is only one local
 minimum. Therefore, the procedure does not necessarily find the global
 optimum. But in practice, even with random initialization, these rules
-tend to converge to good solutions when the data matrix $\XX$ is
-highly structured. {\bf explain!}
+seem to converge to good solutions for real data (at least data like
+ours).
 
 \subsection{NMF in the space of coefficients for a known basis}
 The factorization problem we face in this paper is a slight variation on the
 basic NMF setup described above. We wish to approximate $\XX$ by the
 product $\AA\BB\MM$, 
-where $\MM$ is a given (fixed) basis matrix of size $r \times d$
+where $\MM$ is a given (fixed) basis matrix of size $N_j \times N_n$
 and the optimization is over the matrices $\AA$ (of size
-$n\times k$) and $\BB$ (of size $k\times r$). All matrices
+$N_k\times N_i$) and $\BB$ (of size $N_i\times N_j$). All matrices
 $\XX,\AA,\BB\,\MM$ have non-negative entries. This can be thought of
 as performing non-negative matrix factorization on the coefficients of
 an approximation, given a fixed (non-negative) basis, described by the
@@ -1283,8 +1326,9 @@ columns of $\MM$. Once again, the objective we wish to minimize is the
 squared approximation error: 
 \beqa
 \chi^2 &= \|\XX-\AA\BB\MM\|^2\\
-&= \sum_{ij} \left(\Xij - \sum_{kr} \Aik\Bkr\Mrj \right)^2
+&= \sum_{kn} \left(\Xkn - \sum_{ij} \Aki\Bij\Mjn \right)^2
 \eeqa
+This equation is almost that posed in Equation \ref{chi2}.
 In the case of this paper, this generalization allows us to express
 the templates in terms of star-formation histories, but to compare the
 predicted fluxes for the star-formation histories through the $\MM$
@@ -1303,8 +1347,8 @@ non-negative matrix $\HH$, we can trivially derive a multiplicative
 update equation for the elements of $\AA$ by using the $\WW$ update
 provided above: 
 \beq
-\Aik \leftarrow \Aik 
-\frac{[\XX\MM\T\BB\T]_{ik}}{[\AA\BB\MM\MM\T\BB\T]_{ik}}
+\Aki \leftarrow \Aki 
+\frac{[\XX\MM\T\BB\T]_{ki}}{[\AA\BB\MM\MM\T\BB\T]_{ki}}
 \eeq
 By Lee and Seung's original proof, this update is guaranteed (for any
 non-negative matrices $\XX$,$\MM$ and $\BB$) not to increase the
@@ -1313,82 +1357,84 @@ approximation error.
 Our main algorithmic contribution is to derive a similar update equation
 for the elements of $\BB$:
 \beq
-\Bkr \leftarrow \Bkr
-\frac{[\AA\T\XX\MM\T]_{kr}}{[\AA\T\AA\BB\MM\MM\T]_{kr}}
+\Bij \leftarrow \Bij
+\frac{[\AA\T\XX\MM\T]_{ij}}{[\AA\T\AA\BB\MM\MM\T]_{ij}}
 \eeq
-Following the technique outlined in \cite{??}, it can still be shown
+Following the technique outlined in \cite{lee00a}, it can still be shown
 that the error is nonincreasing under the application of this update.
 
+{\bf proof??}
+
 \subsection{Nonuniform uncertainties}
-When different entries $\Xij$ of the data matrix have different
+When different entries $\Xkn$ of the data matrix have different
 uncertainties, the natural objective function is the weighted approximation
 error (which also corresponds to the negative log likelihood under a
 Gaussian noise assumption):
 \beq
-\chi^2 = \sum_{ij} \left( \frac{\Xij - 
-\sum_k \Wik\Hkj}{\sij}\right)^2
+\chi^2 = \sum_{kn} \left( \frac{\Xkn - 
+\sum_i \Wki\Hin}{\skn}\right)^2
 \eeq
 
 This case can easily be handled since during the update for $\WW$ the
 elements of $\HH$ are fixed and vice versa and the updates are
 guaranteed not to increase the cost for any nonnegative matrices.
-%In particular, define $\XXt_{ij}=\Xij/\sij$,
-%$\WWt(j)_{ik}=\Wik/\sij$ and 
-%$\HHt(i)_{kj}=\Hkj/\sij$. 
+%In particular, define $\XXt_{ij}=\Xkn/\skn$,
+%$\WWt(j)_{ik}=\Wki/\skn$ and 
+%$\HHt(i)_{kj}=\Hin/\skn$. 
 In particular, when updating $\WW$, we can rewrite the cost function as
 \beq
-\chi^2 = \sum_{ij} \left( \frac{\Xij}{\sij} - 
-\sum_k \Wik\frac{\Hkj}{\sij}\right)^2
+\chi^2 = \sum_{kn} \left( \frac{\Xkn}{\skn} - 
+\sum_i \Wki\frac{\Hin}{\skn}\right)^2
 %= \sum_{ij} \left(\XXt_{ij} - 
-%\sum_k \Wik\HHt(i)_{kj}\right)^2
+%\sum_k \Wki\HHt(i)_{kj}\right)^2
 \eeq
 yielding updates of the form:
 \beq
-\Wik \leftarrow \Wik 
-\left( \sum_j \frac{\Xij\Hkj}{\sij^2} \right) / 
-\left( \sum_{mj} \frac{W_{im}H_{mj}\Hkj}{\sij^2}\right)
-%\Wik \leftarrow \Wik \frac{[\XXt\HHt(i)\T]_{ik}}{[\WW\HHt(i)\HHt(i)\T]_{ik}}
+\Wki \leftarrow \Wki 
+\left( \sum_n \frac{\Xkn\Hin}{\skn^2} \right) / 
+\left( \sum_{mn} \frac{W_{km}H_{mn}\Hin}{\skn^2}\right)
+%\Wki \leftarrow \Wki \frac{[\XXt\HHt(i)\T]_{ik}}{[\WW\HHt(i)\HHt(i)\T]_{ik}}
 \eeq
 
 and similarly, when updating $\HH$, we can rewrite the cost function as
 \beq
-\chi^2 = \sum_{ij} \left( \frac{\Xij}{\sij} - 
-\sum_k \frac{\Wik}{\sij}\Hkj\right)^2
+\chi^2 = \sum_{kn} \left( \frac{\Xkn}{\skn} - 
+\sum_i \frac{\Wki}{\skn}\Hin\right)^2
 %= \sum_{ij} \left(\XXt_{ij} - 
-%\sum_k \WWt(j)_{ik}\Hkj\right)^2
+%\sum_k \WWt(j)_{ik}\Hin\right)^2
 \eeq
 yielding updates of the form:
 \beq
-\Hkj \leftarrow \Hkj
-\left( \sum_i \frac{\Wik\Xij}{\sij^2}\right) /
-\left( \sum_{mi} \frac{\Wik{}W_{im}H_{mj}}{\sij^2}\right)
-%\Hkj \leftarrow \Hkj \frac{[\WWt(j)\T\XX]_{kj}}{[\WWt(j)\T\WWt(j)\HH]_{kj}}
+\Hin \leftarrow \Hin
+\left( \sum_k \frac{\Wki\Xkn}{\skn^2}\right) /
+\left( \sum_{mk} \frac{\Wki{}W_{km}H_{mn}}{\skn^2}\right)
+%\Hin \leftarrow \Hin \frac{[\WWt(j)\T\XX]_{kj}}{[\WWt(j)\T\WWt(j)\HH]_{kj}}
 \eeq
 
-This argument can be equally applied to our extended model, yeilding
+This argument can be equally applied to our extended model, yielding
 the final update equations which are actually implemented in the
 kcorrect code:
-\centerline{\fbox{\parbox{4.3in}{
+%%\centerline{\fbox{\parbox{4.3in}{
 \beqa 
-\Aik &\leftarrow \Aik 
-\left( \sum_{rj} \frac{\Xij\Mrj\Bkr}{\sij^2}\right) / 
-\left( \sum_{mnrj} \frac{A_{im}B_{mr}M_{rj}M_{jn}B_{kn}}{\sij^2}\right) \\
-\Bkr &\leftarrow \Bkr
-\left( \sum_{ij} \frac{\Aik\Xij\Mrj}{\sij^2}\right) / 
-\left( \sum_{mnij} \frac{A_{ik}A_{im}B_{mn}M_{nj}M_{rj}}{\sij^2}\right)
+\Aki &\leftarrow \Aki 
+\left( \sum_{jn} \frac{\Xkn\Mjn\Bij}{\skn^2}\right) / 
+\left( \sum_{mljn} \frac{A_{km}B_{mj}M_{jn}M_{nl}B_{il}}{\skn^2}\right) \\
+\Bij &\leftarrow \Bij
+\left( \sum_{kn} \frac{\Aki\Xkn\Mjn}{\skn^2}\right) / 
+\left( \sum_{mlkn} \frac{A_{ki}A_{km}B_{ml}M_{ln}M_{jn}}{\skn^2}\right)
 \eeqa
-}}}
+%%}}}
 
 %\centerline{\fbox{\parbox{2.6in}{
 %\beqa
-%\Aik &\leftarrow \Aik 
+%\Aki &\leftarrow \Aki 
 %\frac{[\XXt\MMt(i)\T\BB\T]_{ik}}{[\AA\BB\MMt(i)\MMt(i)\T\BB\T]_{ik}}\\
-%\Bkr &\leftarrow \Bkr
+%\Bij &\leftarrow \Bij
 %\frac{[\AAt(?)\T\AAt(?)\BB\MM\MM\T]_{kr}}{[\AAt(?)\T\XXt\MM\T]_{kr}}
 %\eeqa
 %}~~}}\\[.2in]
-%pwhere $\XXt_{ij}=\Xij/\sij$, $\MMt(i)_{rj} = \Mrj/\sij$ and
-%$\AAt(?)_{ik}=\Aik/??$. 
+%pwhere $\XXt_{ij}=\Xkn/\skn$, $\MMt(i)_{rj} = \Mjn/\skn$ and
+%$\AAt(?)_{ik}=\Aki/??$. 
 %}}}
 
 

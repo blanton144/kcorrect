@@ -22,6 +22,14 @@
 ;                  .PSFCOUNTS[5]
 ;                  .PSFCOUNTSERR[5]
 ;                  .REDDENINg[5]
+;   cas - [N] CAS-style structure, with:
+;                  .MODELMAG_[X]  (for X = U,G,R,I, and Z)
+;                  .MODELMAGERR[X]  (for X = U,G,R,I, and Z)
+;                  .PSFMAG_[X]  (for X = U,G,R,I, and Z)
+;                  .PSFMAGERR[X]  (for X = U,G,R,I, and Z)
+;                  .PETROMAG_[X]  (for X = U,G,R,I, and Z)
+;                  .PETROMAGERR[X]  (for X = U,G,R,I, and Z)
+;                  .EXTINCTION_[X]  (for X = U,G,R,I, and Z)
 ; OPTIONAL INPUTS:
 ;   flux - use this version of the SDSS fluxes ('PETRO', 'MODEL', or 'PSF')
 ;          [defaults to 'PETRO'] if tsobj or calibobj keywords are
@@ -53,11 +61,12 @@
 ;   07-Apr-2005  Mike Blanton, NYU
 ;-
 ;------------------------------------------------------------------------------
-pro sdss_to_maggies, maggies, ivar, tsobj=tsobj, calibobj=calibobj, flux=flux
+pro sdss_to_maggies, maggies, ivar, tsobj=tsobj, calibobj=calibobj, flux=flux, $
+                     cas=cas
 
 if(NOT keyword_set(flux)) then flux='petro'
 
-if(long(n_tags(tsobj) gt 0)+long(n_tags(calibobj) gt 0) ne 1) then begin
+if(long(n_tags(tsobj) gt 0)+long(n_tags(calibobj) gt 0)+long(n_tags(cas) gt 0) ne 1) then begin
     splog, 'One and only one of tsobj OR calibobj must be set.'
     maggies=-1.
     ivar=-1.
@@ -105,6 +114,37 @@ if(n_tags(tsobj) gt 0) then begin
     sdss_mag=sdss_mag-tsobj.reddening
     k_sdssfix, sdss_mag, sdss_err, maggies, ivar 
     return
+endif
+
+;; if it is CAS output
+if(n_tags(cas) gt 0) then begin
+    filters=['u', 'g', 'r', 'i', 'z']
+    sdss_mag=fltarr(n_elements(filters), n_elements(cas))
+    sdss_err=fltarr(n_elements(filters), n_elements(cas))
+    for i=0L, n_elements(filters)-1L do begin
+        magname=flux+'mag_'+filters[i]
+        errname=flux+'magerr_'+filters[i]
+        imag=tag_indx(cas[0], magname)
+        if(imag eq -1) then begin
+            splog, 'ERROR: cas MUST have .'+magname
+            return
+        endif
+        ierr=tag_indx(cas[0], errname)
+        if(ierr eq -1) then begin
+            splog, 'ERROR: cas MUST have .'+errname
+            return
+        endif
+        sdss_mag[i,*]=cas.(imag)
+        sdss_err[i,*]=cas.(ierr)
+        iext=tag_indx(cas[0], 'extinction_'+filters[i])
+        if(iext eq -1) then begin
+            splog, 'ERROR: cas MUST have .extinction_'+filters[i]
+            return
+        endif
+        sdss_mag[i,*]=sdss_mag[i,*]-cas.(iext)
+        k_sdssfix, sdss_mag, sdss_err, maggies, ivar 
+        return
+    endfor
 endif
 
 ;; if we have input a calibobj structure, interpret it 

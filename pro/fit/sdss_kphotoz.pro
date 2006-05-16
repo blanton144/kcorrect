@@ -26,6 +26,14 @@
 ;                  .PSFCOUNTS[5]
 ;                  .PSFCOUNTSERR[5]
 ;                  .REDDENING[5]
+;   cas - [N] CAS-style structure, with:
+;                  .MODELMAG_[X]  (for X = U,G,R,I, and Z)
+;                  .MODELMAGERR[X]  (for X = U,G,R,I, and Z)
+;                  .PSFMAG_[X]  (for X = U,G,R,I, and Z)
+;                  .PSFMAGERR[X]  (for X = U,G,R,I, and Z)
+;                  .PETROMAG_[X]  (for X = U,G,R,I, and Z)
+;                  .PETROMAGERR[X]  (for X = U,G,R,I, and Z)
+;                  .EXTINCTION_[X]  (for X = U,G,R,I, and Z)
 ;   nmgy, ivar - [5, N] nanomaggies, Galactic-reddening corrected, and inverse
 ;                variance of same
 ;   mag, err - [5, N] asinh magnitudes, Galactic-reddening corrected and
@@ -97,7 +105,7 @@
 ;-
 ;------------------------------------------------------------------------------
 function sdss_kphotoz, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
-                       calibobj=calibobj, tsobj=tsobj, flux=flux, $
+                       calibobj=calibobj, tsobj=tsobj, cas=cas, flux=flux, $
                        band_shift=in_band_shift, chi2=chi2, coeffs=coeffs, $
                        rmaggies=rmaggies, omaggies=omaggies, $
                        oivar=oivar, vname=in_vname, mass=mass, mtol=mtol, $
@@ -110,6 +118,7 @@ common com_sdss_kphotoz, rmatrix, zvals, band_shift, vname
 if((((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
     ((keyword_set(mag) eq 0 OR keyword_set(err) eq 0)) AND $
     (n_tags(calibobj) eq 0) AND $
+    (n_tags(cas) eq 0) AND $
     (n_tags(tsobj) eq 0))) $
   then begin
     doc_library, 'sdss_kphotoz'
@@ -142,8 +151,8 @@ if(keyword_set(nmgy) AND keyword_set(ivar)) then begin
     mgy=1.e-9*nmgy
     mgy_ivar=1.e+18*ivar
 endif
-if(n_tags(tsobj) gt 0 OR n_tags(calibobj) gt 0) then $
-  sdss_to_maggies, mgy, mgy_ivar, calibobj=calibobj, tsobj=tsobj, flux=flux
+if(n_tags(tsobj) gt 0 OR n_tags(calibobj) gt 0 OR n_tags(cas) gt 0) then $
+  sdss_to_maggies, mgy, mgy_ivar, calibobj=calibobj, tsobj=tsobj, flux=flux, cas=cas
 
 if(keyword_set(lrg)) then mgy_ivar[0,*]=0.
 

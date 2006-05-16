@@ -15,8 +15,13 @@
 ;------------------------------------------------------------------------------
 pro k_end_print,pold=pold,xold=xold,yold=yold
 
+common com_k_print, bangp, bangx, bangy
+
 device,/close
 
+if(keyword_set(bangp)) then !P=bangp
+if(keyword_set(bangx)) then !X=bangx
+if(keyword_set(bangy)) then !Y=bangy
 if(keyword_set(pold)) then !P=pold
 if(keyword_set(xold)) then !X=xold
 if(keyword_set(yold)) then !Y=yold

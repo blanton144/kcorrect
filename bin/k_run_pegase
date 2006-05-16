@@ -10,8 +10,9 @@
 # mrb7 -> Scalo98
 # mrb8 -> Kennicutt
 # mrb9 -> Kroupa
+# mrb9 -> Salpeter
 
-$num="9";
+$num="10";
 
 chdir "$ENV{'DATA'}/specmodels/PEGASE.2";
 chdir "$ENV{'DATA'}/specmodels/PEGASE.2";
@@ -20,7 +21,7 @@ chdir "$ENV{'DATA'}/specmodels/PEGASE.2";
 if(!(-e "mrb${num}_SSPs.dat")) {
 	open(pp,"|./SSPs");
 	print pp <<EOF;
-2
+4
 .100E+00
 .120E+03
 B

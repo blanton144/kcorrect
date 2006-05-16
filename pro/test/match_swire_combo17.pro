@@ -29,7 +29,7 @@ kc=sdss_kcorrect(zz, coeffs=fltarr(100)+1., /lrg, $
                  rmaggies=rmaggies)
 lrggmr=-2.5*alog10(rmaggies[1,*]/rmaggies[2,*])
 
-lowz=lowz_read(sample='drtwo14')
+lowz=lowz_read(sample='dr4')
 ii=where(lowz.absmag[1]-lowz.absmag[2] lt 0.55 AND $
          lowz.absmag[1]-lowz.absmag[2] gt 0.45)
 im=mrdfits(vagc_name('object_sdss_imaging'),1,row=lowz[ii].object_position)
@@ -46,6 +46,27 @@ for i=0,4 do $
 kc=sdss_kcorrect(zz, coeffs=mcoeffs, rmaggies=bmaggies)
 bluegmr=-2.5*alog10(bmaggies[1,*]/bmaggies[2,*])
 
+dst=read_draine(getenv('KCORRECT_DIR')+'/data/seds/draine/'+ $
+                'spec_2.2.dat')
+
+spitzerf='spitzer_irac_ch'+['1', '2', '3', '4']+'.par'
+sdssf='sdss_'+['u', 'g', 'r', 'i', 'z']+'0.par'
+filters=[sdssf, spitzerf, 'spitzer_mips_24.par']
+
+k_load_vmatrix,vmatrix,vlambda, vname='lrg1'
+dstmm=fltarr(10, 100)
+lrgmm=fltarr(10, 100)
+for i=0L, 99L do begin & $
+ll=k_lambda_to_edges(dst.lambda*(1.+zz[i])) & $
+ff=dst.flux/(1.+zz[i]) & $
+dstmm[*, i]= k_project_filters(ll, ff, filterlist=filters, /sil) & $
+lrgmm[*, i]= k_project_filters(vlambda*(1.+zz[i]), vmatrix/(1.+zz[i]), filterlist=filters, /sil) & $
+    endfor
+
+mm=lrgmm
+mm[5:7,*]=1.*lrgmm[5:7,*]+3.e+15*dstmm[5:7,*]
+mm[8:9,*]=0.*lrgmm[8:9,*]+3.e+15*dstmm[8:9,*]
+
 hogg_usersym, 10, /fill
 k_print, filename='ssck1.ps', xold=xold, yold=yold, pold=pold
 !P.MULTI=[0,1,3]
@@ -56,9 +77,11 @@ djs_oplot, zz, bluegmr, th=7, color='blue'
 djs_oplot, zz, lrggmr, th=7, color='red'
 djs_plot, c17.mc_z, tmf, xra=[0.1, 0.95], psym=8, yra=[-1.2, 0.7], $
   xch=0.0001, ytitle='!8[3.6]-[4.8]!6', charsize=1.7, syms=0.4
+djs_oplot, zz, -2.5*alog10(mm[5,*]/mm[6,*]), th=7, color='red'
 djs_plot, c17.mc_z, emtw, xra=[0.1, 0.95], psym=8, yra=[-0.9, 4.3], $
   xch=1.7, ytitle='!8[7.8]-[24]!6', charsize=1.7, syms=0.4, $
   xtitle='!6redshift !8z!6'
+djs_oplot, zz, -2.5*alog10(mm[8,*]/mm[9,*]), th=7, color='red'
 k_end_print, xold=xold, yold=yold, pold=pold
 
 hogg_usersym, 10, /fill
@@ -105,5 +128,3 @@ dalefmtw=-2.5*alog10(dalemm[6,*]/dalemm[9,*])
 splot, c17.mc_z, fmtw,psym=4
 soplot, zz, dalefmtw, th=4, color='red'
 
-dst=read_draine(getenv('KCORRECT_DIR')+'/data/seds/draine/'+ $
-                drainefiles[i])

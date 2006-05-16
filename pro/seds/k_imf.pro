@@ -10,7 +10,7 @@
 pro k_imf, name=name, mgrid=mgrid, imf=imf
 
 num=100
-mgrid=10.^(alog10(1.e-1)+findgen(num)*(alog10(100.)-alog10(1.e-1))/ $
+mgrid=10.^(alog10(1.e-1)+findgen(num)*(alog10(125.)-alog10(1.e-1))/ $
            float(num-1L))
 
 ;; From Table 2, left column, Chabrier (2003) PASP, 115, 763
@@ -42,11 +42,18 @@ endif
 if(name eq 'diet1') then begin
     xx=1.35
     ap=1.
-    imf=ap*(mgrid > 0.35)^(-1.-xx)
+    imf=fltarr(num)
+    ii=where(mgrid gt 0.35, nii)
+    if(nii gt 0) then $
+      imf[ii]=ap*(mgrid[ii])^(-1.-xx)
+    ii=where(mgrid le 0.35, nii)
+    if(nii gt 0) then $
+      imf[ii]=ap*(mgrid[ii])^(-1.)*(0.35^(-xx))
 endif
 
 ;; normalize 
 norm=total(mgrid*imf)
 imf=imf/norm
+print,norm
 
 end

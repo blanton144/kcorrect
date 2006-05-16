@@ -95,9 +95,9 @@ function sdss2bessell, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                        mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
                        band_shift=in_band_shift, vega=vega, omega0=omega0, $
                        omegal0=omegal0, b300=b300, b1000=b1000, mets=mets, $
-                       intsfh=intsfh
+                       intsfh=intsfh, buser=buser
 
-common com_sdss2bessell, rmatrix, zvals, band_shift
+common com_sdss2bessell, rmatrix, zvals, band_shift, filterlist
 
 if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
@@ -108,6 +108,18 @@ if(n_params() lt 1 OR $
     doc_library, 'sdss2bessell'
     return, -1
 endif 
+
+in_filterlist=['bessell_U.par', $
+               'bessell_B.par', $
+               'bessell_V.par', $
+               'bessell_R.par', $
+               'bessell_I.par']
+if(keyword_set(buser)) then $
+  in_filterlist=['bessell_U.par', $
+                 'buser_B.par', $
+                 'buser_V.par', $
+                 'bessell_R.par', $
+                 'bessell_I.par']
 
 if(n_elements(in_vname) gt 0) then begin
     use_vname=in_vname
@@ -142,6 +154,21 @@ endif else begin
       band_shift=0.
 endelse
 
+if(n_elements(filterlist) gt 0) then begin
+    if(n_elements(in_filterlist) ne n_elements(filterlist)) then begin
+        rmatrix=0
+        zvals=0
+    endif  else begin
+        for i=0L, n_elements(filterlist)-1L do begin
+            if(filterlist[i] ne in_filterlist[i]) then begin
+                rmatrix=0
+                zvals=0
+            endif
+        endfor
+    endelse
+endif
+filterlist=in_filterlist
+
 kcdum=sdss_kcorrect(redshift,nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                     calibobj=calibobj, tsobj=tsobj, flux=flux, $
                     chi2=chi2, coeffs=coeffs, rmaggies=rmaggies, $
@@ -150,12 +177,6 @@ kcdum=sdss_kcorrect(redshift,nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                     omega0=omega0, omegal0=omegal0, b300=b300, $
                     b1000=b1000, intsfh=intsfh)
 
-; calculate the preliminaries
-filterlist=['bessell_U.par', $
-            'bessell_B.par', $
-            'bessell_V.par', $
-            'bessell_R.par', $
-            'bessell_I.par']
 if(NOT keyword_set(rmatrix) OR NOT keyword_set(zvals)) then begin
     if(NOT keyword_set(vmatrix) OR NOT keyword_set(lambda)) then $
       k_load_vmatrix, vmatrix, lambda, vfile=vfile, lfile=lfile, $

@@ -25,6 +25,8 @@ pro k_print,filename=filename,axis_char_scale=axis_char_scale, $
             tiny=tiny,pold=pold,xold=xold,yold=yold,colorname=colorname, $
             xsize=xsize,ysize=ysize
 
+common com_k_print, bangp, bangx, bangy
+
 if(NOT keyword_set(axis_char_scale)) then axis_char_scale= 1.75
 if(NOT keyword_set(tiny)) then tiny=1.d-4
 
@@ -32,6 +34,9 @@ if(NOT keyword_set(tiny)) then tiny=1.d-4
 pold=!P
 xold=!X
 yold=!Y
+bangp=!P
+bangx=!X
+bangy=!Y
 !P.FONT= -1
 set_plot, "PS"
 !P.BACKGROUND= djs_icolor('white')
