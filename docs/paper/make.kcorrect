@@ -23,6 +23,6 @@ apj: ${NAME}.ps
 	${HOME}/environment/bin/mkapj ${NAME} 10000000
 
 common: ${NAME}.ps
-	${HOME}/environment/bin/mkcommon ${NAME} 10000000
+	${HOME}/environment/bin/mkcommon ${NAME} 200000
 
 dummy:
