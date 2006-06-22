@@ -14,9 +14,9 @@
 ;   13-Jun-2006  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_emlines, loglam, templates
+pro k_emlines, loglam, templates, vdisp=vdisp
 
-vdisp=300.
+if (NOT keyword_set(vdisp)) then vdisp=300.
 sigma=vdisp/(2.99792e+5*alog(10.))  ;; smoothing sigma in log lambda
 
 nper=[1, $
