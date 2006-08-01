@@ -522,11 +522,13 @@ subspace in the space of all possible spectra, a natural
 interpretation, which is the corresponding subspace in the space of
 all possible star-formation histories. Second, it naturally handles
 data uncertainties and missing data, which allows it to ignore that
-variation which is due purely to statistical errors.  Third, it
-handles the complications of observing galaxy spectra photometrically
-using broad-band filters of galaxies at varying redshifts, whereas
-standard PCA requires a constant grid of observations in rest-frame
-wavelength space.
+variation which is due purely to statistical errors. PCA, by
+constrast, does not use any information about the known uncertainties
+and is therefore left free to assign templates to express variations
+that are purely due to errors. Third, it handles the complications of
+observing galaxy spectra photometrically using broad-band filters of
+galaxies at varying redshifts, whereas standard PCA requires a
+constant grid of observations in rest-frame wavelength space.
 
 In the following subsections, we introduce the basis set of models we
 use here (\S\ref{models}), the data we fit to (\S\ref{data}), and how
@@ -539,37 +541,59 @@ Appendix \ref{nmf} we describe how to actually solve to NMF problem.
 We begin with a basis set of 485 spectral templates. Of these, 450 are
 a set of instantaneous bursts from \citet{bruzual03a}, using the
 \citet{chabrier03a} stellar initial mass function and the Padova1994
-isochrones. We select 6 metallicities (0.005, 0.02, 0.2, 0.4, 1, and
-2.5 times solar). For each metallicity we select 25 ages (between 1
-Myr and 13.75 Gyr, spaced almost logarithmically in age).  For each
-age and metallicity we make 3 choices of dust model: (1) no dust
-extinction; (2) $\tau_V = 3$ dust with Milky Way type extinction (as
-input into the models of
-\citealt{witt00a} with a ``homogeneous'' distribution and ``shell''
-geometry); (3) $\tau_V = 3$ dust with SMC type extinction (from the
-same models). We smooth each template to $300$ km s$^{-1}$ velocity
-dispersion (we will smooth the SDSS spectra in the training set to the
-same resolution). 
+isochrones. We use all 6 metallicities (mass fractions of elements
+heavier than He of $Z= 0.0001$, $0.0004$, $0.004$, $0.008$, $0.02$ and
+$0.05$).  For each metallicity we select 25 ages (between 1 Myr and
+13.75 Gyr, spaced almost logarithmically in age).  We smooth each
+template to $300$ km s$^{-1}$ velocity dispersion (we will smooth the
+SDSS spectra in the training set to the same resolution).
+
+There are limitations to all stellar population synthesis libraries,
+and our results are therefore restricted to be at best as good as our
+input models. There are some well-known areas of uncertainty in the
+stellar populations models in the UV and IR. In the UV, old
+populations sometimes contain extreme horizontal branch stars that
+have lost their envelopes and are thus extremely hot, that dominate
+the flux at $\lambda \sim 1500$ \AA. There is certainly no physical
+model that predicts when this happens, and no consensus about how
+these stars should be accounted for in isochrone synthesis (that is,
+what fraction of stars undergo this phase as a function of mass and
+metallicity). In the near-IR, the spectra of thermally-pulsating
+asymptotic giant branch stars may dominate the flux in certain
+intermediate age populations (2--3 Gyr). Again, the fraction of stars
+in this phase and what their spectra are is under dispute. {\bf what
+does BC03 do?}  We do not address these uncertainties here, though we
+note that for low redshift galaxies our results from BC03 do explain
+most galaxies' colors (though see below for our discussion of the high
+redshift GOODS sample). {\bf refs}
+
+For each age and metallicity we make 3 choices of dust model: (1) no
+dust extinction; (2) $\tau_V = 3$ dust with Milky Way type extinction
+(as input into the models of \citealt{witt00a} with a ``homogeneous''
+distribution and ``shell'' geometry); (3) $\tau_V = 3$ dust with SMC
+type extinction (from the same models).
 
 The remaining 35 templates are from MAPPINGS-III (\citealt{kewley01a})
 models of emission from ionized gas. We choose the predictions for an
 8 Myr old continuous star-formation history with 5 possible
-metalliciticites (0.5, 0.2, 0.4, 1.0, and 2. times solar) and 7
+metalliciticites ($Z=0.001$, 0.004, 0.008, 0.02, and 0.04) and 7
 possible ionization parameters ($q= 5\times 10^6$, $10^7$, $2\times
 10^7$, $4\times 10^7$, $8 \times 10^7$, $1.5\times 10^8$, and $3\times
 10^8$ cm s$^{-1}$). We take the spectra (given as a set of delta
 functions) and smooth them to $300$ km s$^{-1}$ velocity
 dispersion. The one alteration we make to all of these templates is to
 remove Ly$\alpha$, because it is generally much larger than observed
-in real galaxies.
+in real galaxies. We warn readers that galaxies exhibit many
+individual variations in equivalent widths of emission lines --- our
+final set of five templates will not have any hope of following these
+variations in detail.
 
 Let us refer to these 485 basis templates as $M_{j}(\lambda)$,
-expressed in units of ergs s$^{-1}$ \AA$^{-1}$.
-
-We seek to reduce this full basis space to a subspace in which
-galaxies actually exist. In particular, we seek five templates
-$F_{i}(\lambda)$ built from nonnegative combinations of the
-original basis set of $N$ templates:
+expressed in units of ergs s$^{-1}$ \AA$^{-1}$.  We seek to reduce
+this full basis space to a subspace in which galaxies actually
+exist. In particular, we seek five templates $F_{i}(\lambda)$ built
+from nonnegative combinations of the original basis set of $N$
+templates:
 \begin{equation}
 F_{i}(\lambda) = \sum_j b_{ij} M_{j}(\lambda),
 \end{equation}
@@ -620,10 +644,15 @@ placement \citep{blanton03a}; and spectroscopic data reduction.  We
 recalibrated our photometry using the ``ubercalibration'' procedure
 described in \citet{blanton05a}.  Descriptions of these pipelines also
 exist in \citet{stoughton02a}.  An automated pipeline called {\tt
-idlspec2d} (in this case {\tt v4\_9}) measures the redshifts and
-classifies the reduced spectra (Schlegel et al., in preparation). We
-use the Petrosian magnitudes for the SDSS data (except where noted
-below for the LRG-only sample).
+idlspec2d}\footnote{Available on the World Wide Web at {\tt
+http://skymaps.info}} (in this case {\tt v4\_9}) measures the
+redshifts and classifies the reduced spectra (Schlegel et al., in
+preparation). We use the Petrosian magnitudes for the SDSS data
+(except where noted below for the LRG-only sample). Using the measured
+velocity dispersions of the spectra from {\tt idlspec2d}, we further
+smooth all spectra in the training sets such that each spectrum has a
+dispersion of 300 km s$^{-1}$, to ensure consistency of resolution
+among all the spectra and models.
 
 For the GALEX and GOODS data we use ``auto'' magnitudes, which are the
 Kron-like magnitudes from SExtractor (\citealt{bertin96a}).  For 2MASS
@@ -810,17 +839,26 @@ here we use the beautifully simple iterative method of \citet{sha02a}.
 \subsection{An example: the Luminous Red Galaxy templates}
 
 We begin with the simplest case, which is fitting a {\it single}
-template to the photometric data of the LRG sample
+template to just the SDSS photometric data of the LRG sample
 (\citealt{eisenstein01a}). For many of these galaxies, which extend to
 $r<19.5$ and are intrinsically red, the $u$-band flux is extremely
-poorly measured, so we ignore the $u$-band for all LRGs. 
+poorly measured, so we ignore the $u$-band for all LRGs and only fit
+to $g$, $r$, $i$ and $z$ fluxes using the SDSS ``model'' fluxes as
+described in \cite{stoughton01a} and elsewhere.
+In this case, we fit for the $a_{i0}$ and $b_{0j}$ coefficients 
+in Equation \ref{chi2}: we want just a single template, expressed 
+by the $b_{0j}$ coefficients, and a single scaling of its 
+flux for each galaxy, expressed by $a_{i0}$. 
 
 Figure \ref{spec_lrg} shows the spectrum of the best-fit LRG.  This
-template is constrained by data between about 2000 \AA\ and 10000 \AA;
-outside that range it is an extrapolation.
+template is constrained by data between about 3000 \AA\ and 10000 \AA.
+Outside that range it is an extrapolation --- that is, it is simply
+the best fit model prediction, but there is no data to verify the
+model there. 
 
 Figure \ref{sfh_lrg} shows the star-formation history corresponding to
-this best-fit LRG spectrum. The top panel shows the star-formation per
+this best-fit LRG spectrum. 
+The top panel shows the star-formation per
 unit time as a function of look-back time.  The bottom panel shows the
 mean metallicity of the forming stars as a function of time.  When
 considering these plots and those below, do remember that although
@@ -845,15 +883,15 @@ template.
 
 \subsection{Templates for the full data set}
 
-We next apply the method to the full data set and fit for five
-templates. From experiments, we found that we needed five to
-adequately explain the data. More than five templates would allow us
-to explain the data better, but only marginally so.  The right-most
-column of Figure \ref{sfh_templates} shows the spectrum from the
-ultraviolet through the near infrared for the resulting
-templates. Note that there is a very old template, a very young
-template, and several intermediate templates, including one which is
-close to that of an A star.
+We next apply the method to the full data set (that is, all five items
+listed in Section \ref{data}) and fit for five templates. From
+experiments, we found that we needed five to adequately explain the
+data. More than five templates would allow us to explain the data
+better, but only marginally so.  The right-most column of Figure
+\ref{sfh_templates} shows the spectrum from the ultraviolet through
+the near infrared for the resulting templates. Note that there is a
+very old template, a very young template, and several intermediate
+templates, including one which is close to that of an A star.
 
 The left and middle columns of Figure \ref{sfh_templates} show the
 star-formation histories and metallicities associated with the
@@ -879,7 +917,9 @@ star-formation histories and spectra associated with these templates.
 These templates explain the photometric data rather well. For example,
 consider Figure \ref{fullfits}, showing the color residuals of the
 observations with respect to the best fits, when fitting to galaxies
-with GALEX, SDSS, and 2MASS data. In this context we define the color
+with GALEX, SDSS, and 2MASS data (using analogous sets of data to 
+those described in Section \ref{data}, but in detail a different
+set of galaxies). In this context we define the color
 residuals as (for example):
 \begin{equation}
 \Delta [u-g] = [u_{\mathrm{obs}}- g_{\mathrm{obs}}] -
@@ -1086,7 +1126,9 @@ actual stellar population synthesis models. Indeed, the code outputs
 three parameters relevant to the star-formation history: the current
 mass of stars in the galaxy; the stellar mass-to-light ratio of the
 galaxy; and the fraction of the total amount of star-formation that
-has occurred recently. 
+has occurred recently. We do not believe that fitting just to
+broad-band colors can ever give extremely accurate values for these
+quantities.  However, in this section 
 
 \citet{kauffmann03a} have also calculated stellar masses for SDSS
 galaxies. Roughly, they have calculated the $z$-band stellar
@@ -1246,11 +1288,20 @@ programmed in the (unfortunately, proprietary) IDL language. These
 routines depend on the {\tt idlutils} library\footnote{{\tt
 http://skymaps.info}}.
 
+%The strength of the technique we have used here is that one can
+%quickly and reliably whittle down a large parameter space of models to
+%the few templates one needs to explain a particular set of data. We
+%should note that when fitting models, the most difficult part is
+%actually starting with an accurate set of models that are capable of
+%explaining the data at all. Here we have used the \citet{bruzual03a}
+%models, that do a reasonable but not perfect job of explaining the
+%available data.
+
 \acknowledgments
 
 The authors would like to thank Alison Coil, Michael Cooper, David
 W. Hogg, John Moustakas, Leonidas Moustakas, David Schiminovich, Risa
-Wechsler, and Andrew West for their detailed comments and
+Wechsler, Andrew West, and the anonymous referee for their detailed comments and
 feedback. This work was funded by a GALEX Archival Program (38) and an
 HST Archival Research grant (AR-9912).
 
