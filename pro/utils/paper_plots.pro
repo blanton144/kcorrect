@@ -11,6 +11,41 @@
 ;------------------------------------------------------------------------------
 pro paper_plots
 
+sample='dr4'
+
+sdssfile=getenv('LSS_REDUX')+'/'+sample+'/bsafe/1/post_catalog.'+sample+ $
+  'bsafe1.fits'
+post=mrdfits(sdssfile,1)
+post=post[where(post.z lt 0.2)]
+post=post[shuffle_indx(n_elements(post), num_sub=30000)]
+cat=mrdfits(vagc_name('object_sdss_imaging'),1,row=post.object_position)
+kc=sdss_kcorrect(post.z, calibobj=cat, band_shift=0., absmag=absmag, $
+                 mtol=mtol, mass=mass, intsfh=intsfh, $
+                 b1000=b1000,b300=b300)
+tenpc=10.*3.086e+18
+ulumlog=-0.4*absmag[0,*]+alog10(3.631e-20)+alog10(4.*!DPI)+2.*alog10(tenpc)
+usfr=ulumlog-alog10(1.81e+28)
+fudge=0.5
+bhop=usfr+9.-alog10(intsfh)+fudge
+sindx=shuffle_indx(n_elements(post), num_sub=1000)
+
+umr=absmag[0,*]-absmag[2,*]
+hogg_usersym, 20, /fill
+k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/umr_bg.ps', $
+  pold=pold, xold=xold, yold=yold, axis_char_scale=1.8
+hogg_scatterplot, umr, alog10(b1000), $
+  xra=[0.5, 3.2], yra=[-2.5,0.1], /cond, $
+  xnpix=25, ynpix=25, exp=0.5, satfrac=0.001, $
+  quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], $
+  xtitle=textoidl('!8u-r!6'), $
+  ytitle=textoidl('!6log_{10}(!8b_G!6)')
+djs_oplot, umr[sindx], bhop[sindx], psym=8, symsize=0.25, color='red'
+djs_oplot, [0.7, 2.5], [0.7,2.5]*(-0.55), th=5, color='dark grey'
+djs_xyouts, 1.4, -0.2, '!6log_{10}(!8b_G!6)!8 = -0.55(u-r)!6', $
+  charsize=1.5
+k_end_print, pold=pold, xold=xold, yold=yold
+stop
+
 plates=[518, 1371, 1000, 1739, $
         884, 1401, 826, 528]
 fibers=[129, 369, 482, 356, $
