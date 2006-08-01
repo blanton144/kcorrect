@@ -25,8 +25,8 @@ kc=sdss_kcorrect(post.z, calibobj=cat, band_shift=0., absmag=absmag, $
 tenpc=10.*3.086e+18
 ulumlog=-0.4*absmag[0,*]+alog10(3.631e-20)+alog10(4.*!DPI)+2.*alog10(tenpc)
 usfr=ulumlog-alog10(1.81e+28)
-fudge=0.5
-bhop=usfr+9.-alog10(intsfh)+fudge
+fudge=0.6
+bhop=usfr+alog10(1.0e+9)-alog10(intsfh)+fudge
 sindx=shuffle_indx(n_elements(post), num_sub=1000)
 
 umr=absmag[0,*]-absmag[2,*]
@@ -39,7 +39,7 @@ hogg_scatterplot, umr, alog10(b1000), $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], $
   xtitle=textoidl('!8u-r!6'), $
   ytitle=textoidl('!6log_{10}(!8b_G!6)')
-djs_oplot, umr[sindx], bhop[sindx], psym=8, symsize=0.25, color='red'
+djs_oplot, absmag[0,sindx]-absmag[2,sindx], bhop[sindx], psym=8, symsize=0.25, color='red'
 djs_oplot, [0.7, 2.5], [0.7,2.5]*(-0.55), th=5, color='dark grey'
 djs_xyouts, 1.4, -0.2, '!6log_{10}(!8b_G!6)!8 = -0.55(u-r)!6', $
   charsize=1.5

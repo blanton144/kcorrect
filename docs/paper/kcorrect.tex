@@ -558,14 +558,24 @@ the flux at $\lambda \sim 1500$ \AA. There is certainly no physical
 model that predicts when this happens, and no consensus about how
 these stars should be accounted for in isochrone synthesis (that is,
 what fraction of stars undergo this phase as a function of mass and
-metallicity). In the near-IR, the spectra of thermally-pulsating
-asymptotic giant branch stars may dominate the flux in certain
-intermediate age populations (2--3 Gyr). Again, the fraction of stars
-in this phase and what their spectra are is under dispute. {\bf what
-does BC03 do?}  We do not address these uncertainties here, though we
+metallicity). While the models of \cite{bruzual03a} do contain
+post-AGB and planetary nebula phases that provide FUV flux in old
+populations, they do not contain extreme horizontal branch stars or
+other candidates that might provide more of the ``UV-excess'' seen in
+elliptical galaxies (\citealt{greggio90a, brown00a}).  In the near-IR,
+the spectra of thermally-pulsating asymptotic giant branch (TP-AGB)
+stars may dominate the flux in certain intermediate age populations
+(2--3 Gyr). With respect to these phases, \citet{bruzual03a} use
+models that are calibrated to observations of TP-AGB stars
+nearby. \citet{maraston05a} show that a different choice of TB-AGB
+models can produce significantly higher flux in the NIR at
+intermediate ages. Thus, the choices for AGB and post-AGB evolution we
+make here by using the models \cite{bruzual03a} are not definitive,
+but we do not address these controversies here and they remain an
+uncertainty in the physical interpretation of galaxy fluxes.  We do
 note that for low redshift galaxies our results from BC03 do explain
 most galaxies' colors (though see below for our discussion of the high
-redshift GOODS sample). {\bf refs}
+redshift GOODS sample).
 
 For each age and metallicity we make 3 choices of dust model: (1) no
 dust extinction; (2) $\tau_V = 3$ dust with Milky Way type extinction
@@ -942,18 +952,22 @@ fitting a new set of templates to {\it only} the GOODS data (this
 alternate set of five templates is also distributed in the manner that
 Appendix \ref{format} describes). From Figure \ref{goods_special}, we
 conclude that {\it some} of the errors are irreducible, and require
-either a larger set of templates for high redshift galaxies (a
-possibility we find a priori unlikely), or that there are simply
-errors in the catalogs or the input filter curves. For example, in the
-$z$ and $V$ bands we find significant trends between redshifts $z=0.5$
-and $1.5$ (echoed in Figure \ref{goods}). More significantly, in the
-$H$ band there is at least a 10\% offset in the magnitudes across all
-redshifts, which is almost certainly a catalog or filter curve
-error. Other errors (such as a large scatter in the residuals in the
-$B$ band and some redshift dependence in the $J$ band) are clearly due
-to the fact that the templates are not primarily designed for GOODS
-data. All in all, we recommend using the special templates for
-$K$-corrections within the GOODS data set.
+either a different set of templates for high redshift galaxies or that
+there are simply errors in the catalogs or the input filter
+curves. For example, in the $z$ and $V$ bands we find significant
+trends between redshifts $z=0.5$ and $1.5$ (echoed in Figure
+\ref{goods}). More significantly, in the $H$ band there is at least a
+10\% offset in the magnitudes across all redshifts, which is almost
+certainly a catalog or filter curve error. One possibility for these
+problems in the red are that intermediate age populations have flux in
+the near-IR from TP-AGB that our model omits; for example,
+\citet{maraston05a} has shown that such stars can significantly change
+the near-IR colors. We defer a fuller investigation of these
+discrepancies.  Other errors (such as a large scatter in the residuals
+in the $B$ band and some redshift dependence in the $J$ band) are
+clearly due to the fact that the templates are not primarily designed
+for GOODS data. All in all, we recommend using the special templates
+for $K$-corrections within the GOODS data set.
 
 We can also test how well these templates recover actual spectra given
 only photometry. To do so, we take eight random SDSS spectra (chosen
@@ -982,24 +996,21 @@ former shows the color residuals of {\it fitting} to both SDSS and
 we fit {\it only} to the SDSS data and do not include 2MASS in the fit
 at all. Without any input from 2MASS the templates do a very good job
 of predicting the 2MASS fluxes, with a scatter of 20--30\% --- not far
-from the uncertainties in the 2MASS fluxes themselves. Of course, it
-is not surprising that it is easy to predict the 2MASS fluxes ---
-stellar spectra are very simple in the NIR, so having the $ugriz$-band
-fluxes from SDSS yields much information regarding the redder
-bandpasses.
+from the uncertainties in the 2MASS fluxes themselves.
 
-However, we will note here that this result flies in the face of a
-persistent insistence that NIR observations are necessary to measure
-stellar masses of galaxies. If we can predict the NIR observations
-themselves, clearly they cannot be adding much to our knowledge of the
-underlying stellar mass. This fact changes one's decisions about what
-data is best to use for calculating the stellar mass function.  Basing
-it on 2MASS data only improves slightly the stellar mass estimate of
-each galaxy, while restricting (and thus biasing) the sample
-significantly at the lowest luminosities and surface brightnesses
-relative to the SDSS. Of course, if at high redshift galaxies have
-a very different locus of their SEDs, then perhaps this statement is
-less true for them.
+However, we will note here that this result flies in the face of the
+view of many that NIR observations are necessary to measure stellar
+masses of galaxies. If we can predict the NIR observations themselves,
+clearly they cannot be adding much to our knowledge of the underlying
+stellar mass. This fact changes one's decisions about what data is
+best to use for calculating the stellar mass function.  Basing it on
+2MASS data only improves slightly the stellar mass estimate of each
+galaxy, while restricting (and thus biasing) the sample significantly
+at the lowest luminosities and surface brightnesses relative to the
+SDSS. Of course, if at high redshift galaxies have a very different
+locus of their SEDs (for example, as perhaps is true of the GOODS
+galaxies in the NIR), then perhaps this statement is less true for
+them.
 
 In addition, consider Figures \ref{galex_resid} and
 \ref{galex_predicted}. The former shows the color residuals of {\it
@@ -1128,7 +1139,8 @@ mass of stars in the galaxy; the stellar mass-to-light ratio of the
 galaxy; and the fraction of the total amount of star-formation that
 has occurred recently. We do not believe that fitting just to
 broad-band colors can ever give extremely accurate values for these
-quantities.  However, in this section 
+quantities. In this section we demonstrate consistency between our
+results and those of other groups for the same galaxies. 
 
 \citet{kauffmann03a} have also calculated stellar masses for SDSS
 galaxies. Roughly, they have calculated the $z$-band stellar
@@ -1179,13 +1191,22 @@ relationship:
 \begin{equation}
 \log_{10} b_g = -0.55 (u-r). 
 \end{equation}
-Note, however, the large scatter (about 0.3 dex at 1$\sigma$). 
+Note, however, the large scatter (about 0.3 dex at 1$\sigma$).  The
+red dots show the results of using the formula of \citet{hopkins03a}
+to infer the current star-formation rate from the $u$-band,
+integrating over 1 Gyr, scaling by the integrated stellar mass from
+the {\tt kcorrect} determination, and then multiplying by four (which
+is the minimum appropriate correction for dust extinction in $u$
+according to \citealt{hopkins03a}). Our results roughly scale as those
+of \citet{hopkins03a} do.
 
 We do not want to overstate the validity of these physical
 interpretations. They are sufficiently good physical interpretations
 to explain broad band data, but are not uniquely so. Certainly more
 detailed spectroscopic analysis can provide better constraints on
-star-formation histories and stellar masses. 
+star-formation histories and stellar masses.  However, the results
+from {\tt kcorrect} are roughly in agreement with what other authors
+find with comparable data.
 
 One particular weakness for high redshift data is that the templates
 always assume that there is 14 Gyrs of star-formation history.  Thus,
