@@ -21,28 +21,40 @@ post=post[shuffle_indx(n_elements(post), num_sub=30000)]
 cat=mrdfits(vagc_name('object_sdss_imaging'),1,row=post.object_position)
 kc=sdss_kcorrect(post.z, calibobj=cat, band_shift=0., absmag=absmag, $
                  mtol=mtol, mass=mass, intsfh=intsfh, $
-                 b1000=b1000,b300=b300)
+                 b1000=b1000,b300=b300, coeffs=coeffs)
 tenpc=10.*3.086e+18
 ulumlog=-0.4*absmag[0,*]+alog10(3.631e-20)+alog10(4.*!DPI)+2.*alog10(tenpc)
-usfr=ulumlog-alog10(1.81e+28)
-fudge=0.6
-bhop=usfr+alog10(1.0e+9)-alog10(intsfh)+fudge
-sindx=shuffle_indx(n_elements(post), num_sub=1000)
+usfr=1.2*(ulumlog-alog10(1.81e+28))
+fudge=0.
+bhop=usfr+alog10(0.3e+9)-alog10(intsfh)+fudge
+sindx=shuffle_indx(n_elements(post), num_sub=3000)
+
+k_reconstruct_spec, coeffs[*,sindx], loglam, flux
+k_reconstruct_spec, coeffs[*,sindx], loglam, unflux, /noextinct
+ii=where(loglam gt alog10(3000.) AND $
+         loglam lt alog10(4000.))
+dcorr=fltarr(n_elements(sindx))
+for i=0, n_elements(dcorr)-1L do $
+  dcorr[i]=total(unflux[ii,i])/total(flux[ii,i])
 
 umr=absmag[0,*]-absmag[2,*]
 hogg_usersym, 20, /fill
 k_print, filename=getenv('KCORRECT_DIR')+'/docs/paper/umr_bg.ps', $
   pold=pold, xold=xold, yold=yold, axis_char_scale=1.8
-hogg_scatterplot, umr, alog10(b1000), $
-  xra=[0.5, 3.2], yra=[-2.5,0.1], /cond, $
+hogg_scatterplot, umr, alog10(b300), $
+  xra=[0.5, 2.8], yra=[-3.5,0.1], /cond, $
   xnpix=25, ynpix=25, exp=0.5, satfrac=0.001, $
   quantiles=[0.1, 0.25, 0.5, 0.75, 0.9], $
   xtitle=textoidl('!8u-r!6'), $
-  ytitle=textoidl('!6log_{10}(!8b_G!6)')
-djs_oplot, absmag[0,sindx]-absmag[2,sindx], bhop[sindx], psym=8, symsize=0.25, color='red'
-djs_oplot, [0.7, 2.5], [0.7,2.5]*(-0.55), th=5, color='dark grey'
-djs_xyouts, 1.4, -0.2, '!6log_{10}(!8b_G!6)!8 = -0.55(u-r)!6', $
+  ytitle=textoidl('!6log_{10}(!8b_{300}!6)')
+djs_oplot, absmag[0,sindx]-absmag[2,sindx], bhop[sindx]+alog10(dcorr), $
+	psym=8, symsize=0.25, color='red'
+djs_oplot, [0.7, 2.5], 0.2+[0.7,2.5]*(-1.3), th=5, color='dark grey'
+djs_xyouts, 1.4, -0.2, '!6log_{10}(!8b_{300}!6)!8 = 0.2-1.3(u-r)!6', $
   charsize=1.5
+djs_oplot, [0.7, 2.5], 0.9+[0.7,2.5]*(-1.3), th=5, color='red'
+djs_xyouts, 1.4, -0.4, '!6log_{10}(!8b_{!6Hop}!6)!8 = 0.9-1.3(u-r)!6', $
+  charsize=1.5, color='red'
 k_end_print, pold=pold, xold=xold, yold=yold
 stop
 

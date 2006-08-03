@@ -4,12 +4,15 @@
 ; PURPOSE:
 ;   fit a spectrum to the sum of templates 
 ; CALLING SEQUENCE:
-;   k_fit_spec, lambda, flux, ivar, coeffs [, vname=, vdisp= ]
+;   k_fit_spec, flux, ivar, coeffs [, vname=, vdisp=, templates=, $
+;     lambda=, oflux=, oivar=, olambda= ]
 ; INPUTS:
 ;   flux - [nl] fluxes (aligned with wavelength grid of models)
 ;   ivar - [nl] inverse variances (aligned with wavelength grid of models)
+; OPTIONAL INPUT/OUTPUTS:
+;   templates - [nl] fluxes of templates to fit
+;   lambda - [nl] wavelenths 
 ; OPTIONAL INPUTS:
-;   lambda - [nl] wavelenths (if flux not aligned)
 ;   oflux - [nm] aligned version of flux
 ;   oivar - [nm] aligned version of ivar
 ;   olambda - [nm] model wavelength grid
@@ -49,14 +52,17 @@ endif else begin
     oivar=ivar
 endelse
 
-nl=n_elements(loglam)
-templates=fltarr(nl, nt)
-for i=0L, nt-1L do begin
-    coeffs=fltarr(nt)
-    coeffs[i]=1.
-    k_reconstruct_spec, coeffs, loglam, tmpflux, vname=vname, vdisp=vdisp
-    templates[*,i]=tmpflux
-endfor
+if(keyword_set(templates) eq 0 OR $
+   keyword_set(vname) gt 0) then begin
+    nl=n_elements(loglam)
+    templates=fltarr(nl, nt)
+    for i=0L, nt-1L do begin
+        coeffs=fltarr(nt)
+        coeffs[i]=1.
+        k_reconstruct_spec, coeffs, loglam, tmpflux, vname=vname, vdisp=vdisp
+        templates[*,i]=tmpflux
+    endfor
+endif
 
 if(NOT keyword_set(verbose)) then verbose=1L
 if(NOT keyword_set(maxiter)) then maxiter=50000L

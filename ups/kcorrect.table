@@ -7,7 +7,6 @@ Qualifiers=""
 
 Common:
    Action=setup
-      setupOptional("-f ${UPS_PROD_FLAVOR} idlutils")
       proddir()
       setupenv()
       pathAppend(PATH, ${UPS_PROD_DIR}/bin)

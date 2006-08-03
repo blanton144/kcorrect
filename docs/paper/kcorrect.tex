@@ -382,7 +382,7 @@ this method to data from GALEX, Sloan Digital Sky Survey spectroscopy
 and photometry, the Two-Micron All Sky Survey, the Deep Extragalactic
 Evolutionary Probe and the Great Observatories Origins Deep Survey.
 In addition, we present software for using such data to estimate
-$K$-corrections and stellar masses.
+$K$-corrections.
 \end{abstract}
 
 \keywords{galaxies: fundamental parameters --- galaxies: photometry
@@ -436,24 +436,25 @@ help understand their star-formation histories.
 We note that some of the algorithmic techniques used here may have
 applications in other areas of astrophysics. First, nonnegative matrix
 factorization (NMF; \citealt{lee00a}), and the extensions to it we
-describe here, is a particularly useful variant on principal component
-analysis. Second, the nonnegative least squares algorithm of
+describe here, is a particularly useful variant on principal
+components
+analysis (PCA). Second, the nonnegative least squares algorithm of
 \citet{sha02a} has the virtue of being extremely simple to implement.
 These methods may find other applications in image analysis, spectroscopic
 analysis, and model fitting in astrophysics.
 
-We also release the templates in electronic form as well as an
-implementation of the methods used to fit the templates to data. This
-software {\tt kcorrect v4\_1} is distributed on the World Wide
-Web{\footnote {\tt http://cosmo.nyu.edu/blanton/kcorrect/}}. It
-consists of a core C library which performs most of the complex and
-computationally intensive tasks, plus an IDL library that provides a
-high-level interface.  This software is an update of two major earlier
-releases ({\tt v1\_16}; \citealt{blanton03b}; {\tt v3\_2}). The
-improvement over the previous version is twofold. First, we have
-improved the templates such that they successfully fit galaxies in the
-restframe UV, as observed by GALEX, DEEP2, and GOODS. Second, because
-the templates are now completely model-based, the fits have a physical
+We also release the templates in electronic form and an implementation
+of the methods used to fit the templates to data. This software {\tt
+kcorrect v4\_1} is distributed on the World Wide Web{\footnote {\tt
+http://cosmo.nyu.edu/blanton/kcorrect/}}. It consists of a core C
+library which performs most of the complex and computationally
+intensive tasks, plus an IDL library that provides a high-level
+interface.  This software is an update of two major earlier releases
+({\tt v1\_16}; \citealt{blanton03b}; {\tt v3\_2}). The improvement
+over the previous version is twofold. First, we have improved the
+templates such that they successfully fit galaxies in the restframe
+UV, as observed by GALEX, DEEP2, and GOODS. Second, because the
+templates are now completely model-based, the fits have a physical
 interpretation in terms of a star-formation history. The IDL library
 also has a number of new useful functions.
 
@@ -483,14 +484,14 @@ labeled {\tt v4\_1\_4}.
 \subsection{Overview}
 
 From the spectroscopic observations we know that galaxy spectra reside
-in a low-dimensional subspace. Principal Component Analysis (PCA) of
-galaxy spectra, introduced by \citet{connolly95b} and applied many
-times since then, demonstrates that most of the variance in the
-distribution of galaxies in spectral space can be explained using a
-few templates. This means that, in the linear space of all possible
-spectra, galaxies exist in only a small subspace. Therefore, even with
-very heterogeneous data, we should be able to determine the properties
-of this subspace.
+in a low-dimensional subspace of all possible spectra. Principal
+Component Analysis (PCA) of galaxy spectra, introduced by
+\citet{connolly95b} and applied many times since then, demonstrates
+that most of the variance in the distribution of galaxies in spectral
+space can be explained using a few templates. This means that, in the
+linear space of all possible spectra, galaxies exist in only a small
+subspace. Therefore, even with very heterogeneous data, we should be
+able to determine the properties of this subspace.
 
 Here we present an approach to combining heterogeneous data in order
 to determine the properties of the subspace of galaxy spectra. Rather
@@ -499,7 +500,9 @@ space of possible spectra to those predicted from the high resolution
 stellar population synthesis model of \citet{bruzual03a} and the
 nebular emission line models of \citet{kewley01a}.  This approach both
 constrains the problem appropriately and yields a natural theoretical
-interpretation of the results in terms of star-formation histories.
+interpretation of the results in terms of star-formation
+histories. Generalizing this approach to use other models of emission
+from stars and gas is straightforward.
 
 In a nutshell, our algorithm does the following. Given the
 observations (and uncertainties of those observations) available for
@@ -854,7 +857,7 @@ template to just the SDSS photometric data of the LRG sample
 $r<19.5$ and are intrinsically red, the $u$-band flux is extremely
 poorly measured, so we ignore the $u$-band for all LRGs and only fit
 to $g$, $r$, $i$ and $z$ fluxes using the SDSS ``model'' fluxes as
-described in \cite{stoughton01a} and elsewhere.
+described in \cite{stoughton02a} and elsewhere.
 In this case, we fit for the $a_{i0}$ and $b_{0j}$ coefficients 
 in Equation \ref{chi2}: we want just a single template, expressed 
 by the $b_{0j}$ coefficients, and a single scaling of its 
@@ -1139,8 +1142,9 @@ mass of stars in the galaxy; the stellar mass-to-light ratio of the
 galaxy; and the fraction of the total amount of star-formation that
 has occurred recently. We do not believe that fitting just to
 broad-band colors can ever give extremely accurate values for these
-quantities. In this section we demonstrate consistency between our
-results and those of other groups for the same galaxies. 
+quantities, but to evaluate what {\tt kcorrect} does in this regard we
+here examine the consistency between our results and those of other
+groups for the same galaxies.
 
 \citet{kauffmann03a} have also calculated stellar masses for SDSS
 galaxies. Roughly, they have calculated the $z$-band stellar
@@ -1174,31 +1178,33 @@ rate from these fits. Since our fits are to broad-band photometry, and
 not based on emission line measurements, we cannot expect to have
 detailed information about the very recent star-formation
 rate. However, we can try to measure what fraction of the total
-star-formation has occurred in, say, the past 1 Gyr:
+star-formation has occurred in, say, the past 300 Myr:
 \begin{equation}
-b_{G} = \frac{\int_0^{1\mathrm{~Gyr}} dt\, \mathrm{SFR}(t)}
+b_{300} = \frac{\int_0^{300\mathrm{~Myr}} dt\, \mathrm{SFR}(t)}
 {\int_0^{a_{\mathrm{Univ}}} dt\, \mathrm{SFR}(t)}
 \end{equation}
 where the definition here is meant to be similar to the birthrate
 parameter $b$ in \citet{kennicutt94a} and references therein.  Note
-that here $b_G$ is defined in terms of the total integrated
+that here $b_{300}$ is defined in terms of the total integrated
 star-formation history (unlike the stellar masses referred to above)
 as is standard for the $b$ parameter. Figure \ref{umr_bg} shows the
 relationship between the rest-frame $u-r$ color for SDSS galaxies and
-$b_G$. For galaxies with $u-r < 2.5$ (redder than which galaxies are
-mostly reddened, edge-on disks) these two parameters follow a simple
-relationship:
+$b_{300}$. For our results, the median relationship is close to:
 \begin{equation}
-\log_{10} b_g = -0.55 (u-r). 
+\log_{10} b_{300} = 0.2 - 1.3 (u-r). 
 \end{equation}
 Note, however, the large scatter (about 0.3 dex at 1$\sigma$).  The
-red dots show the results of using the formula of \citet{hopkins03a}
+overlaid points show the results of using the formula of \citet{hopkins03a}
 to infer the current star-formation rate from the $u$-band,
-integrating over 1 Gyr, scaling by the integrated stellar mass from
-the {\tt kcorrect} determination, and then multiplying by four (which
-is the minimum appropriate correction for dust extinction in $u$
-according to \citealt{hopkins03a}). Our results roughly scale as those
-of \citet{hopkins03a} do.
+integrating over 300 Myr, scaling by the integrated stellar mass from
+the {\tt kcorrect} determination, and then correcting for the internal
+$u$-band dust extinction inferred by the {\tt kcorrect} fits (which
+turns out to be factors ranging from 3--10, similar to the factors
+used by \citealt{hopkins03a}).  Our results roughly scale as those of
+\citet{hopkins03a} do, but with lower star-formation rates by a factor
+of five or so. Since \citet{hopkins03a} calibrate their star-formation
+rates to a number of other indicators, we conclude that either {\tt
+kcorrect} probably underestimates the recent star-formation rate.
 
 We do not want to overstate the validity of these physical
 interpretations. They are sufficiently good physical interpretations
@@ -1367,21 +1373,20 @@ and the University of Washington.
 
 \subsection{Standard NMF}
 The standard non-negative matrix factorization (NMF) problem, as
-originally posed by \cite{lee00a}, is to approximate a data
-matrix $\XX$ (of size $N_k\times N_n$) as the outer product of two
-rank-$N_i$ non-negative matrices $\WW$ and $\HH$. For example, in this
-paper, $\XX$ represents the fluxes at $N_n$ different wavelengths for
-$N_k$ different galaxies, $\HH$ represents a set of $N_i$ templates to build
+originally posed by \cite{lee00a}, is to approximate a data matrix
+$\XX$ (of size $N_k\times N_n$) as the outer product of two rank-$N_i$
+non-negative matrices $\WW$ and $\HH$. For example, in this paper,
+$\XX$ represents the fluxes at $N_n$ different wavelengths for $N_k$
+different galaxies, $\HH$ represents a set of $N_i$ templates to build
 each galaxy from, and $\WW$ represents, for each galaxy, the weights
 to give each template. This factorization is similar in spirit to
-singular value decomposition (SVD) and principal components analysis
-(PCA) but crucially, in NMF, $\XX$, $\WW$ and $\HH$ are all
-constrained to have non-negative entries. This changes the problem
-fundamentally, since no ``cancellation'' of positive and negative
-basis functions or coefficients is possible -- all approximation
-interactions are strictly additive. The goal, as with SVD or PCA, is
-to minmize the squared approximation error (Frobenius norm):
-\beqa \label{eq:nmfcost}
+singular value decomposition (SVD) and PCA, but crucially, in NMF,
+$\XX$, $\WW$ and $\HH$ are all constrained to have non-negative
+entries. This changes the problem fundamentally, since no
+``cancellation'' of positive and negative basis functions or
+coefficients is possible -- all approximation interactions are
+strictly additive. The goal, as with SVD or PCA, is to minmize the
+squared approximation error (Frobenius norm): \beqa \label{eq:nmfcost}
 \chi^2 &= \|\XX-\WW\HH\|^2\\
 %&= \|\XX-\XXh\|^2\\
 &= \sum_{kn} \left(\Xkn - \sum_i \Wki\Hin \right)^2
