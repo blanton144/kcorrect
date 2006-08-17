@@ -1,0 +1,347 @@
+Dear Mr. Gallagher,
+
+We would like to thank the referee for their careful reading
+and useful feedback.  We have made changes to the text
+to address some of the concerns and clarify some points.
+
+Probably the biggest bone of contention involves the claims
+about physical parameters of galaxies.  We maintain that the
+*main* point of the paper is not to perfectly understand these
+parameters, but instead to establish some tools that will
+help us proceed in understanding them, and so have
+generally weakened our claims about these interpretations.
+
+Our detailed responses to the referee are below.
+
+Thanks!
+Mike Blanton
+Sam Roweis
+
+> *********************Referee's Report*************************************
+>
+> The paper presents a procedure to calculate synthetic templates for
+> matching galaxy data from large databases (such as the SDSS, GALEX,
+> 2MASS, DEEP2, etc.). The templates are then used in a two-fold way:
+> primarily to calculate k-corrections, but also to get physical
+> insigths in the galaxy spectra. The procedure is an update of previous
+> publications of the first author.
+>
+> I find the potential applications as claimed by the authors being
+> overstated with respect to the present content. Moreover, some
+> potentially important astrophysical aspects are not discussed.
+> I explain myself below.
+
+We agree that there is important astrophysics that we have not
+explored in this paper.   We have tried to discuss the uncertainties
+this introduces on physical parameters in somewhat more detail.
+There is clearly a lot of knowledge about stellar populations that
+we are not using here, which one reason is why the focus of the
+paper is on the relatively simple conclusions (like how to K-correct).
+
+> First, k-corrections alone are not sufficient to analyse galaxy data
+> at redshift > 0, as the authors themselves sometimes state in the
+> paper. Nowadays most analysis of galaxy spectra take evolution into
+> account.
+
+We are not sure what the referee means here.  While for
+some purposes people want to remove the effects of evolution
+from their measurements, for many, many purposes (e.g.
+*measuring* the evolution of galaxies) one wants just K-corrections.
+
+> Second, the model ingredient (the Bruzual & Charlot library) is the
+> standard one with which SDSS data have been analyzed so far (e.g. by
+> Kauffmann, Ferreras, Brinchmann, Blanton), an exception being the work
+> by Panter et al. 03. So the immediate question is what this paper adds
+> to our understanding of galaxies. The update of this work with respect
+> to Blanton et al. 03 is the inclusion of a wider metallicity range and
+> the use of the Chabrier IMF instead of the Salpeter's one. But, the
+> effects of the new grid on the templates are not discussed at all in
+> the paper (see specific points below).
+
+There is a much bigger difference between the 03 paper and this
+one than the set of templates!  In particular, we are using nonnegativity
+to ensure the final template fits all correspond to positive SFRs.  So
+comparing to Blanton et al. 03 isn't really appropriate.
+
+The main result of this paper are the tools for K-corrections and
+filter transformations, and the physical parameters of galaxies are
+indeed secondary.  What we learn is that galaxy photometry can be
+explained with a very low dimensional set of SFHs, which is a useful
+(if not profound) fact.  This makes more explicit and physical our
+previous understanding (dating back some years) that galaxy SEDs can
+be explained by a small # of templates.
+
+> Related to this point, there are uncertainties in the Bruzual &
+> Charlot models, that affect both the UV and the near-IR and have a
+> potential impact on the results, which are not discussed in the paper
+> (see specific points below).
+
+We appreciate these points and try to discuss them more fully in the
+paper now.
+
+> Because of the above reasons, the capacity of the templates to provide
+> a physical interpretation especially at high redshift is
+> questionable. It seems to me that even the authors cannot decide on
+> this point since very often in the paper there are warnings to the
+> effective utility of the templates for interpreting galaxies.
+
+Well, that's true --- and it's true of ANY interpretation of galaxies
+from broadband photometry or simple spectroscopic measures.
+Our approach is slightly better than, say, the commonly used
+Bell & de Jong scalings, but of course both suffer from the failings
+that the referee describes.  With this in mind, we've reworded the 
+"physical interpretation" section to simply compare our results 
+with similar ones from other sources.
+
+> The following points should be taken into account in revising the
+> paper.
+>
+> MAJOR
+>
+> 1) A Section should be included in which the changes due to the wider
+> grid in comparison to the work of Blanton et al. 03. are described in
+> detail. The Bruzual & Charlot (2003) work has not implemented new
+> physical ingredients for the description of stellar evolution with
+> respect to Bruzual & Charlot (1993), therefore I expect the impact to
+> be minor. Probably most effect comes from the larger metallicity grid
+> (IMF should also play a minor role).
+
+As noted above, the method used here leads to a totally different
+sort of answer than the previous method did.  We couldn't interpret
+the previous results in a physical way.  Only by enforcing nonnegativity
+when trying to reduce the dimensionality of the data set can you
+get a sensible answer.
+
+> 2) Related to the above, the authors should also explain their
+> statement that the new templates allow for a better treatment of the
+> data, especially in the UV rest-frame. They should also add panels to
+> Figure 2 showing the GALEX F-N and N-u colours.
+>
+> The UV emission is a delicate issue for early-type galaxies at low
+> redshift where hot but old stars (e.g. AGB manque', Hot Horizontal
+> Branch, etc., e.g. Greggio & Renzini 1990) are required to fit the
+> continua at rest-lambda shorter than 3000 AA (the UV rising branch,
+> Burstein et al. 88). The UV-old emitters are usually not included in
+> population synthesis models, because there is no general prescription
+> from stellar evolution to be followed, whereas an ad-hoc calibration
+> for each galaxy individually is required (e.g. Maraston & Thomas
+> 2000). If the templates used here do not have a prescription for the
+> UV emission of old stars, then a certain fraction of young bursts
+> contributing to the LRG template will be required, that might be
+> unphysical.
+
+The LRG templates were fit to griz only, meaning they don't probe
+below 3000 AA (note typo saying 2000 in original draft, sorry!).  We've
+made the text more clear on this point.
+
+Nevertheless, we thank the referee for pointing out these facts
+about UV excess.  We agree that this is an interesting thing to
+look at for the distant LRGs --- once we deal with the u-band
+photometry correctly for these faint galaxies!
+
+> 3) The characteristics of the templates should be discussed more
+> extensively as well as their implications for galaxy
+> formation/evolution. For example, in the LRG template the youngest
+> stars are also more metal-poor. This implies accretion of satellite
+> instead of in situ star formation. It would be useful to collect into
+> a table the physical parameters of the five templates. In this table
+> also the reddening and the reddening law (MW or SMC) should be
+> given. Indeed, the prescription used by the authors is an improvement
+> over the dust-screen approximations that are usually adopted and it
+> would be useful to know the key parameters. Also the effect from the
+> templates with nebular emission should be addressed to, which is not
+> given anywhere.
+
+We could discuss this, but we really want to *deemphasize* the
+detailed interpretation of these fits.  In addition, the accretion vs.
+in site star-formation issue really can't be settled here.  Even in the
+best case, we just get the star-formation history of the whole
+object, not the assembly history.
+
+All the physical parameters of all templates are distributed with
+the code (and are listed in Table 3 of the paper).
+
+We're not sure what the last sentence means.  We do distribute
+the information about the nebular lines.  We don't discuss them
+much because they are the most variable parts of spectra.  We
+need to include them in the fits because they do affect broad-band
+fluxes at the 10% level, but there is not a lot of information to be
+gleaned from them.
+
+> 4) In Section 2 more details should be given on the redshift
+> determination, which is quite essential for their purpouses. To refer
+> to a paper in preparation is not sufficient.
+
+Unfortunately, that is the state of the SDSS redshifts -- there is
+no paper describing how they are found.   But trust us, the redshifts
+are extremely reliable (you don't actually *have* to trust us, it is
+easy to look at SDSS data yourself).
+
+> 5) It is worrying that in the sophisticated method implemented by the
+> authors there's not a unique minimum (eq. 11). If one performs the
+> simpler chi-square minimization a best-fit solution is found inside
+> the explored template family. It would be extremely valuable to have
+> an handle of the actual degeneracies.
+
+This is a confusing statement.  We *are* performing a chi-square
+minimization. And nothing guarantees that a chi-square surface has a
+single local minimum!
+
+What *is* true is that when the model is linear the chi-square surface
+is (of course) parabolic with a single minimum. With nonnegative
+constraints, there is no longer necessarily a unique minimum within
+the allowed region of parameter space, of course, unless the bottom of
+the parabola happens to correspond to a nonnegative combination of the
+templates, which generically it won't.  But, ignoring that caveat, one
+could just fit each galaxy to the best combination of the FULL basis
+set of 485 templates. But the point of our paper is to reduce the 485
+templates to just 5 that adequately explain the data.  Two benefits
+result: one, the fits to galaxies with 5 templates are faster by a
+HUGE factor than to 485; two, when there is missing data, the fits
+from the 5 templates do better at predicting the missing data than do
+the 485, because the 5 templates are chosen to fill a space which
+galaxies ACTUALLY occupy.
+
+If you want to minimize Eqn 11 over the "a" and "b" coefficients,
+there simply *are* multiple local minima.  It has nothing to do with
+*how* you go about finding the minima.  You could in principle try to
+find the minima using standard nonnegative linear least squares, first
+fixing "a" and fitting for "b", then fixing "b" and fitting for "a",
+ad infinitum, but this is numerically less stable and converges more
+slowly.  And since you are minimizing the same function it has
+precisely the same local minima.
+
+What is being discussed here are not degeneracies -- those are
+regions of parameter space where chi2 is nearly constant.  We are
+talking about local minima.  We would like to be able to tell the referee
+that our procedure finds the global minimum with certainty, but that
+would require a revolution in algorithms for minimization.
+
+> 6) The authors should explain the characteristics of the so-called
+> special templates that they use in order to match the GOODS data.
+
+These are just slightly different because they are fit ONLY to the
+GOODS data.   We don't think the differences are simple to interpret.
+We note now that some of the IR discrepancies might be helped with
+TP-AGB stars.  We'll be testing this out using the Maraston models
+in the future, but it is beyond the scope of this paper.
+
+> 7) One of the five templates is dominated by an A-type star. A-type
+> stars are at the turnoff in intermediate-age stellar populations (0.2
+> to 2 Gyr) where post-Main sequence stars live a well-developed AGB
+> phase (as theoretically illustrated by Iben & Renzini 1983 and
+> observed in Magellanic Clouds GCs by Persson et al. 1983; Frogel,
+> Mould & Blanco 1990 among others). The treatment of the AGB phase in
+> population synthesis models is a source of major debate as it is very
+> difficult to model and different codes predict quite different
+> contribution by this phase (Maraston 2005). The various modelling are
+> found to have a non negligible impact in the analysis of the
+> rest-frame near-IR of high-redshift galaxies (Maraston et
+> al. 2006). The authors do no employ IRAC data, however they use bands
+> (z) that might be already sensitive to near-IR in dependence of
+> redshift.
+>
+> It would be very interesting to use the sophisticated engine developed
+> in this paper to assess how much the templates change due to different
+> evolutionary synthesis. At least, the authors should clearly state
+> that their templates suffer from uncertainties in the rest-frame
+> near-IR due to the AGB issue discussed in the above quoted papers.
+>
+> Related to this point the statement that near-IR spectra of galaxies
+> are generally simple is not correct in general. When intermediate-age
+> stellar populations are present then near-IR spectra become quite
+> complicated. It has been shown that at high redshifts when galaxies
+> are young and contain such stars, the addition of the rest-frame
+> near-IR is essential in order, for example, to get a good estimate of
+> photometric redshifts (Maraston et al. 2006). The fact of finding an
+> insensitivity of the results to the near-IR fluxes is due to the very
+> large errors in the 2MASS magnitudes and to the fact that most
+> galaxies do not have a conspicuos fraction of young stars at low
+> redshifts.
+
+These points are very well taken, and the authors are appropriately
+chastened!  Our experience is indeed with the low precision, low redshift
+2MASS data, where in the NIR there seems to be very little information.
+We have a broader and hopefully better informed discussion of this in
+the models section of the paper.  We agree that exploring alternative
+stellar populations models is extremely interesting, but it lies well outside
+the scope of this paper, which merely seeks to achieve good enough fits
+to do K-corrections.
+
+> 8) I encourage the authors if not to explore, at least to allow for
+> different model ingredients to be used with their software.
+
+The software certainly allows it.  Consider us encouraged!  The GOODS
+discrepancies are particularly interesting in this regard.
+
+> MINOR:
+>
+> - The second paragraph of Section 1 (the formalism of the
+> K-correction) appears almost identical also in Section 4. I would just
+> keep it in Section 4 (Determining k-corrections).
+
+Yes, we struggled with this.  It is hard to motivate the paper
+without describing K-corrections, and it is hard to explain what
+they are without laying out the math.  So we're keeping it in
+both places.
+
+> - The pros over PCA seem a bit exaggerated to me. For non expert
+> readers it would be appreciable a deeper clarification on why the PCA
+> does not have a handle of errors.
+
+Well, we added a sentence to the effect that PCA doesn't know
+anything about the known uncertainties, so it wastes templates
+following variations that are purely due to errors.  We don't believe
+the pros over PCA are exaggerated --- the pros are exactly as
+we have stated them.
+
+> - The smoothing to 300 km/sec is probably due to their use of the
+> Eisenstein spectra (which were smoothing to a fixed resolution on
+> order to evaluate spectral indices)?
+> It would be goood to have this clearly stated.
+
+We used the data as reduced by the spectroscopic extraction
+code idlspec2d, which has some instrumental dispersion plus
+some internal dispersion due to galaxy dynamics.  We want all
+the dispersions to be equivalent so we smooth them all (data
+and models) such that their resolution is 300 km/s (few galaxies
+are intrinsically higher dispersion than that).   We're clearer
+about this now.
+
+> - The last sentence of the second paragraph at page 4 is
+> incomprehensible to me. Both methods should somehow evaluate the
+> difference between observed and predicted fluxes, so why is the shape
+> of the template not known in the least-square problem?
+
+The standard problem is to have a set of templates and fit
+for the coefficients.  So the templates are KNOWN in that
+case, but not determined by fitting to data.  We are fitting
+for the coefficients AND the templates themselves.
+
+> - In Section 3 the authors refer to the template being an
+> extrapolation at lambda < 2000 and > 10000. I think the term
+> 'extrapolation' might create confusion, what they mean is that the
+> template was not constrained using data outside that wavelenght range.
+
+We've added a clarifying sentence.
+
+> - In Section 3 it is suggested to use the formalism of the previous
+> sections (b and a coefficients) in order to have clear what was done
+> to obtain the LRG template.
+
+We've tried to do this in the first paragraph there now.
+
+> - In Figure 2 and 4, a different notation for the metallicity is used
+> with respect to the one in the text (Section 2.2). It would be better
+> to use one of the two.
+
+Agreed, we changed the text.
+
+> - In Section 3.2 it would be good to recall that the full data set used to
+> obtained the five templates refers to item 1,2,3 of Section 2
+
+Well, items 1-5, in fact -- we've made this explicit now.
+
+> - Which galaxy data are used for Figure 5?
+
+Explained in text now.
