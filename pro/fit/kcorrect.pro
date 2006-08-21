@@ -20,6 +20,7 @@
 ;   band_shift    - blueshift of bandpasses to apply (to get ^{z}b
 ;                   type bands) [default 0]
 ;   magnitude     - set if input and output in -2.5 log_10(maggies)
+;                   (implies /stddev set)
 ;   stddev        - maggies_ivar actual contains standard dev.
 ;   minerrors     - [nk] add this set of errors (in magnitude units)
 ;                   in quadrature to all uncertainties
@@ -165,10 +166,10 @@ if(n_elements(maggies) gt 0) then begin
         k_sdssfix,tmp_mag,tmp_magerr,use_maggies,use_maggies_ivar
     endif else begin
         if(keyword_set(magnitude)) then begin
+            stddev=1
             use_maggies=10.^(-0.4*use_maggies)
-            if(keyword_set(stddev)) then $
-              use_maggies_ivar= $
-              1./(use_maggies*0.4*alog(10.)*use_maggies_ivar)^2
+            use_maggies_ivar= $
+              1./(use_maggies*0.4*alog(10.)*use_maggies_ivar)^2 
         endif else begin
             if(keyword_set(stddev)) then $
               use_maggies_ivar=1./use_maggies_ivar^2

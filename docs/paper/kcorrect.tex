@@ -1,6 +1,4 @@
 \documentclass[10pt,preprint]{aastex}
-\usepackage{amsmath}
-\usepackage{epsfig}
 
 \newcommand{\vv}[1]{{\bf #1}}
 \newcommand{\df}{\delta}
@@ -25,11 +23,6 @@
 \newcommand{\lambdaobs}{\lambda_o}
 \newcommand{\lambdaemit}{\lambda_e}
 
-\def\beq#1\eeq{\begin{equation}#1\end{equation}}
-\def\beqa#1\eeqa{\begin{align}#1\end{align}}
-\def\beqq#1\eeqq{\begin{equation*}#1\end{equation*}}
-\def\beqqa#1\eeqqa{\begin{align*}#1\end{align*}}
-\def\bseq#1\eseq{\begin{subequations}#1\end{subequations}}
 
 \newcommand{\T}{^{\scriptscriptstyle \top}}
 \newcommand{\iT}{^{\scriptscriptstyle -\top}}
@@ -1386,19 +1379,22 @@ entries. This changes the problem fundamentally, since no
 ``cancellation'' of positive and negative basis functions or
 coefficients is possible -- all approximation interactions are
 strictly additive. The goal, as with SVD or PCA, is to minmize the
-squared approximation error (Frobenius norm): \beqa \label{eq:nmfcost}
-\chi^2 &= \|\XX-\WW\HH\|^2\\
+squared approximation error (Frobenius norm): 
+\begin{eqnarray}
+\label{eq:nmfcost}
+\chi^2 &=& \|\XX-\WW\HH\|^2\\
 %&= \|\XX-\XXh\|^2\\
-&= \sum_{kn} \left(\Xkn - \sum_i \Wki\Hin \right)^2
-\eeqa
+&=& \sum_{kn} \left(\Xkn - \sum_i \Wki\Hin \right)^2
+\end{eqnarray}
 In their seminal papers, \cite{lee00a} show that this approximation
 error in non-increasing under the following very simple multiplicative
 update rules: 
-\beqa \label{eq:wupdate}
-\Wki &\leftarrow \Wki \frac{[\XX\HH\T]_{ki}}{[\WW\HH\HH\T]_{ki}}\\
+\begin{eqnarray}
+ \label{eq:wupdate}
+\Wki &\leftarrow& \Wki \frac{[\XX\HH\T]_{ki}}{[\WW\HH\HH\T]_{ki}}\\
 \label{eq:hupdate}
-\Hin &\leftarrow \Hin \frac{[\WW\T\XX]_{in}}{[\WW\T\WW\HH]_{in}}
-\eeqa
+\Hin &\leftarrow& \Hin \frac{[\WW\T\XX]_{in}}{[\WW\T\WW\HH]_{in}}
+\end{eqnarray}
 $[M]_{ab}$ denotes the $(ab)$ element of the matrix valued expression
 $M$. $\HH\T$ is the transpose of matrix $\HH$.
 
@@ -1425,10 +1421,10 @@ as performing non-negative matrix factorization on the coefficients of
 an approximation, given a fixed (non-negative) basis, described by the
 columns of $\MM$. Once again, the objective we wish to minimize is the
 squared approximation error: 
-\beqa 
-\chi^2 &= \|\XX-\AA\BB\MM\|^2\\
-&= \sum_{kn} \left(\Xkn - \sum_{ij} \Aki\Bij\Mjn \right)^2
-\eeqa
+\begin{eqnarray} 
+\chi^2 &=& \|\XX-\AA\BB\MM\|^2\\
+&=& \sum_{kn} \left(\Xkn - \sum_{ij} \Aki\Bij\Mjn \right)^2
+\end{eqnarray}
 This equation is almost that posed in Equation \ref{chi2}.
 In the case of this paper, this generalization allows us to express
 the templates in terms of star-formation histories, but to compare the
@@ -1447,20 +1443,20 @@ First, by thinking of the tensor product $\BB\MM$ as a single
 non-negative matrix $\HH$, we can trivially derive a multiplicative
 update equation for the elements of $\AA$ by using the $\WW$ update
 provided above: 
-\beq
+\begin{equation}
 \Aki \leftarrow \Aki 
 \frac{[\XX\MM\T\BB\T]_{ki}}{[\AA\BB\MM\MM\T\BB\T]_{ki}}
-\eeq
+\end{equation}
 By Lee and Seung's original proof, this update is guaranteed (for any
 non-negative matrices $\XX$,$\MM$ and $\BB$) not to increase the
 approximation error. 
 
 Our main algorithmic contribution is to derive a similar update equation
 for the elements of $\BB$:
-\beq \label{eq:bupdate}
+\begin{equation} \label{eq:bupdate}
 \Bij \leftarrow \Bij
 \frac{[\AA\T\XX\MM\T]_{ij}}{[\AA\T\AA\BB\MM\MM\T]_{ij}}
-\eeq
+\end{equation}
 Following the technique outlined in \cite{lee00a}, it can still be shown
 that the error is nonincreasing under the application of this update.
 
@@ -1471,24 +1467,25 @@ non-negative matrices:
 {\it For any symmetric matrix $\PP$ having non-negative entries $\Pni
 \geq 0$, any vector $\zz$ having non-negative entries $\zn \geq 0$,
 and any vector $\yy$,}
-\beq
+\begin{equation}
 \sum_{ni} \yn \yi \Pni \leq \sum_{ni} \yn^2 \frac{\zi}{\zn} \Pni 
-\eeq
+\end{equation}
 %{\it If the vector $\yy$ has non-negative entries, equality can be
 %achieved by choosing $\zz=\yy$.}
 
 For the standard NMF problem, we can prove that the approximation
-error \eqref{eq:nmfcost} is non-increasing under \eqref{eq:wupdate} by
-using the above lemma to construct a function $\phi(\WW,\ZZ)$ which is
-an upper bound on the cost $\chi^2(\WW)$ for any non-negative matrix $\ZZ$:
-{\small 
-\beqa 
-\chi^2(\WW) &= \sum_{kni\ell} \Wki\Wkl \Hin\Hln
+error (Equation \ref{eq:nmfcost}) is non-increasing under Equation
+\ref{eq:wupdate} by using the above lemma to construct a function
+$\phi(\WW,\ZZ)$ which is an upper bound on the cost $\chi^2(\WW)$ for
+any non-negative matrix $\ZZ$: {\small
+\begin{eqnarray} 
+\chi^2(\WW) &=& \sum_{kni\ell} \Wki\Wkl \Hin\Hln
 - 2 \sum_{kni} \Wki \Xkn \Hin + \sum_{kn} \Xkn^2 \\
-\phi(\WW,\ZZ) &= \sum_{kni\ell} \Wki^2\frac{\Zkl}{\Zki} \Hin\Hln 
+\phi(\WW,\ZZ) &=& \sum_{kni\ell} \Wki^2\frac{\Zkl}{\Zki} \Hin\Hln 
 - 2 \sum_{kni} \Wki \Xkn \Hin + \sum_{kn} \Xkn^2 \\
-\phi(\WW,\ZZ) &\geq \chi^2(\WW) \qquad \forall \: \Wki\geq 0,\: \Zki\geq 0
-\eeqa
+\phi(\WW,\ZZ) 
+&&\geq \chi^2(\WW) \qquad \forall \: \Wki\geq 0,\: \Zki\geq 0
+\end{eqnarray}
 } with equality being achieved when $\ZZ=\WW$. Figure \ref{lemma}
 represents this definition schematically, showing the true $\chi^2$
 function and $\phi$. The trick of the method is to define $\phi$ such
@@ -1499,52 +1496,51 @@ increase $\chi^2$.
 
 The function $\phi$ can be analytically minimized with respect to
 its first argument:
-\beqa
-\phi(\WW^*,\ZZ) &\leq \phi(\WW,\ZZ) \qquad \forall \: \WW,\ZZ \\
-\Wki^* &= \Zki \frac{\sum_n \Xkn \Hin}{\sum_{n\ell} \Hin\Hln \Zkl}
-\eeqa
-If we set $\ZZ=\WW$, this becomes exactly \eqref{eq:wupdate} and
+\begin{eqnarray}
+\phi(\WW^*,\ZZ) &\leq& \phi(\WW,\ZZ) \qquad \forall \: \WW,\ZZ \\
+\Wki^* &=& \Zki \frac{\sum_n \Xkn \Hin}{\sum_{n\ell} \Hin\Hln \Zkl}
+\end{eqnarray}
+If we set $\ZZ=\WW$, this becomes exactly Equation \ref{eq:wupdate} and
 now we can easily prove the validity of this update rule: 
-\beq
+\begin{equation}
 \chi^2(\WW) = \phi(\WW,\WW) \geq \phi(\WW^*,\WW) \geq \chi^2(\WW^*)
-\eeq
+\end{equation}
 where the first inequality comes from the fact that $\WW^*$ minimizes
 $\phi(\cdot,\WW)$ with respect to its first argument
 and the second comes from the fact that $\phi(\WW^*,\cdot)$ is a bound
 on $\chi^2(\WW^*)$. The proof of validity for the update
-\eqref{eq:hupdate} is analogous by symmetry. 
+(Equation \ref{eq:hupdate}) is analogous by symmetry. 
 
-To prove the validity of our update \eqref{eq:bupdate} for our new
-problem, we proceed in a similar fashion, using the lemma twice to
-construct consecutive upper bounds on the cost:
-{\small 
-\beqa 
-\chi^2(\BB) &= \sum_{kni\ell{}js} \Aki\Akl\Bij\Bls\Mjn\Msn\\ \nonumber
-&- 2 \sum_{knij} \Xkn\Aki\Bij\Mjn + \sum_{kn} \Xkn^2 \\
-\phi(\BB,\ZZ,\beta) &= \sum_{kni\ell{}js} \Aki\Akl\Bij^2
+To prove the validity of our update (Equation \ref{eq:bupdate}) for
+our new problem, we proceed in a similar fashion, using the lemma
+twice to construct consecutive upper bounds on the cost: {\small
+\begin{eqnarray} 
+\chi^2(\BB) &=& \sum_{kni\ell{}js} \Aki\Akl\Bij\Bls\Mjn\Msn\\ \nonumber
+&&- 2 \sum_{knij} \Xkn\Aki\Bij\Mjn + \sum_{kn} \Xkn^2 \\
+\phi(\BB,\ZZ,\beta) &=& \sum_{kni\ell{}js} \Aki\Akl\Bij^2
 \frac{\Zks\betalj}{\Zkj\betaij}\Mjn\Msn\\ \nonumber
-&- 2 \sum_{knij} \Xkn\Aki\Bij\Mjn + \sum_{kn} \Xkn^2 \\
-\phi(\BB,\ZZ,\beta) &\geq \chi^2(\BB) \qquad \forall 
+&&- 2 \sum_{knij} \Xkn\Aki\Bij\Mjn + \sum_{kn} \Xkn^2 \\
+\phi(\BB,\ZZ,\beta) &&\geq \chi^2(\BB) \qquad \forall 
 \: \Bij\geq 0,\: \Zkj\geq 0,\: \betaij\geq 0
-\eeqa
+\end{eqnarray}
 } with equality being achieved when $\ZZ=\AA\BB$ and 
 $\beta=\BB$.
 
 Once again, the bound $\phi$ can be analytically minimized with respect to
 its first argument:
-\beqa
-\phi(\BB^*,\ZZ,\beta) &\leq \phi(\BB,\ZZ,\beta) \qquad 
+\begin{eqnarray}
+\phi(\BB^*,\ZZ,\beta) &\leq& \phi(\BB,\ZZ,\beta) \qquad 
 \forall \: \BB,\ZZ,\beta \\
-\Bij^* &= \betaij \frac{\sum_{kn} \Xkn\Aki\Mjn}
+\Bij^* &=& \betaij \frac{\sum_{kn} \Xkn\Aki\Mjn}
 {\sum_{kn\ell{}s} \Aki\Akl\frac{\Zks\betalj}{\Zkj}\Mjn\Msn}
-\eeqa
+\end{eqnarray}
 If we set $\ZZ=\AA\BB$ and $\beta=\BB$, this becomes
-exactly \eqref{eq:bupdate} and 
+exactly Equation \ref{eq:bupdate} and 
 we can now prove the validity of this update rule: 
-\beq
+\begin{equation}
 \chi^2(\BB) = \phi(\BB,\AA\BB,\BB) \geq \phi(\BB^*,\AA\BB,\BB) 
 \geq \chi^2(\BB^*) 
-\eeq
+\end{equation}
 where the first inequality comes from the fact that $\BB^*$ minimizes
 $\phi(\cdot,\AA\BB,\BB)$ with respect to its first argument
 and the second comes from the fact that $\phi(\BB^*,\cdot,\cdot)$ is a bound
@@ -1557,10 +1553,10 @@ When different entries $\Xkn$ of the data matrix have different
 uncertainties, the natural objective function is the weighted approximation
 error (which also corresponds to the negative log likelihood under a
 Gaussian noise assumption):
-\beq
+\begin{equation}
 \chi^2 = \sum_{kn} \left( \frac{\Xkn - 
 \sum_i \Wki\Hin}{\skn}\right)^2
-\eeq
+\end{equation}
 
 This case can easily be handled since during the update for $\WW$ the
 elements of $\HH$ are fixed and vice versa and the updates are
@@ -1569,47 +1565,47 @@ guaranteed not to increase the cost for any nonnegative matrices.
 %$\WWt(j)_{ik}=\Wki/\skn$ and 
 %$\HHt(i)_{kj}=\Hin/\skn$. 
 In particular, when updating $\WW$, we can rewrite the cost function as
-\beq
+\begin{equation}
 \chi^2 = \sum_{kn} \left( \frac{\Xkn}{\skn} - 
 \sum_i \Wki\frac{\Hin}{\skn}\right)^2
 %= \sum_{ij} \left(\XXt_{ij} - 
 %\sum_k \Wki\HHt(i)_{kj}\right)^2
-\eeq
+\end{equation}
 yielding updates of the form:
-\beq
+\begin{equation}
 \Wki \leftarrow \Wki 
 \left( \sum_n \frac{\Xkn\Hin}{\skn^2} \right) / 
 \left( \sum_{mn} \frac{W_{km}H_{mn}\Hin}{\skn^2}\right)
 %\Wki \leftarrow \Wki \frac{[\XXt\HHt(i)\T]_{ik}}{[\WW\HHt(i)\HHt(i)\T]_{ik}}
-\eeq
+\end{equation}
 
 and similarly, when updating $\HH$, we can rewrite the cost function as
-\beq
+\begin{equation}
 \chi^2 = \sum_{kn} \left( \frac{\Xkn}{\skn} - 
 \sum_i \frac{\Wki}{\skn}\Hin\right)^2
 %= \sum_{ij} \left(\XXt_{ij} - 
 %\sum_k \WWt(j)_{ik}\Hin\right)^2
-\eeq
+\end{equation}
 yielding updates of the form:
-\beq
+\begin{equation}
 \Hin \leftarrow \Hin
 \left( \sum_k \frac{\Wki\Xkn}{\skn^2}\right) /
 \left( \sum_{mk} \frac{\Wki{}W_{km}H_{mn}}{\skn^2}\right)
 %\Hin \leftarrow \Hin \frac{[\WWt(j)\T\XX]_{kj}}{[\WWt(j)\T\WWt(j)\HH]_{kj}}
-\eeq
+\end{equation}
 
 This argument can be equally applied to our extended model, yielding
 the final update equations which are actually implemented in the
 kcorrect code:
 %%\centerline{\fbox{\parbox{4.3in}{
-\beqa 
-\Aki &\leftarrow \Aki 
+\begin{eqnarray} 
+\Aki &\leftarrow& \Aki 
 \left( \sum_{jn} \frac{\Xkn\Mjn\Bij}{\skn^2}\right) / 
 \left( \sum_{mljn} \frac{A_{km}B_{mj}M_{jn}M_{nl}B_{il}}{\skn^2}\right) \\
-\Bij &\leftarrow \Bij
+\Bij &\leftarrow& \Bij
 \left( \sum_{kn} \frac{\Aki\Xkn\Mjn}{\skn^2}\right) / 
 \left( \sum_{mlkn} \frac{A_{ki}A_{km}B_{ml}M_{ln}M_{jn}}{\skn^2}\right)
-\eeqa
+\end{eqnarray}
 %%}}}
 
 %\centerline{\fbox{\parbox{2.6in}{
