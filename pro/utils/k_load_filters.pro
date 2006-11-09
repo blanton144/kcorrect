@@ -38,7 +38,9 @@ if(NOT file_test(filtername)) then begin
           ipath=i
     endfor 
     if(ipath eq -1) then $
-      curr_path=getenv('KCORRECT_DIR')+'/data/filters'
+      curr_path=getenv('KCORRECT_DIR')+'/data/filters' $
+    else $
+      curr_path=filterpath[ipath]
 endif
 return, curr_path
 end
