@@ -36,7 +36,7 @@ case `uname` in
 		X_LD_FLAGS="-S -shared";;
 	"Linux" )
 		SO_EXT=so
-		X_CFLAGS=
+		X_CFLAGS="-fPIC -g -Wall"
 		X_FFLAGS="-ffixed-line-length-none"
 		SDSS_CFLAGS=
 		X_LD_FLAGS=-shared ;;

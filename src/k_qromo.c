@@ -9,11 +9,13 @@
 #define K 5
 
 float k_qromo(float (*func)(float), float a, float b,
-							 float (*choose)(float(*)(float), float, float, IDL_LONG))
+							 float (*choose)(float(*)(float), float, float, IDL_LONG), 
+							int *good)
 {
 	IDL_LONG j;
 	float ss,dss,h[JMAXP+1],s[JMAXP+1];
 
+	*good=1;
 	h[1]=1.0;
 	for (j=1;j<=JMAX;j++) {
 		s[j]=(*choose)(func,a,b,j);
@@ -26,7 +28,6 @@ float k_qromo(float (*func)(float), float a, float b,
 	}
 	printf("%le %le\n",dss,ss);
 	printf("Too many steps in routing qromo");
-	exit(1);
 	return 0.0;
 }
 #undef EPS

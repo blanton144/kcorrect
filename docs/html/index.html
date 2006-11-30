@@ -924,6 +924,26 @@ with these relationships.
 <h3> Known problems </h3>
 
 <ol> 
+
+<li> In v4_1_4 and earlier, Linux 64-bit boxes fail with the message:
+<pre>
+ld -shared -o /u/rreyes/IDL/kcorrect/lib/libkcorrect.so idl_k_projection_table.o k_projection_table.o idl_k_fit_spec.o k_fit_spec.o idl_k_fit_nonneg.o k_fit_nonneg.o idl_k_fit_photoz.o k_fit_photoz.o idl_k_reconstruct_maggies.o k_reconstruct_maggies.o k_strparse.o k_yanny_readone.o k_filter_struct.o k_fileopen.o k_load_filters.o k_read_ascii_table.o k_nonneg_solve.o k_interpolate.o idl_k_binspec.o k_binspec.o k_utils.o k_qromo.o k_midpnt.o k_choldc.o k_cholsl.o k_locate.o k_brent.o k_evolve.o k_zbrent.o k_polint.o idl_lf_calc_vmax.o idl_ztoV.o idl_Vtoz.o idl_z2dm.o idl_z2t.o idl_t2z.o idl_lf_eep.o idl_lf_select_eep.o ztransform.o iterate_lf.o philike.o phierrors_lf.o gaussj.o lf_select_eep.o lf_calc_vmax.o lf_eep.o lf_eepfit.o lf_WH_interp.o lf_set_AB.o lf_sum_AB.o
+ld: k_projection_table.o: relocation R_X86_64_32 against `k_midpnt' can not be used when making a shared object; recompile with -fPIC
+k_projection_table.o: could not read symbols: Bad value
+make[1]: *** [/u/rreyes/IDL/kcorrect/lib/libkcorrect.so] Error 1
+</pre>
+You want to edit the Linux section of kevilmake so it reads:
+<pre>
+	"Linux" )
+		SO_EXT=so
+		X_CFLAGS="-fPIC -g -Wall"
+		X_FFLAGS="-ffixed-line-length-none"
+		SDSS_CFLAGS=
+		X_LD_FLAGS=-shared ;;
+</pre>
+Or just use the idlutils "evilmake" utility (if you are using the IDL
+version of kcorrect you need idlutils installed anyway).
+
 <li>
 <p> There is a known problem with compiling the stand-alone C code on
 a Mac OS X system, which results in the following error message: <pre>

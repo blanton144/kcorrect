@@ -27,7 +27,7 @@
 ;------------------------------------------------------------------------------
 pro k_fit_spec, flux, ivar, coeffs, vname=vname, vdisp=vdisp, $
                 templates=templates, lambda=lambda, oflux=oflux, $
-                oivar=oivar, olambda=olambda
+                oivar=oivar, olambda=olambda, nolines=nolines
 
 if(NOT keyword_set(ivar)) then begin
     inz=where(flux ne 0., nnz)
@@ -35,7 +35,7 @@ if(NOT keyword_set(ivar)) then begin
     ivar=1./((abs(flux)>minflux)*0.1)^2
 endif
 
-k_reconstruct_spec, dum, loglam, /init, vname=vname, nt=nt
+k_reconstruct_spec, dum, loglam, /init, vname=vname, nt=nt, nolines=nolines
 olambda=10.^loglam
 
 if(keyword_set(lambda)) then begin
@@ -59,7 +59,8 @@ if(keyword_set(templates) eq 0 OR $
     for i=0L, nt-1L do begin
         coeffs=fltarr(nt)
         coeffs[i]=1.
-        k_reconstruct_spec, coeffs, loglam, tmpflux, vname=vname, vdisp=vdisp
+        k_reconstruct_spec, coeffs, loglam, tmpflux, vname=vname, $
+          vdisp=vdisp, nolines=nolines
         templates[*,i]=tmpflux
     endfor
 endif
