@@ -9,13 +9,11 @@
 #define K 5
 
 float k_qromo(float (*func)(float), float a, float b,
-							 float (*choose)(float(*)(float), float, float, IDL_LONG), 
-							int *good)
+							 float (*choose)(float(*)(float), float, float, IDL_LONG)) 
 {
 	IDL_LONG j;
 	float ss,dss,h[JMAXP+1],s[JMAXP+1];
 
-	*good=1;
 	h[1]=1.0;
 	for (j=1;j<=JMAX;j++) {
 		s[j]=(*choose)(func,a,b,j);
