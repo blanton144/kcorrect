@@ -21,22 +21,16 @@ sigma=vdisp/(2.99792e+5*alog(10.))  ;; smoothing sigma in log lambda
 
 nper=[1, $
       2, $
-      1, $
-      1, $
-      1, $
+      2, $
       1]
 tcen=[ [ 6564.61, 0.00], $
        [ 6564.61, 4862.683], $
-       [ 6549.85, 0.00], $
-       [ 5008.24, 0.00], $
-       [ 4960.29, 0.00], $
+       [ 5008.24, 4960.29], $
        [ 3727.09, 0.00] ]
 
 rcen=[ [1.0, 0.], $
        [2.7, 1.], $
-       [1.0, 0.], $
-       [1.0, 0.], $
-       [1.0, 0.], $
+       [3.0, 1.], $
        [1.0, 0.]]
        
 
@@ -47,6 +41,8 @@ for i=0L, n_elements(nper)-1L do begin
           rcen[j,i]*exp(-0.5*(loglam-alog10(tcen[j,i]))^2/(sigma)^2)/ $
           (sqrt(2.*!DPI)*sigma)/total(rcen[*,i])
     endfor
+    tmax=max(templates[*,i])
+    templates[*,i]=templates[*,i]/tmax
 endfor
 
 end
