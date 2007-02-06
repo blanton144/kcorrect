@@ -14,7 +14,7 @@
 ;   13-Jun-2006  Michael Blanton (NYU)
 ;-
 ;------------------------------------------------------------------------------
-pro k_emlines, loglam, templates, vdisp=vdisp
+pro k_emlines, loglam, templates, vdisp=vdisp, bluest=bluest
 
 if (NOT keyword_set(vdisp)) then vdisp=300.
 sigma=vdisp/(2.99792e+5*alog(10.))  ;; smoothing sigma in log lambda
@@ -24,15 +24,16 @@ nper=[1, $
       2, $
       1]
 tcen=[ [ 6564.61, 0.00], $
-       [ 6564.61, 4862.683], $
-       [ 5008.24, 4960.29], $
+       [ 4862.683, 6564.61], $
+       [ 4960.29, 5008.24], $
        [ 3727.09, 0.00] ]
 
 rcen=[ [1.0, 0.], $
        [2.7, 1.], $
        [3.0, 1.], $
        [1.0, 0.]]
-       
+
+bluest=tcen[0,*]
 
 templates=fltarr(n_elements(loglam), n_elements(nper))
 for i=0L, n_elements(nper)-1L do begin
