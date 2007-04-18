@@ -52,7 +52,8 @@ if(arg_present(maggies_err)) then begin
     lups_err=dblarr(nb,nmaggies)
     for b=0L, nb-1L do $
       lups_err[b,*]=2.5*maggies_err[b,*]/(2.*bvalues[b]*alog(10.)* $
-                                          sqrt(1.+(0.5*maggies/bvalues[b])^2))
+                                          sqrt(1.+(0.5*maggies[b,*]/ $
+	bvalues[b])^2))
 endif
 return,lups
 
