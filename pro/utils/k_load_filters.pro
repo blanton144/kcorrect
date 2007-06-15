@@ -69,8 +69,9 @@ for i = 0l, n_elements(filterlist)-1l do begin
         curr_path=k_load_filters_path(filterlist[i],filterpath=filterpath)
         if(NOT file_test(curr_path+'/'+filterlist[i])) then $
           message,'filter '+curr_path+'/'+filterlist[i]+' does not exist'
-        filter_str=yanny_readone(curr_path+'/'+filterlist[i],hdr=hdr, $
-                                 /anonymous)
+        filter_str=yanny_readone(curr_path+'/'+filterlist[i], hdr=hdr, $ 
+                                 /anonymous) 
+                                 
         filters_new={file:filterlist[i], $
                      str:ptr_new(filter_str)}
         if(n_elements(filters) gt 0) then $
