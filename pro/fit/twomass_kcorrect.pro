@@ -105,7 +105,8 @@ function twomass_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                            omaggies=omaggies, twomass=twomass, $
                            oivar=oivar, galex=galex, vname=in_vname, $
                            mass=mass, mtol=mtol, absmag=absmag, $
-                           amivar=amivar, omega0=omega0, omegal0=omegal0
+                           amivar=amivar, omega0=omega0, omegal0=omegal0, $
+                           b300=b300, b1000=b1000, intsfh=intsfh, mets=mets
 
 common com_twomass_kcorrect, rmatrix, zvals, band_shift, vname
 
@@ -184,7 +185,8 @@ filterlist=['sdss_u0.par','sdss_g0.par', 'sdss_r0.par', 'sdss_i0.par', $
 kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, rmaggies=rmaggies, $
   filterlist=filterlist, vname=vname, mass=mass, mtol=mtol, $
-  absmag=absmag, amivar=amivar, omega0=omega0, omegal0=omegal0
+  absmag=absmag, amivar=amivar, omega0=omega0, omegal0=omegal0, $
+  mets=mets, b300=b300, intshf=intsfh, b1000=b1000
 
 if(arg_present(omaggies)) then $
   omaggies=mgy
