@@ -17,7 +17,7 @@ function vmax2m, in_vmax, littleh=littleh, omega0=omega0
 common com_vmax2m, lmgrid, lvgrid, glittleh, gomega0
 
 if(NOT keyword_set(littleh)) then littleh=0.7
-if(NOT keyword_set(omega0)) then omega0=0.3
+if(NOT keyword_set(omega0)) then omega0=0.24
 if(NOT keyword_set(glittleh)) then glittleh=littleh
 if(NOT keyword_set(gomega0)) then gomega0=omega0
 

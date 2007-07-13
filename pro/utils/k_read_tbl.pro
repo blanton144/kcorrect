@@ -21,6 +21,8 @@ ELSE IF(strmatch(type,'i*') EQ 1) THEN $
   RETURN,long(val) $
 else if(strmatch(type,'f*') eq 1) then $
   return,float(val) $
+else if(strmatch(type,'r*') eq 1) then $
+  return,float(val) $
 else if(strmatch(type,'c*') eq 1) then $
   return,string(val) $
 else $

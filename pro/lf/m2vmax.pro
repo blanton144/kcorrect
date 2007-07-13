@@ -13,12 +13,13 @@
 ; REVISION HISTORY:
 ;   2002-11-01  written - Blanton
 ;-
-function m2vmax, in_mass, littleh=littleh, omega0=omega0
+function m2vmax, in_mass, littleh=littleh, omega0=omega0, mstar=mstar
 
 if(n_elements(littleh) eq 0) then littleh=0.7
-if(n_elements(omega0) eq 0) then omega0=0.3
+if(n_elements(omega0) eq 0) then omega0=0.24
+if(NOT keyword_set(mstar)) then mstar=1.5e+12
 mass=in_mass/littleh
-mstar=1.5e+13/littleh
+mstar=mstar/littleh
 
 xx=omega0-1.
 delvir=(18.*!DPI^2+82.*xx-39.*xx^2)/omega0
