@@ -27,7 +27,8 @@
 ;------------------------------------------------------------------------------
 pro k_fit_spec, flux, ivar, coeffs, vname=vname, vdisp=vdisp, $
                 templates=templates, lambda=lambda, oflux=oflux, $
-                oivar=oivar, olambda=olambda, nolines=nolines
+                oivar=oivar, olambda=olambda, nolines=nolines, $
+                linear=linear, chi2=chi2
 
 if(NOT keyword_set(ivar)) then begin
     inz=where(flux ne 0., nnz)
@@ -76,10 +77,17 @@ soname=filepath('libkcorrect.'+kcorrect_so_ext(), $
 coeffs=fltarr(nt)+1.
 chi2=fltarr(1)
 niter=0L
-retval=call_external(soname, 'idl_k_fit_spec', float(coeffs), $
-                     float(oflux), float(oivar), float(templates), $
-                     long(nt), long(nl),float(tolerance), long(maxiter), $
-                     long(niter),float(chi2),long(verbose)) 
+
+if(NOT keyword_set(linear)) then begin
+    retval=call_external(soname, 'idl_k_fit_spec', float(coeffs), $
+                         float(oflux), float(oivar), float(templates), $
+                         long(nt), long(nl),float(tolerance), long(maxiter), $
+                         long(niter),float(chi2),long(verbose)) 
+endif else begin
+    retval=call_external(soname, 'idl_k_fit_spec_linear', float(coeffs), $
+                         float(oflux), float(oivar), float(templates), $
+                         long(nt), long(nl), float(chi2),long(verbose)) 
+endelse
 
 
 end

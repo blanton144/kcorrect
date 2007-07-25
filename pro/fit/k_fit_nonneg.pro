@@ -79,14 +79,22 @@ endelse
 nz=long(n_elements(zvals))
 nv=long(n_elements(rmatrix)/(nz*nk)) 	 
 
+nn_maggies=maggies
+nn_maggies_ivar=maggies_ivar
+ineg=where(nn_maggies lt 0., nneg)
+if(nneg gt 0) then begin
+    nn_maggies[ineg]=1.e-20
+    nn_maggies_ivar[ineg]=0.
+endif
+
 ; Set rmatrix
 coeffs=fltarr(nv,ngalaxy)
 chi2=fltarr(ngalaxy)
 niter=0L
 retval=call_external(soname, 'idl_k_fit_nonneg', float(coeffs), $
                      float(rmatrix), long(nk), long(nv), $
-                     float(zvals), long(nz), float(maggies), $
-                     float(maggies_ivar), float(redshift), $
+                     float(zvals), long(nz), float(nn_maggies), $
+                     float(nn_maggies_ivar), float(redshift), $
                      long(ngalaxy), float(tolerance), long(maxiter), $
                      long(niter),float(chi2),long(verbose)) 
 

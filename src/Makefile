@@ -24,6 +24,8 @@ OBJECTS = \
   k_projection_table.o \
   idl_k_fit_spec.o \
   k_fit_spec.o \
+  idl_k_fit_spec_linear.o \
+  k_fit_spec_linear.o \
   idl_k_fit_nonneg.o \
   k_fit_nonneg.o \
   idl_k_fit_photoz.o \

@@ -39,8 +39,8 @@ pro lf_calc_vmax,appm,absm,coeffs,in_filtername,marea,mmin,mmax, $
                  band_shift=in_band_shift, q0=in_q0, q1=in_q1, qz0=in_qz0, $
                  actual_z=actual_z, actual_k=actual_k, $
                  magoffset=in_magoffset, absmagdep=absmagdep, $
-                 ref_absmagdep=ref_absmagdep, rmatrix=rmatrix, zvals=zvals
-                 
+                 ref_absmagdep=ref_absmagdep, rmatrix=rmatrix, zvals=zvals, $
+                 smoothr=smoothr
 
 ; settings
 pi=3.14159265358979D
@@ -73,6 +73,12 @@ if(n_elements(rmatrix) eq 0 OR n_elements(zvals) eq 0) then $
   filterlist=[filtername],rmatrix=rmatrix,zvals=zvals,coeffs=coeffs[*,0]
 nz=n_elements(rmatrix)/nv/nk
 
+if(keyword_set(smoothr)) then begin
+    old_rmatrix=rmatrix
+    for i=0L, nv-1L do $
+      rmatrix[*,i]=smooth(old_rmatrix[*,i], 4., /edge)
+endif
+
 ; for each object...
 vmax=fltarr(ngals)
 zmin=fltarr(ngals)
@@ -81,6 +87,13 @@ for i=0L,ngals-1L do begin
     if((i mod 1000) eq 0) then splog,' galaxy '+string(i)
     curr_absm=k_evolve(absm[i], actual_z[i], q0, q1, qz0)
     curr_coeffs=coeffs[*,i]
+    if(keyword_set(smoothr)) then begin
+        off=-2.5*alog10(interpol(rmatrix#abs(curr_coeffs), zvals, $
+                                 actual_z[i]))+ $
+          2.5*alog10(interpol(old_rmatrix#abs(curr_coeffs), zvals, $
+                                 actual_z[i]))
+        curr_absm=curr_absm-off
+    endif
     
     for j=0L, n_elements(marea)-1L do begin
 
