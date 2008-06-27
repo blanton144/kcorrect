@@ -99,7 +99,7 @@ function galex_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                          rmaggies=rmaggies, omaggies=omaggies, $
                          oivar=oivar, galex=galex, vname=in_vname, $
                          mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
-                         omega0=omega0, omegal0=omegal0
+                         omega0=omega0, omegal0=omegal0, b1000=b1000
 
 common com_galex_kcorrect, rmatrix, zvals, band_shift, vname
 
@@ -176,7 +176,7 @@ filterlist=['galex_FUV.par', 'galex_NUV.par', 'sdss_u0.par', $
 kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, rmaggies=rmaggies, $
   filterlist=filterlist, vname=vname, omega0=omega0, omegal0=omegal0, $
-  absmag=absmag, amivar=amivar, mtol=mtol, mass=mass
+  absmag=absmag, amivar=amivar, mtol=mtol, mass=mass, b1000=b1000
 
 if(arg_present(omaggies)) then $
   omaggies=mgy
