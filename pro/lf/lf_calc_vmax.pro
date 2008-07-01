@@ -83,6 +83,8 @@ endif
 vmax=fltarr(ngals)
 zmin=fltarr(ngals)
 zmax=fltarr(ngals)
+        help, omega0
+        help, omegal0
 for i=0L,ngals-1L do begin
     if((i mod 1000) eq 0) then splog,' galaxy '+string(i)
     curr_absm=k_evolve(absm[i], actual_z[i], q0, q1, qz0)
@@ -130,7 +132,9 @@ for i=0L,ngals-1L do begin
             endif
         endif
         vmax[i]=vmax[i]+ $
-          ((marea[j]*(lf_comvol(curr_zmax)-lf_comvol(curr_zmin))) > 0.)/3.
+          ((marea[j]*(lf_comvol(curr_zmax, omega0=omega0, omegal0=omegal0)- $
+                      lf_comvol(curr_zmin, omega0=omega0, omegal0=omegal0))) $
+           > 0.)/3.
     endfor
 
 endfor
