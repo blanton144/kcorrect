@@ -45,12 +45,13 @@
 ;    readcol (idlutils)
 ; REVISION HISTORY:
 ;   17-Jan-2002  Translated to IDL by Mike Blanton, NYU
+;   10-Jul-2008  Moustakas - added SILENT keyword
 ;-
 ;------------------------------------------------------------------------------
 function k_vega2ab,filterpath=filterpath, $
                    filterlist=filterlist, $
                    band_shift=band_shift, $
-                   kurucz=kurucz,hayes=hayes
+                   kurucz=kurucz,hayes=hayes,silent=silent
 
 if(NOT keyword_set(filterlist)) then $
   filterlist=['sdss_u0.par','sdss_g0.par','sdss_r0.par','sdss_i0.par', $
@@ -59,7 +60,7 @@ if(NOT keyword_set(filterlist)) then $
 ; read in the vega 
 if(keyword_set(kurucz)) then begin
     veganame='lcbvega.ori'
-    k_read_basel,lambda,flux,getenv('KCORRECT_DIR')+'/data/basel/'+veganame
+    k_read_basel,lambda,flux,getenv('KCORRECT_DIR')+'/data/basel/'+veganame,silent=silent
     nspectra=1L
     lambda=lambda*10.e
     cspeed=2.99792e+18          ; ang per sec
@@ -81,7 +82,7 @@ end
 ; get AB maggies of Vega -- this is the conversion
 lambda_edges=k_lambda_to_edges(lambda)
 maggies=k_project_filters(lambda_edges,flux,filterlist=filterlist, $
-                          filterpath=filterpath,band_shift=band_shift)
+                          filterpath=filterpath,band_shift=band_shift,silent=silent)
 vega2ab=reform(-2.5*alog10(maggies),n_elements(filterlist))
 
 if(n_elements(vega2ab) eq 1) then vega2ab=vega2ab[0]
