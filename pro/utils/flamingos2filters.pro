@@ -1,4 +1,4 @@
-pro flamingos2filters, write=write
+pro flamingos2filters
 ; J. Moustakas, 2008-Jul-11, NYU
     
     filterpath = getenv('KCORRECT_DIR')+'/data/filters/'
@@ -19,9 +19,11 @@ pro flamingos2filters, write=write
     hdr0 = [hdr0, '# Notes:']
     hdr0 = [hdr0, '#']
     hdr0 = [hdr0, '# Retrieved from http://flamingos.astro.ufl.edu/Filter_Info/index.html']
-    hdr0 = [hdr0, '# These filter curves (measured within the dewar) have been convolved']
-    hdr0 = [hdr0, '# with the atmosphere, but do not include the detector QE or telescope']
-    hdr0 = [hdr0, '# throughput. - J. Moustakas, 2008-Jul-12, NYU']
+    hdr0 = [hdr0, '# Filter curve (measured within the dewar) has been convolved with the']
+    hdr0 = [hdr0, '# atmosphere (AM=1.0), but does not include the detector QE or telescope']
+    hdr0 = [hdr0, '# throughput.']
+    hdr0 = [hdr0, '#']
+    hdr0 = [hdr0, '# J. Moustakas, 2008-Jul-12, NYU']
 
     kfilter1 = {lambda:0.D, pass:0.D}
 

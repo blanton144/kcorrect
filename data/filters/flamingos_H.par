@@ -13,9 +13,11 @@
 # Notes:
 #
 # Retrieved from http://flamingos.astro.ufl.edu/Filter_Info/index.html
-# These filter curves (measured within the dewar) have been convolved
-# with the atmosphere, but do not include the detector QE or telescope
-# throughput. - J. Moustakas, 2008-Jul-12, NYU
+# Filter curve (measured within the dewar) has been convolved with the
+# atmosphere (AM=1.0), but does not include the detector QE or telescope
+# throughput.
+#
+# J. Moustakas, 2008-Jul-12, NYU
 
 typedef struct {
  double lambda;
