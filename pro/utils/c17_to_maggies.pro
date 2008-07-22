@@ -33,7 +33,7 @@
 ;   It ALWAYS applies a minimum error of 0.01 mag in all bands
 ; REVISION HISTORY:
 ;   30-June-2005 D. Schiminovich
-;   22-July-2008 Initiate ivar with 1E-32
+;   22-July-2008 Guangtun Zhu, NYU, Initiate ivar with 1E-32
 ;-
 ;------------------------------------------------------------------------------
 pro c17_to_maggies, c17, maggies, ivar
