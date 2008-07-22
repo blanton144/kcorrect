@@ -23,7 +23,7 @@
 ;   already applied to the DEEP magnitudes.
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
-;   22-July-2008 Initiate ivar with 1E-32
+;   22-July-2008 Guangtun Zhu, NYU, Initiate ivar with 1E-32
 ;-
 ;------------------------------------------------------------------------------
 pro deep_to_maggies, zcat, maggies, ivar
