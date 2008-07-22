@@ -23,12 +23,13 @@
 ;   already applied to the DEEP magnitudes.
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
+;   22-July-2008 Initiate ivar with 1E-32
 ;-
 ;------------------------------------------------------------------------------
 pro deep_to_maggies, zcat, maggies, ivar
 
 maggies=fltarr(3, n_elements(zcat))
-ivar=fltarr(3, n_elements(zcat))
+ivar=fltarr(3, n_elements(zcat)) + 1.E-32
 
 mbase=24.0
 sigmbase=0.05
