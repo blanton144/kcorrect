@@ -1,0 +1,37 @@
+# Units:
+#  "lambda" is in Angstroms
+#  "pass" is the contribution to the detector signal per photon
+#         entering the atmosphere of Earth
+#
+# Bandpass Name(s): F450W
+#
+# Instrument: WFPC2
+# 
+
+typedef struct {
+  double lambda;
+  double pass;
+} F450WFILTER;
+
+F450WFILTER   3500.00     0.
+F450WFILTER   3600.00     0.011
+F450WFILTER   3700.00     0.083
+F450WFILTER   3800.00     0.197
+F450WFILTER   3900.00     0.372
+F450WFILTER   4000.00     0.458
+F450WFILTER   4100.00     0.518
+F450WFILTER   4200.00     0.527
+F450WFILTER   4300.00     0.548
+F450WFILTER   4400.00     0.579
+F450WFILTER   4500.00     0.566
+F450WFILTER   4600.00     0.652
+F450WFILTER   4700.00     0.729
+F450WFILTER   4800.00     0.714
+F450WFILTER   4900.00     0.781
+F450WFILTER   5000.00     0.889
+F450WFILTER   5056.00     1.00
+F450WFILTER   5100.00     0.889
+F450WFILTER   5200.00     0.114
+F450WFILTER   5300.00     0.011
+F450WFILTER   5400.00     0.
+F450WFILTER   5500.00     0.
