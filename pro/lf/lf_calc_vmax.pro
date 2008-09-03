@@ -32,6 +32,7 @@
 ;   kcorrect (in kcorrect product)
 ; REVISION HISTORY:
 ;   2002-11-17  written - Blanton
+;   2008-09-04  added VNAME optional input - J. Moustakas
 ;-
 pro lf_calc_vmax,appm,absm,coeffs,in_filtername,marea,mmin,mmax, $
                  sample_zmin,sample_zmax,im=im, vmax=vmax, omega0=in_omega0, $
@@ -40,7 +41,7 @@ pro lf_calc_vmax,appm,absm,coeffs,in_filtername,marea,mmin,mmax, $
                  actual_z=actual_z, actual_k=actual_k, $
                  magoffset=in_magoffset, absmagdep=absmagdep, $
                  ref_absmagdep=ref_absmagdep, rmatrix=rmatrix, zvals=zvals, $
-                 smoothr=smoothr
+                 smoothr=smoothr,vname=vname
 
 ; settings
 pi=3.14159265358979D
@@ -70,7 +71,7 @@ nk=1
 ; run kcorrect to get rmatrix and zvals
 if(n_elements(rmatrix) eq 0 OR n_elements(zvals) eq 0) then $
   kcorrect,dummaggies,dummaggies_ivar,0.,dumk,band_shift=band_shift, $
-  filterlist=[filtername],rmatrix=rmatrix,zvals=zvals,coeffs=coeffs[*,0]
+  filterlist=[filtername],rmatrix=rmatrix,zvals=zvals,coeffs=coeffs[*,0],vname=vname
 nz=n_elements(rmatrix)/nv/nk
 
 if(keyword_set(smoothr)) then begin
