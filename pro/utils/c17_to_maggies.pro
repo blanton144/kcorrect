@@ -34,6 +34,7 @@
 ; REVISION HISTORY:
 ;   30-June-2005 D. Schiminovich
 ;   22-July-2008 Guangtun Zhu, NYU, Initiate ivar with 1E-32
+;   17-Sep-2008 Guangtun Zhu, NYU, Initiate ivar with 0.
 ;-
 ;------------------------------------------------------------------------------
 pro c17_to_maggies, c17, maggies, ivar
@@ -82,7 +83,7 @@ if(nii gt 0) then apd_rmag[ii]=0.
 
 n=n_elements(c17)
 maggies=dblarr(17,n)
-ivar=dblarr(17,n) + 1.E-32
+ivar=dblarr(17,n)
 for i=0L,16L do begin
     if tag_exist(c17,tags[i],index=ptr) then begin
         igood=where(c17.(ptr) eq c17.(ptr), ngood)
