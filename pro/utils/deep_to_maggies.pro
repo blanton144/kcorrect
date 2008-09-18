@@ -24,12 +24,13 @@
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
 ;   22-July-2008 Guangtun Zhu, NYU, Initiate ivar with 1E-32
+;   17-Sep-2008 Guangtun Zhu, NYU, Initiate ivar with 0.
 ;-
 ;------------------------------------------------------------------------------
 pro deep_to_maggies, zcat, maggies, ivar
 
 maggies=fltarr(3, n_elements(zcat))
-ivar=fltarr(3, n_elements(zcat)) + 1.E-32
+ivar=fltarr(3, n_elements(zcat))
 
 mbase=24.0
 sigmbase=0.05
