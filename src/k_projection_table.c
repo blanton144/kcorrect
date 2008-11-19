@@ -67,6 +67,35 @@ float cr_filter(float lambda)
 	return(filt);
 } /* end filter */
 
+/* integrate cr_project_matrix*cr_filter_pass */
+float cr_integrate() 
+{
+	float total, filt, sl, mlambda, dl;
+	unsigned long ip, il, ilp1;
+
+	/* each range of cr_project_matrix */
+	total=0.;
+	for(ip=0;ip<cr_nl-1;ip++) {
+		/* find the observed wavelength for this bin */
+		mlambda= (cr_lambda[ip+1]+cr_lambda[ip])*0.5*(1.+cr_z);
+		
+		/* find the filter value at that observed wavelength */
+		k_locate(cr_filter_lambda, cr_filter_n, mlambda, &il);
+		if(il<cr_filter_n-1 && il>=0) {
+			ilp1=il+1;
+			sl=(mlambda-cr_filter_lambda[il])/ 
+				(cr_filter_lambda[ilp1]-cr_filter_lambda[il]);
+			filt=cr_filter_pass[il]+sl*(cr_filter_pass[ilp1]-cr_filter_pass[il]);
+
+			/* now add component to integral */
+			dl= fabs(cr_lambda[ip+1]-cr_lambda[ip]);
+			total+= mlambda*filt*dl*cr_project_matrix[ip];
+		}
+	}
+
+	return(total);
+} /* end filter */
+
 /* Create the rmatrix, a lookup table which speeds analysis */
 IDL_LONG k_projection_table(float *rmatrix,
 														IDL_LONG nk,
@@ -82,7 +111,7 @@ IDL_LONG k_projection_table(float *rmatrix,
 														float band_shift,
 														IDL_LONG maxn)
 {
-	float lammin,lammax,scale,currlam;
+	float scale,currlam;
 	IDL_LONG i,l,k,v,indxoff;
 
 	/* make local copies of vmatrix */
@@ -110,14 +139,11 @@ IDL_LONG k_projection_table(float *rmatrix,
 			cr_filter_lambda[l]=filter_lambda[maxn*k+l]/(1.+band_shift);
 			cr_filter_pass[l]=filter_pass[maxn*k+l];
 		} /* end for l */
-		lammin=cr_filter_lambda[0];
-		lammax=cr_filter_lambda[cr_filter_n-1];
 
 		/* create scale factor for filter by projection onto the AB source */
 		cr_z=0.;
 		cr_project_matrix=cr_gmatrix;
-		scale=1./k_qromo(cr_filter,cr_filter_lambda[0], 
-										 cr_filter_lambda[cr_filter_n-1],k_midpnt);
+		scale=1./cr_integrate();
 
 		/* loop over redshifts */
 		for(i=0;i<nz;i++) {
@@ -125,7 +151,7 @@ IDL_LONG k_projection_table(float *rmatrix,
 			cr_z=zvals[i];
 			for(v=0;v<nv;v++) {
 				cr_project_matrix=&(cr_vmatrix[v*cr_nl]);
-				rmatrix[indxoff+v*nz]=scale*k_qromo(cr_filter,lammin,lammax,k_midpnt);
+				rmatrix[indxoff+v*nz]=scale*cr_integrate();
 			} /* end for */
 		} /* end for i */
 
