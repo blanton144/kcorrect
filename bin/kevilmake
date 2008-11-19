@@ -44,14 +44,21 @@ case `uname` in
 		F77=g77
 		SO_EXT=dylib
 		X_LD_FLAGS="-bundle /usr/lib/bundle1.o -L/usr/lib  -L/usr/lib/gcc/powerpc-apple-darwin8/4.0.0 -lc -lgcc -flat_namespace -undefined suppress"
+		X_CFLAGS="-g -Wall -dynamic"
 		if [ `uname -r | cut -c 1` \< 8 ]; then
 			X_LD_FLAGS="-bundle /usr/lib/bundle1.o -L/usr/lib -lc -lcc_dynamic -flat_namespace -undefined suppress"
+#      Uncomment the following two lines to get .dylib libraries that can
+#      be linked into C programs on a Mac OS X system
+#		   LD=libtool
+#		   X_LD_FLAGS="-dynamic -L/usr/lib -lc -lcc_dynamic"
 	  fi
-#   Uncomment the following two lines to get .dylib libraries that can
-#   be linked into C programs on a Mac OS X system
-#		LD=libtool
-#		X_LD_FLAGS="-dynamic -L/usr/lib -lc -lcc_dynamic"
-		X_CFLAGS="-g -Wall -dynamic"
+		if [ `uname -r | cut -c 1` == 9 ]; then
+		  X_LD_FLAGS="-bundle -flat_namespace -undefined suppress"
+#      Uncomment the following two lines to get .dylib libraries that can
+#      be linked into C programs on a Mac OS X system
+#     LD=libtool
+#     X_LD_FLAGS="-dynamic -L/usr/lib -lc "
+		fi
 		SDSS_CFLAGS= ;;
 	*) echo "This system is not supported" >&2
 		exit 1;;
