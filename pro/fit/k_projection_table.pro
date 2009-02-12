@@ -14,12 +14,13 @@
 ;   filterpath    - path for filters (default '$KCORRECT_DIR/data/filters')
 ;   band_shift    - shift the bands blueward by factor (1+band_shift)
 ; KEYWORDS:
-;   silent        - shut up
+;   verbose       - be loud
+;   silent        - be silent (overrides verbose)
 ; OUTPUTS:
 ;   rmatrix       - look up table for vmatrix and filter information 
 ;                   [N_z, N_dim, N_band]
-;   zvals         - look up table for rmatrix [N_z]
 ; OPTIONAL INPUT/OUTPUTS:
+;   zvals         - look up table for rmatrix [N_z]
 ;   zmin, zmax, nz  - settings for setting zvals (default 0., 2., 1000)
 ; COMMENTS:
 ;   This tabulates the projection of each basis element v onto each
@@ -39,7 +40,7 @@
 ;------------------------------------------------------------------------------
 pro k_projection_table, rmatrix, vmatrix, lambda, zvals, filterlist, $
                         zmin=zmin,zmax=zmax, nz=nz, filterpath=filterpath, $
-                        band_shift=band_shift, silent=silent
+                        band_shift=band_shift, verbose=verbose, silent=silent
 
 if(n_params() ne 5) then begin
     print,'Syntax - k_projection_table, rmatrix, vmatrix, lambda, zvals, filterlist '
@@ -49,7 +50,8 @@ endif
 
 if(NOT keyword_set(band_shift)) then band_shift=0.
 
-if(NOT keyword_set(silent)) then klog,'Creating rmatrix ...'
+if(keyword_set(silent)) then verbose=0
+if(keyword_set(verbose)) then klog,'Creating rmatrix ...'
 
 ; Set defaults
 if (n_elements(zmin) eq 0) then zmin=0.0
@@ -58,8 +60,9 @@ if (NOT keyword_set(nz)) then nz=1000l
 
 ; Set zvals
 if (n_elements(zvals) eq 0L) then $
-zvals=zmin+(zmax-zmin)*(findgen(nz)+0.5)/float(nz) else $
-nz = n_elements(zvals)
+  zvals=zmin+(zmax-zmin)*(findgen(nz)+0.5)/float(nz) $
+else $
+  nz = n_elements(zvals)
 
 ; Get filters
 k_load_filters,filterlist,filter_n,filter_lambda,filter_pass, $
@@ -81,7 +84,7 @@ retval=call_external(soname, 'idl_k_projection_table', float(rmatrix), $
                      float(filter_pass), float(band_shift), $
                      long(max(filter_n)))
 
-if(NOT keyword_set(silent)) then klog,'Done.'
+if(keyword_set(verbose)) then klog,'Done.'
 
 end
 ;------------------------------------------------------------------------------
