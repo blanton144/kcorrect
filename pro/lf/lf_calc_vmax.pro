@@ -71,7 +71,8 @@ nk=1
 ; run kcorrect to get rmatrix and zvals
 if(n_elements(rmatrix) eq 0 OR n_elements(zvals) eq 0) then $
   kcorrect,dummaggies,dummaggies_ivar,0.,dumk,band_shift=band_shift, $
-  filterlist=[filtername],rmatrix=rmatrix,zvals=zvals,coeffs=coeffs[*,0],vname=vname
+  filterlist=[filtername],rmatrix=rmatrix,zvals=zvals,coeffs=coeffs[*,0],$
+  vname=vname
 nz=n_elements(rmatrix)/nv/nk
 
 if(keyword_set(smoothr)) then begin
@@ -123,13 +124,19 @@ for i=0L,ngals-1L do begin
             zmax[i]=curr_zmax
             if(zmin[i] gt actual_z[i]) then begin
                 if(abs(curr_mmin-appm[i]) gt 0.005 AND $
-                   abs(zmin[i]-actual_z[i]) gt 1.e-4) then $
-                  message,'galaxy outside allowed putative selection limits'
+                   abs(zmin[i]-actual_z[i]) gt 1.e-4) then begin
+;                  message,'galaxy outside allowed putative selection limits', /info
+                   splog, i, actual_z[i], zmin[i], zmax[i], appm[i], curr_mmin, curr_mmax, curr_absm
+                endif
             endif
             if(zmax[i] lt actual_z[i]) then begin
                 if(abs(curr_mmax-appm[i]) gt 0.005 AND $
-                   abs(zmax[i]-actual_z[i]) gt 1.e-4)then $
-                  message,'galaxy outside allowed putative selection limits'
+                  abs(zmax[i]-actual_z[i]) gt 1.e-4)then begin
+;                  message,'galaxy outside allowed putative selection limits', /info
+                   splog, i, actual_z[i], zmin[i], zmax[i], appm[i], curr_mmin, curr_mmax, curr_absm
+                   print, appm[i], absm[i] + lf_distmod(actual_z[i]) + actual_k[i]
+stop                   
+                endif
             endif
         endif
         vmax[i]=vmax[i]+ $

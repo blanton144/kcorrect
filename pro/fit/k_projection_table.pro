@@ -56,8 +56,10 @@ if (n_elements(zmin) eq 0) then zmin=0.0
 if (n_elements(zmax) eq 0) then zmax=2.0
 if (NOT keyword_set(nz)) then nz=1000l
 
-; Set zvals 
-zvals=zmin+(zmax-zmin)*(findgen(nz)+0.5)/float(nz)
+; Set zvals
+if (n_elements(zvals) eq 0L) then $
+zvals=zmin+(zmax-zmin)*(findgen(nz)+0.5)/float(nz) else $
+nz = n_elements(zvals)
 
 ; Get filters
 k_load_filters,filterlist,filter_n,filter_lambda,filter_pass, $
