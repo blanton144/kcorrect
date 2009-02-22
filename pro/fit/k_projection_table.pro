@@ -36,6 +36,7 @@
 ;   Dynamic link to idl_k_projection_table.c in libkcorrect.so
 ; REVISION HISTORY:
 ;   05-Jan-2002  Translated to IDL by Mike Blanton, NYU
+;   22-Feb-2009  ZVALS now an optional input
 ;-
 ;------------------------------------------------------------------------------
 pro k_projection_table, rmatrix, vmatrix, lambda, zvals, filterlist, $
@@ -58,8 +59,9 @@ if (n_elements(zmin) eq 0) then zmin=0.0
 if (n_elements(zmax) eq 0) then zmax=2.0
 if (NOT keyword_set(nz)) then nz=1000l
 
-; Set zvals
-if (n_elements(zvals) eq 0L) then $
+; Set zvals; the "not keyword_set()" business is for backwards
+; compatibility with, e.g., deep_kcorrect
+if (n_elements(zvals) eq 0L) or (not keyword_set(zvals)) then $
   zvals=zmin+(zmax-zmin)*(findgen(nz)+0.5)/float(nz) $
 else $
   nz = n_elements(zvals)
