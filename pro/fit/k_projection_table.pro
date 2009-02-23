@@ -61,7 +61,7 @@ if (NOT keyword_set(nz)) then nz=1000l
 
 ; Set zvals; the "not keyword_set()" business is for backwards
 ; compatibility with, e.g., deep_kcorrect
-if (n_elements(zvals) eq 0L) or (not keyword_set(zvals)) then $
+if (n_elements(zvals) eq 0L) or (keyword_set(zvals) eq 0) then $
   zvals=zmin+(zmax-zmin)*(findgen(nz)+0.5)/float(nz) $
 else $
   nz = n_elements(zvals)
