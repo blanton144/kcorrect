@@ -58,7 +58,7 @@
 ;-
 ;------------------------------------------------------------------------------
 pro galex_to_maggies, galex, maggies, ivar,aper=aper,apcor=apcor, $
-                      galext=galext,zero_point=zero_point
+                      galext=galext,zero_point=zero_point, nodust=nodust
 
 common com_galex_to_maggies, nuv_leff, fuv_leff, extvoebv, nuv_extoextv, $
   fuv_extoextv
@@ -97,36 +97,39 @@ endif
 ;
 ; Handle Galactic reddening
 ;
-
-if (keyword_set(galext) ne 1) then galext=0
-if (galext eq 1)  then begin
+if(NOT keyword_set(nodust)) then begin
+    if (keyword_set(galext) ne 1) then galext=0
+    if (galext eq 1)  then begin
 ; Use GALEX default values A_FUV/EBV = 8.29, A_NUV/EBV = 8.18
-    extvoebv=3.10
-    nuv_extoextv=8.18/extvoebv
-    fuv_extoextv=8.29/extvoebv
-endif else begin
-    if(n_elements(nuv_leff) eq 0) then begin
-        nuv_leff=k_lambda_eff(filterlist='galex_NUV.par')
-        fuv_leff=k_lambda_eff(filterlist='galex_FUV.par')
-    endif
-    extvoebv=3.10
-    nuv_extoextv=(ext_ccm(nuv_leff))[0]
-    fuv_extoextv=(ext_ccm(fuv_leff))[0]
-endelse
-
-iebv=tag_indx(galex[0], 'e_bv')
-if(iebv eq -1) then begin
-    glactc, galex.alpha_j2000, galex.delta_j2000, 2000., gl, gb, 1, /deg
-    ebv=dust_getval(gl,gb,/interp,/noloop)
-endif else begin
-    ebv=galex.e_bv
-endelse
+        extvoebv=3.10
+        nuv_extoextv=8.18/extvoebv
+        fuv_extoextv=8.29/extvoebv
+    endif else begin
+        if(n_elements(nuv_leff) eq 0) then begin
+            nuv_leff=k_lambda_eff(filterlist='galex_NUV.par')
+            fuv_leff=k_lambda_eff(filterlist='galex_FUV.par')
+        endif
+        extvoebv=3.10
+        nuv_extoextv=(ext_ccm(nuv_leff))[0]
+        fuv_extoextv=(ext_ccm(fuv_leff))[0]
+    endelse
+    
+    iebv=tag_indx(galex[0], 'e_bv')
+    if(iebv eq -1) then begin
+        glactc, galex.alpha_j2000, galex.delta_j2000, 2000., gl, gb, 1, /deg
+        ebv=dust_getval(gl,gb,/interp,/noloop)
+    endif else begin
+        ebv=galex.e_bv
+    endelse
 
 ;Blanton values used here are a_fuv=8.15, anuv=9.17
-
-
-nuv_extinction=ebv*nuv_extoextv*extvoebv
-fuv_extinction=ebv*fuv_extoextv*extvoebv
+    
+    nuv_extinction=ebv*nuv_extoextv*extvoebv
+    fuv_extinction=ebv*fuv_extoextv*extvoebv
+endif else begin
+    nuv_extinction=0.
+    fuv_extinction=0.
+endelse
 
 ;
 ; Convert fluxes to maggies, calculate errors
