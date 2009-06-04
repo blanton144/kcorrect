@@ -19,9 +19,9 @@
  * ergs cm^{-2} s^{-1} A^{-1}
  *
  * The sense of the code here is that it produces AB maggies of a
- * source shifted to z and observed through the given bandpasses.
- * To obtain the AB maggies of the rest-frame spectrum in a set
- * of shifted *bandpasses* requires *dividing* this result by (1+z)
+ * source shifted to z and observed through the given bandpasses 
+ * (where the bandpasses can be shifted by the factor (1+band_shift)
+ * blueward if so desired).
  *
  * Mike Blanton
  * 6/2001 */
