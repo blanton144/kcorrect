@@ -1,11 +1,11 @@
 #!/usr/local/epd/bin/python
 # -*- coding: utf-8 -*-
 #
-# $Id $
+# $Id$
 #
 """
 Python module to support kcorrect operations.  Designed to replace IDL
-functions.
+functions.  Currently just supports the solar_magnitudes function.
 """
 
 __author__ = 'Benjamin Weaver <benjamin.weaver@nyu.edu>'
@@ -13,8 +13,7 @@ __author__ = 'Benjamin Weaver <benjamin.weaver@nyu.edu>'
 __version__ = '$Revision$'.split(': ')[1].split()[0]
 
 __all__ = [ 'read_basel', 'wavelength_to_edges', 'load_filters',
-    'locate', 'cr_filter', 'cr_integrate', 'projection_table', 'project_filters',
-    'solar_magnitudes']
+    'projection_table', 'project_filters', 'solar_magnitudes']
 
 #
 # Modules
