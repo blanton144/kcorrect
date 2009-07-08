@@ -257,7 +257,18 @@ def solar_magnitudes(**kwargs):
     return mag
 
 #
+#
+#
+def main():
+    """
+    Put any tests in this function.
+    """
+    mag = solar_magnitudes()
+    print mag
+    return
+
+#
 # Run tests here
 #
 if __name__ == '__main__':
-    print solar_magnitudes()
+    main()
