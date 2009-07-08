@@ -1,16 +1,4 @@
-File=Table
-Product=kcorrect
-
-Group:
-Flavor=ANY
-Qualifiers=""
-
-Common:
-   Action=setup
-      proddir()
-      setupenv()
-      pathAppend(PATH, ${UPS_PROD_DIR}/bin)
-      pathAppend(LD_LIBRARY_PATH, ${UPS_PROD_DIR}/lib)
-      envPrepend(IDL_PATH, +${UPS_PROD_DIR}/pro)
-End:
-
+envPrepend(PATH, ${PRODUCT_DIR}/bin)
+envPrepend(LD_LIBRARY_PATH, ${PRODUCT_DIR}/lib)
+envPrepend(IDL_PATH, +${PRODUCT_DIR}/pro)
+envPrepend(PYTHONPATH, ${PRODUCT_DIR}/lib)
