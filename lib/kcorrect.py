@@ -259,6 +259,15 @@ def solar_magnitudes(**kwargs):
 #
 #
 #
+def version():
+    """
+    Returns the output of kcorrect_version.
+    """
+    return subprocess.Popen("kcorrect_version", stdout=subprocess.PIPE).communicate()[0].strip()
+
+#
+#
+#
 def main():
     """
     Put any tests in this function.
