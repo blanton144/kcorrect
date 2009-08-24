@@ -142,9 +142,9 @@ if(n_tags(cas) gt 0) then begin
             return
         endif
         sdss_mag[i,*]=sdss_mag[i,*]-cas.(iext)
-        k_sdssfix, sdss_mag, sdss_err, maggies, ivar 
-        return
-    endfor
+     endfor
+    k_sdssfix, sdss_mag, sdss_err, maggies, ivar 
+    return
 endif
 
 ;; if we have input a calibobj structure, interpret it 
