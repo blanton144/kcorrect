@@ -118,7 +118,7 @@ function sdss_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         oivar=oivar, vname=in_vname, mass=mass, mtol=mtol, $
                         absmag=absmag, amivar=amivar, omega0=omega0, $
                         omegal0=omegal0, lrg=lrg, mets=mets, b300=b300, $
-                        b1000=b1000, intsfh=intsfh
+                        b1000=b1000, intsfh=intsfh, silent=silent
 
 common com_sdss_kcorrect, rmatrix, zvals, band_shift, vname, ermatrix
 
@@ -188,7 +188,7 @@ kcorrect, mgy, mgy_ivar, redshift, kcorrect, band_shift=band_shift, $
   rmatrix=rmatrix, zvals=zvals, coeffs=coeffs, rmaggies=rmaggies, $
   vname=vname, mass=mass, mtol=mtol, absmag=absmag, amivar=amivar, $
   omega0=omega0, omegal0=omegal0, chi2=chi2, mets=mets, b300=b300, $
-  intsfh=intsfh, b1000=b1000
+  intsfh=intsfh, b1000=b1000, silent=silent
 
 if(arg_present(omaggies)) then $
   omaggies=mgy
