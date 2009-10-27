@@ -127,7 +127,7 @@ endif else begin
        keyword_set(noextinct) eq 1) then begin
         flux=tspec_v0_nl_nd#coeffs 
         if(vdisp gt 0.) then begin
-            flux=k_smooth(loglam,flux,sqrt(vdisp))
+            flux=k_smooth(loglam,flux,(vdisp))
         endif
         return
     endif
@@ -136,7 +136,7 @@ endif else begin
        keyword_set(noextinct) eq 0) then begin
         flux=tspec_v0_nl#coeffs 
         if(vdisp gt 0.) then begin
-            flux=k_smooth(loglam,flux,sqrt(vdisp))
+            flux=k_smooth(loglam,flux,(vdisp))
         endif
         return
     endif
@@ -145,7 +145,7 @@ endif else begin
        keyword_set(noextinct) eq 0) then begin
         flux=tspec_v0_nl#coeffs 
         if(vdisp gt 0.) then begin
-            flux=k_smooth(loglam,flux,sqrt(vdisp))
+            flux=k_smooth(loglam,flux,(vdisp))
         endif
         flux=flux+lspec_v300#coeffs
         return
@@ -155,7 +155,7 @@ endif else begin
        keyword_set(noextinct) eq 1) then begin
         flux=tspec_v0_nl_nd#coeffs 
         if(vdisp gt 0.) then begin
-            flux=k_smooth(loglam,flux,sqrt(vdisp))
+            flux=k_smooth(loglam,flux,(vdisp))
         endif
         flux=flux+lspec_v300#coeffs
         return

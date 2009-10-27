@@ -36,8 +36,14 @@ if(NOT keyword_set(ivar)) then begin
     ivar=1./((abs(flux)>minflux)*0.1)^2
 endif
 
-k_reconstruct_spec, dum, loglam, /init, vname=vname, nt=nt, nolines=nolines
-olambda=10.^loglam
+if(n_elements(olambda) eq 0) then begin
+    k_reconstruct_spec, dum, loglam, /init, vname=vname, nt=nt, nolines=nolines
+    olambda=10.^loglam
+endif else begin
+    loglam= alog10(olambda)
+    nl=n_elements(loglam)
+    nt=n_elements(templates)/n_elements(olambda)
+endelse
 
 if(keyword_set(lambda)) then begin
     nf=n_elements(flux)
