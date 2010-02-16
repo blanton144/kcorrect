@@ -6,7 +6,7 @@ svn ci -m "tagging and releasing"
 svn copy svn+ssh://mb144@howdy.physics.nyu.edu/usr/local/svn/kcorrect/trunk svn+ssh://mb144@howdy.physics.nyu.edu/usr/local/svn/kcorrect/tags/$1
 mkdir tmp
 cd tmp
-svn export -r svn+ssh://mb144@howdy.physics.nyu.edu/usr/local/svn/kcorrect/tags/$1 kcorrect
+svn export svn+ssh://mb144@howdy.physics.nyu.edu/usr/local/svn/kcorrect/tags/$1 kcorrect
 rm -f kcorrect/user_list
 tar -cvf kcorrect.$1.tar kcorrect
 gzip -v kcorrect.$1.tar
