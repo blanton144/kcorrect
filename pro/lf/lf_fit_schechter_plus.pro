@@ -56,8 +56,8 @@ start[4]=schechter_plus.alphaplus
 parinfo=replicate({limited:[0,0], limits:[0.,0.]}, 5)
 parinfo[0].limited[0]=1
 parinfo[3].limited[0]=1
-parinfo[0].limits[0]=1.e-8
-parinfo[3].limits[0]=1.e-8
+parinfo[0].limits[0]=-8.
+parinfo[3].limits[0]=-8.
 functargs={x:am,y:phi,err:phistddev}
 params=mpfit('lf_fit_schechter_plus_func',start,functargs=functargs, $
              perror=perror, parinfo=parinfo)
