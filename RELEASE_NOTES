@@ -1,4 +1,19 @@
 -------------------------------------------------------------------------------
+v4_2 (Feb 2010)
+
+Many changes:
+- integration problem causing small scale jitter fixed
+- 2MASS filterlists fixed
+- some spectrum fitting code added
+- changes in /silent behavior
+- fixes in magnitude input for SDSS_KCORRECT
+- some keywords added to calls
+- fixes in maggies2lups routines
+- many filters added (thanks J. Moustakas and G. Zhu!)
+- changes to Vmax code (J. Moustakas)
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 v4_1_4 (October, 2005)
 
 DEEP_KCORRECT - add /silent; add filterlist keyword to give list of
