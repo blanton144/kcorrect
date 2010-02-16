@@ -2,11 +2,11 @@
 
 if($1 == "") exit
 
-cvs ci -m "tagging and releasing"
-cvs rtag $1 kcorrect 
+svn ci -m "tagging and releasing"
+svn copy svn+ssh://mb144@howdy.physics.nyu.edu/usr/local/svn/kcorrect/trunk svn+ssh://mb144@howdy.physics.nyu.edu/usr/local/svn/kcorrect/tags/$1
 mkdir tmp
 cd tmp
-cvs -d "blanton@spectro.princeton.edu:/usr/local/cvsroot" export -r $1 kcorrect
+svn export -r svn+ssh://mb144@howdy.physics.nyu.edu/usr/local/svn/kcorrect/tags/$1 kcorrect
 rm -f kcorrect/user_list
 tar -cvf kcorrect.$1.tar kcorrect
 gzip -v kcorrect.$1.tar
