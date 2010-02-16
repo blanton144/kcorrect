@@ -43,7 +43,7 @@ foreach $band (@bands) {
 			split;
 			$lambda=$_[1]*10000.;
 			$response=$_[2];
-			printf ofp "KFILTER %e %e\n",$lambda,$response;
+			printf ofp "KFILTER %e %e\n",$lambda,$response/$lambda;
 		} 
 	}
 	close(ifp);
