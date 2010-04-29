@@ -143,7 +143,7 @@ endif else begin
 endelse
 
 if(keyword_set(mag) AND keyword_set(err)) then begin
-    mgy=(10.D)^(-(0.4D)*(mags))
+    mgy=(10.D)^(-(0.4D)*(mag))
     mags_ivar=1./err^2
     mgy_ivar= mags_ivar/(0.4*alog(10.)*mgy)^2.
 endif
