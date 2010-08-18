@@ -1,0 +1,26 @@
+J. Moustakas, 2010-Aug-16, UCSD
+
+Filter curves used in the CTIO/MOSAIC-II optical (Ugriz) imaging of
+the CDFS/SWIRE field downloaded from B. Siana's webpage:
+http://www.astro.caltech.edu/~bsiana/cdfs_opt/filters.html
+
+Several empirical corrections have been applied to these filter
+curves, as described at the above page, including:
+
+"The following table incorporates several corrections to the filter and
+CCD QE curves...
+
+* A 15 A shift blueward was applied to all filter curves to convert
+  from a curve measured in parallel light to the f/2.9 beam of the
+  CTIO 4-meter.
+
+* An average of all 8 CCD QEs was used. The wavelength resolution of
+  the reported QE for MOSAIC-II leaves much to be desired. However,
+  the QE agreed well with the much better measurements for MOSAIC-I
+  redward of ~4500 A. We therefore used these data to interpolate
+  between the CTIO MOSAIC-II points.
+
+* The CTIO 4-m prime focus corrector does not transmit below 3300 A so
+  an artificial cutoff was put there in the QE curve.
+
+"
