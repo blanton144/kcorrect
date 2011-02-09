@@ -1,6 +1,6 @@
 ;+
 ; NAME:
-;   twomass_to_maggies
+;   twomass_to_maggies_psc
 ; PURPOSE:
 ;   convert 2MASS catalog input to Galactic-extcintion corrected AB maggies 
 ; CALLING SEQUENCE:
@@ -32,11 +32,16 @@
 ;   Requires you to have the dust maps so that dust_getval can find
 ;   them. (If somebody wants me to set "default" columns in the
 ;   twomass structure that this code looks for, let me know).
+; 
+;   **This routine is identical to TWOMASS_TO_MAGGIES** but it works
+;   with the PSC.
+;
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
+;   03-Feb-2010  J. Moustakas, UCSD
 ;-
 ;------------------------------------------------------------------------------
-pro twomass_to_maggies, twomass, maggies, ivar
+pro twomass_to_maggies_psc, twomass, maggies, ivar
 
 common com_g2m, vega2ab
 
@@ -50,18 +55,15 @@ if(n_elements(vega2ab) eq 0) then $
   vega2ab=k_vega2ab(filterlist=filterlist, /kurucz)
 
 ;; get Galactic extinction
-if tag_exist(twomass,'decl') then $
-  dectag = tag_indx(twomass,'decl') else $
-  dectag = tag_indx(twomass,'dec')
-euler,twomass.ra,twomass.(dectag),ll,bb,1
-;euler,twomass.ra,twomass.decl,ll,bb,1
+euler,twomass.ra,twomass.dec,ll,bb,1
 ebv=dust_getval(ll, bb, /interp, /noloop)
 
 maggies=fltarr(3,n_elements(twomass))
 ivar=fltarr(3,n_elements(twomass))
 for iband=0L, 2L do begin
-    itag_m=tag_indx(twomass[0], names[iband]+'_m_ext')
-    itag_msig=tag_indx(twomass[0], names[iband]+'_msig_ext')
+; http://www.ipac.caltech.edu/2mass/releases/second/doc/ancillary/pscformat.html
+    itag_m=tag_indx(twomass[0], names[iband]+'_m') ; "default" magnitude
+    itag_msig=tag_indx(twomass[0], names[iband]+'_msigcom') ; "total" magnitude error
     indx=where(twomass.(itag_m) gt 0. AND $
                twomass.(itag_msig) gt 0., count)
     if(count gt 0) then begin

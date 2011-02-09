@@ -28,7 +28,7 @@ if(n_elements(minerrors) eq 0) then $
 nk=n_elements(minerrors)
 
 for k=0L, nk-1L do begin
-    igood=where(maggies_ivar[k,*] gt 0, ngood)
+    igood=where(maggies[k,*] gt 0 and maggies_ivar[k,*] gt 0, ngood)
     if(ngood gt 0) then begin
         factor=(2.5/alog(10.))
         err=factor/sqrt(maggies_ivar[k,igood])/maggies[k,igood]

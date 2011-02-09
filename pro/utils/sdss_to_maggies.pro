@@ -51,14 +51,15 @@
 ;   tsobj will be interpreted as a opdb-style SDSS structure.
 ;
 ;   In either the case of calibobj or tsobj, the Petrosian flux will
-;   be used by default --- or you can specify flux="model" or
-;   flux="psf".
+;   be used by default --- or you can specify flux="model",
+;   flux="psf", or flux="cmodel".
 ;
 ;   In addition, in the case of calibobj or tsobj, this code uses the
 ;   Galactic extinction values in those structures to correct the
 ;   fluxes. 
 ; REVISION HISTORY:
 ;   07-Apr-2005  Mike Blanton, NYU
+;   09-Feb-2011  J. Moustakas, UCSD - deal with cmodel magnitudes
 ;-
 ;------------------------------------------------------------------------------
 pro sdss_to_maggies, maggies, ivar, tsobj=tsobj, calibobj=calibobj, flux=flux, $
@@ -149,28 +150,93 @@ endif
 
 ;; if we have input a calibobj structure, interpret it 
 if(n_tags(calibobj) gt 0) then begin
-    fluxname=flux+'flux'
-    ivarname=fluxname+'_ivar'
-    iflux=tag_indx(calibobj[0], fluxname)
-    if(iflux eq -1) then begin
-        splog, 'ERROR: calibobj MUST have .'+fluxname
-        return
-    endif
-    iivar=tag_indx(calibobj[0], ivarname)
-    if(iivar eq -1) then begin
-        splog, 'ERROR: calibobj MUST have .'+ivarname
-        return
-    endif
-    if(n_elements(calibobj[0].(iflux)) ne 5) then begin
-        splog, 'ERROR: calibobj.'+fluxname+' MUST have five elements!'
-        return
-    endif
-    if(n_elements(calibobj[0].(iivar)) ne 5) then begin
-        splog, 'ERROR: calibobj.'+ivarname+' MUST have five elements!'
-        return
-    endif
-    sdss_nmgy=calibobj.(iflux)
-    sdss_ivar=calibobj.(iivar)
+; cmodel maggies are a special case
+    if strtrim(strlowcase(flux),2) eq 'cmodel' then begin
+       ifracpsf = tag_indx(calibobj[0],'fracpsf')
+       idevflux = tag_indx(calibobj[0],'devflux')
+       iexpflux = tag_indx(calibobj[0],'expflux')
+       idevflux_ivar = tag_indx(calibobj[0],'devflux_ivar')
+       iexpflux_ivar = tag_indx(calibobj[0],'expflux_ivar')
+; check for everything we need
+       if (ifracpsf eq -1) then begin
+          splog, 'ERROR: calibobj MUST have .FRACPSF'
+          return
+       endif
+       if (idevflux eq -1) then begin
+          splog, 'ERROR: calibobj MUST have .DEVFLUX'
+          return
+       endif
+       if (iexpflux eq -1) then begin
+          splog, 'ERROR: calibobj MUST have .EXPFLUX'
+          return
+       endif
+       if (idevflux_ivar eq -1) then begin
+          splog, 'ERROR: calibobj MUST have .DEVFLUX_IVAR'
+          return
+       endif
+       if (iexpflux_ivar eq -1) then begin
+          splog, 'ERROR: calibobj MUST have .EXPFLUX_IVAR'
+          return
+       endif
+; check for the right number of elements
+       if (n_elements(calibobj[0].(ifracpsf)) ne 5) then begin
+          splog, 'ERROR: calibobj.FRACPSF MUST have five elements!'
+          return
+       endif
+       if (n_elements(calibobj[0].(idevflux)) ne 5) then begin
+          splog, 'ERROR: calibobj.DEVFLUX MUST have five elements!'
+          return
+       endif
+       if (n_elements(calibobj[0].(iexpflux)) ne 5) then begin
+          splog, 'ERROR: calibobj.EXPFLUX MUST have five elements!'
+          return
+       endif
+       if (n_elements(calibobj[0].(idevflux_ivar)) ne 5) then begin
+          splog, 'ERROR: calibobj.DEVFLUX_IVAR MUST have five elements!'
+          return
+       endif
+       if (n_elements(calibobj[0].(iexpflux_ivar)) ne 5) then begin
+          splog, 'ERROR: calibobj.EXPFLUX_IVAR MUST have five elements!'
+          return
+       endif
+; construct the composite flux according to
+; http://www.sdss3.org/dr8/algorithms/magnitudes.php#cmodel 
+       sdss_nmgy = fltarr(5,n_elements(calibobj))
+       sdss_ivar = sdss_nmgy
+       for ii = 0, 4 do begin
+          good = where((calibobj.(ifracpsf))[ii,*] ge 0.0,ngood)
+          if (ngood ne 0L) then begin
+             frac = (calibobj[good].(ifracpsf))[ii,*]
+             sdss_nmgy[ii,good] = frac*(calibobj[good].(idevflux))[ii,*] + $
+               (1-frac)*(calibobj[good].(iexpflux))[ii,*]
+             sdss_ivar[ii,good] = (calibobj[good].(idevflux_ivar))[ii,*]/(frac^2+(frac eq 0))*(frac ne 0) + $
+               (calibobj[good].(iexpflux_ivar))[ii,*]/((1-frac)^2+((1-frac) eq 0))*((1-frac) ne 0)
+          endif       
+       endfor
+    endif else begin
+       fluxname=flux+'flux'
+       ivarname=fluxname+'_ivar'
+       iflux=tag_indx(calibobj[0], fluxname)
+       if(iflux eq -1) then begin
+          splog, 'ERROR: calibobj MUST have .'+fluxname
+          return
+       endif
+       iivar=tag_indx(calibobj[0], ivarname)
+       if(iivar eq -1) then begin
+          splog, 'ERROR: calibobj MUST have .'+ivarname
+          return
+       endif
+       if(n_elements(calibobj[0].(iflux)) ne 5) then begin
+          splog, 'ERROR: calibobj.'+fluxname+' MUST have five elements!'
+          return
+       endif
+       if(n_elements(calibobj[0].(iivar)) ne 5) then begin
+          splog, 'ERROR: calibobj.'+ivarname+' MUST have five elements!'
+          return
+       endif
+       sdss_nmgy=calibobj.(iflux)
+       sdss_ivar=calibobj.(iivar)
+    endelse
     iextinction=tag_indx(calibobj[0], 'extinction')
     if(iextinction eq -1) then begin
         red_fac = [5.155, 3.793, 2.751, 2.086, 1.479 ]
@@ -183,12 +249,14 @@ if(n_tags(calibobj) gt 0) then begin
         splog, 'ERROR: calibobj.extinction MUST have five elements!'
         return
     endif
-    sdss_nmgy=sdss_nmgy*10.^(0.4*extinction)
-    sdss_ivar=sdss_ivar*10.^(-0.8*extinction)
+    sdss_nmgy=sdss_nmgy*10.D^(0.4*extinction)
+    sdss_ivar=sdss_ivar*10.D^(-0.8*extinction)
     maggies=sdss_nmgy*1.e-9
     ivar=sdss_ivar*1.e+18
     k_abfix, maggies, ivar
     k_minerror, maggies, ivar
+    maggies = float(maggies)
+    ivar = float(ivar)
     return
 endif
 
