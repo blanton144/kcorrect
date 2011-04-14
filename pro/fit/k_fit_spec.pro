@@ -28,7 +28,8 @@
 pro k_fit_spec, flux, ivar, coeffs, vname=vname, vdisp=vdisp, $
                 templates=templates, lambda=lambda, oflux=oflux, $
                 oivar=oivar, olambda=olambda, nolines=nolines, $
-                linear=linear, chi2=chi2
+                linear=linear, chi2=chi2, tolerance=tolerance, $
+                maxiter=maxiter, verbose=verbose
 
 if(NOT keyword_set(ivar)) then begin
     inz=where(flux ne 0., nnz)
@@ -72,7 +73,7 @@ if(keyword_set(templates) eq 0 OR $
     endfor
 endif
 
-if(NOT keyword_set(verbose)) then verbose=1L
+if(n_elements(verbose) eq 0) then verbose=1L
 if(NOT keyword_set(maxiter)) then maxiter=50000L
 if(NOT keyword_set(tolerance)) then tolerance=1.e-13
 
