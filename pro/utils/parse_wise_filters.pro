@@ -45,7 +45,7 @@ for i=1L, 4L do begin
             '# Meaning of/Reason for default column: Only column available',$
             '#',$
             '# Notes:',$
-            '$  Obtained from the web site', $
+            '#  Obtained from the web site', $
             '#   http://www.astro.ucla.edu/~wright/WISE/passbands.html', $
             '#',$
             '# Mike Blanton, NYU 2011-Apr-11']
