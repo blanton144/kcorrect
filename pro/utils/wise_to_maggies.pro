@@ -78,11 +78,12 @@ endelse
 
 minerr=0.01
 for ib= 0L, 3L do begin
-    mgy[ib,*]= 10.^(-0.4*(wise.(itag[ib])-extinction[ib,*]))
     igood= where(wise.(isigtag[ib]) ne 0., ngood)
-    if(ngood gt 0) then $
-      ivar[ib,igood]= 1./((0.4*alog(10.)*mgy[ib,igood]^2)* $
-                          (wise[igood].(isigtag[ib])^2+minerr^2))
+    if(ngood gt 0) then begin
+       mgy[ib,igood]= 10.^(-0.4*(wise[igood].(itag[ib])-extinction[ib,igood]))
+       ivar[ib,igood]= 1./((0.4*alog(10.)*mgy[ib,igood]^2)* $
+         (wise[igood].(isigtag[ib])^2+minerr^2))
+    endif
 endfor
 
 end

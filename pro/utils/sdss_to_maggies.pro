@@ -240,7 +240,18 @@ if(n_tags(calibobj) gt 0) then begin
     iextinction=tag_indx(calibobj[0], 'extinction')
     if(iextinction eq -1) then begin
         red_fac = [5.155, 3.793, 2.751, 2.086, 1.479 ]
-        euler,calibobj.ra,calibobj.dec,ll,bb,1
+; check for an alternate ra,dec tag
+        ratag = tag_indx(calibobj,'ra')
+        dectag = tag_indx(calibobj,'dec')
+        if (ratag eq -1) or (dectag eq -1) then begin
+           ratag = tag_indx(calibobj,'racen')
+           dectag = tag_indx(calibobj,'deccen')
+           if (ratag eq -1) or (dectag eq -1) then begin
+              splog, 'RA,DEC tags missing!'
+              return
+           endif
+        endif
+        euler,calibobj.(ratag),calibobj.(dectag),ll,bb,1
         extinction= red_fac # dust_getval(ll, bb, /interp, /noloop)
     endif else begin
         extinction=calibobj.extinction
