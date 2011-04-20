@@ -49,7 +49,7 @@ endif else begin
 endelse
 
 mgy= fltarr(4, n_elements(wise))-1.0 ; null measurement
-ivar= fltarr(4, n_elements(wise))-1.0 ; null measurement
+ivar= fltarr(4, n_elements(wise)) ; null measurement
 
 if(keyword_set(mpro)) then begin
     itag= lonarr(4)
