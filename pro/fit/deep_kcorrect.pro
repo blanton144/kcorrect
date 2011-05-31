@@ -85,7 +85,7 @@ function deep_kcorrect, redshift, nmgy=nmgy, ivar=ivar, mag=mag, err=err, $
                         filterlist=in_filterlist, silent=silent, intsfh=intsfh
 
 common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
-  deep_rmatrix, deep_zvals, vname
+  deep_rmatrix, deep_zvals, vname, out_filterlist
 
 if(n_params() lt 1 OR $
    (((keyword_set(nmgy) eq 0 OR keyword_set(ivar) eq 0)) AND $
