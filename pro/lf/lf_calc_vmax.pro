@@ -125,17 +125,16 @@ for i=0L,ngals-1L do begin
             if(zmin[i] gt actual_z[i]) then begin
                 if(abs(curr_mmin-appm[i]) gt 0.005 AND $
                    abs(zmin[i]-actual_z[i]) gt 1.e-4) then begin
-;                  message,'galaxy outside allowed putative selection limits', /info
-                   splog, i, actual_z[i], zmin[i], zmax[i], appm[i], curr_mmin, curr_mmax, curr_absm
+                   message,'galaxy outside allowed putative selection limits', /info
+;                  splog, i, actual_z[i], zmin[i], zmax[i], appm[i], curr_mmin, curr_mmax, curr_absm
                 endif
             endif
             if(zmax[i] lt actual_z[i]) then begin
                 if(abs(curr_mmax-appm[i]) gt 0.005 AND $
                   abs(zmax[i]-actual_z[i]) gt 1.e-4)then begin
-;                  message,'galaxy outside allowed putative selection limits', /info
-                   splog, i, actual_z[i], zmin[i], zmax[i], appm[i], curr_mmin, curr_mmax, curr_absm
-                   print, appm[i], absm[i] + lf_distmod(actual_z[i]) + actual_k[i]
-stop                   
+                   message,'galaxy outside allowed putative selection limits', /info
+;                  splog, i, actual_z[i], zmin[i], zmax[i], appm[i], curr_mmin, curr_mmax, curr_absm
+;                  print, appm[i], absm[i] + lf_distmod(actual_z[i]) + actual_k[i]
                 endif
             endif
         endif

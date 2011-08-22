@@ -19,11 +19,13 @@ pro parse_clash_filters
     for ii = 0, n_elements(infilterlist)-1 do begin
        readcol, infilterlist[ii], wave, resp, format='F,F', /silent
 
-       keep = where(resp gt 1D-5,nwave)
+       keep = where(resp gt 1D-4,nwave)
 ;      nwave = n_elements(wave)
        out = replicate({KFILTER, lambda: 0.0, pass: 0.0},nwave)
        out.lambda = wave[keep]
        out.pass = resp[keep]
+;      plot, out.lambda, out.pass, ysty=3, xsty=3
+;      cc = get_kbrd(1)
        
        hdr = [$
          '# Units:',$
