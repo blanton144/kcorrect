@@ -13,6 +13,7 @@
 ; COMMENTS:
 ;   Uses the ztransform routines
 ;   returns R^3 in equation V=4*PI*R^3/3.
+;   (in units of h^{-3} Mpc^3)
 ; REVISION HISTORY:
 ;   2002-5-22  written - Blanton
 ;-
