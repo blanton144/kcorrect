@@ -14,14 +14,6 @@ __version__ = '$Revision$'.split(': ')[1].split()[0]
 
 __all__ = [ 'read_basel', 'wavelength_to_edges', 'load_filters',
     'projection_table', 'project_filters', 'solar_magnitudes']
-
-#
-# Modules
-#
-import pylab
-import os
-import yanny
-
 #
 #
 #
@@ -87,13 +79,14 @@ def load_filters(**kwargs):
     Filter files should contain one structure with columns 'lambda' &
     'pass'.  The name of the table can be arbitrary though.
     """
+    from pydl.pydlutils.yanny import yanny
     if 'filterlist' not in kwargs:
         raise TypeError('Invalid keyword arguments passed to load_filters')
     if 'filterpath' not in kwargs:
         kwargs['filterpath'] = os.getenv('KCORRECT_DIR')+'/data/filters'
     filterdata = {'lambda':[], 'pass':[]}
     for fil in kwargs['filterlist']:
-        f = yanny.yanny(kwargs['filterpath']+'/'+fil)
+        f = yanny(kwargs['filterpath']+'/'+fil)
         if str(f) == '':
             raise IOError("Could not read %s" % (kwargs['filterpath']+'/'+fil))
         t = f.tables()
