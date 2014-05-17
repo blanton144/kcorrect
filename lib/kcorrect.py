@@ -45,7 +45,7 @@ def read_basel(**kwargs):
         alldata = rawdata.replace("\n", '').split()
         returndata['wavelength'] = array(map(float,alldata[0:1221]))
         del alldata[0:1221]
-        nunits = len(alldata)/(1227)
+        nunits = int(len(alldata)/(1227))
         if not silent:
             print("{0:d} block(s) of spectra".format(nunits))
         for u in range(nunits):
@@ -55,7 +55,7 @@ def read_basel(**kwargs):
             returndata['mh'].append(float(alldata[3]))
             returndata['vturb'].append(float(alldata[4]))
             returndata['xh'].append(float(alldata[5]))
-            returndata['flux'].append(pylab.array(map(float,alldata[6:1227])))
+            returndata['flux'].append(array(map(float,alldata[6:1227])))
             del alldata[0:1227]
         return returndata
 #
