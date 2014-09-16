@@ -8,10 +8,11 @@
 #
 # Determined by: William Wester
 #
-# Date of determination: ?
+# Date of determination: 2014 Apr 18
 #
-# Notes: response function including filter+QE+telescope
-#   optics+atmosphere.  Obtained from Eli Rykoff (Stanford).
+# Notes: response function including total system throughput
+# (presumably, filter+QE+telescope optics) and atmosphere as obtained
+# from Eli Rykoff (Stanford).
 #
 # J. Moustakas, 2014-Jun-08, Siena
 
