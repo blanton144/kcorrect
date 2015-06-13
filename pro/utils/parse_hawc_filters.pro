@@ -5,10 +5,13 @@
 pro parse_hawc_filters
 
     filtdir = getenv('KCORRECT_DIR')+'/data/filters/'
-    infilterlist = file_search(filtdir+'hawc/band?.txt',count=nfilt)
+    infilterlist = file_search(filtdir+['hawc/hawc_BandB.txt'],count=nfilt)
+;   infilterlist = file_search(filtdir+['hawc/band?.txt','hawc_BandB.txt'],count=nfilt)
     
-    bands = 'Band_'+strtrim(indgen(4)+1,2)
-    outfilterlist = filtdir+'hawc_band_'+strtrim(indgen(4)+1,2)+'.par'
+    bands = ['B']
+;   bands = ['A','C','D','E','B']
+;   bands = 'Band_'+strtrim(indgen(4)+1,2)
+    outfilterlist = filtdir+'sofia_hawc_band'+bands+'.par'
     
     for ii = 0, n_elements(infilterlist)-1 do begin
        readcol, infilterlist[ii], wave, resp, format='F,X,X,F', /silent, skip=2
@@ -27,7 +30,7 @@ pro parse_hawc_filters
          '#  "pass" is the contribution to the detector signal per photon',$
          '#         entering the atmosphere of Earth',$
          '#',$
-         '# Bandpass Name(s): '+bands[ii],$
+         '# Bandpass Name(s): Band '+bands[ii],$
          '#',$
          '# Instrument: Sofia/HAWC',$
          '#',$
