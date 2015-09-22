@@ -1,4 +1,11 @@
 -------------------------------------------------------------------------------
+v4_3 (Sep 2015)
+
+- Many more filters added.
+- Some WISE utilities added (but not support of WISE K-corrections)
+- Modest amount of code clean-up and modernization
+
+-------------------------------------------------------------------------------
 v4_2 (Feb 2010)
 
 Many changes:
