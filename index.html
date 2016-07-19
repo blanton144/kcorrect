@@ -98,7 +98,7 @@ uncertainties in the data. In our case, we use a basis set for the
 templates which consists of predictions of stellar evolution synthesis 
 models, but you could simply use a set of discrete delta functions if 
 you liked. This method has a bunch of potential applications in 
-astronomy. The code is NMF_SPARSE in <a href="http://sdss3.org/dr8/software/idlutils.php" class="external text" rel="nofollow">idlutils</a>.
+astronomy. The code is NMF_SPARSE in <a href="http://sdss.org/dr12/software/idlutils" class="external text" rel="nofollow">idlutils</a>.
 </p>
 <h2> <span class="mw-headline" id="Conditions_of_use"> Conditions of use </span></h2>
 <p>Conditions of using the code released here are to send your email
@@ -115,7 +115,7 @@ you need only cite if you are using v3_2 or earlier.
 <p>First off, if you are downloading the code, please register it. Do so by sending your email address to <a href="mailto:mb144@nyu.edu" class="external text" rel="nofollow">mb144@nyu.edu</a>.
  No other information is required. I want this because it will allow me 
 to contact users in case of any improvements or bug fixes.
-</p><p>Note that the IDL code depends on the <a href="http://sdss3.org/dr8/software/idlutils.php" class="external text" rel="nofollow">idlutils</a>
+</p><p>Note that the IDL code depends on the <a href="http://sdss.org/dr12/software/idlutils" class="external text" rel="nofollow">idlutils</a>
  package. The best way to obtain the code is to simply download the 
 latest version from this site. The tagged and released versions, from 
 latest to earliest, are:
@@ -171,7 +171,7 @@ kcorrect"
 everything should compile At this point, you should be able to open IDL 
 and start using the utilities described below, or run the stand-alone C 
 code.
-</p><p>The IDL code depends on the <a href="http://sdss3.org/dr8/software/idlutils.php" class="external text" rel="nofollow">idlutils</a> package.
+</p><p>The IDL code depends on the <a href="http://sdss.org/dr12/software/idlutils" class="external text" rel="nofollow">idlutils</a> package.
 </p><p>Note that the C codes "fit_coeffs.c" and "reconstruct_maggies.c" 
 only depend on the K-correction library; thus, you can use them as 
 templates for incorporating the K-correction code directly into your C 
@@ -182,7 +182,7 @@ K-corrections.
 </p><p>There is a known problem with compiling the stand-alone C code on a Mac OS X system. See <a href="#Known_problems" title="Kcorrect">Known problems</a> for a description.
 </p>
 <h2> <span class="mw-headline" id="Basic_concept_of_obtaining_K-corrections"> Basic concept of obtaining K-corrections </span></h2>
-<div class="thumb tright"><div class="thumbinner" style="width:252px;"><a href="Demo.gif" class="image"><img alt="Demo.gif" src="Kcorrect%20-%20NYU%20CCPP%20Wiki_files/250px-Demo.gif" class="thumbimage" height="251" width="250"></a>  <div class="thumbcaption"><div class="magnify"><a href="Demo.gif" class="internal" title="Enlarge"><img src="Kcorrect%20-%20NYU%20CCPP%20Wiki_files/magnify-clip.png" alt="" height="11" width="15"></a></div></div></div></div>
+<div class="thumb tright"><div class="thumbinner" style="width:252px;"><a href="/Demo.gif" class="image"><img alt="/Demo.gif" src="Kcorrect%20-%20NYU%20CCPP%20Wiki_files/250px-Demo.gif" class="thumbimage" height="251" width="250"></a>  <div class="thumbcaption"><div class="magnify"><a href="/Demo.gif" class="internal" title="Enlarge"><img src="Kcorrect%20-%20NYU%20CCPP%20Wiki_files/magnify-clip.png" alt="" height="11" width="15"></a></div></div></div></div>
 <p>I'll describe the basic idea before getting into exactly how to use the code.
 </p><p>If you want to convert apparent magnitudes in band R to absolute 
 magnitudes in band Q, you need to calculate the K-correction, which is 
