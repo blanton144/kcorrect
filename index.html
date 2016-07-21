@@ -45,7 +45,7 @@
 </ul>
 </td></tr></tbody></table><script>if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } </script>
 <h2> <span class="mw-headline" id="General_description"> General description </span></h2>
-<p>The code and results are described in a <a href="http://adsabs.harvard.edu/abs/2007AJ....133..734B" class="external text" rel="nofollow">paper in the Astronomical Journal</a>.
+<p>The code and results are described in a <a href="http://adsabs.harvard.edu/abs/2007AJ....133..734B" rel="nofollow">paper in the Astronomical Journal</a>.
 </p><p>This IDL code fits very restricted spectral energy distribution 
 models to galaxy photometry or spectra in the restframe UV, optical and 
 near-infrared. The main purpose of the fits are for calculating 
@@ -54,7 +54,7 @@ The templates it uses for the fits may also be interpreted physically,
 since they are based on the Bruzual-Charlot stellar evolution synthesis 
 codes. Thus, for each fit galaxy we can provide an estimate of the 
 stellar mass-to-light ratio.
-</p><p>The easiest interface to the code, if it is available to you, is the IDL code. Detailed <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html" class="external text" rel="nofollow">documentation</a>
+</p><p>The easiest interface to the code, if it is available to you, is the IDL code. Detailed <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html" rel="nofollow">documentation</a>
  is available for all of the routines. For users of the IDL version of 
 the code, we have special high-level routines to handle data from a 
 number of commonly used surveys: SDSS, GALEX, 2MASS, DEEP2 and GOODS. 
@@ -98,7 +98,7 @@ uncertainties in the data. In our case, we use a basis set for the
 templates which consists of predictions of stellar evolution synthesis 
 models, but you could simply use a set of discrete delta functions if 
 you liked. This method has a bunch of potential applications in 
-astronomy. The code is NMF_SPARSE in <a href="http://sdss.org/dr12/software/idlutils" class="external text" rel="nofollow">idlutils</a>.
+astronomy. The code is NMF_SPARSE in <a href="http://sdss.org/dr12/software/idlutils" rel="nofollow">idlutils</a>.
 </p>
 <h2> <span class="mw-headline" id="Conditions_of_use"> Conditions of use </span></h2>
 <p>Conditions of using the code released here are to send your email
@@ -109,15 +109,15 @@ previous version of the kcorrect paper existed (<a href="http://adsabs.harvard.e
 you need only cite if you are using v3_2 or earlier.
 </p>
 <h2> <span class="mw-headline" id="Obtaining_the_software"> Obtaining the software </span></h2>
-<p>First off, if you are downloading the code, please register it. Do so by sending your email address to <a href="mailto:mb144@nyu.edu" class="external text" rel="nofollow">mb144@nyu.edu</a>.
+<p>First off, if you are downloading the code, please register it. Do so by sending your email address to <a href="mailto:mb144@nyu.edu" rel="nofollow">mb144@nyu.edu</a>.
  No other information is required. I want this because it will allow me 
 to contact users in case of any improvements or bug fixes.
-</p><p>Note that the IDL code depends on the <a href="http://sdss.org/dr12/software/idlutils" class="external text" rel="nofollow">idlutils</a>
+</p><p>Note that the IDL code depends on the <a href="http://sdss.org/dr12/software/idlutils" rel="nofollow">idlutils</a>
  package. The best way to obtain the code is to simply download the 
 latest version from this site. The tagged and released versions, from 
 latest to earliest, are:
 </p>
-<ul><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect.v4_3.tar.gz" class="external text" rel="nofollow">kcorrect.v4_3.tar.gz</a>
+<ul><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect.v4_3.tar.gz" rel="nofollow">kcorrect.v4_3.tar.gz</a>
 </li></ul>
 <p>It is also possible to export tagged versions from a public CVS repository, using the SVN "export" feature, as follows:
 </p>
@@ -131,7 +131,7 @@ To list other available tags try:
 <p>It is also possible to SVN "checkout" the latest version of the code.
  This is not recommended unless you want to become involved in 
 developing kcorrect (that is, if you will want to alter the code and 
-check it back in). Please <a href="mailto:mb144@nyu.edu" class="external text" rel="nofollow">contact me</a> if you want to do this.
+check it back in). Please <a href="mailto:mb144@nyu.edu" rel="nofollow">contact me</a> if you want to do this.
 </p>
 <h2> <span class="mw-headline" id="Installing_the_software"> Installing the software </span></h2>
 <p>The code has been tested, and compiles and runs on a Red Hat 7.1 OS. 
@@ -168,7 +168,7 @@ kcorrect"
 everything should compile At this point, you should be able to open IDL 
 and start using the utilities described below, or run the stand-alone C 
 code.
-</p><p>The IDL code depends on the <a href="http://sdss.org/dr12/software/idlutils" class="external text" rel="nofollow">idlutils</a> package.
+</p><p>The IDL code depends on the <a href="http://sdss.org/dr12/software/idlutils" rel="nofollow">idlutils</a> package.
 </p><p>Note that the C codes "fit_coeffs.c" and "reconstruct_maggies.c" 
 only depend on the K-correction library; thus, you can use them as 
 templates for incorporating the K-correction code directly into your C 
@@ -195,7 +195,7 @@ magnitude in band Q the object would have if it were observed at rest,
 redshifted galaxy in band R but the absolute magnitude requires a 
 rest-frame observation in band Q. Obviously the difference between the 
 fluxes observed in different bandpasses is fully determined by the 
-galaxy SED and the description of the bandpasses. See <a href="http://adsabs.harvard.edu/abs/2002astro.ph.10394H" class="external text" rel="nofollow">Hogg et al. (2002)</a> for a full description of what the K-correction is.
+galaxy SED and the description of the bandpasses. See <a href="http://adsabs.harvard.edu/abs/2002astro.ph.10394H" rel="nofollow">Hogg et al. (2002)</a> for a full description of what the K-correction is.
 </p><p>In order to get the appropriate SED for a set of galaxy fluxes, 
 kcorrect fits an SED which is a nonnegative linear combination of some 
 small number of templates. The templates have been optimized to minimize
@@ -204,7 +204,7 @@ reconstructed from the galaxy SED fit. The units of the fit spectra
 created are in ergs cm<sup>−2</sup> s<sup>−1</sup> A<sup>−1</sup>.
 </p><p>As an example, consider the figure below. I have taken actual 
 spectra from the SDSS and projected them onto the g, r, and i bandpasses
- (since these are the ones the spectrum overlaps). Then I have run <a href="http://cosmo.nyu.edu/blanton/kcorrect_help.html#KCORRECT" class="external text" rel="nofollow">kcorrect</a> (in this case version v3_2) and tried to reconstruct the spectrum. What <a href="http://cosmo.nyu.edu/blanton/kcorrect_help.html#KCORRECT" class="external text" rel="nofollow">kcorrect</a>
+ (since these are the ones the spectrum overlaps). Then I have run <a href="http://cosmo.nyu.edu/blanton/kcorrect_help.html#KCORRECT" rel="nofollow">kcorrect</a> (in this case version v3_2) and tried to reconstruct the spectrum. What <a href="http://cosmo.nyu.edu/blanton/kcorrect_help.html#KCORRECT" rel="nofollow">kcorrect</a>
  does here is to fit the nonnegative sum of three (carefully chosen) 
 templates to the g, r, and i fluxes. The black line is the original 
 spectrum, the red is the reconstructed. As you can see, the fit is 
@@ -235,7 +235,7 @@ magnitudes to achieve our best guess. Our high level IDL code deals with
 </li><li> SDSS catalog magnitudes obtained from the official survey 
 database are luptitudes, which for reasonably bright objects are 
 equivalent to magnitudes. While maggies are simply related to magnitudes
- by 10<sup>−0.4m</sup>, the conversion from luptitudes to maggies is a bit more complicated; see the description accompanying the <a href="http://www.sdss.org/dr2/" class="external text" rel="nofollow">DR2 documentation</a>). Our high level IDL code deals with these conversions automatically.
+ by 10<sup>−0.4m</sup>, the conversion from luptitudes to maggies is a bit more complicated; see the description accompanying the <a href="http://www.sdss.org/dr2/" rel="nofollow">DR2 documentation</a>). Our high level IDL code deals with these conversions automatically.
 </li></ol>
 <p>But you may still be wondering what I mean by an "AB" magnitude. The 
 AB system is designed such that a flat spectrum object with <span class="texhtml"><i>f</i><sub>ν</sub></span> = 3631 Jy = 3.631 × 10<sup>−20</sup> ergs cm<sup>−2</sup> s<sup>−1</sup> Hz<sup>−1</sup>
@@ -253,41 +253,41 @@ redshifts based on the templates. This procedure is as simple as running
 provides the best fit in the <span class="texhtml">χ<sup>2</sup></span> sense.
 </p>
 <h2> <span class="mw-headline" id="IDL_routines_for_SDSS.2C_GALEX.2C_2MASS.2C_DEEP2.2C_and_GOODS_users"> IDL routines for SDSS, GALEX, 2MASS, DEEP2, and GOODS users </span></h2>
-<p>The easiest interface to the code, if it is available to you, is the IDL code. The detailed <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html" class="external text" rel="nofollow">documentation</a> is available for all of the routines. The IDL code depends on the <a href="http://sdss3.org/dr8/software/idlutils.php" class="external text" rel="nofollow">idlutils</a> package.
+<p>The easiest interface to the code, if it is available to you, is the IDL code. The detailed <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html" rel="nofollow">documentation</a> is available for all of the routines. The IDL code depends on the <a href="http://sdss3.org/dr8/software/idlutils.php" rel="nofollow">idlutils</a> package.
 </p><p>The following routines exist:
 </p>
-<ol><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS_KCORRECT" class="external text" rel="nofollow">sdss_kcorrect</a>: SDSS K-corrections 
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS2BESSELL" class="external text" rel="nofollow">sdss2bessell</a>: Take SDSS <i>ugriz</i> fluxes and return Bessell <i>UBVRI</i> fluxes
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS_KPHOTOZ" class="external text" rel="nofollow">sdss_kphotoz</a>: SDSS photometric redshifts 
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#GALEX_KCORRECT" class="external text" rel="nofollow">galex_kcorrect</a>: GALEX+SDSS K-corrections 
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#TWOMASS_KCORRECT" class="external text" rel="nofollow">twomass_kcorrect</a>: 2MASS+SDSS K-corrections 
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#GST_KCORRECT" class="external text" rel="nofollow">gst_kcorrect</a>: GALEX+SDSS+2MASS kcorrections 
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#DEEP_KCORRECT" class="external text" rel="nofollow">deep_kcorrect</a>: DEEP K-corrections 
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS2DEEP" class="external text" rel="nofollow">sdss2deep</a>: Take local SDSS observations and return fluxes which would be observed in DEEP at some given redshift. 
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#GOODS_KCORRECT" class="external text" rel="nofollow">goods_kcorrect</a>: GOODS K-corrections 
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS2GOODS" class="external text" rel="nofollow">sdss2goods</a>: Take local SDSS observations and return fluxes which would be observed in GOODS at some given redshift. 
+<ol><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS_KCORRECT" rel="nofollow">sdss_kcorrect</a>: SDSS K-corrections 
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS2BESSELL" rel="nofollow">sdss2bessell</a>: Take SDSS <i>ugriz</i> fluxes and return Bessell <i>UBVRI</i> fluxes
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS_KPHOTOZ" rel="nofollow">sdss_kphotoz</a>: SDSS photometric redshifts 
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#GALEX_KCORRECT" rel="nofollow">galex_kcorrect</a>: GALEX+SDSS K-corrections 
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#TWOMASS_KCORRECT" rel="nofollow">twomass_kcorrect</a>: 2MASS+SDSS K-corrections 
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#GST_KCORRECT" rel="nofollow">gst_kcorrect</a>: GALEX+SDSS+2MASS kcorrections 
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#DEEP_KCORRECT" rel="nofollow">deep_kcorrect</a>: DEEP K-corrections 
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS2DEEP" rel="nofollow">sdss2deep</a>: Take local SDSS observations and return fluxes which would be observed in DEEP at some given redshift. 
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#GOODS_KCORRECT" rel="nofollow">goods_kcorrect</a>: GOODS K-corrections 
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS2GOODS" rel="nofollow">sdss2goods</a>: Take local SDSS observations and return fluxes which would be observed in GOODS at some given redshift. 
 </li></ol>
 <p>In all cases I have tried to make the inputs as close to the catalogs
  that the user might be using, and in the form of a structure passed by 
 the user. The code calls routines like the following to handle the 
 transformations:
 </p>
-<ol><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS_TO_MAGGIES" class="external text" rel="nofollow">sdss_to_maggies</a>
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#GALEX_TO_MAGGIES" class="external text" rel="nofollow">galex_to_maggies</a>
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#TWOMASS_TO_MAGGIES" class="external text" rel="nofollow">twomass_to_maggies</a>
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#DEEP_TO_MAGGIES" class="external text" rel="nofollow">deep_to_maggies</a>
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#GOODS_TO_MAGGIES" class="external text" rel="nofollow">goods_to_maggies</a>
+<ol><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS_TO_MAGGIES" rel="nofollow">sdss_to_maggies</a>
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#GALEX_TO_MAGGIES" rel="nofollow">galex_to_maggies</a>
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#TWOMASS_TO_MAGGIES" rel="nofollow">twomass_to_maggies</a>
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#DEEP_TO_MAGGIES" rel="nofollow">deep_to_maggies</a>
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#GOODS_TO_MAGGIES" rel="nofollow">goods_to_maggies</a>
 </li></ol>
 <p>As noted in the documentation, these routines sometimes perform corrections to the AB system (such as the <a href="#Absolute_calibration_and_its_uncertainty_in_SDSS_magnitudes" title="Kcorrect">small corrections for the SDSS</a>
  and the transformation from the Vega system in 2MASS). Also, they tend 
 to add small uncertainties in quadrature with all of the uncertainties 
 in order not to overfit to possible calibration errors. Sometimes they 
-require the <a href="http://skymaps.info/" class="external text" rel="nofollow">Schlegel, Finkbeiner and Davis dustmaps</a>
+require the <a href="http://skymaps.info/" rel="nofollow">Schlegel, Finkbeiner and Davis dustmaps</a>
  to be correctly installed on you system. Finally, they try to recognize
  the usual error flags and set inverse variances to zero where 
 appropriate. The K-correction routines do output the maggies and inverse
  variances they calculate in the "omaggies" and "oivar" keywords.
-</p><p>In the case of SDSS, I provide both calibObj structure inputs (like those used by the <a href="http://photo.astro.princeton.edu/" class="external text" rel="nofollow">Princeton reductions</a> and the <a href="http://sdss.physics.nyu.edu/vagc" class="external text" rel="nofollow">NYU-VAGC</a>) and tsObj inputs (like those used by the <a href="http://das.sdss.org/" class="external text" rel="nofollow">Data Archive Servers)</a>. I don't ever use the <a href="http://cas.sdss.org/" class="external text" rel="nofollow">Catalog Archive Server</a>
+</p><p>In the case of SDSS, I provide both calibObj structure inputs (like those used by the <a href="http://photo.astro.princeton.edu/" rel="nofollow">Princeton reductions</a> and the <a href="http://sdss.physics.nyu.edu/vagc" rel="nofollow">NYU-VAGC</a>) and tsObj inputs (like those used by the <a href="http://das.sdss.org/" rel="nofollow">Data Archive Servers)</a>. I don't ever use the <a href="http://cas.sdss.org/" rel="nofollow">Catalog Archive Server</a>
  but would be happy to add an input structure for people who do if you 
 let me know what columns to assume is in it. In the meanwhile, basically
  anything called "Counts" in the tsObj structure corresponds to anything
@@ -299,12 +299,12 @@ return absolute magnitudes (and inverse variances of the same). To do so
 </p><p>You will also note some outputs having to do with mass-to-light ratios and masses.
 </p>
 <h2> <span class="mw-headline" id="Lower-level_IDL_routines_for_K-corrections_and_photo-z.27s_of_arbitrary_data"> Lower-level IDL routines for K-corrections and photo-z's of arbitrary data </span></h2>
-<p>All the above K-correction and photometric redshift routines use the same basic engines, <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" class="external text" rel="nofollow">kcorrect</a> and <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KPHOTOZ" class="external text" rel="nofollow">kphotoz</a>.
+<p>All the above K-correction and photometric redshift routines use the same basic engines, <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" rel="nofollow">kcorrect</a> and <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KPHOTOZ" rel="nofollow">kphotoz</a>.
  These routines uses SDSS filters by default but allow any type to be 
 input. To perform K-corrections for other sets of bandpasses (say, the 
 Bessell bandpasses or 2MASS bandpasses), look for them in 
 $KCORRECT_DIR/data/filters and insert them in the <i>filterlist=</i> flag.
-</p><p>As an example of using <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" class="external text" rel="nofollow">kcorrect</a>, one might do the following:
+</p><p>As an example of using <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" rel="nofollow">kcorrect</a>, one might do the following:
 </p><p><br> 
 </p>
 <pre>kcorrect, [1., 4.78, 10.96, 14.45, 19.05],  $
@@ -316,7 +316,7 @@ for a galaxy at redshift 0.03, and return the K-corrections to the <i>ugriz</i>
  magnitudes shifted by 0.1. This choice of maggies and uncertainties 
 should return a good chi^2. Note that it is a nonnegative fit, so linear
  goodness of fit measures don't exactly apply.
-</p><p>Please note that <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" class="external text" rel="nofollow">kcorrect</a>
+</p><p>Please note that <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" rel="nofollow">kcorrect</a>
  uses a lot of overhead (2-3 seconds worth), so if you can, use it on 
 several thousand galaxies simultaneously at least. If you use it on each
  object individually (as in the example given above), you will be in 
@@ -335,7 +335,7 @@ kcorrect, [1., 4.73, 11.26, 14.25, 18.85],  $
 </pre>
 <p>You will find that the second call takes far less time than the 
 first, because the temporary data stored in rmatrix and zvals will not 
-have to be regenerated. The <a href="#IDL_routines_for_SDSS.2C_GALEX.2C_2MASS.2C_DEEP2.2C_and_GOODS_users" class="external text" rel="nofollow">high-level routines</a> I discuss above all maintain common blocks which store rmatrix and zvals for you so you don't have to worry about this.
+have to be regenerated. The <a href="#IDL_routines_for_SDSS.2C_GALEX.2C_2MASS.2C_DEEP2.2C_and_GOODS_users" rel="nofollow">high-level routines</a> I discuss above all maintain common blocks which store rmatrix and zvals for you so you don't have to worry about this.
 </p><p>If you want to look at the fit spectrum, then specify vmatrix, lambda, and coeffs. The commands
 </p><p><br> 
 </p>
@@ -345,8 +345,8 @@ have to be regenerated. The <a href="#IDL_routines_for_SDSS.2C_GALEX.2C_2MASS.2C
           vmatrix=vmatrix, lambda=lambda, coeffs=coeffs
 plot, lambda, vmatrix#coeffs, xra=[2000., 12000.]
 </pre>
-<p>will plot the best fit spectrum. You can also just call <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_LOAD_VMATRIX" class="external text" rel="nofollow">k_load_vmatrix</a> to get the templates.
-</p><p>If you want to project that spectrum onto a new set of bandpasses, use <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_RECONSTRUCT_MAGGIES" class="external text" rel="nofollow">k_reconstruct_maggies</a>. For example, to project back onto the SDSS bandpasses, the command
+<p>will plot the best fit spectrum. You can also just call <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_LOAD_VMATRIX" rel="nofollow">k_load_vmatrix</a> to get the templates.
+</p><p>If you want to project that spectrum onto a new set of bandpasses, use <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_RECONSTRUCT_MAGGIES" rel="nofollow">k_reconstruct_maggies</a>. For example, to project back onto the SDSS bandpasses, the command
 </p><p><br> 
 </p>
 <pre>k_reconstruct_maggies, coeffs, 0.03, maggies, vmatrix=vmatrix, $
@@ -363,14 +363,14 @@ bessellmags=-2.5*alog10(maggies)-vega2ab
 BminusV=bessellmags[0]-bessellmags[1]
 </pre>
 <p>will yield the Vega B-V for the best fit.
-</p><p>Fitting photometric redshifts just requires fitting the coefficients for a number of redshifts and minimizing the &amp;chi<sup>2</sup> residuals for the fits. I provide the IDL routine <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KPHOTOZ" class="external text" rel="nofollow">kphotoz</a> to do so (similar to the <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" class="external text" rel="nofollow">kcorrect</a> routine). For example, one might do the following:
+</p><p>Fitting photometric redshifts just requires fitting the coefficients for a number of redshifts and minimizing the &amp;chi<sup>2</sup> residuals for the fits. I provide the IDL routine <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KPHOTOZ" rel="nofollow">kphotoz</a> to do so (similar to the <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" rel="nofollow">kcorrect</a> routine). For example, one might do the following:
 </p><p><br> 
 </p>
 <pre>kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
          [1100., 28., 7.7, 4.4, 2.5], $
          photoz
 </pre>
-<p>Again, there is large overhead, so one-at-a-time is not the way to call <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KPHOTOZ" class="external text" rel="nofollow">kphotoz</a>. As for <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" class="external text" rel="nofollow">kcorrect</a>, you can avoid spending this overhead more than once either by feeding it lists of objects or as follows:
+<p>Again, there is large overhead, so one-at-a-time is not the way to call <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KPHOTOZ" rel="nofollow">kphotoz</a>. As for <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" rel="nofollow">kcorrect</a>, you can avoid spending this overhead more than once either by feeding it lists of objects or as follows:
 </p><p><br> 
 </p>
 <pre>kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
@@ -380,11 +380,11 @@ kphotoz, [1., 4.78, 10.96, 14.45, 19.05],  $
          [1100., 28., 7.7, 4.4, 2.5], $
          photoz, rmatrix=rmatrix, zvals=zvals, vname=vname
 </pre>
-<p>By default, <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KPHOTOZ" class="external text" rel="nofollow">kphotoz</a> uses a very simple prior (equal to the redshift z) to push the fits away from z=0. You can turn this off with the flag <i>/noprior</i>, or specify your own prior using the inputs <i>zprior</i> (which indicates the redshift grid) and <i>lprior</i> (which indicates the natural log of the prior).
+<p>By default, <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KPHOTOZ" rel="nofollow">kphotoz</a> uses a very simple prior (equal to the redshift z) to push the fits away from z=0. You can turn this off with the flag <i>/noprior</i>, or specify your own prior using the inputs <i>zprior</i> (which indicates the redshift grid) and <i>lprior</i> (which indicates the natural log of the prior).
 </p><p>A piece of advice on the <i>type</i> of magnitudes to use for 
 SDSS photometric redshifts. For modern versions of PHOTO (v5_4 and 
 later) it is best to simply use the model magnitudes for all galaxies. 
-(And indeed this is what we use in <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS_KPHOTOZ" class="external text" rel="nofollow">sdss_kphotoz</a>).
+(And indeed this is what we use in <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#SDSS_KPHOTOZ" rel="nofollow">sdss_kphotoz</a>).
 </p><p>Users of kcorrect v3_2 will hopefully find that I retained 
 backwards compatibility. Please note that the calling procedure has 
 changed since v1_16, in the sense that inputting maggies is now the 
@@ -393,13 +393,13 @@ default.
 <h2> <span class="mw-headline" id="Other_useful_utilities_in_the_IDL_library"> Other useful utilities in the IDL library </span></h2>
 <p>In addition to the K-correction tools, kcorrect has some other useful tools in it:
 </p>
-<ol><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_PROJECT_FILTERS" class="external text" rel="nofollow">k_project_filters()</a> is a standalone IDL routine to project a spectrum onto a filter.
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_SMOOTH" class="external text" rel="nofollow">k_smooth</a> smooths a spectrum with a Gaussian.
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_SOLAR_MAGNITUDES" class="external text" rel="nofollow">k_solar_magnitudes()</a> calculates Solar absolute magnitudes in any filter.
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_VEGA2AB" class="external text" rel="nofollow">k_vega2ab()</a> provides conversions between AB and Vega magnitudes.
-</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#LF_DISTMOD" class="external text" rel="nofollow">lf_distmod()</a> calculates distance moduli given a redshift and cosmology.
+<ol><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_PROJECT_FILTERS" rel="nofollow">k_project_filters()</a> is a standalone IDL routine to project a spectrum onto a filter.
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_SMOOTH" rel="nofollow">k_smooth</a> smooths a spectrum with a Gaussian.
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_SOLAR_MAGNITUDES" rel="nofollow">k_solar_magnitudes()</a> calculates Solar absolute magnitudes in any filter.
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_VEGA2AB" rel="nofollow">k_vega2ab()</a> provides conversions between AB and Vega magnitudes.
+</li><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#LF_DISTMOD" rel="nofollow">lf_distmod()</a> calculates distance moduli given a redshift and cosmology.
 </li><li> A number of useful routines (mostly starting with "lf_") exist for calculating luminosity functions.
-</li><li> There are various pieces of code (not all written by me) for reading in certain types of data files, like <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_IM_READ_BC03%28%29" class="external text" rel="nofollow">Bruzual-Charlot predictions</a> (by John Moustakas), <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#READ_DRAINE" class="external text" rel="nofollow">Bruce Draine's PAH spectra</a>, <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#READ_PEG.PRO" class="external text" rel="nofollow">PEGASE2 predictions</a> (by Alex Quintero), <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#WITT_EXT" class="external text" rel="nofollow">Witt-Gordon multiple-scattering dust extinction predictions</a>, and <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#READ_MAPPINGS" class="external text" rel="nofollow">Mappings-III style emission line fluxes</a>.
+</li><li> There are various pieces of code (not all written by me) for reading in certain types of data files, like <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#K_IM_READ_BC03%28%29" rel="nofollow">Bruzual-Charlot predictions</a> (by John Moustakas), <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#READ_DRAINE" rel="nofollow">Bruce Draine's PAH spectra</a>, <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#READ_PEG.PRO" rel="nofollow">PEGASE2 predictions</a> (by Alex Quintero), <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#WITT_EXT" rel="nofollow">Witt-Gordon multiple-scattering dust extinction predictions</a>, and <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#READ_MAPPINGS" rel="nofollow">Mappings-III style emission line fluxes</a>.
 </li></ol>
 <h2> <span class="mw-headline" id="Stand-alone_C_code"> Stand-alone C code </span></h2>
 <p>The C code requires a bit more attention to use. If people say they 
@@ -531,7 +531,7 @@ $KCORRECT_DIR/data/templates, so you will have to load in the files:
 <pre>$KCORRECT_DIR/data/templates/vmatrix.default.dat
 $KCORRECT_DIR/data/templates/lambda.default.dat
 </pre>
-<p>These files are in a <a href="http://cosmo.nyu.edu/blanton/kcorrect/ascii.html" class="external text" rel="nofollow">special ASCII format</a> which can be read into a "float*" variable in C using the routine k_load_ascii_table. For example:  
+<p>These files are in a <a href="http://cosmo.nyu.edu/blanton/kcorrect/ascii.html" rel="nofollow">special ASCII format</a> which can be read into a "float*" variable in C using the routine k_load_ascii_table. For example:  
 </p>
 <pre>k_load_ascii_table(&amp;vmatrix,&amp;ndim,&amp;sizes,vmatrixfile);
 </pre>
@@ -613,13 +613,13 @@ work. Thus, in kcorrect I have put together a fairly large library of
 filter curves in a homogeneous format. I have tried as far as possible 
 to provide the provenance of all of these curves, though it has not 
 always been possible to figure out.
-</p><p>The files are in a special SDSS format called FTCL described at <a href="http://www.sdss.org/dr2/data/parfiles.html" class="external text" rel="nofollow">the SDSS DR2 site</a>. IDL code (in particular, yanny_readone()) exists in <a href="http://sdss3.org/dr8/software/idlutils.php" class="external text" rel="nofollow">idlutils</a> to read in such files.
-</p><p>It turns out that the SDSS filters do not have the responses they were designed to have, but <a href="http://www.ioa.s.u-tokyo.ac.jp/%7Edoi/" class="external text" rel="nofollow">Mamoru Doi</a>
+</p><p>The files are in a special SDSS format called FTCL described at <a href="http://www.sdss.org/dr2/data/parfiles.html" rel="nofollow">the SDSS DR2 site</a>. IDL code (in particular, yanny_readone()) exists in <a href="http://sdss3.org/dr8/software/idlutils.php" rel="nofollow">idlutils</a> to read in such files.
+</p><p>It turns out that the SDSS filters do not have the responses they were designed to have, but <a href="http://www.ioa.s.u-tokyo.ac.jp/%7Edoi/" rel="nofollow">Mamoru Doi</a>
  has done the hard work of measuring them. Jim Gunn then took these, ran
  them through models of the telescope and the atmosphere (using an 
 appropriately scaled model of the Palomar atmospheric model at airmass 
 1.3). Daniel Eisenstein deserves special mention for the extensive 
-testing he has done on these. We have a <a href="http://howdy.physics.nyu.edu/svn/kcorrect/trunk/data/filters" class="external text" rel="nofollow">repository</a> of these and other curves. For <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" class="external text" rel="nofollow">kcorrect</a> we use the SDSS files:
+testing he has done on these. We have a <a href="http://howdy.physics.nyu.edu/svn/kcorrect/trunk/data/filters" rel="nofollow">repository</a> of these and other curves. For <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" rel="nofollow">kcorrect</a> we use the SDSS files:
 </p><p><br> 
 </p>
 <pre>sdss_u0.par
@@ -649,7 +649,7 @@ other bands.
 <h2> <span class="mw-headline" id="Linear_relationships_between_different_band_systems"> Linear relationships between different band systems </span></h2>
 <p>Using this code on a number of SDSS galaxies, we have estimated the 
 linear relationships between a number of different bandpass systems. The
- <a href="http://adsabs.harvard.edu/abs/2007AJ....133..734B" class="external text" rel="nofollow">kcorrect paper</a> has a table with these relationships.
+ <a href="http://adsabs.harvard.edu/abs/2007AJ....133..734B" rel="nofollow">kcorrect paper</a> has a table with these relationships.
 </p>
 <h2> <span class="mw-headline" id="Known_problems"> Known problems </span></h2>
 <p>13. <a href="http://www.atnf.csiro.au/people/Russell.Jurek/WP_CT.html" rel="nofollow">Russell Jurek</a> reports the following, which I believe is applicable to Mac OS
@@ -693,7 +693,7 @@ can be fixed by changing the common block:
 <pre> common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
    deep_rmatrix, deep_zvals, vname, out_filterlist
 </pre>
-<p>9. In v4_2 and earlier, the DEEP2 filters are incorrect (per energy instead of per photon).  The <a href="http://howdy.physics.nyu.edu/svn/kcorrect/trunk/data/filters" class="external text" rel="nofollow">versions on the kcorrect trunk</a> are correct.  (Thanks to Renbin Yan for fixing).
+<p>9. In v4_2 and earlier, the DEEP2 filters are incorrect (per energy instead of per photon).  The <a href="http://howdy.physics.nyu.edu/svn/kcorrect/trunk/data/filters" rel="nofollow">versions on the kcorrect trunk</a> are correct.  (Thanks to Renbin Yan for fixing).
 </p><p>8. In v4_2 and earlier, kevilmake parses 'uname -r' incorrectly 
 when building on Snow Leopard or above (any Darwin version &gt;= 10).  
 Users will want to edit kevilmake to force the 64-bit option.  Genevieve
@@ -890,7 +890,7 @@ appreciate the opportunity to conduct observations from this mountain.
  At: /Applications/kcorrect/pro/utils/k_load_filters.pro, Line 70 
 % 1 Compilation error(s) in module K_LOAD_FILTERS.
 </pre>
-<p>Because you do not have <a href="http://sdss3.org/dr8/software/idlutils.php" class="external text" rel="nofollow">idlutils</a>
+<p>Because you do not have <a href="http://sdss3.org/dr8/software/idlutils.php" rel="nofollow">idlutils</a>
 installed.  Install the idlutils package (you don't need the idlspec2d or anything else
 described on the above web page).
 </p><p><b>kcorrect assumes h=1. How do I change that?</b>
