@@ -119,19 +119,7 @@ latest to earliest, are:
 </p>
 <ul><li> <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect.v4_3.tar.gz" rel="nofollow">kcorrect.v4_3.tar.gz</a>
 </li></ul>
-<p>It is also possible to export tagged versions from a public CVS repository, using the SVN "export" feature, as follows:
-</p>
-<pre>svn export <a href="http://howdy.physics.nyu.edu/svn/kcorrect/tags/v4_3" rel="nofollow">http://howdy.physics.nyu.edu/svn/kcorrect/tags/v4_3</a>
-</pre>
-<p>Please export only based on revision tag, so that we can track versions properly.
-To list other available tags try:
-</p>
-<pre>svn ls <a href="http://howdy.physics.nyu.edu/svn/kcorrect/tags" rel="nofollow">http://howdy.physics.nyu.edu/svn/kcorrect/tags</a>
-</pre>
-<p>It is also possible to SVN "checkout" the latest version of the code.
- This is not recommended unless you want to become involved in 
-developing kcorrect (that is, if you will want to alter the code and 
-check it back in). Please <a href="mailto:mb144@nyu.edu" rel="nofollow">contact me</a> if you want to do this.
+<p>Note that the repository for the code is managed on <a href="http://github.com/blanton144/kcorrect">github</a>.
 </p>
 <h2> <span class="mw-headline" id="Installing_the_software"> Installing the software </span></h2>
 <p>The code has been tested, and compiles and runs on a Red Hat 7.1 OS. 
@@ -619,7 +607,7 @@ always been possible to figure out.
  them through models of the telescope and the atmosphere (using an 
 appropriately scaled model of the Palomar atmospheric model at airmass 
 1.3). Daniel Eisenstein deserves special mention for the extensive 
-testing he has done on these. We have a <a href="http://howdy.physics.nyu.edu/svn/kcorrect/trunk/data/filters" rel="nofollow">repository</a> of these and other curves. For <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" rel="nofollow">kcorrect</a> we use the SDSS files:
+testing he has done on these. We have a <a href="https://github.com/blanton144/kcorrect/tree/master/data/filters" rel="nofollow">repository</a> of these and other curves. For <a href="http://cosmo.nyu.edu/blanton/kcorrect/kcorrect_help.html#KCORRECT" rel="nofollow">kcorrect</a> we use the SDSS files:
 </p><p><br> 
 </p>
 <pre>sdss_u0.par
@@ -693,7 +681,7 @@ can be fixed by changing the common block:
 <pre> common com_deep_kcorrect, out_rmatrix, out_zvals, band_shift, $
    deep_rmatrix, deep_zvals, vname, out_filterlist
 </pre>
-<p>9. In v4_2 and earlier, the DEEP2 filters are incorrect (per energy instead of per photon).  The <a href="http://howdy.physics.nyu.edu/svn/kcorrect/trunk/data/filters" rel="nofollow">versions on the kcorrect trunk</a> are correct.  (Thanks to Renbin Yan for fixing).
+<p>9. In v4_2 and earlier, the DEEP2 filters are incorrect (per energy instead of per photon).  The <a href="https://github.com/blanton144/kcorrect/tree/master/data/filters" rel="nofollow">versions on the kcorrect trunk</a> are correct.  (Thanks to Renbin Yan for fixing).
 </p><p>8. In v4_2 and earlier, kevilmake parses 'uname -r' incorrectly 
 when building on Snow Leopard or above (any Darwin version &gt;= 10).  
 Users will want to edit kevilmake to force the 64-bit option.  Genevieve
