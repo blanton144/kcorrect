@@ -1,9 +1,0 @@
-#!/bin/csh -f 
-
-gzip -dv *.ised_ASCII.gz
-set files = `echo *.ised_ASCII`
-
-foreach file ($files) 
-echo $file
-$bc03_dir/src/bin_ised $file
-end
