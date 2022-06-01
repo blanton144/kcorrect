@@ -46,25 +46,25 @@ static float *cr_filter_pass=NULL;
  * and the filter */
 float cr_filter(float lambda) 
 {
-	float sl,rflambda,filt,spectrum;
-	unsigned long i,ip1;
-
-	k_locate(cr_filter_lambda, cr_filter_n, lambda, &i);
-	if(i>=cr_filter_n-1 || i<0) return(0.);
-	ip1=i+1;
-	sl=(lambda-cr_filter_lambda[i])/(cr_filter_lambda[ip1]-cr_filter_lambda[i]);
-	filt=cr_filter_pass[i]+sl*(cr_filter_pass[ip1]-cr_filter_pass[i]);
-
-	rflambda=lambda/(1.+cr_z);
-	k_locate(cr_lambda, cr_nl, rflambda, &i);
-	if(i>=cr_nl-1 || i<0) return(0.);
-	ip1=i+1;
-	sl=(rflambda-cr_lambda[i])/(cr_lambda[ip1]-cr_lambda[i]);
-	spectrum=cr_project_matrix[i]
-		+sl*(cr_project_matrix[ip1]-cr_project_matrix[i]);
-	
-	filt=filt*lambda*spectrum/(1.+cr_z);
-	return(filt);
+    float sl,rflambda,filt,spectrum;
+    unsigned long i,ip1;
+    
+    k_locate(cr_filter_lambda, cr_filter_n, lambda, &i);
+    if(i>=cr_filter_n-1 || i<0) return(0.);
+    ip1=i+1;
+    sl=(lambda-cr_filter_lambda[i])/(cr_filter_lambda[ip1]-cr_filter_lambda[i]);
+    filt=cr_filter_pass[i]+sl*(cr_filter_pass[ip1]-cr_filter_pass[i]);
+    
+    rflambda=lambda/(1.+cr_z);
+    k_locate(cr_lambda, cr_nl, rflambda, &i);
+    if(i>=cr_nl-1 || i<0) return(0.);
+    ip1=i+1;
+    sl=(rflambda-cr_lambda[i])/(cr_lambda[ip1]-cr_lambda[i]);
+    spectrum=cr_project_matrix[i]
+	+sl*(cr_project_matrix[ip1]-cr_project_matrix[i]);
+    
+    filt=filt*lambda*spectrum/(1.+cr_z);
+    return(filt);
 } /* end filter */
 
 /* integrate cr_project_matrix*cr_filter_pass */
