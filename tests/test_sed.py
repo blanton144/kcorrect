@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-import kcorrect.sed
+import kcorrect.template
 
 
 def test_init_sed():
@@ -10,7 +10,7 @@ def test_init_sed():
                   (np.arange(nwave, dtype=np.float32) + 0.5) /
                   np.float32(nwave))
     flux = np.ones(nwave, dtype=np.float32)
-    s = kcorrect.sed.SED(wave=wave, flux=flux)
+    s = kcorrect.template.SED(wave=wave, flux=flux)
     assert s.nwave == nwave
     assert len(s.wave) == nwave
     assert len(s.flux) == nwave
@@ -26,11 +26,11 @@ def test_write_and_read_sed():
                   (np.arange(nwave, dtype=np.float32) + 0.5) /
                   np.float32(nwave))
     flux = np.ones(nwave, dtype=np.float32)
-    s = kcorrect.sed.SED(wave=wave, flux=flux)
+    s = kcorrect.template.SED(wave=wave, flux=flux)
 
     s.tofits('tmp-sed-write-and-read.fits')
 
-    t = kcorrect.sed.SED(filename='tmp-sed-write-and-read.fits')
+    t = kcorrect.template.SED(filename='tmp-sed-write-and-read.fits')
     assert t.nwave == nwave
     assert len(t.wave) == nwave
     assert len(t.flux) == nwave
@@ -48,7 +48,7 @@ def test_redshift():
                   (np.arange(nwave, dtype=np.float32) + 0.5) /
                   np.float32(nwave))
     flux = np.ones(nwave, dtype=np.float32) + np.log10(wave)
-    s = kcorrect.sed.SED(wave=wave, flux=flux)
+    s = kcorrect.template.SED(wave=wave, flux=flux)
 
     z = 0.4
     s.set_redshift(redshift=z)

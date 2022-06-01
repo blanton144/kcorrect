@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-# @Filename: filter.py
+# @Filename: response.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 
@@ -15,52 +15,76 @@ import fitsio
 
 
 # Class to define a singleton
-class FilterDictSingleton(type):
+class ResponseDictSingleton(type):
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(FilterDictSingleton,
+            cls._instances[cls] = super(ResponseDictSingleton,
                                         cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
 
-class FilterDict(dict, metaclass=FilterDictSingleton):
-    """Dictionary of all filters (singleton)
+class ResponseDict(dict, metaclass=ResponseDictSingleton):
+    """Dictionary of all responses (singleton)
 """
     def __init__(self):
         return
 
-    def load_filter(self, filter=None, reload=False):
-        """Load filter into dictionary
+    def load_response(self, response=None, reload=False):
+        """Load response into dictionary
 
         Parameters
         ----------
 
-        filter : str
-            filter to load
+        response : str
+            response to load
 
         reload : bool
-            if True, reload the filter if already in FilterDict (default False)
+            if True, reload the response if already in ResponseDict (default False)
 """
-        if((filter in self) & (reload is False)):
+        if((response in self) & (reload is False)):
             return
-        self[filter] = Filter()
-        self[filter].frompar(filename='{n}.par'.format(n=filter))
+        self[response] = Response()
+        self[response].frompar(filename='{n}.par'.format(n=response))
         return
 
 
-class Filter(object):
+class Response(object):
     """Astronomical bandpass description
 
     Parameters
     ----------
+
+    filename : str
+        file name to read from
 
     wave : ndarray of np.float32
         wavelength grid in Angstroms
 
     response : ndarray of np.float32
         response function
+
+    Attributes
+    ----------
+
+    filename : str
+        source filename, or None
+
+    interp : scipy.interpolate.interp1d object
+        interpolation object
+
+    lambda_eff : np.float32
+        effective wavelength in Angstroms
+
+    nwave : int
+        number of wavelength samples
+
+    response : ndarray of np.float32
+        response function
+
+    wave : ndarray of np.float32
+        wavelength grid in Angstroms
 
     Notes
     -----
@@ -69,6 +93,16 @@ class Filter(object):
     (atmosphere, telescope, detector, etc) to a photon at each 
     given wavelength entering the Earth's atmosphere (for a ground
     based telescope) or the telescope aperture (space based).
+
+    If a file is given it is assumed to be in Yanny parameter
+    format, readable and writeable by the class
+    pydl.pydlutils.yanny.yanny
+
+    The attribute interp() takes wavelength in Angstroms as its one
+    positional argument.
+
+    The effective wavelength is defined as described in Blanton &
+    Roweis (2007).
 """
     def __init__(self, filename=None, wave=None, response=None):
         self.wave = wave
@@ -79,7 +113,13 @@ class Filter(object):
         else:
             if(self.wave is not None):
                 self.nwave = len(self.wave)
-                self.set_interp()
+                self._setup()
+        return
+
+    def _setup(self):
+        """Some initial setup after an input"""
+        self.set_interp()
+        self.set_lambda_eff()
         return
 
     def response_dtype(self):
@@ -111,11 +151,11 @@ class Filter(object):
         ext : str or int
             extension to read from
 """
-        filter = fitsio.read(filename, ext=ext)
-        self.nwave = len(filter)
-        self.wave = filter['wave']
-        self.response = filter['response']
-        self.set_interp()
+        response = fitsio.read(filename, ext=ext)
+        self.nwave = len(response)
+        self.wave = response['wave']
+        self.response = response['response']
+        self._setup()
         return
 
     def frompar(self, filename=None):
@@ -131,14 +171,14 @@ class Filter(object):
         -----
 
         If an absolute path, reads that. If not, looks relative
-        to $KCORRECT_DIR/python/kcorrect/data/filters
+        to $KCORRECT_DIR/python/kcorrect/data/responses
 """
         if(os.path.isabs(filename)):
             infilename = filename
         else:
             infilename = os.path.join(os.getenv('KCORRECT_DIR'),
                                       'python', 'kcorrect', 'data',
-                                      'filters', filename)
+                                      'responses', filename)
 
         par = yanny.yanny(infilename)
         name = par.tables()[0]
@@ -146,7 +186,7 @@ class Filter(object):
         self.nwave = len(parstr)
         self.wave = parstr['lambda']
         self.response = parstr['pass']
-        self.set_interp()
+        self._setup()
         return
 
     def tofits(self, filename=None, ext='FLUX', clobber=True):
@@ -169,12 +209,12 @@ class Filter(object):
         return
 
     def project(self, sed=None, wave=None, flux=None):
-        """Project spectrum onto filter
+        """Project spectrum onto response
 
         Parameters
         ----------
 
-        sed : kcorrect.SED object
+        sed : kcorrect.template.SED object
             spectrum in kcorrect format
 
         wave : ndarray of np.float32
@@ -237,8 +277,33 @@ class Filter(object):
                            integrate_response * integrate_wave)
         denom = integrate.trapezoid(integrate_wave, integrand_denom)
 
-        # AB maggies are projection of SED onto filter divided by same
+        # AB maggies are projection of SED onto response divided by same
         # projection for the AB source.
         maggies = np.squeeze(numer / denom)
 
         return(maggies)
+
+    def set_lambda_eff(self):
+        """Set effective wavelength
+
+        Notes
+        -----
+
+        Sets attribute lambda_eff
+"""
+        # Just use original grid; good enough.
+        wave = self.wave
+        response = self.response
+
+        # Perform integration for numerator
+        integrand_numer = np.log(wave) * response / wave
+        numer = integrate.trapezoid(wave, integrand_numer)
+
+        # Perform integration for denominator
+        integrand_denom = response / wave
+        denom = integrate.trapezoid(wave, integrand_denom)
+
+        # Set effective wavelength
+        self.lambda_eff = np.exp(numer / denom)
+
+        return

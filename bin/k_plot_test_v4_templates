@@ -3,18 +3,18 @@
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-import kcorrect.sed
-import kcorrect.filter
+import kcorrect.template
+import kcorrect.response
 
 filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
                         'kcorrect', 'data', 'templates',
                         'kcorrect-lrg1-v4.fits')
-s = kcorrect.sed.SED(filename=filename)
+s = kcorrect.template.SED(filename=filename)
 
-f = kcorrect.filter.FilterDict()
-filters = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']
-for filt in filters:
-    f.load_filter(filt)
+f = kcorrect.response.ResponseDict()
+responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']
+for response in responses:
+    f.load_response(response)
 
 nz = 1000
 zmin = 0.
@@ -22,11 +22,11 @@ zmax = 0.55
 zs = (zmin + (zmax - zmin) * (np.arange(nz, dtype=np.float32) + 0.5) /
       np.float32(nz))
 
-maggies = np.zeros((nz, len(filters)), dtype=np.float32)
+maggies = np.zeros((nz, len(responses)), dtype=np.float32)
 for i, z in enumerate(zs):
     s.set_redshift(redshift=z)
-    for j, filt in enumerate(filters):
-        maggies[i, j] = f[filt].project(sed=s)
+    for j, response in enumerate(responses):
+        maggies[i, j] = f[response].project(sed=s)
 
 umg = - 2.5 * np.log10(maggies[:, 0] / maggies[:, 1])
 gmr = - 2.5 * np.log10(maggies[:, 1] / maggies[:, 2])

@@ -8,7 +8,7 @@
 import numpy as np
 import scipy.interpolate as interpolate
 import scipy.optimize as optimize
-import kcorrect.filter
+import kcorrect.response
 
 
 class Fitter(object):
@@ -17,8 +17,8 @@ class Fitter(object):
     Parameters
     ----------
 
-    filters : list of str
-        names of filters to use
+    responses : list of str
+        names of responses to use
 
     nredshift : int or np.int32
         number of redshifts in interpolation grid
@@ -26,14 +26,14 @@ class Fitter(object):
     redshift_range : list of np.float32
         minimum and maximum redshifts (default [0., 1.])
 
-    templates : list of kcorrect.sed.SED
+    templates : list of kcorrect.template.SED
         templates to use 
 
     Attributes
     ----------
 
-    filters : list of str
-        names of filters to use
+    responses : list of str
+        names of responses to use
 
     nredshift : int or np.int32
         number of redshifts in interpolation grid
@@ -44,15 +44,15 @@ class Fitter(object):
     redshifts : ndarray of np.float32
         redshifts in grid
 
-    templates : list of kcorrect.sed.SED
+    templates : list of kcorrect.template.SED
         templates to use 
 
     rmatrix : ndarray of np.float32
-        [nredshift, ntemplates, nfilters] matrix of projections
+        [nredshift, ntemplates, nresponses] matrix of projections
 """
-    def __init__(self, filters=None, templates=None, redshift_range=[0., 1.],
+    def __init__(self, responses=None, templates=None, redshift_range=[0., 1.],
                  nredshift=2000):
-        self.filters = filters
+        self.responses = responses
         self.templates = templates
         self.nredshift = nredshift
         self.redshift_range = redshift_range
@@ -64,19 +64,19 @@ class Fitter(object):
 
     def set_rmatrix(self):
         """Set rmatrix, the matrix of projections"""
-        # Make sure filters are loaded
-        f = kcorrect.filter.FilterDict()
-        for filt in self.filters:
-            f.load_filter(filt)
+        # Make sure responses are loaded
+        f = kcorrect.response.ResponseDict()
+        for response in self.responses:
+            f.load_response(response)
 
         # Create rmatrix
         self.rmatrix = np.zeros((self.nredshift,
-                                 len(self.filters),
+                                 len(self.responses),
                                  self.templates.nsed), dtype=np.float32)
         for iz, z in enumerate(self.redshifts):
             self.templates.set_redshift(redshift=z)
-            for ifilt, filt in enumerate(self.filters):
-                self.rmatrix[iz, ifilt, :] = f[filt].project(sed=self.templates)
+            for ir, response in enumerate(self.responses):
+                self.rmatrix[iz, ir, :] = f[response].project(sed=self.templates)
 
         # Now create Amatrix interpolator
         self.Amatrix = interpolate.interp1d(self.redshifts, self.rmatrix,

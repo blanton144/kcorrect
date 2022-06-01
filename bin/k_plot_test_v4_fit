@@ -3,26 +3,31 @@
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-import kcorrect.sed
+import kcorrect.response
+import kcorrect.template
 import kcorrect.fitter
 import kcorrect.utils
+
+rd = kcorrect.response.ResponseDict()
 
 filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
                         'kcorrect', 'data', 'templates',
                         'kcorrect-default-v4.fits')
-templates = kcorrect.sed.SED(filename=filename)
+templates = kcorrect.template.SED(filename=filename)
 
-filters = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
-           'twomass_Ks']
+responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
+             'twomass_Ks', 'wise_w4']
 
 fitter = kcorrect.fitter.Fitter(templates=templates,
-                                filters=filters, redshift_range=[0., 0.1],
+                                responses=responses, redshift_range=[0., 0.1],
                                 nredshift=100)
 
 fitter.set_rmatrix()
 
-maggies = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
-ivar = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+leff = np.array([rd[x].lambda_eff for x in responses], dtype=np.float32)
+
+maggies = np.array([1., 1., 1., 1., 1., 1., 1.], dtype=np.float32)
+ivar = np.array([1., 1., 1., 1., 1., 1., 1.], dtype=np.float32)
 
 coeffs = fitter.fit_coeffs(maggies=maggies, ivar=ivar, redshift=0.0532)
 
@@ -30,5 +35,12 @@ fitspec = coeffs.dot(templates.flux)
 
 ab = kcorrect.utils.sed_ab(wave=templates.wave)
 
-plt.plot(np.log10(templates.wave), np.log10(fitspec / ab))
+pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
+                       'figures', 'kcorrect-lrg1-v4.colors.png')
+
+plt.plot(np.log10(templates.wave), np.log10(fitspec / ab), color='black')
+plt.scatter(np.log10(leff), np.log10(maggies), color='red', s=10, zorder=20)
+plt.ylim([-5., 5.])
+plt.xlabel('log wavelength (Angstrom)')
+plt.ylabel('log magggies')
 plt.show()
