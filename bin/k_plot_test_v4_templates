@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+
+import os
+import matplotlib.pyplot as plt
+import numpy as np
+import kcorrect.sed
+import kcorrect.filter
+
+filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
+                        'kcorrect', 'data', 'templates',
+                        'kcorrect-lrg1-v4.fits')
+s = kcorrect.sed.SED(filename=filename)
+
+f = kcorrect.filter.FilterDict()
+filters = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']
+for filt in filters:
+    f.load_filter(filt)
+
+nz = 1000
+zmin = 0.
+zmax = 0.55
+zs = (zmin + (zmax - zmin) * (np.arange(nz, dtype=np.float32) + 0.5) /
+      np.float32(nz))
+
+maggies = np.zeros((nz, len(filters)), dtype=np.float32)
+for i, z in enumerate(zs):
+    s.set_redshift(redshift=z)
+    for j, filt in enumerate(filters):
+        maggies[i, j] = f[filt].project(sed=s)
+
+umg = - 2.5 * np.log10(maggies[:, 0] / maggies[:, 1])
+gmr = - 2.5 * np.log10(maggies[:, 1] / maggies[:, 2])
+rmi = - 2.5 * np.log10(maggies[:, 2] / maggies[:, 3])
+imz = - 2.5 * np.log10(maggies[:, 3] / maggies[:, 4])
+
+pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
+                       'figures', 'kcorrect-lrg1-v4.colors.png')
+
+fig, ax = plt.subplots(2, 2, sharex=True)
+
+ax[0, 0].plot(zs, umg, color='black')
+ax[0, 0].set_ylabel('u - g')
+ax[0, 1].plot(zs, gmr, color='black')
+ax[0, 1].yaxis.set_label_position("right")
+ax[0, 1].yaxis.tick_right()
+ax[0, 1].set_ylabel('g - r')
+ax[1, 0].plot(zs, rmi, color='black')
+ax[1, 0].set_ylabel('r - i')
+ax[1, 0].set_xlabel('redshift')
+ax[1, 1].plot(zs, imz, color='black')
+ax[1, 1].set_ylabel('i - z')
+ax[1, 1].set_xlabel('redshift')
+ax[1, 1].yaxis.set_label_position("right")
+ax[1, 1].yaxis.tick_right()
+
+plt.savefig(pngfile, dpi=150)

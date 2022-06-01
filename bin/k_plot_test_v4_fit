@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+import os
+import matplotlib.pyplot as plt
+import numpy as np
+import kcorrect.sed
+import kcorrect.fitter
+import kcorrect.utils
+
+filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
+                        'kcorrect', 'data', 'templates',
+                        'kcorrect-default-v4.fits')
+templates = kcorrect.sed.SED(filename=filename)
+
+filters = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
+           'twomass_Ks']
+
+fitter = kcorrect.fitter.Fitter(templates=templates,
+                                filters=filters, redshift_range=[0., 0.1],
+                                nredshift=100)
+
+fitter.set_rmatrix()
+
+maggies = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+ivar = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+
+coeffs = fitter.fit_coeffs(maggies=maggies, ivar=ivar, redshift=0.0532)
+
+fitspec = coeffs.dot(templates.flux)
+
+ab = kcorrect.utils.sed_ab(wave=templates.wave)
+
+plt.plot(np.log10(templates.wave), np.log10(fitspec / ab))
+plt.show()
