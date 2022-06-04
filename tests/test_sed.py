@@ -13,7 +13,7 @@ def test_init_sed():
     s = kcorrect.template.SED(wave=wave, flux=flux)
     assert s.nwave == nwave
     assert len(s.wave) == nwave
-    assert len(s.flux) == nwave
+    assert len(s.flux[0, :]) == nwave
     assert (s.wave == s.restframe_wave).min() == True
     assert (s.flux == s.restframe_flux).min() == True
     return
@@ -33,7 +33,7 @@ def test_write_and_read_sed():
     t = kcorrect.template.SED(filename='tmp-sed-write-and-read.fits')
     assert t.nwave == nwave
     assert len(t.wave) == nwave
-    assert len(t.flux) == nwave
+    assert len(t.flux[0, :]) == nwave
     assert (t.wave == wave).min() == True
     assert (t.flux == flux).min() == True
     assert (t.restframe_wave == wave).min() == True

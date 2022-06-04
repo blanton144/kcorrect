@@ -12,7 +12,7 @@ rd = kcorrect.response.ResponseDict()
 
 filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
                         'kcorrect', 'data', 'templates',
-                        'kcorrect-default-v4.fits')
+                        'kcorrect-lrg1-v4.fits')
 templates = kcorrect.template.SED(filename=filename)
 
 responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
@@ -26,21 +26,28 @@ fitter.set_rmatrix()
 
 leff = np.array([rd[x].lambda_eff for x in responses], dtype=np.float32)
 
+redshift = 0.0532
 maggies = np.array([1., 1., 1., 1., 1., 1., 1.], dtype=np.float32)
 ivar = np.array([1., 1., 1., 1., 1., 1., 1.], dtype=np.float32)
 
-coeffs = fitter.fit_coeffs(maggies=maggies, ivar=ivar, redshift=0.0532)
+coeffs = fitter.fit_coeffs(maggies=maggies, ivar=ivar, redshift=redshift)
 
 fitspec = coeffs.dot(templates.flux)
+fitmaggies = fitter.reconstruct(redshift=redshift, coeffs=coeffs)
 
 ab = kcorrect.utils.sed_ab(wave=templates.wave)
 
 pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-lrg1-v4.colors.png')
+                       'figures', 'kcorrect-lrg1-v4.fit.png')
 
-plt.plot(np.log10(templates.wave), np.log10(fitspec / ab), color='black')
-plt.scatter(np.log10(leff), np.log10(maggies), color='red', s=10, zorder=20)
-plt.ylim([-5., 5.])
+plt.plot(np.log10(templates.wave), np.log10(fitspec / ab), color='black',
+         label='Fit spectrum')
+plt.scatter(np.log10(leff), np.log10(maggies), color='red', s=30, zorder=20,
+            label='Observed maggies')
+plt.scatter(np.log10(leff), np.log10(fitmaggies), color='black', s=20, zorder=30,
+            label='Fit maggies')
+plt.ylim([-1.5, 3.5])
 plt.xlabel('log wavelength (Angstrom)')
-plt.ylabel('log magggies')
-plt.show()
+plt.ylabel('log maggies')
+plt.legend()
+plt.savefig(pngfile, dpi=150)

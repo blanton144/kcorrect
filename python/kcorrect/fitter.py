@@ -118,3 +118,31 @@ class Fitter(object):
         coeffs, rnorm = optimize.nnls(A, b)
 
         return(coeffs)
+
+    def reconstruct(self, redshift=None, coeffs=None):
+        """Reconstruct maggies associated with coefficients
+
+        Parameters
+        ----------
+
+        redshift : np.float32
+            redshift
+
+        coeffs : ndarray of np.float32
+            coefficients
+
+        Returns
+        -------
+
+        maggies : ndarray of np.float32
+            maggies in each band
+"""
+        default_zeros = np.zeros(len(self.responses), dtype=np.float32)
+
+        try:
+            A = self.Amatrix(redshift)
+        except ValueError:
+            return(default_zeros)
+        maggies = A.dot(coeffs)
+
+        return(maggies)

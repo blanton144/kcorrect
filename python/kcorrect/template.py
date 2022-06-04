@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-# @Filename: sed.py
+# @Filename: template.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 
@@ -11,7 +11,7 @@ import fitsio
 
 
 class SED(object):
-    """Spectral energy distribution
+    """Spectral energy distribution(s)
 
     Parameters
     ----------
@@ -23,7 +23,7 @@ class SED(object):
         rest frame wavelength grid in Angstroms
 
     flux : ndarray of np.float32
-        [nsed, nwave] or [nwave] rest frame flux grid in erg/cm^2/s/A
+        [nsed, nwave] rest frame flux grid in erg/cm^2/s/A
 
     Attributes
     ----------
@@ -32,7 +32,7 @@ class SED(object):
         name of FITS file associated with this SED
 
     flux : ndarray of np.float32
-        [nwave] or [nwave, nsed] flux grid in erg/cm^2/s/A
+        [nsed, nwave] flux grid in erg/cm^2/s/A
 
     nsed : np.float32
         number of SEDs
@@ -63,27 +63,31 @@ class SED(object):
         self.filename = filename
         if(self.filename is not None):
             self.fromfits(filename, ext=ext)
+            return
+        self._setup()
+        return
+
+    def _setup(self):
+        """Set up after restframe_wave and restframe_flux are read in"""
+        self.redshift = 0.
+        if((self.restframe_wave is not None) &
+           (self.restframe_flux is not None)):
+            self.nwave = len(self.restframe_wave)
+            if(len(self.restframe_flux.shape) == 1):
+                self.restframe_flux = self.restframe_flux.reshape(1, self.nwave)
+            else:
+                self.restframe_flux = self.restframe_flux
+            self.nsed = self.restframe_flux.shape[0]
         self.wave = self.restframe_wave
         self.flux = self.restframe_flux
-        self.redshift = 0.
-        if(self.wave is not None):
-            self.nwave = len(self.wave)
-            self.set_interp()
-            if(len(self.flux.shape) == 1):
-                self.nsed = 1
-            else:
-                self.nsed = self.flux.shape[0]
+        self.set_interp()
         return
 
     def sed_dtype(self):
         """Returns numpy dtype for SED"""
-        if(self.nsed == 1):
-            sed_dtype = np.dtype([('wave', np.float32, self.nwave),
-                                  ('flux', np.float32, self.nwave)])
-        else:
-            sed_dtype = np.dtype([('wave', np.float32, self.nwave),
-                                  ('flux', np.float32, (self.nsed,
-                                                        self.nwave))])
+        sed_dtype = np.dtype([('wave', np.float32, self.nwave),
+                              ('flux', np.float32, (self.nsed,
+                                                    self.nwave))])
         return(sed_dtype)
 
     def set_interp(self):
@@ -108,10 +112,24 @@ class SED(object):
 
         ext : str or int
             extension to read from
+
+        Notes
+        -----
+
+        The FITS table should have two columns:
+
+           wave - an [nwave] array of wavelengths in Angstrom
+           flux - an [nsed, nwave] array of fluxes
+
+        Only imports the first row of the FITS table.
 """
         sed = fitsio.read(filename, ext=ext)
         self.restframe_wave = np.squeeze(sed['wave'])
-        self.restframe_flux = np.squeeze(sed['flux'])
+        if(len(sed['flux'][0].shape) > 1):
+            self.restframe_flux = sed['flux'][0]
+        else:
+            self.restframe_flux = sed['flux'].reshape(1, len(sed['flux'][0]))
+        self._setup()
         return
 
     def tofits(self, filename=None, ext='FLUX', clobber=True):
@@ -128,6 +146,16 @@ class SED(object):
         
         clobber : bool
             whether to clobber the existing file or add an HDU
+
+        Notes
+        -----
+
+        Writes a one-row FITS table with two columns:
+
+           wave - an [nwave] array of restframe wavelengths in Angstrom
+           flux - an [nsed, nwave] array of restframe fluxes
+
+        Only imports the first row of the FITS table.
 """
         out = np.zeros(1, self.sed_dtype())
         out['wave'] = self.restframe_wave
