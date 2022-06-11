@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-# @Filename: fit.py
+# @Filename: fitter.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 
@@ -27,10 +27,13 @@ class Fitter(object):
         minimum and maximum redshifts (default [0., 1.])
 
     templates : list of kcorrect.template.SED
-        templates to use 
+        templates to use
 
     Attributes
     ----------
+
+    Amatrix : scipy.interpolate.interp1d object
+        interpolator to produce A matrix
 
     responses : list of str
         names of responses to use
@@ -40,15 +43,12 @@ class Fitter(object):
 
     redshift_range : list of np.float32
         minimum and maximum redshifts (default [0., 1.])
-    
+
     redshifts : ndarray of np.float32
         redshifts in grid
 
     templates : list of kcorrect.template.SED
-        templates to use 
-
-    rmatrix : ndarray of np.float32
-        [nredshift, ntemplates, nresponses] matrix of projections
+        templates to use
 """
     def __init__(self, responses=None, templates=None, redshift_range=[0., 1.],
                  nredshift=2000):
@@ -62,25 +62,30 @@ class Fitter(object):
                           np.float32(nredshift - 1))
         return
 
-    def set_rmatrix(self):
-        """Set rmatrix, the matrix of projections"""
+    def _calc_Amatrix(self, responses=None):
+        """Create an A matrix and return it (don't set attribute)"""
         # Make sure responses are loaded
         f = kcorrect.response.ResponseDict()
-        for response in self.responses:
+        for response in responses:
             f.load_response(response)
 
         # Create rmatrix
-        self.rmatrix = np.zeros((self.nredshift,
-                                 len(self.responses),
-                                 self.templates.nsed), dtype=np.float32)
+        rmatrix = np.zeros((self.nredshift,
+                            len(responses),
+                            self.templates.nsed), dtype=np.float32)
         for iz, z in enumerate(self.redshifts):
             self.templates.set_redshift(redshift=z)
-            for ir, response in enumerate(self.responses):
-                self.rmatrix[iz, ir, :] = f[response].project(sed=self.templates)
+            for ir, response in enumerate(responses):
+                rmatrix[iz, ir, :] = f[response].project(sed=self.templates)
 
         # Now create Amatrix interpolator
-        self.Amatrix = interpolate.interp1d(self.redshifts, self.rmatrix,
-                                            axis=0)
+        Amatrix = interpolate.interp1d(self.redshifts, self.rmatrix, axis=0)
+
+        return(Amatrix)
+
+    def set_Amatrix(self):
+        """Set Amatrix, interpolator for the design matrix"""
+        self.Amatrix = self._calc_Amatrix(responses=self.responses)
 
         return
 
@@ -119,7 +124,50 @@ class Fitter(object):
 
         return(coeffs)
 
-    def reconstruct(self, redshift=None, coeffs=None):
+    def _reconstruct(self, Amatrix=None, redshift=None, coeffs=None, band_shift=0.):
+        """Reconstruct maggies associated with coefficients
+
+        Parameters
+        ----------
+
+        Amatrix : scipy.interpolate.interp1d
+            interpolator to use for Amatri
+
+        redshift : np.float32
+            redshift
+
+        coeffs : ndarray of np.float32
+            coefficients
+
+        band_shift : np.float32
+            blueshift to apply to reconstructed bandpasses
+
+        Returns
+        -------
+
+        maggies : ndarray of np.float32
+            maggies in each band
+"""
+        default_zeros = np.zeros(len(self.responses), dtype=np.float32)
+
+        # Consider blueward shift of bandpass due to redshift
+        # of observation and due to band_shift
+        shift = (1. + redshift) * (1. + band_shift) - 1.
+
+        # Calculate maggies
+        try:
+            A = self.Amatrix(shift)
+        except ValueError:
+            return(default_zeros)
+        maggies = A.dot(coeffs)
+
+        # For band_shift !=0, require this normalization given that
+        # AB source is not altered.
+        maggies = maggies / (1. + band_shift)
+
+        return(maggies)
+
+    def reconstruct(self, redshift=None, coeffs=None, band_shift=0.):
         """Reconstruct maggies associated with coefficients
 
         Parameters
@@ -131,18 +179,14 @@ class Fitter(object):
         coeffs : ndarray of np.float32
             coefficients
 
+        band_shift : np.float32
+            blueshift to apply to reconstructed bandpasses
+
         Returns
         -------
 
         maggies : ndarray of np.float32
             maggies in each band
 """
-        default_zeros = np.zeros(len(self.responses), dtype=np.float32)
-
-        try:
-            A = self.Amatrix(redshift)
-        except ValueError:
-            return(default_zeros)
-        maggies = A.dot(coeffs)
-
-        return(maggies)
+        return(self._reconstruct(Amatrix=self.Amatrix, redshift=redshift,
+                                 coeffs=coeffs, band_shift=band_shift)

@@ -7,7 +7,7 @@
 
 import numpy as np
 import scipy.interpolate as interpolate
-import fitsio
+import astropy.io.fits as fits
 
 
 class SED(object):
@@ -123,7 +123,8 @@ class SED(object):
 
         Only imports the first row of the FITS table.
 """
-        sed = fitsio.read(filename, ext=ext)
+        sed_hdus = fits.open(filename)
+        sed = sed_hdus[ext].data
         self.restframe_wave = np.squeeze(sed['wave'])
         if(len(sed['flux'][0].shape) > 1):
             self.restframe_flux = sed['flux'][0]
@@ -161,7 +162,8 @@ class SED(object):
         out['wave'] = self.restframe_wave
         out['flux'] = self.restframe_flux
 
-        fitsio.write(filename, out, extname=ext, clobber=clobber)
+        hdu = fits.BinTableHDU(out, name=ext)
+        hdu.writeto(filename, overwrite=True)
         return
 
     def set_redshift(self, redshift=0.):
@@ -182,4 +184,79 @@ class SED(object):
         self.flux = self.restframe_flux / (1. + redshift)
         self.redshift = redshift
         self.set_interp()
+        return
+
+
+class Template(SED):
+    """Spectral energy distribution template(s)
+
+    Parameters
+    ----------
+
+    filename : str
+        name of FITS file to read from
+
+    wave : ndarray of np.float32
+        rest frame wavelength grid in Angstroms
+
+    flux : ndarray of np.float32
+        [nsed, nwave] rest frame flux grid in erg/cm^2/s/A
+
+    Attributes
+    ----------
+
+    filename : str
+        name of FITS file associated with this SED
+
+    flux : ndarray of np.float32
+        [nsed, nwave] flux grid in erg/cm^2/s/A
+
+    intsfh : ndarray of np.float32
+        [nsed] integrated star formation history in solar masses
+
+    m300 : ndarray of np.float32
+        [nsed] stars formed last 300 million years in solar masses
+
+    m1000 : ndarray of np.float32
+        [nsed] stars formed last billion years in solar masses
+
+    mets : ndarray of np.float32
+        [nsed] metallicity in current stars and stellar remnants
+
+    mremain : ndarray of np.float32
+        [nsed] remaining mass in stars and remnants in solar masses
+
+    nsed : np.float32
+        number of SEDs
+
+    nwave : np.int32
+        number of wavelengths in grid
+
+    redshift : np.float32
+        redshift of SED
+
+    restframe_flux : ndarray of np.float32
+        [nsed, nwave] rest frame flux grid in erg/cm^2/s/A
+
+    restframe_wave : ndarray of np.float32
+        [nwave] rest frame wavelength grid in Angstroms
+
+    wave : ndarray of np.float32
+        [nwave] wavelength grid in Angstroms
+
+    Notes
+    -----
+
+    If filename is set, overrides wave and flux.
+"""
+    def __init__(self, filename=None, wave=None, flux=None, ext='FLUX'):
+        self.super().__init__(filename=filename)
+
+        hdul = fits.open(filename)
+        self.intsfh = hdul['INTSFH']
+        self.mremain = hdul['MREMAIN']
+        self.mets = hdul['METS']
+        self.m300 = hdul['M300']
+        self.m1000 = hdul['M1000']
+
         return
