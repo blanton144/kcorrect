@@ -22,7 +22,7 @@ fitter = kcorrect.fitter.Fitter(templates=templates,
                                 responses=responses, redshift_range=[0., 0.1],
                                 nredshift=100)
 
-fitter.set_rmatrix()
+fitter.set_Amatrix()
 
 leff = np.array([rd[x].lambda_eff for x in responses], dtype=np.float32)
 

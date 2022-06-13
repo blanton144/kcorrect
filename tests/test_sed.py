@@ -1,4 +1,5 @@
 import pytest
+import os
 import numpy as np
 import kcorrect.template
 
@@ -56,3 +57,22 @@ def test_redshift():
     assert (s.flux == s.restframe_flux / (1. + z)).min() == True
 
     return
+
+
+def test_project():
+    """Test projection onto filters (does not test quantitatively)"""
+
+    filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
+                            'kcorrect', 'data', 'templates',
+                            'kcorrect-lrg1-v4.fits')
+    s = kcorrect.template.SED(filename=filename)
+    f = kcorrect.response.ResponseDict()
+    responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']
+    for response in responses:
+        f.load_response(response)
+
+    z = 0.4
+    s.set_redshift(redshift=z)
+    for j, response in enumerate(responses):
+        maggies = f[response].project(sed=s)
+        assert maggies > 0.

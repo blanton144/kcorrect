@@ -7,9 +7,8 @@
 
 import os
 import numpy as np
-import scipy.interpolate as interpolate
-import scipy.optimize as optimize
 import kcorrect.fitter
+import kcorrect.template
 import astropy.cosmology
 
 
@@ -29,34 +28,40 @@ class Kcorrect(kcorrect.fitter.Fitter):
         input responses to use for K-corrections (default to "responses")
 
     nredshift : int or np.int32
-        number of redshifts in interpolation grid
+        number of redshifts in interpolation grid (default 4000)
 
     redshift_range : list of np.float32
-        minimum and maximum redshifts (default [0., 1.])
+        minimum and maximum redshifts (default [0., 2.])
 
     templates : list of kcorrect.template.SED
         templates to use (if None uses v4 default template set)
 
+    cosmo : astropy.cosmology.FLRW-like object
+        object with distmod() method (default Planck18)
+
     Attributes
     ----------
 
-    responses : list of str
-        names of input responses to use
-
-    responses_out : list of str
-        output responses for K-corrections
-
-    responses_map : list of str
-        input responses to use for K-corrections
+    cosmo : astropy.cosmology.FLRW-like object
+        object with luminosity_distance() method
 
     nredshift : int or np.int32
         number of redshifts in interpolation grid
 
     redshift_range : list of np.float32
-        minimum and maximum redshifts (default [0., 1.])
+        minimum and maximum redshifts
 
     redshifts : ndarray of np.float32
         redshifts in grid
+
+    responses : list of str
+        names of input responses to use
+
+    responses_map : list of str
+        input responses to use for K-corrections
+
+    responses_out : list of str
+        output responses for K-corrections
 
     templates : list of kcorrect.template.SED
         templates to use
@@ -73,29 +78,49 @@ class Kcorrect(kcorrect.fitter.Fitter):
     to itself, i.e. K_QQ.
 """
     def __init__(self, responses=None, responses_out=None, responses_map=None,
-                 templates=None, redshift_range=[0., 2.], nredshift=4000):
+                 templates=None, redshift_range=[0., 2.], nredshift=4000,
+                 cosmo=None):
+
+        # Read in templates
         if(templates is None):
             filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
                                     'kcorrect', 'data', 'templates',
                                     'kcorrect-default-v4.fits')
             templates = kcorrect.template.Template(filename=filename)
-        super().__init__(responses=responses, template=templates,
+
+        # Initatialize using Fitter initialization
+        super().__init__(responses=responses, templates=templates,
                          redshift_range=redshift_range,
                          nredshift=nredshift)
+
+        # Set up the Amatrix for the input responses
         self.set_Amatrix()
+
+        # Set up the output responses
         if(responses_out is None):
             responses_out = self.responses
         if(responses_map is None):
             responses_map = self.responses
         self.responses_out = responses_out
         self.responses_map = responses_map
+
+        # Set up the AmatrixOut for the output responses
         if(self.responses_out == self.responses):
             self.AmatrixOut = self.Amatrix
         else:
             self.AmatrixOut = self._calc_Amatrix(responses=self.responses_out)
+
+        # Get index map to calculate kcorrection
         self.imap = np.zeros(len(self.responses_map), dtype=int)
         for i, response in enumerate(self.responses_map):
             self.imap[i] = self.responses.index(response)
+
+        # Initialize cosmology used for derived properties and absmag
+        if(cosmo is not None):
+            self.cosmo = cosmo
+        else:
+            self.cosmo = astropy.cosmology.Planck18
+
         return
 
     def derived(self, redshift=None, coeffs=None):
@@ -137,7 +162,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
         metallicity :
            metallicity in current stars
 """
-        dfactor = 10.**(0.4 * distmod(redshift))
+        dfactor = 10.**(0.4 * self.cosmo.distmod(redshift))
 
         intsfh = coeffs.dot(self.templates.intsfh) * dfactor
         mremain = coeffs.dot(self.templates.mremain) * dfactor
@@ -151,10 +176,13 @@ class Kcorrect(kcorrect.fitter.Fitter):
         m1000 = coeffs.dot(self.templates.m1000) * dfactor
         b1000 = m1000 / intsfh
 
-        rmaggies = self.templates.reconstruct(redshift=redshift,
-                                              coeffs=coeffs,
-                                              band_shift=band_shift)
-        mtol = coeffs.dot(self.templates.mremain) / 
+        # Doesn't do solar yet
+        rmaggies = self.templates.reconstruct_out(redshift=redshift,
+                                                  coeffs=coeffs,
+                                                  band_shift=band_shift)
+        mtol = (np.outer(coeffs.dot(self.templates.mremain),
+                         np.ones(len(self.templates.nsed))) /
+                rmaggies)
 
         return(mremain, intsfh, mtol, b300, b1000, metallicity)
 
@@ -180,7 +208,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
             maggies in each output band
 """
         return(self._reconstruct(Amatrix=self.AmatrixOut, redshift=redshift,
-                                 coeffs=coeffs, band_shift=band_shift)
+                                 coeffs=coeffs, band_shift=band_shift))
 
     def kcorrect(self, redshift=None, coeffs=None, band_shift=0.):
         """Return K-correction in all bands
@@ -204,10 +232,10 @@ class Kcorrect(kcorrect.fitter.Fitter):
             K-correction from input to output magnitudes
 """
         maggies_in = self.reconstruct(redshift=redshift, coeffs=coeffs)
-        maggies_out = self.reconstruct_out(redshift=redshift, coeffs=coeffs,
+        maggies_out = self.reconstruct_out(redshift=0. * redshift, coeffs=coeffs,
                                            band_shift=band_shift)
 
-        kcorrect = maggies_out / maggies[..., imap]
+        kcorrect = - 2.5 * np.log10(maggies_out / maggies_in[..., self.imap])
         return(kcorrect)
 
     def absmag(self, redshift=None, coeffs=None,

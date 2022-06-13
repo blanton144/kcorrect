@@ -250,7 +250,7 @@ class Template(SED):
     If filename is set, overrides wave and flux.
 """
     def __init__(self, filename=None, wave=None, flux=None, ext='FLUX'):
-        self.super().__init__(filename=filename)
+        super().__init__(filename=filename)
 
         hdul = fits.open(filename)
         self.intsfh = hdul['INTSFH']

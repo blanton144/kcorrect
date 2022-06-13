@@ -17,6 +17,8 @@ mets = fitsio.read(origfile, ext=18)
 m300 = fitsio.read(origfile, ext=19)
 m1000 = fitsio.read(origfile, ext=20)
 
+flux[flux < 0] = 0.
+
 outfile = os.path.join(os.getenv('KCORRECT_DIR'),
                        'python', 'kcorrect', 'data', 'templates',
                        'kcorrect-default-v4.fits')

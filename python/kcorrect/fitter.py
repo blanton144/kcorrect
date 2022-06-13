@@ -79,7 +79,7 @@ class Fitter(object):
                 rmatrix[iz, ir, :] = f[response].project(sed=self.templates)
 
         # Now create Amatrix interpolator
-        Amatrix = interpolate.interp1d(self.redshifts, self.rmatrix, axis=0)
+        Amatrix = interpolate.interp1d(self.redshifts, rmatrix, axis=0)
 
         return(Amatrix)
 
@@ -89,8 +89,8 @@ class Fitter(object):
 
         return
 
-    def fit_coeffs(self, redshift=None, maggies=None, ivar=None):
-        """Fit coefficients
+    def _fit_coeffs(self, redshift=None, maggies=None, ivar=None):
+        """Fit coefficients to single object
 
         Parameters
         ----------
@@ -121,6 +121,79 @@ class Fitter(object):
         b = maggies * inverr
 
         coeffs, rnorm = optimize.nnls(A, b)
+
+        return(coeffs)
+
+    def fit_coeffs(self, redshift=None, maggies=None, ivar=None):
+        """Fit coefficients
+
+        Parameters
+        ----------
+
+        redshift : np.float32 or ndarray of np.float32
+            redshift(s)
+
+        maggies : ndarray of np.float32
+            fluxes of each band in maggies
+
+        ivar : ndarray of np.float32
+            inverse variance of each band
+
+        Returns
+        -------
+
+        coeffs : ndarray of np.float32
+            coefficients for each template
+
+        Notes
+        -----
+
+        If redshift is an array, even with just one element, coeffs is
+        returned as an [nredshift, ntemplate] array.
+
+        Otherwise coeffs is returned as an [ntemplate] array.
+"""
+        if(redshift is None):
+            raise TypeError("Must specify redshift to fit coefficients")
+
+        # Check a bunch of things about the input arrays
+        try:
+            n = len(redshift)
+            array = True
+        except TypeError:
+            n = 1
+            array = False
+        if(n == 1):
+            nr = maggies.size
+        else:
+            if(len(maggies.shape) != 2):
+                raise IndexError("maggies not 2D")
+            nr = maggies.shape[1]
+            nz = maggies.shape[0]
+            if(nz != n):
+                raise IndexError("maggies and redshift differ in number objects")
+
+        if(nr != len(self.responses)):
+            raise IndexError("Number of maggies differs from number of responses")
+        if(maggies.size != ivar.size):
+            raise IndexError("Number of maggies differs from number of ivar")
+        if(maggies.shape != ivar.shape):
+            raise IndexError("maggies and ivar differ in shape")
+
+        # Call single
+        if(n == 1):
+            coeffs = self._fit_coeffs(redshift=np.squeeze(redshift),
+                                      maggies=np.squeeze(maggies),
+                                      ivar=np.squeeze(ivar))
+            if(array):
+                coeffs = coeffs.reshape(1, len(coeffs))
+            return(coeffs)
+
+        # Loop for multiple
+        coeffs = np.zeros((n, self.templates.nsed), dtype=np.float32)
+        for i, r in enumerate(redshift):
+            coeffs[i, :] = self._fit_coeffs(redshift=r, maggies=maggies[i, :],
+                                            ivar=ivar[i, :])
 
         return(coeffs)
 
@@ -189,4 +262,4 @@ class Fitter(object):
             maggies in each band
 """
         return(self._reconstruct(Amatrix=self.Amatrix, redshift=redshift,
-                                 coeffs=coeffs, band_shift=band_shift)
+                                 coeffs=coeffs, band_shift=band_shift))

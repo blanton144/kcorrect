@@ -24,6 +24,8 @@ m300 = np.zeros(1, dtype=np.float32)
 m1000 = fitsio.read(origfile, ext=20)
 m1000 = np.zeros(1, dtype=np.float32)
 
+flux[flux < 0] = 0.
+
 s = kcorrect.template.SED(wave=10.**wave, flux=flux)
 
 outfile = os.path.join(os.getenv('KCORRECT_DIR'),
