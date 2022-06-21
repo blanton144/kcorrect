@@ -10,6 +10,7 @@ import numpy as np
 import kcorrect.fitter
 import kcorrect.template
 import astropy.cosmology
+import astropy.units
 
 
 class Kcorrect(kcorrect.fitter.Fitter):
@@ -21,20 +22,20 @@ class Kcorrect(kcorrect.fitter.Fitter):
     responses : list of str
         names of input responses to base SED on
 
+    templates : list of kcorrect.template.SED
+        templates to use (if None uses v4 default template set)
+
     responses_out : list of str
         output responses for K-corrections (default to "responses")
 
     responses_map : list of str
         input responses to use for K-corrections (default to "responses")
 
-    nredshift : int or np.int32
-        number of redshifts in interpolation grid (default 4000)
-
     redshift_range : list of np.float32
         minimum and maximum redshifts (default [0., 2.])
 
-    templates : list of kcorrect.template.SED
-        templates to use (if None uses v4 default template set)
+    nredshift : int or np.int32
+        number of redshifts in interpolation grid (default 4000)
 
     cosmo : astropy.cosmology.FLRW-like object
         object with distmod() method (default Planck18)
@@ -42,8 +43,17 @@ class Kcorrect(kcorrect.fitter.Fitter):
     Attributes
     ----------
 
+    Amatrix : scipy.interpolate.interp1d object
+        interpolation function for each template and input response
+
+    AmatrixOut : scipy.interpolate.interp1d object
+        interpolation function for each template and output response
+
     cosmo : astropy.cosmology.FLRW-like object
         object with luminosity_distance() method
+
+    imap : ndarray of np.int32
+        for each responses_map element, its corresponding index in responses
 
     nredshift : int or np.int32
         number of redshifts in interpolation grid
@@ -55,30 +65,49 @@ class Kcorrect(kcorrect.fitter.Fitter):
         redshifts in grid
 
     responses : list of str
-        names of input responses to use
+        [Nin] names of input responses to use
 
     responses_map : list of str
-        input responses to use for K-corrections
+        [Nout] input responses to use for K-corrections
 
     responses_out : list of str
-        output responses for K-corrections
+        [Nout] output responses for K-corrections
 
-    templates : list of kcorrect.template.SED
+    templates : kcorrect.template.Template object
         templates to use
 
     Notes
     -----
 
-    "response_map" defines what the calculated K-correction means. The
-    keys are the output magnitude responses "Q" and the values are
-    the input magnitude responses "R$, such that the output K-correction
-    is K_QR per Blanton & Roweis (2007).
+    K-corrections are magnitude shifts to account for the difference
+    in the observed bandpass R and a desired output bandpass Q,
+    denoted K_QR (see Blanton & Roweis 2007). The default behavior
+    finds the K-corrections between each input bandpass with itself,
+    i.e. K_QQ.
 
-    The default "response_map" is just mapping each item in "responses"
-    to itself, i.e. K_QQ.
+    In detail:
+
+    "responses" corresponds to the observed bandpasses R.
+
+    "responses_out" corresponds to the observed bandpasses Q; it
+    defaults to "responses".
+
+    "responses_map" is the same length as "responses_out" and
+    defines which bandpasses in "responses" to use for each
+    output bandpass in "responses out". It defaults to "responses".
+
+    Amatrix accepts a redshift as its argument and returns a matrix of
+    shape [nresponses, ntemplates]. This matrix can be dotted into a
+    set of coefficients for each template, and the result will be the
+    observed bandpass maggies at the desired redshift for an SED
+    corresponding to the coefficients. A ValueError results if the
+    input redshift is outside redshift_range.
+
+    AmatrixOut is similar but returns a [nresponses_out, ntemplates]
+    matrix for the output bandpasses.
 """
-    def __init__(self, responses=None, responses_out=None, responses_map=None,
-                 templates=None, redshift_range=[0., 2.], nredshift=4000,
+    def __init__(self, responses=None, templates=None, responses_out=None,
+                 responses_map=None, redshift_range=[0., 2.], nredshift=4000,
                  cosmo=None):
 
         # Read in templates
@@ -101,19 +130,26 @@ class Kcorrect(kcorrect.fitter.Fitter):
             responses_out = self.responses
         if(responses_map is None):
             responses_map = self.responses
+
+        if(len(responses_map) != len(responses_out)):
+            raise ValueError("responses_map must have the same number of elements as responses_out")
+
         self.responses_out = responses_out
         self.responses_map = responses_map
+
+        # Get index map to calculate kcorrection
+        self.imap = np.zeros(len(self.responses_map), dtype=int)
+        for i, response in enumerate(self.responses_map):
+            try:
+                self.imap[i] = self.responses.index(response)
+            except ValueError:
+                raise ValueError("responses_map must contain only responses defined in responses")
 
         # Set up the AmatrixOut for the output responses
         if(self.responses_out == self.responses):
             self.AmatrixOut = self.Amatrix
         else:
             self.AmatrixOut = self._calc_Amatrix(responses=self.responses_out)
-
-        # Get index map to calculate kcorrection
-        self.imap = np.zeros(len(self.responses_map), dtype=int)
-        for i, response in enumerate(self.responses_map):
-            self.imap[i] = self.responses.index(response)
 
         # Initialize cosmology used for derived properties and absmag
         if(cosmo is not None):
@@ -123,7 +159,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
         return
 
-    def derived(self, redshift=None, coeffs=None):
+    def derived(self, redshift=None, coeffs=None, band_shift=0.):
         """Return derived quantities based on coefficients
 
         Parameters
@@ -135,39 +171,54 @@ class Kcorrect(kcorrect.fitter.Fitter):
         coeffs : ndarray of np.float32
             coefficients for each template for each object
 
-        omega0 : np.float32
-            z=0 matter density for cosmology
-
-        omegal0 : np.float32
-            z=0 cosmological constant for cosmology
+        band_shift : np.float32
+            band shift to apply for output response
 
         Returns
         -------
 
-        mremain : ndarray of np.float32, or np.float32
-           current stellar mass in solar masses
+        derived : dict()
+            dictionary with derived quantities (see below)
 
-        intsfh : ndarray of np.float32, or np.float32
-           current stellar mass in solar masses
+        Notes
+        -----
 
-        mtol : ndarray of np.float32, or np.float32
-           mass-to-light ratio in each band
+        The derived dictionary contains the following keys with the
+        associated quantities:
 
-        b300 : ndarray of np.float32, or np.float32
-           current (< 300 Myr) over past star formation
+            'mremain'  : ndarray of np.float32, or np.float32
+                current stellar mass in solar masses
 
-        b1000 : ndarray of np.float32, or np.float32
-           current (< 1 Gyr) over past star formation
+            'intsfh' : ndarray of np.float32, or np.float32
+               current stellar mass in solar masses
 
-        metallicity :
-           metallicity in current stars
+            'mtol' : ndarray of np.float32, or np.float32
+               mass-to-light ratio in each output band
+
+            'b300' : ndarray of np.float32, or np.float32
+               current (< 300 Myr) over past star formation
+
+            'b1000' : ndarray of np.float32, or np.float32
+               current (< 1 Gyr) over past star formation
+
+            'metallicity' :
+               metallicity in current stars
+
+        All of these quantities should be taken with extreme caution
+        and not accepted literally. After all, they are just the result
+        of a 5-template fit to a few bandpasses. See Moustakas et al.
+        (2013) for a comparison of the masses with other estimators.
 """
-        dfactor = 10.**(0.4 * self.cosmo.distmod(redshift))
+        (array, n, redshift, d1, d2,
+         coeffs) = self._process_inputs(redshift=redshift, coeffs=coeffs)
+
+        dm = self.cosmo.distmod(redshift).to_value(astropy.units.mag)
+        dfactor = 10.**(0.4 * dm)
 
         intsfh = coeffs.dot(self.templates.intsfh) * dfactor
         mremain = coeffs.dot(self.templates.mremain) * dfactor
-        metals =(coeffs.dot(self.templates.mremain * self.templates.mets) *
-                 dfactor)
+        metals = (coeffs.dot(self.templates.mremain * self.templates.mets) *
+                  dfactor)
 
         metallicity = metals / mremain
 
@@ -177,14 +228,26 @@ class Kcorrect(kcorrect.fitter.Fitter):
         b1000 = m1000 / intsfh
 
         # Doesn't do solar yet
-        rmaggies = self.templates.reconstruct_out(redshift=redshift,
-                                                  coeffs=coeffs,
-                                                  band_shift=band_shift)
+        f = kcorrect.response.ResponseDict()
+        rmaggies = self.reconstruct_out(redshift=redshift,
+                                        coeffs=coeffs,
+                                        band_shift=band_shift)
+        for ir, response in enumerate(self.responses):
+            solar = 10.**(- 0.4 * f[response].solar_magnitude)
+            rmaggies[..., ir] = rmaggies[..., ir] * dfactor / solar
         mtol = (np.outer(coeffs.dot(self.templates.mremain),
-                         np.ones(len(self.templates.nsed))) /
+                         np.ones(len(self.responses), dtype=np.float32)) /
                 rmaggies)
 
-        return(mremain, intsfh, mtol, b300, b1000, metallicity)
+        outdict = dict()
+        outdict['mremain'] = mremain
+        outdict['intsfh'] = intsfh
+        outdict['mtol'] = mtol
+        outdict['b300'] = b300
+        outdict['b1000'] = b1000
+        outdict['metallicity'] = metallicity
+
+        return(outdict)
 
     def reconstruct_out(self, redshift=None, coeffs=None, band_shift=0.):
         """Reconstruct output maggies associated with coefficients
@@ -205,7 +268,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
         -------
 
         maggies : ndarray of np.float32
-            maggies in each output band
+            AB maggies in each output band
 """
         return(self._reconstruct(Amatrix=self.AmatrixOut, redshift=redshift,
                                  coeffs=coeffs, band_shift=band_shift))
@@ -232,13 +295,162 @@ class Kcorrect(kcorrect.fitter.Fitter):
             K-correction from input to output magnitudes
 """
         maggies_in = self.reconstruct(redshift=redshift, coeffs=coeffs)
-        maggies_out = self.reconstruct_out(redshift=0. * redshift, coeffs=coeffs,
+        maggies_out = self.reconstruct_out(redshift=0. * redshift,
+                                           coeffs=coeffs,
                                            band_shift=band_shift)
 
         kcorrect = - 2.5 * np.log10(maggies_out / maggies_in[..., self.imap])
         return(kcorrect)
 
-    def absmag(self, redshift=None, coeffs=None,
-               band_shift=0., omega0=None, omegal0=None,
-               H0=None):
-        return
+    def absmag(self, maggies=None, ivar=None, redshift=None, coeffs=None,
+               band_shift=0.):
+        """Return absolute magnitude in output bands
+
+        Parameters
+        ----------
+
+        redshift : ndarray of np.float32, or np.float32
+            redshift(s) for K-correction
+
+        maggies : ndarray of np.float32
+            fluxes of each band in AB maggies
+
+        ivar : ndarray of np.float32
+            inverse variance of each band
+
+        coeffs : ndarray of np.float32
+            coefficients for each template for each object
+
+        band_shift : np.float32
+            shift to apply for output responses
+
+        Returns
+        -------
+
+        absmag : ndarray of np.float32
+            absolute magnitude in each band for each object
+
+        Notes
+        -----
+
+        Returns the K-corrected absolute magnitude.
+
+        Depends on having run fit_coeffs on a consistent set of
+        maggies and ivars. If ivar=0 or the maggies are negative 
+        for any band, it uses the reconstructed absolute magnitude.
+
+        Determines the distance modulus with the object's "cosmo.distmod()"
+        method. By default this is the Planck18 cosmology. This use
+"""
+        (array, n, redshift, maggies, ivar,
+         coeffs) = self._process_inputs(redshift=redshift, maggies=maggies,
+                                        ivar=ivar, coeffs=coeffs)
+
+        dm = self.cosmo.distmod(redshift).to_value(astropy.units.mag)
+        k = self.kcorrect(redshift=redshift, coeffs=coeffs,
+                          band_shift=band_shift)
+        omaggies = self.reconstruct_out(redshift=redshift, coeffs=coeffs,
+                                        band_shift=band_shift)
+        use_maggies = maggies
+        ibad = np.where((use_maggies <= 0.) | (ivar <= 0.))
+        use_maggies[ibad] = omaggies[ibad]
+
+        mags = - 2.5 * np.log10(use_maggies)
+
+        if(array):
+            dm = np.outer(dm, np.ones(len(self.responses), dtype=np.float32))
+
+        absmag = mags - dm - k
+
+        return(absmag)
+
+
+class KcorrectSDSS(Kcorrect):
+    """K-correction object for SDSS data
+
+    Parameters
+    ----------
+
+    templates : list of kcorrect.template.SED
+        templates to use (if None uses v4 default template set)
+
+    responses : list of str
+        names of input responses to base SED on (default to SDSS)
+
+    responses_out : list of str
+        output responses for K-corrections (default to "responses")
+
+    responses_map : list of str
+        input responses to use for K-corrections (default to "responses")
+
+    redshift_range : list of np.float32
+        minimum and maximum redshifts (default [0., 2.])
+
+    nredshift : int or np.int32
+        number of redshifts in interpolation grid (default 4000)
+
+    cosmo : astropy.cosmology.FLRW-like object
+        object with distmod() method (default Planck18)
+
+    Attributes
+    ----------
+
+    Amatrix : scipy.interpolate.interp1d object
+        interpolation function for each template and input response
+
+    AmatrixOut : scipy.interpolate.interp1d object
+        interpolation function for each template and output response
+
+    cosmo : astropy.cosmology.FLRW-like object
+        object with luminosity_distance() method
+
+    imap : ndarray of np.int32
+        for each responses_map element, its corresponding index in responses
+
+    nredshift : int or np.int32
+        number of redshifts in interpolation grid
+
+    redshift_range : list of np.float32
+        minimum and maximum redshifts
+
+    redshifts : ndarray of np.float32
+        redshifts in grid
+
+    responses : list of str
+        [Nin] names of input responses to use
+
+    responses_map : list of str
+        [Nout] input responses to use for K-corrections
+
+    responses_out : list of str
+        [Nout] output responses for K-corrections
+
+    templates : kcorrect.template.Template object
+        templates to use
+
+    Notes
+    -----
+
+    responses defaults to ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']
+
+    This class provides some methods to process SDSS-style magnitudes
+    of various sorts and to convert them to an AB system.
+"""
+    def __init__(self, responses=['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0',
+                                  'sdss_z0'], templates=None,
+                 responses_out=None, responses_map=None,
+                 redshift_range=None, nredshift=None, cosmo=None):
+
+        # Read in templates
+        if(templates is None):
+            filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
+                                    'kcorrect', 'data', 'templates',
+                                    'kcorrect-default-v4.fits')
+            templates = kcorrect.template.Template(filename=filename)
+
+        # Initatialize using Kcorrect initialization
+        super().__init__(responses=responses, templates=templates,
+                         redshift_range=redshift_range,
+                         nredshift=nredshift)
+
+

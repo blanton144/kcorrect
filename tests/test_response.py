@@ -43,11 +43,41 @@ def test_ab_mag_simple():
     wave = np.exp(np.log(3000.) + (np.log(6000.) - np.log(3000.)) *
                   (np.arange(nwave, dtype=np.float32) + 0.5) /
                   np.float32(nwave))
-    flux = 3631e-23 * 2.99792e+10 / wave**2
+    flux = 3631e-23 * 2.99792e+18 / wave**2
     s = kcorrect.template.SED(wave=wave, flux=flux)
 
     maggies = f['sdss_u0'].project(sed=s)
 
     assert np.abs(maggies - 1.) < 1.e-7
+
+    return
+
+
+def test_vega2ab():
+    """Test that Vega-to-AB conversion is about right"""
+    f = kcorrect.response.ResponseDict()
+    f.load_response('sdss_u0')
+    f.load_response('twomass_Ks')
+
+    assert hasattr(f['sdss_u0'], 'vega2ab')
+    assert np.abs(f['sdss_u0'].vega2ab - 0.93196) < 1.e-4
+
+    assert hasattr(f['twomass_Ks'], 'vega2ab')
+    assert np.abs(f['twomass_Ks'].vega2ab - 1.84730) < 1.e-4
+
+    return
+
+
+def test_solar_magnitudes():
+    """Test that solar absolute magnitudes is about right"""
+    f = kcorrect.response.ResponseDict()
+    f.load_response('sdss_u0')
+    f.load_response('twomass_Ks')
+
+    assert hasattr(f['sdss_u0'], 'solar_magnitude')
+    assert np.abs(f['sdss_u0'].solar_magnitude - 6.38696) < 1.e-4
+
+    assert hasattr(f['twomass_Ks'], 'solar_magnitude')
+    assert np.abs(f['twomass_Ks'].solar_magnitude - 5.13359) < 1.e-4
 
     return

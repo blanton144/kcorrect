@@ -20,20 +20,20 @@ class Fitter(object):
     responses : list of str
         names of responses to use
 
-    nredshift : int or np.int32
-        number of redshifts in interpolation grid
+    templates : kcorrect.template.Template object
+        templates to use
 
     redshift_range : list of np.float32
         minimum and maximum redshifts (default [0., 1.])
 
-    templates : list of kcorrect.template.SED
-        templates to use
+    nredshift : int or np.int32
+        number of redshifts in interpolation grid
 
     Attributes
     ----------
 
     Amatrix : scipy.interpolate.interp1d object
-        interpolator to produce A matrix
+        interpolator to produce A matrix (set to None until set_Amatrix called)
 
     responses : list of str
         names of responses to use
@@ -47,15 +47,16 @@ class Fitter(object):
     redshifts : ndarray of np.float32
         redshifts in grid
 
-    templates : list of kcorrect.template.SED
+    templates : kcorrect.template.Template object
         templates to use
 """
     def __init__(self, responses=None, templates=None, redshift_range=[0., 1.],
                  nredshift=2000):
+        self.Amatrix = None
         self.responses = responses
         self.templates = templates
         self.nredshift = nredshift
-        self.redshift_range = redshift_range
+        self.redshift_range = np.float32(redshift_range)
         self.redshifts = (self.redshift_range[0] +
                           (self.redshift_range[1] - self.redshift_range[0]) *
                           np.arange(nredshift, dtype=np.float32) /
@@ -99,7 +100,7 @@ class Fitter(object):
             redshift
 
         maggies : ndarray of np.float32
-            fluxes of each band in maggies
+            fluxes of each band in AB maggies
 
         ivar : ndarray of np.float32
             inverse variance of each band
@@ -124,6 +125,115 @@ class Fitter(object):
 
         return(coeffs)
 
+    def _process_inputs(self, redshift=None, maggies=None, ivar=None, coeffs=None):
+        """Returns whether input should be an array, and casts everything right
+        
+        Parameters
+        ----------
+
+        redshift : a quantity or ndarray
+            input redshift defining whether we have an array or scalar 
+
+        maggies : a quantity or ndarray, or None
+            input AB maggies
+
+        ivar : a quantity or ndarray, or None
+            input ivar
+
+        coeffs : a quantity or ndarray, or None
+            input coeffs
+
+        Returns
+        -------
+
+        array : bool
+            True if it is an array
+
+        n : int
+            number of redshifts (1 if not an array)
+
+        redshift : np.float32 or [n] ndarray thereof
+            redshift to use
+
+        maggies : ndarray of np.float32 or None
+            AB maggies to use
+
+        ivar : ndarray of np.float32 or None
+            ivar to use
+
+        coeffs : ndarray of np.float32 or None
+            coeffs to use
+        
+        Notes
+        -----
+
+        Uses redshift to determine whether we should treat the calculation
+        as an array or scalar. Then checks the appropriate sizes (based 
+        on the number of responses and the number of seds in the object).
+        If maggies, ivar, or coeffs are None, then the corresponding
+        output is None.
+"""
+        if(redshift is None):
+            raise ValueError("redshift must be defined")
+
+        redshift = np.float32(redshift)
+
+        if(len(redshift.shape) == 0):
+            array = False
+            n = 1
+        elif(len(redshift.shape) == 1):
+            array = True
+            n = redshift.size
+        else:
+            raise TypeError("redshift must be 0- or 1-dimensional")
+
+        if(maggies is not None):
+            maggies = np.float32(maggies)
+            if(array):
+                if(len(maggies.shape) != 2):
+                    raise ValueError("maggies must be 2-dimensional if redshift is 1-dimensional")
+                if(maggies.shape[0] != n):
+                    raise ValueError("maggies must have values for each redshift")
+                if(maggies.shape[1] != len(self.responses)):
+                    raise ValueError("maggies must have values for each band")
+            else:
+                if(len(maggies.shape) != 1):
+                    raise ValueError("maggies must be 1-dimensional if redshift is 0-dimensional")
+                if(maggies.shape[0] != len(self.responses)):
+                    raise ValueError("maggies must have values for each band")
+
+        if(ivar is not None):
+            ivar = np.float32(ivar)
+            if(array):
+                if(len(ivar.shape) != 2):
+                    raise ValueError("ivar must be 2-dimensional if redshift is 1-dimensional")
+                if(ivar.shape[0] != n):
+                    raise ValueError("ivar must have values for each redshift")
+                if(ivar.shape[1] != len(self.responses)):
+                    raise ValueError("ivar must have values for each band")
+            else:
+                if(len(ivar.shape) != 1):
+                    raise ValueError("ivar must be 1-dimensional if redshift is 0-dimensional")
+                if(ivar.shape[0] != len(self.responses)):
+                    raise ValueError("ivar must have values for each band")
+
+        if(coeffs is not None):
+            coeffs = np.float32(coeffs)
+            if(array):
+                if(len(coeffs.shape) != 2):
+                    raise ValueError("coeffs must be 2-dimensional if redshift is 1-dimensional")
+                if(coeffs.shape[0] != n):
+                    raise ValueError("ivar must have values for each redshift")
+                if(coeffs.shape[1] != self.templates.nsed):
+                    raise ValueError("ivar must have values for each template")
+            else:
+                if(len(coeffs.shape) != 1):
+                    raise ValueError("coeffs must be 1-dimensional if redshift is 0-dimensional")
+                if(coeffs.shape[0] != self.templates.nsed):
+                    raise ValueError("ivar must have values for each band")
+
+        return(array, n, redshift, maggies, ivar, coeffs)
+
     def fit_coeffs(self, redshift=None, maggies=None, ivar=None):
         """Fit coefficients
 
@@ -134,7 +244,7 @@ class Fitter(object):
             redshift(s)
 
         maggies : ndarray of np.float32
-            fluxes of each band in maggies
+            fluxes of each band in AB maggies
 
         ivar : ndarray of np.float32
             inverse variance of each band
@@ -148,6 +258,8 @@ class Fitter(object):
         Notes
         -----
 
+        maggies are assumed to be Galactic-extinction corrected already.
+
         If redshift is an array, even with just one element, coeffs is
         returned as an [nredshift, ntemplate] array.
 
@@ -157,28 +269,9 @@ class Fitter(object):
             raise TypeError("Must specify redshift to fit coefficients")
 
         # Check a bunch of things about the input arrays
-        try:
-            n = len(redshift)
-            array = True
-        except TypeError:
-            n = 1
-            array = False
-        if(n == 1):
-            nr = maggies.size
-        else:
-            if(len(maggies.shape) != 2):
-                raise IndexError("maggies not 2D")
-            nr = maggies.shape[1]
-            nz = maggies.shape[0]
-            if(nz != n):
-                raise IndexError("maggies and redshift differ in number objects")
-
-        if(nr != len(self.responses)):
-            raise IndexError("Number of maggies differs from number of responses")
-        if(maggies.size != ivar.size):
-            raise IndexError("Number of maggies differs from number of ivar")
-        if(maggies.shape != ivar.shape):
-            raise IndexError("maggies and ivar differ in shape")
+        (array, n, redshift, maggies, ivar,
+         dumdum) = self._process_inputs(redshift=redshift, maggies=maggies,
+                                        ivar=ivar)
 
         # Call single
         if(n == 1):
@@ -223,6 +316,10 @@ class Fitter(object):
 """
         default_zeros = np.zeros(len(self.responses), dtype=np.float32)
 
+        # Check a bunch of things about the input arrays
+        (array, n, redshift, d1, d2,
+         coeffs) = self._process_inputs(redshift=redshift, coeffs=coeffs)
+
         # Consider blueward shift of bandpass due to redshift
         # of observation and due to band_shift
         shift = (1. + redshift) * (1. + band_shift) - 1.
@@ -232,7 +329,12 @@ class Fitter(object):
             A = self.Amatrix(shift)
         except ValueError:
             return(default_zeros)
-        maggies = A.dot(coeffs)
+        
+        if(array):
+            maggies = np.einsum('ijk,ki->ij', A,
+                                coeffs.T.reshape(self.templates.nsed, n))
+        else:
+            maggies = A.dot(coeffs)
 
         # For band_shift !=0, require this normalization given that
         # AB source is not altered.
@@ -241,7 +343,7 @@ class Fitter(object):
         return(maggies)
 
     def reconstruct(self, redshift=None, coeffs=None, band_shift=0.):
-        """Reconstruct maggies associated with coefficients
+        """Reconstruct AB maggies associated with coefficients
 
         Parameters
         ----------
@@ -259,7 +361,7 @@ class Fitter(object):
         -------
 
         maggies : ndarray of np.float32
-            maggies in each band
+            AB maggies in each band
 """
         return(self._reconstruct(Amatrix=self.Amatrix, redshift=redshift,
                                  coeffs=coeffs, band_shift=band_shift))

@@ -23,8 +23,8 @@ def test_kcorrect_fit_coeffs():
     assert np.all(coeffs >= 0.)
 
     redshift = np.array([0.2532])
-    maggies = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
-    ivar = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+    maggies = np.array([[1., 1., 1., 1., 1., 1.]], dtype=np.float32)
+    ivar = np.array([[1., 1., 1., 1., 1., 1.]], dtype=np.float32)
 
     coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
     assert coeffs.size == kc.templates.nsed
@@ -66,8 +66,100 @@ def test_kcorrect():
 
     k = kc.kcorrect(redshift=redshift, coeffs=coeffs)
 
-    print(coeffs)
-    print(k)
     assert k.size == maggies.size
+
+    redshift = np.array([0.1, 0.2532], dtype=np.float32)
+    maggies = np.ones((2, len(responses)), dtype=np.float32)
+    ivar = np.ones((2, len(responses)), dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    k = kc.kcorrect(redshift=redshift, coeffs=coeffs)
+
+    assert k.size == maggies.size
+    assert k.shape[0] == maggies.shape[0]
+    assert k.shape[1] == len(responses)
+
+    return
+
+
+def test_derived():
+    """Test derived quantity calculation (doesn't test quantitatively"""
+
+    responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
+                 'wise_w1']
+
+    kc = kcorrect.kcorrect.Kcorrect(responses=responses,
+                                    redshift_range=[0., 0.3],
+                                    nredshift=100)
+
+    redshift = 0.2532
+    maggies = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+    ivar = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    d = kc.derived(redshift=redshift, coeffs=coeffs)
+
+    assert len(list(d.keys())) == 6
+    for cd in d:
+        if(cd == 'mtol'):
+            assert d[cd].size == len(maggies)
+        else:
+            assert d[cd].size == 1
+
+    redshift = np.array([0.1, 0.2532], dtype=np.float32)
+    maggies = np.ones((2, len(responses)), dtype=np.float32)
+    ivar = np.ones((2, len(responses)), dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    d = kc.derived(redshift=redshift, coeffs=coeffs)
+
+    assert len(list(d.keys())) == 6
+    for cd in d:
+        if(cd == 'mtol'):
+            assert d[cd].size == maggies.size
+            assert d[cd].shape == maggies.shape
+        else:
+            assert d[cd].size == redshift.size
+            assert d[cd].shape == redshift.shape
+
+    return
+
+
+def test_absmag():
+    """Test absolute magnitude quantity calculation (doesn't test quantitatively"""
+
+    responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
+                 'wise_w1']
+
+    kc = kcorrect.kcorrect.Kcorrect(responses=responses,
+                                    redshift_range=[0., 0.3],
+                                    nredshift=100)
+
+    redshift = 0.2532
+    maggies = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+    ivar = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    absmag = kc.absmag(redshift=redshift, maggies=maggies,
+                       ivar=ivar, coeffs=coeffs)
+
+    assert absmag.size == maggies.size
+    assert absmag.shape == maggies.shape
+
+    redshift = np.array([0.2532, 0.11], dtype=np.float32)
+    maggies = np.ones((2, len(responses)), dtype=np.float32)
+    ivar = np.ones((2, len(responses)), dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    absmag = kc.absmag(redshift=redshift, maggies=maggies,
+                       ivar=ivar, coeffs=coeffs)
+
+    assert absmag.size == maggies.size
+    assert absmag.shape == maggies.shape
 
     return

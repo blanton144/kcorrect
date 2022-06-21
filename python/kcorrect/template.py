@@ -34,6 +34,9 @@ class SED(object):
     flux : ndarray of np.float32
         [nsed, nwave] flux grid in erg/cm^2/s/A
 
+    info : dict
+        dictionary for storing assorted metadata associated with spectra
+
     nsed : np.float32
         number of SEDs
 
@@ -61,6 +64,7 @@ class SED(object):
         self.restframe_wave = wave
         self.restframe_flux = flux
         self.filename = filename
+        self.info = dict()
         if(self.filename is not None):
             self.fromfits(filename, ext=ext)
             return
@@ -211,6 +215,9 @@ class Template(SED):
     flux : ndarray of np.float32
         [nsed, nwave] flux grid in erg/cm^2/s/A
 
+    info : dict
+        dictionary for storing assorted metadata associated with spectra
+
     intsfh : ndarray of np.float32
         [nsed] integrated star formation history in solar masses
 
@@ -253,10 +260,11 @@ class Template(SED):
         super().__init__(filename=filename)
 
         hdul = fits.open(filename)
-        self.intsfh = hdul['INTSFH']
-        self.mremain = hdul['MREMAIN']
-        self.mets = hdul['METS']
-        self.m300 = hdul['M300']
-        self.m1000 = hdul['M1000']
+        self.info['filename'] = filename
+        self.intsfh = hdul['INTSFH'].data
+        self.mremain = hdul['MREMAIN'].data
+        self.mets = hdul['METS'].data
+        self.m300 = hdul['M300'].data
+        self.m1000 = hdul['M1000'].data
 
         return

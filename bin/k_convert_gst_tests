@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+# Converts old tests to smaller file
+
+import os
+import numpy as np
+import fitsio
+import kcorrect.template
+
+test_dtype = np.dtype([('RA', np.float64),
+                       ('DEC', np.float64),
+                       ('MODELFLUX', np.float32, 5),
+                       ('MODELFLUX_IVAR', np.float32, 5),
+                       ('PETROFLUX', np.float32, 5),
+                       ('PETROFLUX_IVAR', np.float32, 5),
+                       ('EXTINCTION', np.float32, 5),
+                       ('Z', np.float32),
+                       ('J_M_EXT', np.float32),
+                       ('J_MSIG_EXT', np.float32),
+                       ('H_M_EXT', np.float32),
+                       ('H_MSIG_EXT', np.float32),
+                       ('K_M_EXT', np.float32),
+                       ('K_MSIG_EXT', np.float32),
+                       ('NUV_FLUX_AUTO', np.float32),
+                       ('NUV_FLUXERR_AUTO', np.float32),
+                       ('FUV_FLUX_AUTO', np.float32),
+                       ('FUV_FLUXERR_AUTO', np.float32)])
+
+origfile = os.path.join(os.getenv('KCORRECT_DIR'),
+                        'python', 'kcorrect', 'data', 'tests',
+                        'gst_tests.fits')
+
+origcat = fitsio.read(origfile)
+
+testcat = np.zeros(len(origcat), dtype=test_dtype)
+
+for n in testcat.dtype.names:
+    testcat[n] = origcat[n]
+
+testfile = os.path.join(os.getenv('KCORRECT_DIR'),
+                        'python', 'kcorrect', 'data', 'tests',
+                        'gst_tests_small.fits')
+
+fitsio.write(testfile, testcat, extname='GSTTEST', clobber=True)

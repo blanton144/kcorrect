@@ -83,6 +83,18 @@ class Response(object):
     response : ndarray of np.float32
         response function
 
+    solar_magnitude : np.float32
+        absolute magnitude of Sun through filter
+
+    solar_sed : kcorrect.template.SED object
+        SED associated with Sun for solar_magnitude
+
+    vega2ab : np.float32
+        magnitude offset from Vega to AB (m_AB - m_Vega)
+
+    vega_sed : kcorrect.template.SED object
+        SED associated with Vega for vega_magnitude
+
     wave : ndarray of np.float32
         wavelength grid in Angstroms
 
@@ -108,6 +120,12 @@ class Response(object):
         self.wave = wave
         self.response = response
         self.filename = filename
+        self.solar_sed = None
+        self.solar_magnitude = None
+        self.vega_sed = None
+        self.vega_magnitude = None
+        self.lambda_eff = None
+        self.interp = None
         if(self.filename is not None):
             self.frompar(filename)
         else:
@@ -120,6 +138,8 @@ class Response(object):
         """Some initial setup after an input"""
         self.set_interp()
         self.set_lambda_eff()
+        self.set_solar_magnitude()
+        self.set_vega2ab()
         return
 
     def response_dtype(self):
@@ -306,4 +326,65 @@ class Response(object):
         # Set effective wavelength
         self.lambda_eff = np.exp(numer / denom)
 
+        return
+
+    def set_solar_magnitude(self):
+        """Set absolute magnitude of Sun through filter
+
+        Notes
+        -----
+
+        Uses lcbsun.ori model from Lejeune et al (1997)
+"""
+        if(self.solar_sed is None):
+            sunfile = os.path.join(os.getenv('KCORRECT_DIR'),
+                                   'python', 'kcorrect', 'data', 'basel',
+                                   'lcbsun.ori')
+            info, wave, flux = kcorrect.utils.read_basel(filename=sunfile)
+
+            # Now convert to Angstroms and erg/cm^2/s/Ang at 10 pc
+            radius = 6.960e+10
+            wave = wave * 10.  # nm to Angstrom
+            pctocm = 3.086e+18
+            cspeed = 2.99792e+18   # Ang/s
+            for unit in range(flux.shape[0]):
+                flux[unit, :] = np.pi * 4. * flux * cspeed / wave**2
+                flux = flux * (radius / (10. * pctocm))**2
+            self.solar_sed = kcorrect.template.SED(wave=wave, flux=flux)
+            self.solar_sed.info = info
+
+        solar_maggies = self.project(sed=self.solar_sed)
+
+        self.solar_magnitude = - 2.5 * np.log10(solar_maggies)
+
+        return
+
+    def set_vega2ab(self):
+        """Set Vega to AB magnitude conversion
+
+        Notes
+        -----
+
+        Uses lcbvega.ori model from Lejeune et al (1997)
+"""
+        if(self.vega_sed is None):
+            vegafile = os.path.join(os.getenv('KCORRECT_DIR'),
+                                    'python', 'kcorrect', 'data', 'basel',
+                                    'lcbvega.ori')
+            info, wave, flux = kcorrect.utils.read_basel(filename=vegafile)
+
+            # Conversion to match Hayes et al. 1985
+            radius = 1.91144e+11  # Backed out to get normalization right
+            dvega = 7.68  # Vega is 7.68 pc
+            wave = wave * 10.  # nm to Angstrom
+            pctocm = 3.086e+18
+            cspeed = 2.99792e+18   # Ang/s
+            for unit in range(flux.shape[0]):
+                flux[unit, :] = np.pi * 4. * flux * cspeed / wave**2
+                flux = flux * (radius / (dvega * pctocm))**2
+            self.vega_sed = kcorrect.template.SED(wave=wave, flux=flux)
+            self.vega_sed.info = info
+
+        vega_maggies = self.project(sed=self.vega_sed)
+        self.vega2ab = - 2.5 * np.log10(vega_maggies)
         return
