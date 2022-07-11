@@ -109,3 +109,113 @@ def read_basel(filename=None):
     info['xh'] = xh
 
     return(info, wave, flux)
+
+
+def sdss_ab_correct(maggies=None, ivar=None,
+                    abfix=[-0.036, 0.012, 0.010, 0.028, 0.040]):
+    """Return AB maggies based on SDSS standard maggies
+
+    Parameters
+    ----------
+
+    maggies : ndarray of np.float32
+        array of fluxes in standard SDSS system
+
+    ivar : ndarray of np.float32
+        inverse variances in standard SDSS system (optional)
+
+    abfix : ndarray or list of np.float32
+        [5]-array of magnitude offset to apply to standard values
+
+    Returns
+    -------
+
+    ab_maggies : ndarray of np.float32
+        array of fluxes converted to AB
+
+    ab_ivar : ndarray of np.float32
+        inverse variances converted to AB (if ivar input)
+
+    Notes
+    -----
+
+    Uses the AB conversions produced by D. Eisenstein, in his
+    message sdss-calib/1152
+
+      u(AB,2.5m) = u(database, 2.5m) - 0.036
+      g(AB,2.5m) = g(database, 2.5m) + 0.012
+      r(AB,2.5m) = r(database, 2.5m) + 0.010
+      i(AB,2.5m) = i(database, 2.5m) + 0.028
+      z(AB,2.5m) = z(database, 2.5m) + 0.040
+
+    Unless an alternative is specified with the abfix parameter.
+"""
+    maggies = np.float32(maggies)
+    if(ivar is not None):
+        ivar = np.float32(ivar)
+
+        if(maggies.shape != ivar.shape):
+            raise("maggies and ivar must be the same shape")
+
+    abfix = np.array(abfix, dtype=np.float32)
+    if(abfix.shape != (5,)):
+        raise("abfix must have 5 values")
+    abfac = 10.**(- 0.4 * abfix)
+
+    if(maggies.ndim == 1):
+        if(maggies.size != 5):
+            raise("sdss_ab_correct expects 5 SDSS maggies values (ugriz)")
+        ab_maggies = maggies * abfac
+        if(ivar is not None):
+            ab_ivar = ivar / abfac**2
+    else:
+        ab_maggies = np.zeros(maggies.shape, dtype=np.float32)
+        for i, cabfac in enumerate(abfac):
+            ab_maggies[..., i] = maggies[..., i] * cabfac
+        if(ivar is not None):
+            ab_ivar = np.zeros(maggies.shape, dtype=np.float32)
+            for i, cabfac in enumerate(abfac):
+                ab_ivar[..., i] = ivar[..., i] / cabfac**2
+
+    if(ivar is not None):
+        return(ab_maggies, ab_ivar)
+    else:
+        return(ab_maggies)
+
+
+def sdss_asinh_to_maggies(mag=None, mag_err=None, extinction=None):
+    """Calculate maggies and ivar based on catalog parameters
+
+    Parameters
+    ----------
+
+    mag : ndarray of np.float32
+        [N, 5] or [5] array of asinh magnitudes from SDSS
+
+    mag_err : ndarray of np.float32
+        [N, 5] or [5] array of asinh magnitude errors from SDSS
+
+    extinction : ndarray or list of np.float32
+        [N, 5] or [5] array of Galactic extinctions from SDSS
+
+    Returns
+    -------
+
+    maggies : ndarray of np.float32
+        [N, 5] or [5] array of maggies
+
+    ivar : ndarray of np.float32
+        [N, 5] or [5] array of inverse variances
+"""
+    mag = np.float32(mag)
+    mag_err = np.float32(mag_err)
+    extinction = np.float32(extinction)
+
+    if(mag.shape != mag_err.shape):
+        raise("mag and mag_err must be the same shape")
+
+    if(mag.shape != extinction.shape):
+        raise("mag and extinction must be the same shape")
+
+    if(mag.shape[-1] != 5):
+        raise("mag must have 5 values per object")
