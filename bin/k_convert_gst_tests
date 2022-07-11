@@ -27,7 +27,7 @@ test_dtype = np.dtype([('RA', np.float64),
                        ('FUV_FLUXERR_AUTO', np.float32)])
 
 origfile = os.path.join(os.getenv('KCORRECT_DIR'),
-                        'python', 'kcorrect', 'data', 'tests',
+                        'python', 'kcorrect', 'data', 'test',
                         'gst_tests.fits')
 
 origcat = fitsio.read(origfile)
@@ -37,8 +37,12 @@ testcat = np.zeros(len(origcat), dtype=test_dtype)
 for n in testcat.dtype.names:
     testcat[n] = origcat[n]
 
+ikeep = np.arange(len(testcat), dtype=int)
+np.random.shuffle(ikeep)
+testcat = testcat[ikeep[0:10000]]
+
 testfile = os.path.join(os.getenv('KCORRECT_DIR'),
-                        'python', 'kcorrect', 'data', 'tests',
+                        'python', 'kcorrect', 'data', 'test',
                         'gst_tests_small.fits')
 
 fitsio.write(testfile, testcat, extname='GSTTEST', clobber=True)
