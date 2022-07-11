@@ -19,6 +19,9 @@ class Kcorrect(kcorrect.fitter.Fitter):
     Parameters
     ----------
 
+    abcorrect : bool
+        correct maggies to AB (default False)
+
     responses : list of str
         names of input responses to base SED on
 
@@ -42,6 +45,9 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
     Attributes
     ----------
+
+    abcorrect : bool
+        correct maggies to AB
 
     Amatrix : scipy.interpolate.interp1d object
         interpolation function for each template and input response
@@ -108,7 +114,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
 """
     def __init__(self, responses=None, templates=None, responses_out=None,
                  responses_map=None, redshift_range=[0., 2.], nredshift=4000,
-                 cosmo=None):
+                 abcorrect=False, cosmo=None):
 
         # Read in templates
         if(templates is None):
@@ -120,7 +126,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
         # Initatialize using Fitter initialization
         super().__init__(responses=responses, templates=templates,
                          redshift_range=redshift_range,
-                         nredshift=nredshift)
+                         nredshift=nredshift, abcorrect=abcorrect)
 
         # Set up the Amatrix for the input responses
         self.set_Amatrix()
@@ -313,7 +319,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
             redshift(s) for K-correction
 
         maggies : ndarray of np.float32
-            fluxes of each band in AB maggies
+            fluxes of each band in maggies
 
         ivar : ndarray of np.float32
             inverse variance of each band
@@ -328,7 +334,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
         -------
 
         absmag : ndarray of np.float32
-            absolute magnitude in each band for each object
+            AB absolute magnitude in each band for each object
 
         Notes
         -----
@@ -341,6 +347,8 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
         Determines the distance modulus with the object's "cosmo.distmod()"
         method. By default this is the Planck18 cosmology. This use
+        
+        Calls to_ab() method on input maggies to convert to AB.
 """
         (array, n, redshift, maggies, ivar,
          coeffs) = self._process_inputs(redshift=redshift, maggies=maggies,
@@ -371,6 +379,9 @@ class KcorrectSDSS(Kcorrect):
     Parameters
     ----------
 
+    abcorrect : bool
+        correct maggies to AB (default True)
+
     templates : list of kcorrect.template.SED
         templates to use (if None uses v4 default template set)
 
@@ -394,6 +405,9 @@ class KcorrectSDSS(Kcorrect):
 
     Attributes
     ----------
+
+    abcorrect : bool
+        correct maggies to AB
 
     Amatrix : scipy.interpolate.interp1d object
         interpolation function for each template and input response
@@ -433,13 +447,19 @@ class KcorrectSDSS(Kcorrect):
 
     responses defaults to ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']
 
-    This class provides some methods to process SDSS-style magnitudes
-    of various sorts and to convert them to an AB system.
+    This class provides the method fit_coeffs_asinh() to use SDSS-style
+    asinh magnitudes (these are the magnitudes that the SDSS imaging
+    reports).
+
+    The to_ab() method is applied to the maggies input for absmag() and
+    fit_coeffs() and fit_coeffs_asinh(), which adjusts from the SDSS system
+    to the AB system.
 """
     def __init__(self, responses=['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0',
                                   'sdss_z0'], templates=None,
                  responses_out=None, responses_map=None,
-                 redshift_range=None, nredshift=None, cosmo=None):
+                 redshift_range=None, nredshift=None, cosmo=None,
+                 abcorrect=True):
 
         # Read in templates
         if(templates is None):
@@ -451,6 +471,98 @@ class KcorrectSDSS(Kcorrect):
         # Initatialize using Kcorrect initialization
         super().__init__(responses=responses, templates=templates,
                          redshift_range=redshift_range,
-                         nredshift=nredshift)
+                         nredshift=nredshift, abcorrect=abcorrect)
+        return
 
+    def to_ab(self, maggies=None, ivar=None):
+        """Convert input maggies to AB
 
+        Parameters
+        ----------
+
+        maggies : ndarray of np.float32
+            array of fluxes in standard SDSS system
+        
+        ivar : ndarray of np.float32
+            inverse variances in standard SDSS system (optional)
+
+        Returns
+        -------
+
+        ab_maggies : ndarray of np.float32
+            array of fluxes converted to AB
+
+        ab_ivar : ndarray of np.float32
+            inverse variances converted to AB (if ivar input)
+
+        Notes
+        -----
+
+        Calls kcorrect.utils.sdss_ab_correct(), which does the following:
+
+        Uses the AB conversions produced by D. Eisenstein, in his
+        message sdss-calib/1152
+
+            u(AB,2.5m) = u(database, 2.5m) - 0.036
+            g(AB,2.5m) = g(database, 2.5m) + 0.012
+            r(AB,2.5m) = r(database, 2.5m) + 0.010
+            i(AB,2.5m) = i(database, 2.5m) + 0.028
+            z(AB,2.5m) = z(database, 2.5m) + 0.040
+
+        fit_coeffs() and absmag() call this on their inputs.
+"""
+        if(ivar is not None):
+            maggies = kcorrect.utils.sdss_ab_correct(maggies=maggies,
+                                                     ivar=ivar)
+            return(maggies, ivar)
+        else:
+            maggies, ivar = kcorrect.utils.sdss_ab_correct(maggies=maggies,
+                                                           ivar=ivar)
+            return(maggies)
+
+    def fit_coeffs_asinh(self, redshift=None, mag=None, mag_err=None,
+                         ext=None):
+        """Fit coefficients to asinh mags
+
+        Parameters
+        ----------
+
+        redshift : np.float32 or ndarray of np.float32
+            [N] or scalar redshift(s)
+
+        mag : ndarray of np.float32
+            [N, 5] or [5] asinh magnitudes of each SDSS band
+
+        mag_err : ndarray of np.float32
+            [N, 5] or [5] inverse variance of each band
+
+        extinction : ndarray of np.float32
+            [N, 5] or [5] Galactic extinction in each band
+
+        Returns
+        -------
+
+        coeffs : ndarray of np.float32
+            coefficients for each template
+
+        Notes
+        -----
+
+        Converts mag, mag_err, and extinction to extinction-corrected
+        maggies and ivar, and then calls to_ab() method to create
+        AB maggies and ivar.
+
+        If redshift is an array, even with just one element, coeffs is
+        returned as an [nredshift, ntemplate] array.
+
+        Otherwise coeffs is returned as an [ntemplate] array.
+"""
+        if(redshift is None):
+            raise TypeError("Must specify redshift to fit coefficients")
+
+        maggies, ivar = kcorrect.utils.sdss_asinh_to_maggies(maggies=mag,
+                                                             ivar=mag_err,
+                                                             extinction=extinction)
+
+        coeffs = self.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+        return(coeffs)
