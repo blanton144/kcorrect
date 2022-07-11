@@ -17,6 +17,9 @@ class Fitter(object):
     Parameters
     ----------
 
+    abcorrect : bool
+        correct maggies to AB (default False)
+
     responses : list of str
         names of responses to use
 
@@ -31,6 +34,9 @@ class Fitter(object):
 
     Attributes
     ----------
+
+    abcorrect : bool
+        correct maggies to AB
 
     Amatrix : scipy.interpolate.interp1d object
         interpolator to produce A matrix (set to None until set_Amatrix called)
@@ -51,7 +57,8 @@ class Fitter(object):
         templates to use
 """
     def __init__(self, responses=None, templates=None, redshift_range=[0., 1.],
-                 nredshift=2000):
+                 nredshift=2000, abcorrect=False):
+        self.abcorrect = abcorrect
         self.Amatrix = None
         self.responses = responses
         self.templates = templates
@@ -83,6 +90,49 @@ class Fitter(object):
         Amatrix = interpolate.interp1d(self.redshifts, rmatrix, axis=0)
 
         return(Amatrix)
+
+    def to_ab(self, maggies=None, ivar=None):
+        """Convert input maggies to AB
+
+        Parameters
+        ----------
+
+        maggies : ndarray of np.float32
+            array of fluxes in standard SDSS system
+        
+        ivar : ndarray of np.float32
+            inverse variances in standard SDSS system (optional)
+
+        Returns
+        -------
+
+        ab_maggies : ndarray of np.float32
+            array of fluxes converted to AB
+
+        ab_ivar : ndarray of np.float32
+            inverse variances converted to AB (if ivar input)
+
+        Notes
+        -----
+
+        This method just returns maggies and/or ivar unchanged,
+        as for this object we expect AB maggies on input.
+
+        Uses the AB conversions produced by D. Eisenstein, in his
+        message sdss-calib/1152
+
+            u(AB,2.5m) = u(database, 2.5m) - 0.036
+            g(AB,2.5m) = g(database, 2.5m) + 0.012
+            r(AB,2.5m) = r(database, 2.5m) + 0.010
+            i(AB,2.5m) = i(database, 2.5m) + 0.028
+            z(AB,2.5m) = z(database, 2.5m) + 0.040
+
+        fit_coeffs() calls this on its inputs.
+"""
+        if(ivar is not None):
+            return(maggies, ivar)
+        else:
+            return(maggies)
 
     def set_Amatrix(self):
         """Set Amatrix, interpolator for the design matrix"""
@@ -125,17 +175,18 @@ class Fitter(object):
 
         return(coeffs)
 
-    def _process_inputs(self, redshift=None, maggies=None, ivar=None, coeffs=None):
+    def _process_inputs(self, redshift=None, maggies=None, ivar=None,
+                        coeffs=None):
         """Returns whether input should be an array, and casts everything right
-        
+
         Parameters
         ----------
 
         redshift : a quantity or ndarray
-            input redshift defining whether we have an array or scalar 
+            input redshift defining whether we have an array or scalar
 
         maggies : a quantity or ndarray, or None
-            input AB maggies
+            input maggies
 
         ivar : a quantity or ndarray, or None
             input ivar
@@ -172,6 +223,9 @@ class Fitter(object):
         on the number of responses and the number of seds in the object).
         If maggies, ivar, or coeffs are None, then the corresponding
         output is None.
+
+        Applies this class's to_ab() function on maggies and ivar to
+        convert to return AB maggies.
 """
         if(redshift is None):
             raise ValueError("redshift must be defined")
@@ -232,6 +286,13 @@ class Fitter(object):
                 if(coeffs.shape[0] != self.templates.nsed):
                     raise ValueError("ivar must have values for each band")
 
+        if(self.abcorrect):
+            if(maggies is not None):
+                if(ivar is not None):
+                    maggies, ivar = self.to_ab(maggies=maggies, ivar=ivar)
+                else:
+                    maggies = self.to_ab(maggies=maggies)
+
         return(array, n, redshift, maggies, ivar, coeffs)
 
     def fit_coeffs(self, redshift=None, maggies=None, ivar=None):
@@ -259,6 +320,8 @@ class Fitter(object):
         -----
 
         maggies are assumed to be Galactic-extinction corrected already.
+
+        Calls this class's to_ab() method on input maggies.
 
         If redshift is an array, even with just one element, coeffs is
         returned as an [nredshift, ntemplate] array.
@@ -290,7 +353,8 @@ class Fitter(object):
 
         return(coeffs)
 
-    def _reconstruct(self, Amatrix=None, redshift=None, coeffs=None, band_shift=0.):
+    def _reconstruct(self, Amatrix=None, redshift=None, coeffs=None,
+                     band_shift=0.):
         """Reconstruct maggies associated with coefficients
 
         Parameters
@@ -329,7 +393,7 @@ class Fitter(object):
             A = self.Amatrix(shift)
         except ValueError:
             return(default_zeros)
-        
+
         if(array):
             maggies = np.einsum('ijk,ki->ij', A,
                                 coeffs.T.reshape(self.templates.nsed, n))
@@ -362,6 +426,12 @@ class Fitter(object):
 
         maggies : ndarray of np.float32
             AB maggies in each band
+
+        Notes
+        -----
+
+        Returns AB maggies, but note that if to_ab() is non-trivial,
+        these may not be directly comparable to the input maggies.
 """
         return(self._reconstruct(Amatrix=self.Amatrix, redshift=redshift,
                                  coeffs=coeffs, band_shift=band_shift))
