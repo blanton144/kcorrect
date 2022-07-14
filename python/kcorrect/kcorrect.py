@@ -660,13 +660,12 @@ class KcorrectGST(Kcorrect):
                            'sdss_r0', 'sdss_i0', 'sdss_z0', 'twomass_J',
                            'twomass_H', 'twomass_Ks']
 
-    This class provides the method fit_coeffs_asinh() to use SDSS-style
-    asinh magnitudes (these are the magnitudes that the SDSS imaging
-    reports).
-
-    If abcorrect is True, the to_ab() method is applied to the maggies
-    input for absmag() and fit_coeffs() and fit_coeffs_asinh(), which
-    adjusts from the SDSS system to the AB system.
+    abcorrect is by default False and the input maggies are assumed to
+    be AB.  If abcorrect is set to True, the to_ab() method is applied
+    to the maggies input for absmag() and fit_coeffs() and
+    fit_coeffs_asinh(), which adjusts from the SDSS system to the AB
+    system. However, there is no change applied to the 2MASS or
+    or GALEX inputs.
 """
     def __init__(self, responses=['galex_FUV', 'galex_NUV', 'sdss_u0', 'sdss_g0',
                                   'sdss_r0', 'sdss_i0', 'sdss_z0', 'twomass_J',

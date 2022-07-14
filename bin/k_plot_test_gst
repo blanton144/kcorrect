@@ -56,11 +56,9 @@ ivar = np.zeros((len(gst), 10), dtype=np.float32)
 # maggies finite.
 
 fuv_zp = 18.82
-fuv_norm = 1.40e-15
-fuv_scale = 10.**(0.4 * fuv_zp) * fuv_norm
+fuv_scale = 10.**(- 0.4 * fuv_zp)
 nuv_zp = 20.08
-nuv_norm = 2.06e-16
-nuv_scale = 10.**(0.4 * nuv_zp) * nuv_norm
+nuv_scale = 10.**(- 0.4 * nuv_zp)
 
 ok_fuv = ((gst['FUV_FLUX_AUTO'] != -99.) & (gst['FUV_FLUX_AUTO'] != 0.)
           & (gst['FUV_FLUXERR_AUTO'] != -99.) & (gst['FUV_FLUXERR_AUTO'] != 0.))
@@ -145,29 +143,34 @@ pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
 matplotlib.rcParams['figure.figsize'] = [5., 7.]
 
 fig, ax = plt.subplots(5, 2, sharex=True,
-                       gridspec_kw={'hspace': 0})
+                       gridspec_kw={'hspace': 0,
+                                    'wspace': 0})
 
-bandranges = {'F': [-0.5, 1.01],
-              'N': [-0.5, 1.01],
-              'u': [-0.2, 1.01],
-              'g': [-0.1, 0.85],
-              'r': [-0.12, 0.36],
-              'i': [-0.29, 0.29],
+bandranges = {'F': [-0.5, 1.31],
+              'N': [-0.5, 1.31],
+              'u': [-0.2, 1.51],
+              'g': [-0.1, 1.05],
+              'r': [-0.12, 0.46],
+              'i': [-0.29, 0.32],
               'z': [-0.18, 0.29],
-              'J': [-0.18, 0.29],
-              'H': [-0.18, 0.29],
-              'K': [-0.18, 0.29]}
+              'J': [-0.18, 0.19],
+              'H': [-0.18, 0.19],
+              'K': [-0.58, 0.09]}
 
 for i, band in enumerate(bandranges):
     row = i // 2
     col = i % 2
-    ax[row, col].scatter(gst['Z'], kc[:, i], s=1, alpha=0.5)
+    ax[row, col].scatter(gst['Z'], kc[:, i], s=1, alpha=0.1)
     ax[row, col].set_ylabel('$K_{' + band + '}$')
     ax[row, col].set_ylim(bandranges[band])
-    ax[row, col].set_xlim([- 0.01, 0.21])
+    ax[row, col].set_xlim([- 0.01, 0.26])
+    if(col == 1):
+        ax[row, col].yaxis.set_label_position('right')
+        ax[row, col].yaxis.tick_right()
 ax[4, 0].set_xlabel('redshift')
 ax[4, 1].set_xlabel('redshift')
 
+plt.tight_layout()
 plt.savefig(pngfile, dpi=150)
 
 print("Reconstruct maggies", flush=True)
@@ -178,30 +181,36 @@ pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
                        'figures', 'kcorrect-default-v4.gst.deltam.png')
 
 fig, ax = plt.subplots(5, 2, sharex=True,
-                       gridspec_kw={'hspace': 0})
+                       gridspec_kw={'hspace': 0,
+                                    'wspace': 0})
 
 bandranges = {'F': [-1.3, 1.3],
-              'N': [-1.3, 1.3],
-              'u': [-0.1, 0.1],
-              'g': [-0.1, 0.1],
-              'r': [-0.1, 0.1],
-              'i': [-0.1, 0.1],
-              'z': [-0.1, 0.1],
+              'N': [-1.1, 1.1],
+              'u': [-0.4, 0.4],
+              'g': [-0.2, 0.2],
+              'r': [-0.15, 0.15],
+              'i': [-0.15, 0.15],
+              'z': [-0.15, 0.15],
               'J': [-0.5, 0.5],
               'H': [-0.5, 0.5],
               'K': [-0.5, 0.5]}
 
 for i, band in enumerate(bandranges):
-    diff = - 2.5 * np.log10(maggies[:, i] / rm[:, i])
+    ok = (maggies[:, i] > 0.) & (rm[:, i] > 0.)
+    diff = - 2.5 * np.log10(maggies[ok, i] / rm[ok, i])
     row = i // 2
     col = i % 2
-    ax[row, col].scatter(gst['Z'], diff, s=1, alpha=0.5)
+    ax[row, col].scatter(gst['Z'][ok], diff, s=1, alpha=0.1)
     ax[row, col].set_ylabel('$\\Delta m_{' + band + '}$')
     ax[row, col].set_ylim(bandranges[band])
-    ax[row, col].set_xlim([- 0.01, 0.21])
+    ax[row, col].set_xlim([- 0.01, 0.26])
+    if(col == 1):
+        ax[row, col].yaxis.set_label_position('right')
+        ax[row, col].yaxis.tick_right()
 ax[4, 0].set_xlabel('redshift')
-ax[3, 1].set_xlabel('redshift')
+ax[4, 1].set_xlabel('redshift')
 
+plt.tight_layout()
 plt.savefig(pngfile, dpi=150)
 
 print("Make color residual plot", flush=True)
@@ -209,29 +218,38 @@ pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
                        'figures', 'kcorrect-default-v4.gst.deltac.png')
 
 fig, ax = plt.subplots(5, 2, sharex=True,
-                       gridspec_kw={'hspace': 0})
+                       gridspec_kw={'hspace': 0,
+                                    'wspace': 0.})
 
-bandranges = {'F-N': [-1.1, 1.1],
+bandranges = {'F-N': [-1.3, 1.3],
               'N-u': [-1.1, 1.1],
-              'u-g': [-0.4, 0.4],
-              'g-r': [-0.4, 0.4],
-              'r-i': [-0.1, 0.1],
-              'i-z': [-0.1, 0.1],
-              'z-J': [-0.3, 0.3],
-              'J-H': [-0.3, 0.3],
-              'H-K': [-0.3, 0.3]}
+              'u-g': [-0.7, 0.7],
+              'g-r': [-0.16, 0.16],
+              'r-i': [-0.15, 0.15],
+              'i-z': [-0.22, 0.22],
+              'z-J': [-0.65, 0.65],
+              'J-H': [-0.9, 0.9],
+              'H-K': [-1.1, 1.1]}
 
 for i, band in enumerate(bandranges):
-    row = i // 2
-    col = i % 2
-    oc = - 2.5 * np.log10(maggies[:, i] / maggies[:, i + 1])
-    rc = - 2.5 * np.log10(rm[:, i] / rm[:, i + 1])
+    ip = i + 1
+    row = ip // 2
+    col = ip % 2
+    ok = ((maggies[:, i] > 0.) & (maggies[:, i + 1] > 0.) &
+          (rm[:, i] > 0.) & (rm[:, i + 1] > 0.))
+    oc = - 2.5 * np.log10(maggies[ok, i] / maggies[ok, i + 1])
+    rc = - 2.5 * np.log10(rm[ok, i] / rm[ok, i + 1])
     diff = oc - rc
-    ax[row, col].scatter(gst['Z'], diff, s=1, alpha=0.5)
+    ax[row, col].scatter(gst['Z'][ok], diff, s=1, alpha=0.1)
     ax[row, col].set_ylabel('$\\Delta (' + band + ')$')
     ax[row, col].set_ylim(bandranges[band])
-    ax[row, col].set_xlim([- 0.01, 0.21])
+    ax[row, col].set_xlim([- 0.01, 0.26])
+    if(col == 1):
+        ax[row, col].yaxis.set_label_position('right')
+        ax[row, col].yaxis.tick_right()
 ax[4, 0].set_xlabel('redshift')
-ax[3, 1].set_xlabel('redshift')
+ax[4, 1].set_xlabel('redshift')
+fig.delaxes(ax[0, 0])
 
+plt.tight_layout()
 plt.savefig(pngfile, dpi=150)
