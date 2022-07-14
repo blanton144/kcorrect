@@ -109,11 +109,12 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 
 # Intersphinx mappings
-intersphinx_mapping = {'python': ('https://docs.python.org/3.6', None),
+intersphinx_mapping = {'python': ('https://docs.python.org/3.9', None),
                        'astropy': ('http://docs.astropy.org/en/latest', None),
                        'numpy': ('http://docs.scipy.org/doc/numpy/', None)}
 
-autodoc_mock_imports = ['_tkinter', 'pydl', 'fitsio', 'astropy']
+autodoc_mock_imports = ['_tkinter', 'pydl', 'fitsio', 'astropy',
+                        'scipy', 'numpy']
 autodoc_member_order = 'groupwise'
 
 napoleon_use_rtype = False
