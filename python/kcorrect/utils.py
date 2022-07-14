@@ -182,6 +182,56 @@ def sdss_ab_correct(maggies=None, ivar=None,
         return(ab_maggies)
 
 
+def error_floor(floor=None, maggies=None, ivar=None):
+    """Calculate new inverse variance with fractional error floors
+
+    Parameters
+    ----------
+
+    floor : ndarray of np.float32
+        [Nr] fractional error floor for each response
+
+    maggies : ndarray of np.float32
+        [N, Nr] or [Nr] array of maggies
+
+    ivar : ndarray of np.float32
+        [N, Nr] or [Nr] array of inverse variance of maggies
+
+    Returns
+    -------
+
+    ivar : ndarray of np.float32
+        [N, Nr] or [Nr] array of inverse variances
+"""
+    if(maggies.ndim == 1):
+        array = False
+    else:
+        array = True
+
+    if(maggies.shape[-1] != floor.shape[0]):
+        raise("floor must have same number of responses as maggies")
+
+    if(maggies.shape != ivar.shape):
+        raise("maggies and ivar must be same shape")
+
+    if(array):
+        for i in np.arange(floor.size):
+            iok = np.where(ivar[:, i] > 0.)[0]
+            if(len(iok) > 0):
+                ferr = 1. / (maggies[iok, i] * np.sqrt(ivar[iok, i]))
+                ioklow = iok[np.where(ferr < floor[i])[0]]
+                ivar[ioklow, i] = 1. / (np.abs(maggies[ioklow, i]) *
+                                        floor[i])**2
+    else:
+        for i in np.arange(floor.size):
+            if(ivar[i] > 0.):
+                ferr = 1. / (maggies[i] * np.sqrt(ivar[i]))
+                if(ferr < floor[i]):
+                    ivar[i] = 1. / (np.abs(maggies[i]) * floor[i])**2
+
+    return(ivar)
+
+
 def sdss_asinh_to_maggies(mag=None, mag_err=None, extinction=None):
     """Calculate maggies and ivar based on catalog parameters
 

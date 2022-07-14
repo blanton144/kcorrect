@@ -85,13 +85,13 @@ class Response(object):
         response function
 
     solar_magnitude : np.float32
-        absolute magnitude of Sun through filter
+        absolute magnitude of Sun through filter, or None
 
     solar_sed : kcorrect.template.SED object
         SED associated with Sun for solar_magnitude
 
     vega2ab : np.float32
-        magnitude offset from Vega to AB (m_AB - m_Vega)
+        magnitude offset from Vega to AB (m_AB - m_Vega), or None
 
     vega_sed : kcorrect.template.SED object
         SED associated with Vega for vega_magnitude
@@ -342,6 +342,9 @@ class Response(object):
         -----
 
         Uses lcbsun.ori model from Lejeune et al (1997)
+
+        If the response function is outside the model wavelength range,
+        solar_magnitude is set to None.
 """
         if(self.solar_sed is None):
             sunfile = os.path.join(os.getenv('KCORRECT_DIR'),
@@ -362,7 +365,10 @@ class Response(object):
 
         solar_maggies = self.project(sed=self.solar_sed)
 
-        self.solar_magnitude = - 2.5 * np.log10(solar_maggies)
+        if(solar_maggies > 0):
+            self.solar_magnitude = - 2.5 * np.log10(solar_maggies)
+        else:
+            self.solar_magnitude = None
 
         return
 
@@ -373,6 +379,9 @@ class Response(object):
         -----
 
         Uses lcbvega.ori model from Lejeune et al (1997)
+
+        If the response function is outside the model wavelength range,
+        vega2ab is set to None.
 """
         if(self.vega_sed is None):
             vegafile = os.path.join(os.getenv('KCORRECT_DIR'),
@@ -393,5 +402,8 @@ class Response(object):
             self.vega_sed.info = info
 
         vega_maggies = self.project(sed=self.vega_sed)
-        self.vega2ab = - 2.5 * np.log10(vega_maggies)
+        if(vega_maggies > 0):
+            self.vega2ab = - 2.5 * np.log10(vega_maggies)
+        else:
+            self.vega2ab = None
         return

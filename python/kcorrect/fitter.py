@@ -9,6 +9,7 @@ import numpy as np
 import scipy.interpolate as interpolate
 import scipy.optimize as optimize
 import kcorrect.response
+import multiprocessing
 
 
 class Fitter(object):
@@ -117,15 +118,6 @@ class Fitter(object):
 
         This method just returns maggies and/or ivar unchanged,
         as for this object we expect AB maggies on input.
-
-        Uses the AB conversions produced by D. Eisenstein, in his
-        message sdss-calib/1152
-
-            u(AB,2.5m) = u(database, 2.5m) - 0.036
-            g(AB,2.5m) = g(database, 2.5m) + 0.012
-            r(AB,2.5m) = r(database, 2.5m) + 0.010
-            i(AB,2.5m) = i(database, 2.5m) + 0.028
-            z(AB,2.5m) = z(database, 2.5m) + 0.040
 
         fit_coeffs() calls this on its inputs.
 """

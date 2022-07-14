@@ -9,25 +9,52 @@ import kcorrect.kcorrect
 import kcorrect.response
 import kcorrect.utils
 
-# This allows access to the responses. When the KcorrectGST object is
+# This code serves as an example of how the Kcorrect class can be
+# subclassed and used for specific purposes.
+
+# (1) We instantiate responseDict. When the KcorrectGST object is
 # initialized, the necessary responses are loaded into this
-# dictionary.
+# dictionary, which is a singleton. This will give us access to the
+# responses functions and their properties.
+print("Instantiate responseDict", flush=True)
 responseDict = kcorrect.response.ResponseDict()
 
+# (2) We create an instance of KcorrectGST, which is a subclass
+# of Kcorrect. If you consult this code, you will see that all that
+# it does is set the default responses; but you can set this up to
+# have whatever default settings you want, or overload the methods
+# if you want to do something more complicated.
 print("Initialize KcorrectGST object", flush=True)
+
 k = kcorrect.kcorrect.KcorrectGST()
 
+# Alternatively, just instantiate Kcorrect with the responses as an
+# input directly, e.g.:
+#
+# k = kcorrect.kcorrect.Kcorrect(responses=['galex_FUV', 'galex_NUV',
+#     'sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0', 'twomass_J',
+#     'twomass_H', 'twomass_Ks'])
+
+# (3) We read in the test file, which has some particular combination
+# of GALEX, SDSS, and 2MASS photometry.
 print("Reading in file", flush=True)
+
 gstfile = os.path.join(os.getenv('KCORRECT_DIR'), 'python', 'kcorrect',
                        'data', 'test', 'gst_tests_small.fits')
 gst = fitsio.read(gstfile)
 
-# The calculation of the maggies translates all the bands into AB maggies
-# (from SDSS standard to AB with a small correction, and for 2MASS from Vega
-# to AB) and applies the Galactic extinction. The code below is NOT careful
-# about null values (i.e. -9999s and 0s and such).
-
+# (4) We calculate the maggies in all based, on an AB system. This
+# must be Galactic extinction corrected.
 print("Make maggies", flush=True)
+
+maggies = np.zeros((len(gst), 10), dtype=np.float32)
+ivar = np.zeros((len(gst), 10), dtype=np.float32)
+
+# (4)(a) Make GALEX maggies. This code follows some instructions from
+# the GALEX documentation for these particular quantities. Take care
+# to only set good values, and bad values will be left with ivar=0 and
+# maggies finite.
+
 fuv_zp = 18.82
 fuv_norm = 1.40e-15
 fuv_scale = 10.**(0.4 * fuv_zp) * fuv_norm
@@ -35,56 +62,79 @@ nuv_zp = 20.08
 nuv_norm = 2.06e-16
 nuv_scale = 10.**(0.4 * nuv_zp) * nuv_norm
 
-maggies = np.zeros((len(gst), 10), dtype=np.float32)
-ivar = np.zeros((len(gst), 10), dtype=np.float32)
+ok_fuv = ((gst['FUV_FLUX_AUTO'] != -99.) & (gst['FUV_FLUX_AUTO'] != 0.)
+          & (gst['FUV_FLUXERR_AUTO'] != -99.) & (gst['FUV_FLUXERR_AUTO'] != 0.))
+maggies[ok_fuv, 0] = gst['FUV_FLUX_AUTO'][ok_fuv] * fuv_scale
+ivar[ok_fuv, 0] = 1. / (gst['FUV_FLUXERR_AUTO'][ok_fuv] * fuv_scale)**2
+ok_nuv = ((gst['NUV_FLUX_AUTO'] != -99.) & (gst['NUV_FLUX_AUTO'] != 0.)
+          & (gst['NUV_FLUXERR_AUTO'] != -99.) & (gst['NUV_FLUXERR_AUTO'] != 0.))
+maggies[ok_nuv, 1] = gst['NUV_FLUX_AUTO'][ok_nuv] * nuv_scale
+ivar[ok_nuv, 1] = 1. / (gst['NUV_FLUXERR_AUTO'][ok_nuv] * nuv_scale)**2
 
-# Calculate GALEX fluxes in maggies
-maggies[:, 0] = gst['FUV_FLUX_AUTO'] * fuv_scale
-ivar[:, 0] = 1. / (gst['FUV_FLUXERR_AUTO'] * fuv_scale)**2
-ivar[:, 0] = 1. / (gst['FUV_FLUX_AUTO'] * 0.05 * fuv_scale)**2
-maggies[:, 1] = gst['NUV_FLUX_AUTO'] * nuv_scale
-ivar[:, 1] = 1. / (gst['NUV_FLUXERR_AUTO'] * nuv_scale)**2
-ivar[:, 1] = 1. / (gst['NUV_FLUX_AUTO'] * 0.05 * nuv_scale)**2
-
-# Calculate SDSS fluxes in maggies (correct to AB)
+# (4)(b) Calculate SDSS fluxes in maggies, using a kcorrect utility to
+# perform the slight corrections to AB. The quantities in the catalog
+# are nanomaggies, which is why we need to scale the results.
 sdss_maggies, sdss_ivar = kcorrect.utils.sdss_ab_correct(maggies=gst['MODELFLUX'],
                                                          ivar=gst['MODELFLUX_IVAR'])
-maggies[:, 2:7] = sdss_maggies
-ivar[:, 2:7] = sdss_ivar
+maggies[:, 2:7] = sdss_maggies * 1.e-9
+ivar[:, 2:7] = sdss_ivar * 1.e+18
 
-# Calculate 2MASS fluxes in maggies (Vega->AB)
-maggies[:, 7] = 10.**(-0.4 * (gst['J_M_EXT'] + responseDict['twomass_J'].vega2ab))
-ivar[:, 7] = 1. / (maggies[:, 7] * np.log(10.) / 2.5 * gst['J_MSIG_EXT'])**2
-ivar[:, 7] = 1. / (maggies[:, 7] * np.log(10.) / 2.5 * 0.05)**2
-maggies[:, 8] = 10.**(-0.4 * (gst['H_M_EXT'] + responseDict['twomass_H'].vega2ab))
-ivar[:, 8] = 1. / (maggies[:, 8] * np.log(10.) / 2.5 * gst['H_MSIG_EXT'])**2
-ivar[:, 8] = 1. / (maggies[:, 8] * np.log(10.) / 2.5 * 0.05)**2
-maggies[:, 9] = 10.**(-0.4 * (gst['K_M_EXT'] + responseDict['twomass_Ks'].vega2ab))
-ivar[:, 9] = 1. / (maggies[:, 9] * np.log(10.) / 2.5 * gst['K_MSIG_EXT'])**2
-ivar[:, 9] = 1. / (maggies[:, 9] * np.log(10.) / 2.5 * 0.05)**2
+# (4)(c) Calculate 2MASS fluxes in AB maggies. Here we use the
+# Vega->AB conversion that the responseDict calculates for these
+# filters. We make sure ivar=0 for any bad cases.
+ok_j = ((gst['J_M_EXT'] != 0.) & (gst['J_MSIG_EXT'] > 0.))
+maggies[ok_j, 7] = 10.**(-0.4 * (gst['J_M_EXT'][ok_j] +
+                                 responseDict['twomass_J'].vega2ab))
+ivar[ok_j, 7] = 1. / (maggies[ok_j, 7] * np.log(10.) / 2.5 *
+                      gst['J_MSIG_EXT'][ok_j])**2
+ok_h = ((gst['H_M_EXT'] != 0.) & (gst['H_MSIG_EXT'] > 0.))
+maggies[ok_h, 8] = 10.**(-0.4 * (gst['H_M_EXT'][ok_h] +
+                                 responseDict['twomass_H'].vega2ab))
+ivar[ok_h, 8] = 1. / (maggies[ok_h, 8] * np.log(10.) / 2.5 *
+                      gst['H_MSIG_EXT'][ok_h])**2
+ok_k = ((gst['K_M_EXT'] != 0.) & (gst['K_MSIG_EXT'] > 0.))
+maggies[ok_k, 9] = 10.**(-0.4 * (gst['K_M_EXT'][ok_k] +
+                                 responseDict['twomass_Ks'].vega2ab))
+ivar[ok_k, 9] = 1. / (maggies[ok_k, 9] * np.log(10.) / 2.5 *
+                      gst['K_MSIG_EXT'][ok_k])**2
 
-# Fix catastrophically bad cases after the fact; it is better to catch
-# these earlier.
-ibad = np.where((np.isfinite(maggies) == False) |
-                (np.isfinite(ivar) == False) |
-                (ivar < 0))
-maggies[ibad] = 0.
-ivar[ibad] = 0.
-
-# Dust extinction coefficients relative to r
+# (4)(d) Account for Galactic extinction. Here we just do something
+# very simple using some (old-ish) extinction coefficients, and
+# using the SFD extinction for the SDSS bands from the SDSS catalog.
 red_fac = np.array([8.29, 8.18, 5.155, 3.793, 2.751,
                     2.086, 1.479, 0.902, 0.576, 0.367], dtype=np.float32)
 red_fac = red_fac / red_fac[4]
-
-# Account for Galactic extinction
 for i in np.arange(10, dtype=int):
     maggies[:, i] = maggies[:, i] * 10.**(0.4 * gst['EXTINCTION'][:, 2] *
                                           red_fac[i])
     ivar[:, i] = ivar[:, i] * 10.**(- 0.8 * gst['EXTINCTION'][:, 2] *
                                     red_fac[i])
 
+# (4)(e) Use another kcorrect utility to impose a floor on the
+# errors in each band because of our calibration uncertainties,
+# and our general unwillingless to take seriously photometry
+# errors <~ 1% (for the purposes here!).
+floor = np.array([0.03, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02,
+                  0.04, 0.04, 0.04], dtype=np.float32)
+ivar = kcorrect.utils.error_floor(floor=floor, maggies=maggies, ivar=ivar)
+
+# (4)(f) Fix catastrophically bad cases after the fact; it is better
+# to catch these earlier. We should have guaranteed that nbad=0 here.
+ibad = np.where((np.isfinite(maggies) == False) |
+                (np.isfinite(ivar) == False) |
+                (ivar < 0))
+print("nbad = {n} (should be 0)".format(n=len(ibad[0])), flush=True)
+maggies[ibad] = 0.
+ivar[ibad] = 0.
+
+# (5) Fit the coefficients of the kcorrect templates. You will find
+# a couple of errors reported here "NNLS quitting on iteration count";
+# these are explained in the fit_coeffs() docstring, and should be
+# harmless.
+print("Calculate coefficients", flush=True)
 coeffs = k.fit_coeffs(maggies=maggies, ivar=ivar, redshift=gst['Z'])
 
+# (6) Based on coefficients, calculate the K-corrections and plot them
 print("Calculate K-corrections", flush=True)
 kc = k.kcorrect(redshift=gst['Z'], coeffs=coeffs)
 
@@ -130,16 +180,16 @@ pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
 fig, ax = plt.subplots(5, 2, sharex=True,
                        gridspec_kw={'hspace': 0})
 
-bandranges = {'F': [-0.1, 0.1],
-              'N': [-0.1, 0.1],
+bandranges = {'F': [-1.3, 1.3],
+              'N': [-1.3, 1.3],
               'u': [-0.1, 0.1],
               'g': [-0.1, 0.1],
               'r': [-0.1, 0.1],
               'i': [-0.1, 0.1],
               'z': [-0.1, 0.1],
-              'J': [-0.1, 0.1],
-              'H': [-0.1, 0.1],
-              'K': [-0.1, 0.1]}
+              'J': [-0.5, 0.5],
+              'H': [-0.5, 0.5],
+              'K': [-0.5, 0.5]}
 
 for i, band in enumerate(bandranges):
     diff = - 2.5 * np.log10(maggies[:, i] / rm[:, i])
@@ -156,20 +206,20 @@ plt.savefig(pngfile, dpi=150)
 
 print("Make color residual plot", flush=True)
 pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.sdss.deltac.png')
+                       'figures', 'kcorrect-default-v4.gst.deltac.png')
 
 fig, ax = plt.subplots(5, 2, sharex=True,
                        gridspec_kw={'hspace': 0})
 
-bandranges = {'F-N': [-0.1, 0.1],
-              'N-U': [-0.1, 0.1],
-              'u-g': [-0.1, 0.1],
-              'g-r': [-0.1, 0.1],
+bandranges = {'F-N': [-1.1, 1.1],
+              'N-u': [-1.1, 1.1],
+              'u-g': [-0.4, 0.4],
+              'g-r': [-0.4, 0.4],
               'r-i': [-0.1, 0.1],
               'i-z': [-0.1, 0.1],
-              'z-J': [-0.1, 0.1],
-              'J-H': [-0.1, 0.1],
-              'H-K': [-0.1, 0.1]}
+              'z-J': [-0.3, 0.3],
+              'J-H': [-0.3, 0.3],
+              'H-K': [-0.3, 0.3]}
 
 for i, band in enumerate(bandranges):
     row = i // 2

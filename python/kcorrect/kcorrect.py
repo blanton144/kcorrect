@@ -308,7 +308,22 @@ class Kcorrect(kcorrect.fitter.Fitter):
                                            coeffs=coeffs,
                                            band_shift=band_shift)
 
-        kcorrect = - 2.5 * np.log10(maggies_in[..., self.imap] / maggies_out)
+        # Now carefully take the K-correction (avoiding cases
+        # where the coefficients are zero)
+        kcorrect = np.zeros(maggies_out.shape, dtype=np.float32)
+        if(maggies_out.ndim > 1):
+            # check if coefficients are ever zero
+            notzero = coeffs.sum(axis=-1) > 0
+            nz_maggies_in = maggies_in[notzero, :]
+            kcorrect[notzero, :] = (- 2.5 *
+                                    np.log10(nz_maggies_in[:, self.imap] /
+                                             maggies_out[notzero, :]))
+        else:
+            notzero = coeffs.sum(axis=-1) > 0
+            if(notzero):
+                kcorrect = - 2.5 * np.log10(maggies_in[self.imap] /
+                                            maggies_out)
+
         return(kcorrect)
 
     def absmag(self, maggies=None, ivar=None, redshift=None, coeffs=None,
@@ -464,13 +479,6 @@ class KcorrectSDSS(Kcorrect):
                  responses_out=None, responses_map=None,
                  redshift_range=[0., 2.], nredshift=4000,
                  abcorrect=True, cosmo=None):
-
-        # Read in templates
-        if(templates is None):
-            filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
-                                    'kcorrect', 'data', 'templates',
-                                    'kcorrect-default-v4.fits')
-            templates = kcorrect.template.Template(filename=filename)
 
         # Initatialize using Kcorrect initialization
         super().__init__(responses=responses, templates=templates,
@@ -666,13 +674,6 @@ class KcorrectGST(Kcorrect):
                  templates=None, responses_out=None, responses_map=None,
                  redshift_range=[0., 2.], nredshift=4000,
                  abcorrect=False, cosmo=None):
-
-        # Read in templates
-        if(templates is None):
-            filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
-                                    'kcorrect', 'data', 'templates',
-                                    'kcorrect-default-v4.fits')
-            templates = kcorrect.template.Template(filename=filename)
 
         # Initatialize using Kcorrect initialization
         super().__init__(responses=responses, templates=templates,
