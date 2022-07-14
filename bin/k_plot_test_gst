@@ -1,0 +1,187 @@
+#!/usr/bin/env python
+
+import os
+import matplotlib.pyplot as plt
+import matplotlib
+import numpy as np
+import fitsio
+import kcorrect.kcorrect
+import kcorrect.response
+import kcorrect.utils
+
+# This allows access to the responses. When the KcorrectGST object is
+# initialized, the necessary responses are loaded into this
+# dictionary.
+responseDict = kcorrect.response.ResponseDict()
+
+print("Initialize KcorrectGST object", flush=True)
+k = kcorrect.kcorrect.KcorrectGST()
+
+print("Reading in file", flush=True)
+gstfile = os.path.join(os.getenv('KCORRECT_DIR'), 'python', 'kcorrect',
+                       'data', 'test', 'gst_tests_small.fits')
+gst = fitsio.read(gstfile)
+
+# The calculation of the maggies translates all the bands into AB maggies
+# (from SDSS standard to AB with a small correction, and for 2MASS from Vega
+# to AB) and applies the Galactic extinction. The code below is NOT careful
+# about null values (i.e. -9999s and 0s and such).
+
+print("Make maggies", flush=True)
+fuv_zp = 18.82
+fuv_norm = 1.40e-15
+fuv_scale = 10.**(0.4 * fuv_zp) * fuv_norm
+nuv_zp = 20.08
+nuv_norm = 2.06e-16
+nuv_scale = 10.**(0.4 * nuv_zp) * nuv_norm
+
+maggies = np.zeros((len(gst), 10), dtype=np.float32)
+ivar = np.zeros((len(gst), 10), dtype=np.float32)
+
+# Calculate GALEX fluxes in maggies
+maggies[:, 0] = gst['FUV_FLUX_AUTO'] * fuv_scale
+ivar[:, 0] = 1. / (gst['FUV_FLUXERR_AUTO'] * fuv_scale)**2
+ivar[:, 0] = 1. / (gst['FUV_FLUX_AUTO'] * 0.05 * fuv_scale)**2
+maggies[:, 1] = gst['NUV_FLUX_AUTO'] * nuv_scale
+ivar[:, 1] = 1. / (gst['NUV_FLUXERR_AUTO'] * nuv_scale)**2
+ivar[:, 1] = 1. / (gst['NUV_FLUX_AUTO'] * 0.05 * nuv_scale)**2
+
+# Calculate SDSS fluxes in maggies (correct to AB)
+sdss_maggies, sdss_ivar = kcorrect.utils.sdss_ab_correct(maggies=gst['MODELFLUX'],
+                                                         ivar=gst['MODELFLUX_IVAR'])
+maggies[:, 2:7] = sdss_maggies
+ivar[:, 2:7] = sdss_ivar
+
+# Calculate 2MASS fluxes in maggies (Vega->AB)
+maggies[:, 7] = 10.**(-0.4 * (gst['J_M_EXT'] + responseDict['twomass_J'].vega2ab))
+ivar[:, 7] = 1. / (maggies[:, 7] * np.log(10.) / 2.5 * gst['J_MSIG_EXT'])**2
+ivar[:, 7] = 1. / (maggies[:, 7] * np.log(10.) / 2.5 * 0.05)**2
+maggies[:, 8] = 10.**(-0.4 * (gst['H_M_EXT'] + responseDict['twomass_H'].vega2ab))
+ivar[:, 8] = 1. / (maggies[:, 8] * np.log(10.) / 2.5 * gst['H_MSIG_EXT'])**2
+ivar[:, 8] = 1. / (maggies[:, 8] * np.log(10.) / 2.5 * 0.05)**2
+maggies[:, 9] = 10.**(-0.4 * (gst['K_M_EXT'] + responseDict['twomass_Ks'].vega2ab))
+ivar[:, 9] = 1. / (maggies[:, 9] * np.log(10.) / 2.5 * gst['K_MSIG_EXT'])**2
+ivar[:, 9] = 1. / (maggies[:, 9] * np.log(10.) / 2.5 * 0.05)**2
+
+# Fix catastrophically bad cases after the fact; it is better to catch
+# these earlier.
+ibad = np.where((np.isfinite(maggies) == False) |
+                (np.isfinite(ivar) == False) |
+                (ivar < 0))
+maggies[ibad] = 0.
+ivar[ibad] = 0.
+
+# Dust extinction coefficients relative to r
+red_fac = np.array([8.29, 8.18, 5.155, 3.793, 2.751,
+                    2.086, 1.479, 0.902, 0.576, 0.367], dtype=np.float32)
+red_fac = red_fac / red_fac[4]
+
+# Account for Galactic extinction
+for i in np.arange(10, dtype=int):
+    maggies[:, i] = maggies[:, i] * 10.**(0.4 * gst['EXTINCTION'][:, 2] *
+                                          red_fac[i])
+    ivar[:, i] = ivar[:, i] * 10.**(- 0.8 * gst['EXTINCTION'][:, 2] *
+                                    red_fac[i])
+
+coeffs = k.fit_coeffs(maggies=maggies, ivar=ivar, redshift=gst['Z'])
+
+print("Calculate K-corrections", flush=True)
+kc = k.kcorrect(redshift=gst['Z'], coeffs=coeffs)
+
+print("Make plot", flush=True)
+pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
+                       'figures', 'kcorrect-default-v4.gst.png')
+
+matplotlib.rcParams['figure.figsize'] = [5., 7.]
+
+fig, ax = plt.subplots(5, 2, sharex=True,
+                       gridspec_kw={'hspace': 0})
+
+bandranges = {'F': [-0.5, 1.01],
+              'N': [-0.5, 1.01],
+              'u': [-0.2, 1.01],
+              'g': [-0.1, 0.85],
+              'r': [-0.12, 0.36],
+              'i': [-0.29, 0.29],
+              'z': [-0.18, 0.29],
+              'J': [-0.18, 0.29],
+              'H': [-0.18, 0.29],
+              'K': [-0.18, 0.29]}
+
+for i, band in enumerate(bandranges):
+    row = i // 2
+    col = i % 2
+    ax[row, col].scatter(gst['Z'], kc[:, i], s=1, alpha=0.5)
+    ax[row, col].set_ylabel('$K_{' + band + '}$')
+    ax[row, col].set_ylim(bandranges[band])
+    ax[row, col].set_xlim([- 0.01, 0.21])
+ax[4, 0].set_xlabel('redshift')
+ax[4, 1].set_xlabel('redshift')
+
+plt.savefig(pngfile, dpi=150)
+
+print("Reconstruct maggies", flush=True)
+rm = k.reconstruct(redshift=gst['Z'], coeffs=coeffs)
+
+print("Make mag residual plot", flush=True)
+pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
+                       'figures', 'kcorrect-default-v4.gst.deltam.png')
+
+fig, ax = plt.subplots(5, 2, sharex=True,
+                       gridspec_kw={'hspace': 0})
+
+bandranges = {'F': [-0.1, 0.1],
+              'N': [-0.1, 0.1],
+              'u': [-0.1, 0.1],
+              'g': [-0.1, 0.1],
+              'r': [-0.1, 0.1],
+              'i': [-0.1, 0.1],
+              'z': [-0.1, 0.1],
+              'J': [-0.1, 0.1],
+              'H': [-0.1, 0.1],
+              'K': [-0.1, 0.1]}
+
+for i, band in enumerate(bandranges):
+    diff = - 2.5 * np.log10(maggies[:, i] / rm[:, i])
+    row = i // 2
+    col = i % 2
+    ax[row, col].scatter(gst['Z'], diff, s=1, alpha=0.5)
+    ax[row, col].set_ylabel('$\\Delta m_{' + band + '}$')
+    ax[row, col].set_ylim(bandranges[band])
+    ax[row, col].set_xlim([- 0.01, 0.21])
+ax[4, 0].set_xlabel('redshift')
+ax[3, 1].set_xlabel('redshift')
+
+plt.savefig(pngfile, dpi=150)
+
+print("Make color residual plot", flush=True)
+pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
+                       'figures', 'kcorrect-default-v4.sdss.deltac.png')
+
+fig, ax = plt.subplots(5, 2, sharex=True,
+                       gridspec_kw={'hspace': 0})
+
+bandranges = {'F-N': [-0.1, 0.1],
+              'N-U': [-0.1, 0.1],
+              'u-g': [-0.1, 0.1],
+              'g-r': [-0.1, 0.1],
+              'r-i': [-0.1, 0.1],
+              'i-z': [-0.1, 0.1],
+              'z-J': [-0.1, 0.1],
+              'J-H': [-0.1, 0.1],
+              'H-K': [-0.1, 0.1]}
+
+for i, band in enumerate(bandranges):
+    row = i // 2
+    col = i % 2
+    oc = - 2.5 * np.log10(maggies[:, i] / maggies[:, i + 1])
+    rc = - 2.5 * np.log10(rm[:, i] / rm[:, i + 1])
+    diff = oc - rc
+    ax[row, col].scatter(gst['Z'], diff, s=1, alpha=0.5)
+    ax[row, col].set_ylabel('$\\Delta (' + band + ')$')
+    ax[row, col].set_ylim(bandranges[band])
+    ax[row, col].set_xlim([- 0.01, 0.21])
+ax[4, 0].set_xlabel('redshift')
+ax[3, 1].set_xlabel('redshift')
+
+plt.savefig(pngfile, dpi=150)

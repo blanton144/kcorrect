@@ -84,7 +84,7 @@ def test_kcorrect():
 
 
 def test_derived():
-    """Test derived quantity calculation (doesn't test quantitatively"""
+    """Test derived quantity calculation (doesn't test quantitatively)"""
 
     responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
                  'wise_w1']
@@ -161,5 +161,108 @@ def test_absmag():
 
     assert absmag.size == maggies.size
     assert absmag.shape == maggies.shape
+
+    return
+
+
+def test_sdss_kcorrect():
+    """Test K-correction calculation in SDSS (doesn't test quantitatively"""
+
+    kc = kcorrect.kcorrect.KcorrectSDSS(redshift_range=[0., 0.3],
+                                        nredshift=100)
+
+    redshift = 0.2532
+    maggies = np.array([1., 1., 1., 1., 1.], dtype=np.float32)
+    ivar = np.array([1., 1., 1., 1., 1.], dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    k = kc.kcorrect(redshift=redshift, coeffs=coeffs)
+
+    assert k.size == maggies.size
+
+    redshift = np.array([0.1, 0.2532], dtype=np.float32)
+    maggies = np.ones((2, 5), dtype=np.float32)
+    ivar = np.ones((2, 5), dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    k = kc.kcorrect(redshift=redshift, coeffs=coeffs)
+
+    assert kc.responses == ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']
+    assert k.size == maggies.size
+    assert k.shape[0] == maggies.shape[0]
+    assert k.shape[1] == 5
+
+    return
+
+
+def test_sdss_kcorrect_asinh():
+    """Test K-correction calculation in SDSS (doesn't test quantitatively"""
+
+    kc = kcorrect.kcorrect.KcorrectSDSS(redshift_range=[0., 0.3],
+                                        nredshift=100)
+
+    redshift = 0.2532
+    mag = np.array([1., 1., 1., 1., 1.], dtype=np.float32)
+    err = np.array([1., 1., 1., 1., 1.], dtype=np.float32)
+    extinction = np.array([1., 1., 1., 1., 1.], dtype=np.float32)
+
+    coeffs = kc.fit_coeffs_asinh(redshift=redshift, mag=mag, mag_err=err,
+                                 extinction=extinction)
+
+    k = kc.kcorrect(redshift=redshift, coeffs=coeffs)
+
+    assert k.size == mag.size
+
+    redshift = np.array([0.1, 0.2532], dtype=np.float32)
+    mag = np.ones((2, 5), dtype=np.float32)
+    err = np.ones((2, 5), dtype=np.float32)
+    extinction = np.ones((2, 5), dtype=np.float32)
+
+    coeffs = kc.fit_coeffs_asinh(redshift=redshift, mag=mag, mag_err=err,
+                                 extinction=extinction)
+
+    k = kc.kcorrect(redshift=redshift, coeffs=coeffs)
+
+    assert kc.responses == ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0',
+                            'sdss_z0']
+    assert k.size == mag.size
+    assert k.shape[0] == mag.shape[0]
+    assert k.shape[1] == 5
+
+    return
+
+
+def test_gst_kcorrect():
+    """Test K-correction calculation in GALEX-SDSS-2MASS (doesn't test quantitatively)"""
+
+    kc = kcorrect.kcorrect.KcorrectGST(redshift_range=[0., 0.3],
+                                       nredshift=100)
+
+    redshift = 0.2532
+    maggies = np.ones(10, dtype=np.float32)
+    ivar = np.ones(10, dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    k = kc.kcorrect(redshift=redshift, coeffs=coeffs)
+
+    assert k.size == maggies.size
+
+    redshift = np.array([0.1, 0.2532], dtype=np.float32)
+    maggies = np.ones((2, 10), dtype=np.float32)
+    ivar = np.ones((2, 10), dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    k = kc.kcorrect(redshift=redshift, coeffs=coeffs)
+
+    assert kc.responses == ['galex_FUV', 'galex_NUV', 'sdss_u0', 'sdss_g0',
+                            'sdss_r0', 'sdss_i0', 'sdss_z0', 'twomass_J',
+                            'twomass_H', 'twomass_Ks']
+    assert k.size == maggies.size
+    assert k.shape[0] == maggies.shape[0]
+    assert k.shape[1] == 10
 
     return

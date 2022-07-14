@@ -6,7 +6,6 @@
 
 
 import numpy as np
-import kcorrect.template
 
 
 def sed_ab(wave=None):
@@ -206,16 +205,49 @@ def sdss_asinh_to_maggies(mag=None, mag_err=None, extinction=None):
 
     ivar : ndarray of np.float32
         [N, 5] or [5] array of inverse variances
+
+    Notes
+    -----
+
+    If mag_err is None on input, only maggies is returned.
 """
     mag = np.float32(mag)
-    mag_err = np.float32(mag_err)
-    extinction = np.float32(extinction)
 
-    if(mag.shape != mag_err.shape):
-        raise("mag and mag_err must be the same shape")
+    if(mag_err is not None):
+        mag_err = np.float32(mag_err)
+        if(mag.shape != mag_err.shape):
+            raise("mag and mag_err must be the same shape")
 
-    if(mag.shape != extinction.shape):
-        raise("mag and extinction must be the same shape")
+    if(extinction is not None):
+        extinction = np.float32(extinction)
+        if(mag.shape != extinction.shape):
+            raise("mag and extinction must be the same shape")
+    else:
+        extinction = np.zeros(mag.shape, dtype=np.float32)
 
     if(mag.shape[-1] != 5):
         raise("mag must have 5 values per object")
+
+    b0 = np.array([1.4e-10, 0.9e-10, 1.2e-10, 1.8e-10, 7.4e-10],
+                  dtype=np.float32)
+
+    maggies = np.zeros(mag.shape, dtype=np.float32)
+    for k in np.arange(5, dtype=int):
+        maggies[..., k] = 2. * b0[k] * np.sinh(- np.log(b0[k])
+                                               - (0.4 * np.log(10.)
+                                                  * mag[..., k]))
+        maggies[..., k] = (maggies[..., k] * 10.**(0.4 * extinction[..., k]))
+
+    if(mag_err is not None):
+        maggies_ivar = np.zeros(mag.shape, dtype=np.float32)
+        for k in np.arange(5, dtype=int):
+            maggies_err = (2. * b0[k] * np.cosh(- np.log(b0[k])
+                                                - (0.4 * np.log(10.) *
+                                                   mag[..., k])) *
+                           0.4 * np.log10(10.) * mag_err[..., k])
+            maggies_ivar[..., k] = 1. / maggies_err**2
+
+    if(mag_err is None):
+        return(maggies)
+    else:
+        return(maggies, maggies_ivar)

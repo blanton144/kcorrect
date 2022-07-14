@@ -8,6 +8,7 @@
 import os
 import numpy as np
 import kcorrect.utils
+import kcorrect.template
 import scipy.interpolate as interpolate
 import scipy.integrate as integrate
 import pydl.pydlutils.yanny as yanny
@@ -204,8 +205,9 @@ class Response(object):
         name = par.tables()[0]
         parstr = par[name]
         self.nwave = len(parstr)
-        self.wave = parstr['lambda']
-        self.response = parstr['pass']
+        isort = np.argsort(parstr['lambda'])
+        self.wave = parstr['lambda'][isort]
+        self.response = parstr['pass'][isort]
         self._setup()
         return
 
@@ -255,6 +257,8 @@ class Response(object):
         Fluxes should be in erg cm^{-2} s^{-1} Angstrom^{-1}
 
         Assumes AB calibration.
+
+        If the bandpass is outside the range of the solar model, 0 is returned.
 """
         if(sed is None):
             sed_wave = wave
@@ -269,6 +273,9 @@ class Response(object):
         # Find SED wavelengths to integrate over
         keep = (sed_wave >= self.wave[0]) & (sed_wave <= self.wave[-1])
         ikeep = np.where(keep)[0]
+        if(len(ikeep) == 0):
+            return(0.)
+
         if(ikeep[0] > 0):
             keep[ikeep[0] - 1] = 1
         if(ikeep[-1] < len(sed_wave) - 1):

@@ -99,7 +99,7 @@ class Fitter(object):
 
         maggies : ndarray of np.float32
             array of fluxes in standard SDSS system
-        
+
         ivar : ndarray of np.float32
             inverse variances in standard SDSS system (optional)
 
@@ -171,7 +171,10 @@ class Fitter(object):
             return(default_zeros)
         b = maggies * inverr
 
-        coeffs, rnorm = optimize.nnls(A, b)
+        try:
+            coeffs, rnorm = optimize.nnls(A, b)
+        except RuntimeError:
+            coeffs, rnorm = optimize.nnls(A, b, maxiter=A.shape[1] * 100)
 
         return(coeffs)
 
@@ -249,7 +252,7 @@ class Fitter(object):
                 if(maggies.shape[0] != n):
                     raise ValueError("maggies must have values for each redshift")
                 if(maggies.shape[1] != len(self.responses)):
-                    raise ValueError("maggies must have values for each band")
+                    raise ValueError("maggies must have one value for each band")
             else:
                 if(len(maggies.shape) != 1):
                     raise ValueError("maggies must be 1-dimensional if redshift is 0-dimensional")
@@ -327,6 +330,12 @@ class Fitter(object):
         returned as an [nredshift, ntemplate] array.
 
         Otherwise coeffs is returned as an [ntemplate] array.
+
+        Occasionally the optimizer will report "NNLS quitting on
+        iteration count."  This indicates that the default number of
+        iterations for scipy.optimize.nnls was not enough. Under these
+        conditions, this code tries a much larger number of
+        iterations. If that still fails, you will receive a traceback.
 """
         if(redshift is None):
             raise TypeError("Must specify redshift to fit coefficients")
@@ -412,7 +421,7 @@ class Fitter(object):
         Parameters
         ----------
 
-        redshift : np.float32
+        redshift : np.float32 or ndarray of np.float32
             redshift
 
         coeffs : ndarray of np.float32

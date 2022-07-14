@@ -1,4 +1,6 @@
 import pytest
+import os
+import re
 import numpy as np
 import kcorrect.template
 import kcorrect.response
@@ -30,6 +32,24 @@ def test_load_response():
     f = 0
     f = kcorrect.response.ResponseDict()
     assert(type(f['sdss_u0']) == kcorrect.response.Response)
+
+    return
+
+
+def test_load_all_response():
+    """Test loading of response into ResponseDict"""
+    f = kcorrect.response.ResponseDict()
+
+    rdir = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
+                        'kcorrect', 'data', 'responses')
+    files = os.listdir(rdir)
+    for file in files:
+        if(os.path.isfile(os.path.join(rdir, file))):
+            m = re.match('^(.*)\\.par$', file)
+            if(m is not None):
+                response = m.group(1)
+                print(response)
+                f.load_response(response)
 
     return
 

@@ -100,7 +100,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
     "responses_map" is the same length as "responses_out" and
     defines which bandpasses in "responses" to use for each
-    output bandpass in "responses out". It defaults to "responses".
+    output bandpass in "responses_out". It defaults to "responses".
 
     Amatrix accepts a redshift as its argument and returns a matrix of
     shape [nresponses, ntemplates]. This matrix can be dotted into a
@@ -300,12 +300,15 @@ class Kcorrect(kcorrect.fitter.Fitter):
         kcorrect : ndarray of np.float32
             K-correction from input to output magnitudes
 """
+        # maggies associated with bandpass R at observed z
         maggies_in = self.reconstruct(redshift=redshift, coeffs=coeffs)
+
+        # maggies associated with bandpass Q at z=0
         maggies_out = self.reconstruct_out(redshift=0. * redshift,
                                            coeffs=coeffs,
                                            band_shift=band_shift)
 
-        kcorrect = - 2.5 * np.log10(maggies_out / maggies_in[..., self.imap])
+        kcorrect = - 2.5 * np.log10(maggies_in[..., self.imap] / maggies_out)
         return(kcorrect)
 
     def absmag(self, maggies=None, ivar=None, redshift=None, coeffs=None,
@@ -348,7 +351,8 @@ class Kcorrect(kcorrect.fitter.Fitter):
         Determines the distance modulus with the object's "cosmo.distmod()"
         method. By default this is the Planck18 cosmology. This use
         
-        Calls to_ab() method on input maggies to convert to AB.
+        If abcorrect is True, calles to_ab() method on input maggies
+        to convert to AB.
 """
         (array, n, redshift, maggies, ivar,
          coeffs) = self._process_inputs(redshift=redshift, maggies=maggies,
@@ -386,7 +390,7 @@ class KcorrectSDSS(Kcorrect):
         templates to use (if None uses v4 default template set)
 
     responses : list of str
-        names of input responses to base SED on (default to SDSS)
+        names of input responses to base SED on (default to SDSS ugriz)
 
     responses_out : list of str
         output responses for K-corrections (default to "responses")
@@ -451,15 +455,15 @@ class KcorrectSDSS(Kcorrect):
     asinh magnitudes (these are the magnitudes that the SDSS imaging
     reports).
 
-    The to_ab() method is applied to the maggies input for absmag() and
-    fit_coeffs() and fit_coeffs_asinh(), which adjusts from the SDSS system
-    to the AB system.
+    If abcorrect is True, the to_ab() method is applied to the maggies
+    input for absmag() and fit_coeffs() and fit_coeffs_asinh(), which
+    adjusts from the SDSS system to the AB system.
 """
     def __init__(self, responses=['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0',
                                   'sdss_z0'], templates=None,
                  responses_out=None, responses_map=None,
-                 redshift_range=None, nredshift=None, cosmo=None,
-                 abcorrect=True):
+                 redshift_range=[0., 2.], nredshift=4000,
+                 abcorrect=True, cosmo=None):
 
         # Read in templates
         if(templates is None):
@@ -471,7 +475,10 @@ class KcorrectSDSS(Kcorrect):
         # Initatialize using Kcorrect initialization
         super().__init__(responses=responses, templates=templates,
                          redshift_range=redshift_range,
-                         nredshift=nredshift, abcorrect=abcorrect)
+                         responses_out=responses_out,
+                         responses_map=responses_map,
+                         nredshift=nredshift, abcorrect=abcorrect,
+                         cosmo=cosmo)
         return
 
     def to_ab(self, maggies=None, ivar=None):
@@ -482,7 +489,7 @@ class KcorrectSDSS(Kcorrect):
 
         maggies : ndarray of np.float32
             array of fluxes in standard SDSS system
-        
+
         ivar : ndarray of np.float32
             inverse variances in standard SDSS system (optional)
 
@@ -509,19 +516,19 @@ class KcorrectSDSS(Kcorrect):
             i(AB,2.5m) = i(database, 2.5m) + 0.028
             z(AB,2.5m) = z(database, 2.5m) + 0.040
 
-        fit_coeffs() and absmag() call this on their inputs.
+        fit_coeffs() and absmag() call this on their inputs if abcorrect is True.
 """
         if(ivar is not None):
-            maggies = kcorrect.utils.sdss_ab_correct(maggies=maggies,
-                                                     ivar=ivar)
-            return(maggies, ivar)
-        else:
             maggies, ivar = kcorrect.utils.sdss_ab_correct(maggies=maggies,
                                                            ivar=ivar)
+            return(maggies, ivar)
+        else:
+            maggies = kcorrect.utils.sdss_ab_correct(maggies=maggies,
+                                                     ivar=ivar)
             return(maggies)
 
     def fit_coeffs_asinh(self, redshift=None, mag=None, mag_err=None,
-                         ext=None):
+                         extinction=None):
         """Fit coefficients to asinh mags
 
         Parameters
@@ -549,8 +556,8 @@ class KcorrectSDSS(Kcorrect):
         -----
 
         Converts mag, mag_err, and extinction to extinction-corrected
-        maggies and ivar, and then calls to_ab() method to create
-        AB maggies and ivar.
+        maggies and ivar, and then (if abcorrect is True) calls
+        to_ab() method to create AB maggies and ivar.
 
         If redshift is an array, even with just one element, coeffs is
         returned as an [nredshift, ntemplate] array.
@@ -560,9 +567,170 @@ class KcorrectSDSS(Kcorrect):
         if(redshift is None):
             raise TypeError("Must specify redshift to fit coefficients")
 
-        maggies, ivar = kcorrect.utils.sdss_asinh_to_maggies(maggies=mag,
-                                                             ivar=mag_err,
-                                                             extinction=extinction)
+        (maggies,
+         ivar) = kcorrect.utils.sdss_asinh_to_maggies(mag=mag,
+                                                      mag_err=mag_err,
+                                                      extinction=extinction)
 
         coeffs = self.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
         return(coeffs)
+
+
+class KcorrectGST(Kcorrect):
+    """K-correction object for GALEX, SDSS, 2MASS data
+
+    Parameters
+    ----------
+
+    abcorrect : bool
+        correct maggies to AB (default True)
+
+    templates : list of kcorrect.template.SED
+        templates to use (if None uses v4 default template set)
+
+    responses : list of str
+        names of input responses to base SED on (default to FNugrizJHK)
+
+    responses_out : list of str
+        output responses for K-corrections (default to "responses")
+
+    responses_map : list of str
+        input responses to use for K-corrections (default to "responses")
+
+    redshift_range : list of np.float32
+        minimum and maximum redshifts (default [0., 2.])
+
+    nredshift : int or np.int32
+        number of redshifts in interpolation grid (default 4000)
+
+    cosmo : astropy.cosmology.FLRW-like object
+        object with distmod() method (default Planck18)
+
+    Attributes
+    ----------
+
+    abcorrect : bool
+        correct maggies to AB
+
+    Amatrix : scipy.interpolate.interp1d object
+        interpolation function for each template and input response
+
+    AmatrixOut : scipy.interpolate.interp1d object
+        interpolation function for each template and output response
+
+    cosmo : astropy.cosmology.FLRW-like object
+        object with luminosity_distance() method
+
+    imap : ndarray of np.int32
+        for each responses_map element, its corresponding index in responses
+
+    nredshift : int or np.int32
+        number of redshifts in interpolation grid
+
+    redshift_range : list of np.float32
+        minimum and maximum redshifts
+
+    redshifts : ndarray of np.float32
+        redshifts in grid
+
+    responses : list of str
+        [Nin] names of input responses to use
+
+    responses_map : list of str
+        [Nout] input responses to use for K-corrections
+
+    responses_out : list of str
+        [Nout] output responses for K-corrections
+
+    templates : kcorrect.template.Template object
+        templates to use
+
+    Notes
+    -----
+
+    responses defaults to ['galex_FUV', 'galex_NUV', 'sdss_u0', 'sdss_g0',
+                           'sdss_r0', 'sdss_i0', 'sdss_z0', 'twomass_J',
+                           'twomass_H', 'twomass_Ks']
+
+    This class provides the method fit_coeffs_asinh() to use SDSS-style
+    asinh magnitudes (these are the magnitudes that the SDSS imaging
+    reports).
+
+    If abcorrect is True, the to_ab() method is applied to the maggies
+    input for absmag() and fit_coeffs() and fit_coeffs_asinh(), which
+    adjusts from the SDSS system to the AB system.
+"""
+    def __init__(self, responses=['galex_FUV', 'galex_NUV', 'sdss_u0', 'sdss_g0',
+                                  'sdss_r0', 'sdss_i0', 'sdss_z0', 'twomass_J',
+                                  'twomass_H', 'twomass_Ks'],
+                 templates=None, responses_out=None, responses_map=None,
+                 redshift_range=[0., 2.], nredshift=4000,
+                 abcorrect=False, cosmo=None):
+
+        # Read in templates
+        if(templates is None):
+            filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
+                                    'kcorrect', 'data', 'templates',
+                                    'kcorrect-default-v4.fits')
+            templates = kcorrect.template.Template(filename=filename)
+
+        # Initatialize using Kcorrect initialization
+        super().__init__(responses=responses, templates=templates,
+                         redshift_range=redshift_range,
+                         responses_out=responses_out,
+                         responses_map=responses_map,
+                         nredshift=nredshift, abcorrect=abcorrect,
+                         cosmo=cosmo)
+        return
+
+    def to_ab(self, maggies=None, ivar=None):
+        """Convert FNugrizJHK input maggies to AB
+
+        Parameters
+        ----------
+
+        maggies : ndarray of np.float32
+            array of fluxes in standard SDSS system
+
+        ivar : ndarray of np.float32
+            inverse variances in standard SDSS system (optional)
+
+        Returns
+        -------
+
+        ab_maggies : ndarray of np.float32
+            array of fluxes converted to AB
+
+        ab_ivar : ndarray of np.float32
+            inverse variances converted to AB (if ivar input)
+
+        Notes
+        -----
+
+        Leaves FN and JHK alone, and fixes ugriz with
+        kcorrect.utils.sdss_ab_correct(), which does the
+        following:
+
+        Uses the AB conversions produced by D. Eisenstein, in his
+        message sdss-calib/1152
+
+            u(AB,2.5m) = u(database, 2.5m) - 0.036
+            g(AB,2.5m) = g(database, 2.5m) + 0.012
+            r(AB,2.5m) = r(database, 2.5m) + 0.010
+            i(AB,2.5m) = i(database, 2.5m) + 0.028
+            z(AB,2.5m) = z(database, 2.5m) + 0.040
+
+        fit_coeffs() and absmag() call this on their inputs if abcorrect is True.
+"""
+        if(ivar is not None):
+            (smaggies,
+             sivar) = kcorrect.utils.sdss_ab_correct(maggies=maggies[..., 2:7],
+                                                     ivar=ivar[..., 2:7])
+            maggies[..., 2:7] = smaggies
+            ivar[..., 2:7] = sivar
+            return(maggies, ivar)
+        else:
+            smaggies = kcorrect.utils.sdss_ab_correct(maggies=maggies[..., 2:7],
+                                                      ivar=ivar[..., 2:7])
+            maggies[..., 2:7] = smaggies
+            return(maggies)
