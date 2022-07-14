@@ -362,7 +362,7 @@ class Fitter(object):
         ----------
 
         Amatrix : scipy.interpolate.interp1d
-            interpolator to use for Amatri
+            interpolator to use for Amatrix
 
         redshift : np.float32
             redshift
@@ -378,6 +378,12 @@ class Fitter(object):
 
         maggies : ndarray of np.float32
             maggies in each band
+
+        Notes
+        -----
+
+        Amatrix should be an interpolator over redshift that returns
+        an array that is number of responses by number of templates.
 """
         default_zeros = np.zeros(len(self.responses), dtype=np.float32)
 
@@ -391,7 +397,7 @@ class Fitter(object):
 
         # Calculate maggies
         try:
-            A = self.Amatrix(shift)
+            A = Amatrix(shift)
         except ValueError:
             return(default_zeros)
 

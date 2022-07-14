@@ -132,9 +132,29 @@ ivar[ibad] = 0.
 print("Calculate coefficients", flush=True)
 coeffs = k.fit_coeffs(maggies=maggies, ivar=ivar, redshift=gst['Z'])
 
-# (6) Based on coefficients, calculate the K-corrections and plot them
+# (6) Based on coefficients, calculate the K-corrections
 print("Calculate K-corrections", flush=True)
 kc = k.kcorrect(redshift=gst['Z'], coeffs=coeffs)
+
+# (7) Return the derived parameters and absolute magnitude for each
+# galaxy based on its coefficients. Note that the derived quantities
+# are just properties of the fit coefficients, but the absolute magnitude
+# is calculated using the K-corrections from the apparent magnitudes.
+print("Calculate derived parameters", flush=True)
+derived = k.derived(redshift=gst['Z'], coeffs=coeffs)
+absmag = k.absmag(redshift=gst['Z'], coeffs=coeffs, maggies=maggies, ivar=ivar)
+
+# (8) Synthesize B and V magnitudes using a Kcorrect object. Note that you can
+# also do this directly using the Response objects and their "project" methods,
+# if you calculate the spectrum from the template coefficients.
+print("Calculate B and V related quantities", flush=True)
+kbv = kcorrect.kcorrect.Kcorrect(responses_out=['bessell_B', 'bessell_V'],
+                                 responses=['sdss_g0', 'sdss_r0'])
+derived_bv = kbv.derived(redshift=gst['Z'], coeffs=coeffs)
+absmag_bv = kbv.absmag(redshift=gst['Z'], coeffs=coeffs,
+                       maggies=maggies[:, 3:5], ivar=ivar[:, 3:5])
+
+# Finally a bunch of plots
 
 print("Make plot", flush=True)
 pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
@@ -250,6 +270,36 @@ for i, band in enumerate(bandranges):
 ax[4, 0].set_xlabel('redshift')
 ax[4, 1].set_xlabel('redshift')
 fig.delaxes(ax[0, 0])
+
+plt.tight_layout()
+plt.savefig(pngfile, dpi=150)
+
+print("Make M/L versus B-V plot", flush=True)
+
+pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
+                       'figures', 'kcorrect-default-v4.gst.mtolv.png')
+
+matplotlib.rcParams['figure.figsize'] = [5. , 5.]
+fig, ax = plt.subplots()
+
+# Note that to compare to Bell & De Jong (2001) you need to be in Vega!
+ok = derived_bv['mtol'][:, 1] > 0.
+ab2vega_factor = 10.**(0.4 * responseDict['bessell_V'].vega2ab)
+log_mtolv = np.log10(derived_bv['mtol'][ok, 1] / ab2vega_factor)
+bmv = absmag_bv[ok, 0] - absmag_bv[ok, 1]
+bmv = bmv - responseDict['bessell_B'].vega2ab + responseDict['bessell_V'].vega2ab
+
+ax.scatter(bmv, log_mtolv, s=1, alpha=0.2)
+
+# Comparison from Bell & De Jong (2001) Table 1
+bmv_l = -2. + 4. * np.arange(2, dtype=np.float32)
+mtolv_l = -0.734 + 1.404 * bmv_l
+ax.plot(bmv_l, mtolv_l, linewidth=3, label='Bell & de Jong (2001)')
+
+ax.set_xlim([0.1, 1.1])
+ax.set_ylim([-0.4, 0.5])
+ax.set_xlabel('$B-V$')
+ax.set_ylabel('$\\log_{10} M / L_V$ (solar units)')
 
 plt.tight_layout()
 plt.savefig(pngfile, dpi=150)

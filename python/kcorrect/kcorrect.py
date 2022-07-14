@@ -225,25 +225,44 @@ class Kcorrect(kcorrect.fitter.Fitter):
         mremain = coeffs.dot(self.templates.mremain) * dfactor
         metals = (coeffs.dot(self.templates.mremain * self.templates.mets) *
                   dfactor)
-
-        metallicity = metals / mremain
-
         m300 = coeffs.dot(self.templates.m300) * dfactor
-        b300 = m300 / intsfh
         m1000 = coeffs.dot(self.templates.m1000) * dfactor
-        b1000 = m1000 / intsfh
 
-        # Doesn't do solar yet
+        if(array):
+            ok = mremain > 0.
+            metallicity = np.zeros(len(redshift), dtype=np.float32)
+            b300 = np.zeros(len(redshift), dtype=np.float32)
+            b1000 = np.zeros(len(redshift), dtype=np.float32)
+            metallicity[ok] = metals[ok] / mremain[ok]
+            b300[ok] = m300[ok] / intsfh[ok]
+            b1000[ok] = m1000[ok] / intsfh[ok]
+        else:
+            if(mremain > 0.):
+                metallicity = metals / mremain
+                b300 = m300 / intsfh
+                b1000 = m1000 / intsfh
+            else:
+                metallicity = 0.
+                b300 = 0.
+                b1000 = 0.
+
         f = kcorrect.response.ResponseDict()
-        rmaggies = self.reconstruct_out(redshift=redshift,
+        zero_redshift = np.zeros(len(redshift), dtype=np.float32)
+        rmaggies = self.reconstruct_out(redshift=zero_redshift,
                                         coeffs=coeffs,
                                         band_shift=band_shift)
-        for ir, response in enumerate(self.responses):
+        for ir, response in enumerate(self.responses_out):
             solar = 10.**(- 0.4 * f[response].solar_magnitude)
-            rmaggies[..., ir] = rmaggies[..., ir] * dfactor / solar
-        mtol = (np.outer(coeffs.dot(self.templates.mremain),
-                         np.ones(len(self.responses), dtype=np.float32)) /
-                rmaggies)
+            rmaggies[..., ir] = rmaggies[..., ir] / solar
+
+        if(array):
+            ok = rmaggies > 0.
+        else:
+            ok = rmaggies[..., :] > 0
+        mtol = np.zeros(rmaggies.shape, dtype=np.float32)
+        mtol[ok] = (np.outer(coeffs.dot(self.templates.mremain),
+                             np.ones(len(self.responses), dtype=np.float32))[ok] /
+                    rmaggies[ok])
 
         outdict = dict()
         outdict['mremain'] = mremain
@@ -357,7 +376,8 @@ class Kcorrect(kcorrect.fitter.Fitter):
         Notes
         -----
 
-        Returns the K-corrected absolute magnitude.
+        Returns the K-corrected absolute magnitude (or -9999 if there
+        is no valid value).
 
         Depends on having run fit_coeffs on a consistent set of
         maggies and ivars. If ivar=0 or the maggies are negative 
@@ -366,7 +386,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
         Determines the distance modulus with the object's "cosmo.distmod()"
         method. By default this is the Planck18 cosmology. This use
         
-        If abcorrect is True, calles to_ab() method on input maggies
+        If abcorrect is True, calls to_ab() method on input maggies
         to convert to AB.
 """
         (array, n, redshift, maggies, ivar,
@@ -382,12 +402,17 @@ class Kcorrect(kcorrect.fitter.Fitter):
         ibad = np.where((use_maggies <= 0.) | (ivar <= 0.))
         use_maggies[ibad] = omaggies[ibad]
 
-        mags = - 2.5 * np.log10(use_maggies)
+        nz = use_maggies > 0.
+        mags = np.zeros(use_maggies.shape, dtype=np.float32)
+        mags[nz] = - 2.5 * np.log10(use_maggies[nz])
 
         if(array):
             dm = np.outer(dm, np.ones(len(self.responses), dtype=np.float32))
 
         absmag = mags - dm - k
+
+        isz = use_maggies <= 0.
+        absmag[isz] = - 9999.
 
         return(absmag)
 
