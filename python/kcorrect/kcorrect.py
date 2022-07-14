@@ -247,7 +247,10 @@ class Kcorrect(kcorrect.fitter.Fitter):
                 b1000 = 0.
 
         f = kcorrect.response.ResponseDict()
-        zero_redshift = np.zeros(len(redshift), dtype=np.float32)
+        if(array):
+            zero_redshift = np.zeros(len(redshift), dtype=np.float32)
+        else:
+            zero_redshift = 0.
         rmaggies = self.reconstruct_out(redshift=zero_redshift,
                                         coeffs=coeffs,
                                         band_shift=band_shift)
@@ -255,14 +258,14 @@ class Kcorrect(kcorrect.fitter.Fitter):
             solar = 10.**(- 0.4 * f[response].solar_magnitude)
             rmaggies[..., ir] = rmaggies[..., ir] / solar
 
-        if(array):
-            ok = rmaggies > 0.
-        else:
-            ok = rmaggies[..., :] > 0
         mtol = np.zeros(rmaggies.shape, dtype=np.float32)
-        mtol[ok] = (np.outer(coeffs.dot(self.templates.mremain),
-                             np.ones(len(self.responses), dtype=np.float32))[ok] /
-                    rmaggies[ok])
+        ok = rmaggies > 0.
+        if(array):
+            mtol[ok] = (np.outer(coeffs.dot(self.templates.mremain),
+                                 np.ones(len(self.responses), dtype=np.float32))[ok] /
+                        rmaggies[ok])
+        else:
+            mtol[ok] = (coeffs * self.templates.mremain).sum() / rmaggies[ok]
 
         outdict = dict()
         outdict['mremain'] = mremain
