@@ -9,7 +9,7 @@ API Reference
 kcorrect
 --------
 
-.. automodule:: robostrategy.allocate
+.. automodule:: kcorrect.kcorrect
    :members:
    :undoc-members:
    :show-inheritance:
@@ -17,7 +17,7 @@ kcorrect
 response
 --------
 
-.. automodule:: robostrategy.extra_field
+.. automodule:: kcorrect.response
    :members:
    :undoc-members:
    :show-inheritance:
@@ -25,7 +25,7 @@ response
 template
 --------
 
-.. automodule:: robostrategy.extra_field
+.. automodule:: kcorrect.template
    :members:
    :undoc-members:
    :show-inheritance:
@@ -33,7 +33,7 @@ template
 utils
 -----
 
-.. automodule:: robostrategy.extra_field
+.. automodule:: kcorrect.utils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -41,7 +41,7 @@ utils
 fitter
 ------
 
-.. automodule:: robostrategy.field
+.. automodule:: kcorrect.fitter
    :members:
    :undoc-members:
    :show-inheritance:
