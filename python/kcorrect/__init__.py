@@ -2,4 +2,4 @@
 
 NAME = 'kcorrect'
 
-__version__ = '0.1.0'
+__version__ = '5.0.0'
