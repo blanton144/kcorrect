@@ -1,6 +1,5 @@
 matplotlib
 numpy
 scipy
-pybind11
 fitsio
 pydl
