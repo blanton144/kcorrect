@@ -1,4 +1,0 @@
--r requirements.txt
-
-Sphinx
-sphinx_bootstrap_theme
