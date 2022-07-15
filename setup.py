@@ -54,7 +54,7 @@ def get_requirements(opts):
     ''' Get the proper requirements file based on the optional argument '''
 
     if opts.dev:
-        name = 'requirements_dev.txt'
+        name = 'requirements.txt'
     elif opts.doc:
         name = 'requirements_doc.txt'
     else:
