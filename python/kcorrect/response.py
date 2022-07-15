@@ -7,6 +7,7 @@
 
 import os
 import numpy as np
+import kcorrect
 import kcorrect.utils
 import kcorrect.template
 import scipy.interpolate as interpolate
@@ -192,13 +193,12 @@ class Response(object):
         -----
 
         If an absolute path, reads that. If not, looks relative
-        to $KCORRECT_DIR/python/kcorrect/data/responses
+        to KCORRECT_DIR/python/kcorrect/data/responses
 """
         if(os.path.isabs(filename)):
             infilename = filename
         else:
-            infilename = os.path.join(os.getenv('KCORRECT_DIR'),
-                                      'python', 'kcorrect', 'data',
+            infilename = os.path.join(kcorrect.KCORRECT_DIR, 'data',
                                       'responses', filename)
 
         par = yanny.yanny(infilename)
@@ -347,8 +347,7 @@ class Response(object):
         solar_magnitude is set to None.
 """
         if(self.solar_sed is None):
-            sunfile = os.path.join(os.getenv('KCORRECT_DIR'),
-                                   'python', 'kcorrect', 'data', 'basel',
+            sunfile = os.path.join(kcorrect.KCORRECT_DIR, 'data', 'basel',
                                    'lcbsun.ori')
             info, wave, flux = kcorrect.utils.read_basel(filename=sunfile)
 
@@ -384,8 +383,7 @@ class Response(object):
         vega2ab is set to None.
 """
         if(self.vega_sed is None):
-            vegafile = os.path.join(os.getenv('KCORRECT_DIR'),
-                                    'python', 'kcorrect', 'data', 'basel',
+            vegafile = os.path.join(kcorrect.KCORRECT_DIR, 'data', 'basel',
                                     'lcbvega.ori')
             info, wave, flux = kcorrect.utils.read_basel(filename=vegafile)
 

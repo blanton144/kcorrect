@@ -7,6 +7,7 @@
 
 import os
 import numpy as np
+import kcorrect
 import kcorrect.fitter
 import kcorrect.template
 import astropy.cosmology
@@ -118,8 +119,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
         # Read in templates
         if(templates is None):
-            filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
-                                    'kcorrect', 'data', 'templates',
+            filename = os.path.join(kcorrect.KCORRECT_DIR, 'data', 'templates',
                                     'kcorrect-default-v4.fits')
             templates = kcorrect.template.Template(filename=filename)
 

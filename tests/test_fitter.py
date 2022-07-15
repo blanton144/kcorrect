@@ -1,14 +1,16 @@
 import pytest
 import os
 import numpy as np
+import kcorrect
 import kcorrect.template
 import kcorrect.fitter
 
 
 def test_fitter():
     """Test fitting of SED (does not test quantatively)"""
-    filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
-                            'kcorrect', 'data', 'templates',
+
+    filename = os.path.join(kcorrect.KCORRECT_DIR, 'data',
+                            'templates',
                             'kcorrect-default-v4.fits')
     templates = kcorrect.template.SED(filename=filename)
 

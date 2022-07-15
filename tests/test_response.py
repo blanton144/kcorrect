@@ -2,6 +2,7 @@ import pytest
 import os
 import re
 import numpy as np
+import kcorrect
 import kcorrect.template
 import kcorrect.response
 
@@ -40,8 +41,7 @@ def test_load_all_response():
     """Test loading of response into ResponseDict"""
     f = kcorrect.response.ResponseDict()
 
-    rdir = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
-                        'kcorrect', 'data', 'responses')
+    rdir = os.path.join(kcorrect.KCORRECT_DIR, 'data', 'responses')
     files = os.listdir(rdir)
     for file in files:
         if(os.path.isfile(os.path.join(rdir, file))):

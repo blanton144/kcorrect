@@ -62,8 +62,8 @@ def test_redshift():
 def test_project():
     """Test projection onto filters (does not test quantitatively)"""
 
-    filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
-                            'kcorrect', 'data', 'templates',
+    filename = os.path.join(kcorrect.KCORRECT_DIR,
+                            'data', 'templates',
                             'kcorrect-lrg1-v4.fits')
     s = kcorrect.template.SED(filename=filename)
     f = kcorrect.response.ResponseDict()
