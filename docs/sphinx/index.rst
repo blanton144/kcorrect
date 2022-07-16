@@ -16,4 +16,5 @@ product.
 .. toctree::
    :maxdepth: 1
 
+   intro
    api
