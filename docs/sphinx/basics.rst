@@ -5,7 +5,9 @@ K-correction Basics
 =========================
 
 The basics of K-corrections are well-described in `Hogg et al. (2002)
-<https://ui.adsabs.harvard.edu/abs/2002astro.ph.10394H/abstract>`_.
+<https://ui.adsabs.harvard.edu/abs/2002astro.ph.10394H/abstract>`_ and
+in `Blanton & Roweis (2007)
+<https://ui.adsabs.harvard.edu/abs/2007AJ....133..734B/abstract>`_.
 Here is a briefer description including how they are estimated by
 ``kcorrect``.
 
@@ -41,31 +43,59 @@ minimize the residuals between the actual galaxy fluxes and the galaxy
 fluxes reconstructed from the galaxy SED fit. The K-correction is then
 calculated from this best-fit SED.
 
+To perform the fits, the software requires broad band flux
+measurements.  These are accepted as AB maggies. Maggies are the ratio
+of the source to the AB standard source in each band, using the
+integrals in the `kcorrect paper
+<https://ui.adsabs.harvard.edu/abs/2007AJ....133..734B/abstract>`_.
+They have a simple relationship to magnitudes:
+
+.. math::
+   m = − 2.5 \log 10 \mu.
+
+where :math:`m` is the magnitude and :math:`\mu` is maggies. An
+advantage of the maggie unit system relative to magnitudes is that it
+is linear, and thus can when necessary accommodate negative flux
+estimates.
+
+The AB standard source is a flat spectrum object with :math:`f_\nu =
+3631 {\rm ~Jy} = 3.631 \times 10^{−20} {\rm ~ergs} {\rm ~cm}^{−2} {\rm
+~s}^{−1} {\rm ~Hz}^{−1}`. Such a source would have all magnitudes
+equal to zero.
+
+There are still many available catalogs that are defined on the Vega
+standard source system. The :py:class:`Response
+<kcorrect.response.Response>` object associated with a filter has the
+``vega2ab`` attribute which defines the correction from Vega to AB in
+magnitudes. 
+
 The band :math:`Q` can in principle be anything; it does not have to
 be the same as :math:`R`, and it also does not have to be an actual
-bandpass at all. A particular choice is a "shifted" bandpass, where a
-band shift of :math:`z` would be denoted :math:`^{z}Q` and would
-indicate that the rest-frame band pass :math:`Q` blue shifted by a
-factor :math:`(1+z)`. In this case the K-correction for an object at
-redshift :math:`z` from observed bandpass :math:`R` to a rest frame
-band pass :math:`^{z}R` would be independent of the object's SED and
-equal to :math:`-2.5\log_{10}(1+z)`, because the bandpasses exactly
+bandpass at all.
+
+``kcorrect`` supports a particular choice of a "shifted" bandpass with
+its ``band_shift`` option, where a band shift of :math:`z` would be
+denoted :math:`^{z}Q` and would indicate that the rest-frame band pass
+:math:`Q` blue shifted by a factor :math:`(1+z)`. In this case the
+K-correction for an object at redshift :math:`z` from observed
+bandpass :math:`R` to a rest frame band pass :math:`^{z}R` would be
+independent of the object's SED and equal to
+:math:`-2.5\log_{10}(1+z)`, because the bandpasses exactly
 overlap. The advantage of this choice is that by choosing the band
 shift to be near the typical redshift of a sample, one can minimize
 the errors due to K-corrections when comparing objects within the
 sample.
 
-To perform the fits, the software requires broad band flux
-measurements.  These are accepted as AB maggies. These are the ratio
-of the source to the AB standard source in each band. To relate these
-quantities to magnitudes, an object with total flux f in maggies has
-magnitude
+Two final notes on SDSS units, which since ``kcorrect`` grew out of SDSS
+work seems appropriate here.
 
-m = − 2.5 log 10 f .
-An advantage of the maggie unit system is that it is linear, and thus can when necessary accommodate negative flux estimates. Two notes:
+* The official SDSS catalog numbers are not our best guess for the AB
+  system, so SDSS data has a small conversion factor that needs to be
+  applied using :py:func:`sdss_ab_correct()
+  <kcorrect.utils.sdss_ab_correct>`.
 
-As discussed below, SDSS catalog numbers are NOT on our best guess for the AB system. A set of offsets must be applied to the magnitudes to achieve our best guess. Our high level IDL code deals with this automatically.
-SDSS catalog magnitudes obtained from the official survey database are luptitudes, which for reasonably bright objects are equivalent to magnitudes. While maggies are simply related to magnitudes by 10−0.4m, the conversion from luptitudes to maggies is a bit more complicated; see the description accompanying the DR2 documentation). Our high level IDL code deals with these conversions automatically.
-But you may still be wondering what I mean by an "AB" magnitude. The AB system is designed such that a flat spectrum object with fν = 3631 Jy = 3.631 × 10−20 ergs cm−2 s−1 Hz−1 should have every magnitude equal to zero. The beauty of the AB system is that the uniform definition makes it convenient to synthesize AB magnitudes from theory or models. The tragic flaw is that the quality of the AB-ness of a system is very dependent on precise spectrophotometry of standards and the carefulness of the calibrators, since no objects have a flat spectrum. There is a tension between these two needs --- similar to other tensions throughout astronomy between making precise measurements and making interpretable ones.
-
-Finally, I have also included code to calculate photometric redshifts based on the templates. This procedure is as simple as running the K-correction code at each redshift and finding that redshift which provides the best fit in the χ2 sense.
+* The "magnitudes" published by SDSS are so-called "asinh magnitudes"
+  or "luptitudes", described by `the SDSS imaging documentation
+  <https://www.sdss.org/dr17/algorithms/magnitudes/#asinh>`_. These
+  can be converted to maggies with :py:func:`sdss_asinh_to_maggies()
+  <kcorrect.utils.sdss_asinh_to_maggies>`.

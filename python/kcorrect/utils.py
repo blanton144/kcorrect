@@ -259,6 +259,10 @@ def sdss_asinh_to_maggies(mag=None, mag_err=None, extinction=None):
     Notes
     -----
 
+    If extinction set, applies extinction (after converting to maggies). 
+
+    Does not apply AB corrections.
+
     If mag_err is None on input, only maggies is returned.
 """
     mag = np.float32(mag)
