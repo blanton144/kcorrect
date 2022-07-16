@@ -10,11 +10,15 @@
 Overview
 =========================
 
-This page has reference developer documentation for the kcorrect
-product.
+This page has documentation for the kcorrect product to calculate
+astronomical K-corrections for galaxies.
 
 .. toctree::
    :maxdepth: 1
 
    intro
+   new
+   conditions
+   install
+   basics
    api
