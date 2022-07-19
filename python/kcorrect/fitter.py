@@ -209,7 +209,7 @@ class Fitter(object):
 
         coeffs : ndarray of np.float32 or None
             coeffs to use
-        
+
         Notes
         -----
 
