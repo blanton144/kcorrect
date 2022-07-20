@@ -23,7 +23,7 @@ class SED(object):
         rest frame wavelength grid in Angstroms
 
     flux : ndarray of np.float32
-        [nsed, nwave] rest frame flux grid in erg/cm^2/s/A
+        [nsed, nwave] rest frame flux grid in erg/cm^2/s/A at 10pc
 
     Attributes
     ----------
@@ -32,7 +32,7 @@ class SED(object):
         name of FITS file associated with this SED
 
     flux : ndarray of np.float32
-        [nsed, nwave] flux grid in erg/cm^2/s/A
+        [nsed, nwave] flux grid in erg/cm^2/s/A at 10pc and currently set redshift
 
     info : dict
         dictionary for storing assorted metadata associated with spectra
@@ -42,12 +42,12 @@ class SED(object):
 
     nwave : np.int32
         number of wavelengths in grid
-    
+
     redshift : np.float32
         redshift of SED
 
     restframe_flux : ndarray of np.float32
-        [nsed, nwave] rest frame flux grid in erg/cm^2/s/A
+        [nsed, nwave] rest frame flux grid in erg/cm^2/s/A at 10pc
 
     restframe_wave : ndarray of np.float32
         [nwave] rest frame wavelength grid in Angstroms
@@ -58,8 +58,15 @@ class SED(object):
     Notes
     -----
 
+    The fluxes are a bit funnily defined, in terms of the flux that
+    the galaxy would have at 10pc, analogous to an absolute magnitude.
+    When the redshift is applied, the bolometric flux is conserved
+    (i.e. there is no luminosity distance applied, it is a pure 
+    redshifting of the spectrum).
+
     If filename is set, overrides wave and flux.
-"""
+
+    """
     def __init__(self, filename=None, wave=None, flux=None, ext='FLUX'):
         self.restframe_wave = wave
         self.restframe_flux = flux
@@ -182,7 +189,7 @@ class SED(object):
         Notes
         -----
 
-        Conserves integral of flux.
+        Conserves bolometric integral of flux.
 """
         self.wave = self.restframe_wave * (1. + redshift)
         self.flux = self.restframe_flux / (1. + redshift)

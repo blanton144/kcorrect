@@ -13,6 +13,7 @@ kcorrect
    :members:
    :undoc-members:
    :show-inheritance:
+   :inherited-members:
 
 response
 --------

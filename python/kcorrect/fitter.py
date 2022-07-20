@@ -90,6 +90,9 @@ class Fitter(object):
         # Now create Amatrix interpolator
         Amatrix = interpolate.interp1d(self.redshifts, rmatrix, axis=0)
 
+        # Return templates to z=0
+        self.templates.set_redshift(redshift=0.)
+
         return(Amatrix)
 
     def to_ab(self, maggies=None, ivar=None):
@@ -209,7 +212,7 @@ class Fitter(object):
 
         coeffs : ndarray of np.float32 or None
             coeffs to use
-        
+
         Notes
         -----
 

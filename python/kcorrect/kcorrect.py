@@ -322,6 +322,11 @@ class Kcorrect(kcorrect.fitter.Fitter):
         kcorrect : ndarray of np.float32
             K-correction from input to output magnitudes
 """
+        (array, n, redshift, d1,
+         d2, coeffs) = self._process_inputs(redshift=redshift, maggies=None,
+                                            ivar=None, coeffs=coeffs)
+
+
         # maggies associated with bandpass R at observed z
         maggies_in = self.reconstruct(redshift=redshift, coeffs=coeffs)
 
@@ -333,7 +338,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
         # Now carefully take the K-correction (avoiding cases
         # where the coefficients are zero)
         kcorrect = np.zeros(maggies_out.shape, dtype=np.float32)
-        if(maggies_out.ndim > 1):
+        if(array):
             # check if coefficients are ever zero
             notzero = coeffs.sum(axis=-1) > 0
             nz_maggies_in = maggies_in[notzero, :]

@@ -111,7 +111,8 @@ todo_include_todos = False
 # Intersphinx mappings
 intersphinx_mapping = {'python': ('https://docs.python.org/3.9', None),
                        'astropy': ('http://docs.astropy.org/en/latest', None),
-                       'numpy': ('http://docs.scipy.org/doc/numpy/', None)}
+                       'numpy': ('http://docs.scipy.org/doc/numpy/', None),
+                       'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None)}
 
 autodoc_mock_imports = ['_tkinter', 'pydl', 'fitsio', 'astropy',
                         'scipy', 'numpy']
