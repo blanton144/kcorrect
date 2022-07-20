@@ -14,12 +14,18 @@ variables to be set.
 The methodology is otherwise almost the same, using the same set of
 templates as ``v4``.
 
-The only methodological difference is that the nonnegative least
-squares is performed with `the SciPy NNLS function
-<https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.nnls.html>`_
+The only methodological difference to the K-corrections is that the
+nonnegative least squares is performed with :py:func:`the SciPy NNLS function
+<scipy.optimize.nnls>`
 rather than the iterative method used in the past. Both methods solve
 the same minimization problem so the answers are very close to one
 another.
+
+The stellar masses and absolute magnitudes are no longer referenced to
+:math:`h=1`. Instead, they are given by default using the ``Planck18``
+version of the :py:class:`FlatLambdaCDM
+<astropy.cosmology.FlatLambdaCDM>` cosmology, with the Hubble Constant
+for that cosmology.
 
 If you are still using ``v4``, please look at its `online
 documentation <http://kcorrect.org>`_ for more information.
