@@ -19,7 +19,7 @@ import fitsio
 
 def all_responses(response_dir=os.path.join(kcorrect.KCORRECT_DIR, 'data',
                                             'responses'),
-                  check_validity=True):
+                  check_validity=False):
     """List all responses available
     
     Parameters
@@ -49,13 +49,17 @@ def all_responses(response_dir=os.path.join(kcorrect.KCORRECT_DIR, 'data',
     If the user specifies response_dir and check_validity is False,
     there is no guarantee that the response files in the specified
     directory are valid!
+
+    If check_validity is True, the responses are also loaded into the
+    ResponseDict() singleton.
 """
     rdir = os.path.join(response_dir)
     files = os.listdir(rdir)
     responses = []
-    for file in files:
-        if(os.path.isfile(os.path.join(rdir, file))):
-            m = re.match('^(.*)\\.par$', file)
+    f = ResponseDict()
+    for filename in files:
+        if(os.path.isfile(os.path.join(rdir, filename))):
+            m = re.match('^(.*)\\.par$', filename)
             if(m is not None):
                 response = m.group(1)
                 valid = True
