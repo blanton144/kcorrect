@@ -21,4 +21,5 @@ astronomical K-corrections for galaxies.
    conditions
    install
    basics
+   examples
    api

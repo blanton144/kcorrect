@@ -6,6 +6,7 @@
 
 
 import os
+import re
 import numpy as np
 import kcorrect
 import kcorrect.utils
@@ -14,6 +15,58 @@ import scipy.interpolate as interpolate
 import scipy.integrate as integrate
 import pydl.pydlutils.yanny as yanny
 import fitsio
+
+
+def all_responses(response_dir=os.path.join(kcorrect.KCORRECT_DIR, 'data',
+                                            'responses'),
+                  check_validity=True):
+    """List all responses available
+    
+    Parameters
+    ----------
+
+    response_dir : str
+        path to directory containing responses
+
+    check_validity : bool
+        if True, check the validity of the files
+
+    Returns
+    -------
+
+    responses : list of str
+        response names for available bandpasses
+    
+    Notes
+    -----
+
+    Returns all base names of files with the suffix '.par' in the
+    response_dir directory.
+
+    By default, response_dir is the "data/responses" directory within
+    the kcorrect Python distribution. 
+
+    If the user specifies response_dir and check_validity is False,
+    there is no guarantee that the response files in the specified
+    directory are valid!
+"""
+    rdir = os.path.join(response_dir)
+    files = os.listdir(rdir)
+    responses = []
+    for file in files:
+        if(os.path.isfile(os.path.join(rdir, file))):
+            m = re.match('^(.*)\\.par$', file)
+            if(m is not None):
+                response = m.group(1)
+                valid = True
+                if(check_validity):
+                    try:
+                        f.load_response(response)
+                    except:
+                        valid = False
+                if(valid):
+                    responses.append(response)
+    return(responses)
 
 
 # Class to define a singleton

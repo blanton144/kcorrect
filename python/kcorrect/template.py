@@ -255,6 +255,17 @@ class Template(SED):
     -----
 
     If filename is set, overrides wave and flux.
+
+    The file should have the HDUs:
+
+       FLUX : an ndarray with two tags: 
+         'wave' : an [nwave]-array of np.float32 with wavelength in Ang.
+         'flux' : an [nsed, nwave]-array of np.float32 with flux in erg/s/cm^2/A
+       METS : an [nsed]-array with metallicity
+       INTSFH : an [nsed]-array with integrated SF in solar units
+       MREMAIN : an [nsed]-array with current stellar mass in solar units
+       M300 : an [nsed]-array with mass formed within 300 My in solar units
+       M1000 : an [nsed]-array with mass formed within 1 Gy in solar units
 """
     def __init__(self, filename=None, wave=None, flux=None, ext='FLUX'):
         super().__init__(filename=filename)

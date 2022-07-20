@@ -7,6 +7,12 @@ Examples
 Basic K-correction Calculation
 ------------------------------
 
+The simplest case is that you have a galaxy with a redshift and
+measured fluxes in a set of band passes, and you want to calculate
+the K-corrections to the rest frame version of those bandpasses.
+
+You need to specify the responses, which can be found in the 
+
 .. code::
 
    import kcorrect.kcorrect
