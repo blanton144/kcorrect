@@ -6,6 +6,7 @@
 
 
 import numpy as np
+import kcorrect.response
 
 
 def sed_ab(wave=None):
@@ -305,3 +306,23 @@ def sdss_asinh_to_maggies(mag=None, mag_err=None, extinction=None):
         return(maggies)
     else:
         return(maggies, maggies_ivar)
+
+
+def maggies2flambda(maggies=None, responses=None):
+    """Return arrays of wave, flambda for maggies"""
+    
+    r = kcorrect.response.ResponseDict()
+    for response in responses:
+        if(response not in r):
+            r.load_response(response)
+
+    wave = np.array([r[x].lambda_eff for x in responses],
+                    dtype=np.float32)
+    m2f = sed_ab(wave)
+
+    if(maggies.ndim == 1):
+        flambda = m2f * maggies
+    else:
+        flambda = np.outer(np.ones(maggies.shape[0], dtype=np.float32),
+                           m2f) * maggies
+    return(wave, flambda)
