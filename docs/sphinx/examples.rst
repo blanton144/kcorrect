@@ -177,9 +177,9 @@ object, which by default is the ``Planck18`` cosmology from
 Changing the output responses
 -----------------------------
 
-As one gets to higher redshift, the K-corrections become more
-dependent on the SED model being correct, because the recovered
-rest-frame bandpass :math:`Q` is 
+As one gets to higher redshift, the K-corrections from a given
+observed frame bandpass to its rest frame counterpart become more and
+more dependent on the SED model being correct.
 
 band shift
 
