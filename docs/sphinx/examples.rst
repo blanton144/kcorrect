@@ -180,3 +180,12 @@ Changing the output responses
 As one gets to higher redshift, the K-corrections become more
 dependent on the SED model being correct, because the recovered
 rest-frame bandpass :math:`Q` is 
+
+band shift
+
+totally different responses
+
+
+Responses
+---------
+
