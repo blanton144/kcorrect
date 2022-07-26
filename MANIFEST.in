@@ -1,2 +1,1 @@
 recursive-include python/kcorrect/etc *
-recursive-include cextern/**/*
