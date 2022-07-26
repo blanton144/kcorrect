@@ -192,23 +192,23 @@ class Kcorrect(kcorrect.fitter.Fitter):
         The derived dictionary contains the following keys with the
         associated quantities:
 
-            'mremain'  : ndarray of np.float32, or np.float32
-                current stellar mass in solar masses
+        'mremain'  : ndarray of np.float32, or np.float32
+             current stellar mass in solar masses
 
-            'intsfh' : ndarray of np.float32, or np.float32
-               current stellar mass in solar masses
+        'intsfh' : ndarray of np.float32, or np.float32
+             current stellar mass in solar masses
 
-            'mtol' : ndarray of np.float32, or np.float32
-               mass-to-light ratio in each output band
+        'mtol' : ndarray of np.float32, or np.float32
+             mass-to-light ratio in each output band
 
-            'b300' : ndarray of np.float32, or np.float32
-               current (< 300 Myr) over past star formation
+        'b300' : ndarray of np.float32, or np.float32
+             current (< 300 Myr) over past star formation
 
-            'b1000' : ndarray of np.float32, or np.float32
-               current (< 1 Gyr) over past star formation
+        'b1000' : ndarray of np.float32, or np.float32
+             current (< 1 Gyr) over past star formation
 
-            'metallicity' :
-               metallicity in current stars
+        'metallicity' :
+             metallicity in current stars
 
         All of these quantities should be taken with extreme caution
         and not accepted literally. After all, they are just the result
@@ -406,8 +406,10 @@ class Kcorrect(kcorrect.fitter.Fitter):
                           band_shift=band_shift)
         omaggies = self.reconstruct_out(redshift=redshift, coeffs=coeffs,
                                         band_shift=band_shift)
-        use_maggies = maggies
-        ibad = np.where((use_maggies <= 0.) | (ivar <= 0.))
+
+        use_maggies = maggies[..., self.imap]
+        use_ivar = ivar[..., self.imap]
+        ibad = np.where((use_maggies <= 0.) | (use_ivar <= 0.))
         use_maggies[ibad] = omaggies[ibad]
 
         nz = use_maggies > 0.
@@ -415,7 +417,8 @@ class Kcorrect(kcorrect.fitter.Fitter):
         mags[nz] = - 2.5 * np.log10(use_maggies[nz])
 
         if(array):
-            dm = np.outer(dm, np.ones(len(self.responses), dtype=np.float32))
+            dm = np.outer(dm, np.ones(len(self.responses_out),
+                                      dtype=np.float32))
 
         absmag = mags - dm - k
 
@@ -497,7 +500,7 @@ class KcorrectSDSS(Kcorrect):
     Notes
     -----
 
-    responses defaults to ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']
+    The 'responses' input defaults to ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']
 
     This class provides the method fit_coeffs_asinh() to use SDSS-style
     asinh magnitudes (these are the magnitudes that the SDSS imaging
@@ -550,6 +553,8 @@ class KcorrectSDSS(Kcorrect):
 
         Uses the AB conversions produced by D. Eisenstein, in his
         message sdss-calib/1152
+
+        ::
 
             u(AB,2.5m) = u(database, 2.5m) - 0.036
             g(AB,2.5m) = g(database, 2.5m) + 0.012
@@ -689,9 +694,7 @@ class KcorrectGST(Kcorrect):
     Notes
     -----
 
-    responses defaults to ['galex_FUV', 'galex_NUV', 'sdss_u0', 'sdss_g0',
-                           'sdss_r0', 'sdss_i0', 'sdss_z0', 'twomass_J',
-                           'twomass_H', 'twomass_Ks']
+    The 'responses' input defaults to ['galex_FUV', 'galex_NUV', 'sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0', 'twomass_J', 'twomass_H', 'twomass_Ks']
 
     abcorrect is by default False and the input maggies are assumed to
     be AB.  If abcorrect is set to True, the to_ab() method is applied
@@ -746,6 +749,8 @@ class KcorrectGST(Kcorrect):
 
         Uses the AB conversions produced by D. Eisenstein, in his
         message sdss-calib/1152
+
+        ::
 
             u(AB,2.5m) = u(database, 2.5m) - 0.036
             g(AB,2.5m) = g(database, 2.5m) + 0.012

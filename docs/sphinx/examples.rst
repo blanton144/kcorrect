@@ -134,7 +134,7 @@ you should find agreement within a few percent between ``maggies`` and
 
 .. code::
 
-	 rmaggies = kc.reconstruct(redshift=redshift, coeffs=coeffs)
+    rmaggies = kc.reconstruct(redshift=redshift, coeffs=coeffs)
 
 
 Derived parameters (i.e. stellar mass)
@@ -181,11 +181,56 @@ As one gets to higher redshift, the K-corrections from a given
 observed frame bandpass to its rest frame counterpart become more and
 more dependent on the SED model being correct.
 
-band shift
+One approach to dealing with this is to define a set of output rest
+frame bandpasses that are shifted versions of your input bandpasses,
+where the shift is the typical redshift of your sample. This minimizes
+the internal error in your sample, at the expense of calculating
+quantities that are less likely to be comparable to catalogs in the
+literature. This option can be utilized by just specifying
+``band_shift`` for the :py:func:`kcorrect
+<kcorrect.kcorrect.Kcorrect.kcorrect>`, :py:func:`absmag
+<kcorrect.kcorrect.Kcorrect.absmag>`, or :py:func:`derived
+<kcorrect.kcorrect.Kcorrect.derived>` methods when you use them:
 
-totally different responses
+.. code::
 
+   absmag = kc.absmag(redshift=redshift, maggies=maggies, ivar=ivar, coeffs=coeffs, band_shift=0.1)
 
-Responses
----------
+A second approach is to define a set of output rest frame bandpasses
+that correspond closely to the effective rest frame wavelength of the
+observed bandpass for galaxies at the typical observed redshift in
+your sample. For example, at :math:`z\sim 0.7` the observed SDSS
+:math:`r`, :math:`i`, and :math:`z` bands are close in wavelength to
+the rest frame :math:`U`, :math:`B`, and :math:`V` bands. So if we
+observed galaxies in the SDSS bands at those redshifts, we could find
+the K-corrections to :math:`UBV`. To do so, we have to instantiate a
+:py:class:`Kcorrect <kcorrect.kcorrect.Kcorrect>` object that can do
+so using the ``response_map`` and ``response_out`` arguments:
+
+.. code::
+
+   import kcorrect.kcorrect
+
+   responses_in = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0']
+   responses_out = ['bessell_U', 'bessell_B', 'bessell_V']
+   responses_map = ['sdss_r0', 'sdss_i0', 'sdss_z0']
+   kc = kcorrect.kcorrect.Kcorrect(responses=responses_in,
+                                   responses_out=responses_out,
+				   responses_map=responses_map)
+
+   # These are the ugriz observations (made up!)
+   redshift = 0.72
+   maggies = [27.26e-9, 73.98e-9, 132.56e-9, 198.52e-9, 238.05e-9]
+   ivar = [1.528e+18, 5.23e+18, 2.429e+18, 1.042e+18, 0.1653e+18]
+   
+   # "coeffs" is a [5]-array with coefficients multiplying each template
+   coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+   # "k" is a [3]-array with the K-corrections in magnitude units,
+   # from riz to UBV.
+   k = kc.kcorrect(redshift=redshift, coeffs=coeffs)
+
+   # "absmag" is also a [3]-array resuling from applying K-corrections
+   # and the distance modulus
+   absmag = kc.absmag(redshift=redshift, maggies=maggies, ivar=ivar, coeffs=coeffs)
 

@@ -3,7 +3,7 @@
 
 .. title:: kcorrect
 
-:tocdepth: 2
+:tocdepth: 3
 
 .. rubric:: :header_no_toc:`kcorrect documentation`
 
@@ -14,7 +14,7 @@ This page has documentation for the kcorrect product to calculate
 astronomical K-corrections for galaxies.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: -1
 
    intro
    new

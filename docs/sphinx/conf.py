@@ -35,9 +35,11 @@ from pkg_resources import parse_version
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'sphinx.ext.autosummary',
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon',
+              'sphinx.ext.autosummary',
               'sphinx.ext.todo', 'sphinx.ext.viewcode', 'sphinx.ext.mathjax',
-              'sphinx.ext.intersphinx', 'sphinx.ext.autosectionlabel']
+              'sphinx.ext.intersphinx', 'sphinx.ext.autosectionlabel',
+              'sphinxcontrib.fulltoc']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -141,7 +143,7 @@ html_sidebars = {}
 # documentation.
 html_theme_options = {
     # Navigation bar title. (Default: ``project`` value)
-    'navbar_title': "SDSS: {0}".format(project),
+    'navbar_title': "{0}".format(project),
 
     # Tab name for entire site. (Default: "Site")
     'navbar_site_name': "Site",
@@ -167,7 +169,7 @@ html_theme_options = {
 
     # Global TOC depth for "site" navbar tab. (Default: 1)
     # Switching to -1 shows all levels.
-    'globaltoc_depth': 2,
+    'globaltoc_depth': 4,
 
     # Include hidden TOCs in Site navbar?
     #

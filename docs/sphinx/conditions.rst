@@ -1,5 +1,5 @@
 
-.. _intro:
+.. _conditions:
 
 
 Conditions of Use

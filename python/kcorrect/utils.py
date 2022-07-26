@@ -142,6 +142,8 @@ def sdss_ab_correct(maggies=None, ivar=None,
     Uses the AB conversions produced by D. Eisenstein, in his
     message sdss-calib/1152
 
+    ::
+
       u(AB,2.5m) = u(database, 2.5m) - 0.036
       g(AB,2.5m) = g(database, 2.5m) + 0.012
       r(AB,2.5m) = r(database, 2.5m) + 0.010

@@ -273,6 +273,7 @@ class Template(SED):
        MREMAIN : an [nsed]-array with current stellar mass in solar units
        M300 : an [nsed]-array with mass formed within 300 My in solar units
        M1000 : an [nsed]-array with mass formed within 1 Gy in solar units
+
 """
     def __init__(self, filename=None, wave=None, flux=None, ext='FLUX'):
         super().__init__(filename=filename)

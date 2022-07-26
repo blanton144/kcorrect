@@ -1,6 +1,8 @@
 
 .. _intro:
 
+:tocdepth: 3
+
 
 Introduction
 =========================
