@@ -7,7 +7,7 @@ K-correction
 
 ------------
 
-This README describes the kcorrect Python package. 
+This Python package performs K-corrections of galaxies.
 
 .. |Build Status| image:: https://travis-ci.org/blanton144/robostrategy.svg?branch=v5
    :target: https://travis-ci.org/blanton144/kcorrect
