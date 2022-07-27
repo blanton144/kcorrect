@@ -127,3 +127,20 @@ ax.set_ylabel('$\\log_{10} M / L_V$ (solar units)')
 
 plt.tight_layout()
 plt.savefig(pngfile, dpi=150)
+plt.clf()
+
+pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
+                       'figures', 'kcorrect-default-v4.lss.masses.png')
+
+fig, ax = plt.subplots()
+
+# Now just plot masses vs absolute mag and color
+log_stellar_mass = np.log10(derived_bv['mremain'][ok])
+ax.scatter(absmag_bv[ok, 1], log_stellar_mass, s=1, c=bmv)
+ax.set_xlabel('$M_V$')
+ax.set_ylabel('$\\log_{10} M_\\ast$ (solar masses)')
+fig.colorbar(ax=ax)
+
+plt.tight_layout()
+plt.savefig(pngfile, dpi=150)
+plt.clf()
