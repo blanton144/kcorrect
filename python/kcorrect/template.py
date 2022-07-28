@@ -5,6 +5,7 @@
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.interpolate as interpolate
 import astropy.io.fits as fits
@@ -197,6 +198,52 @@ class SED(object):
         self.set_interp()
         return
 
+    def plot(self, indx=None, wavelim=None):
+        """Simple matplotlib plot of template(s)
+
+        Parameters
+        ----------
+
+        indx : np.int32 or ndarray of np.int32
+           index of template(s) to plot
+
+        wavelim : list or ndarray of np.float32
+            [2] wavelength limits of plot
+
+        Notes
+        -----
+
+        Plots log of wavelength and log of lambda * flux_lambda.
+"""
+        if(indx is None):
+            indx = np.arange(self.nsed, dtype=int)
+
+        indxs = np.int32(indx)
+        if(indxs.ndim == 0):
+            indxs = np.array([indxs], dtype=np.int32)
+
+        for i in indxs:
+            ok = self.flux[i, :] > 0.
+            plt.plot(np.log10(self.wave[ok]),
+                     np.log10(self.wave[ok] * self.flux[i, ok]),
+                     linewidth=1, alpha=0.5)
+
+        if(wavelim is not None):
+            iwave = np.where((self.wave > wavelim[0]) &
+                             (self.wave < wavelim[1]))[0]
+            plt.xlim(np.log10(np.float32(wavelim)))
+            lfl = self.flux * np.outer(np.ones(self.flux.shape[0],
+                                               dtype=np.float32),
+                                       self.wave)
+            yvals = lfl[:, iwave][indxs, :].flatten()
+            yvals = yvals[yvals > 0.]
+            ymin = np.log10(yvals.min()) - 0.1
+            ymax = np.log10(yvals.max()) + 0.1
+            plt.ylim([ymin, ymax])
+
+        plt.xlabel('$\\log_{10}$ $\\lambda$  (Angstroms)')
+        plt.ylabel('$\\log_{10}$ $\\lambda f_\\lambda$ (erg s$^{-1}$ cm$^{-2}$ M$_{\odot}^{-1}$ at 10 pc)')
+        return
 
 class Template(SED):
     """Spectral energy distribution template(s)

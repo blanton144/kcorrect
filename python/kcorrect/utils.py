@@ -310,8 +310,43 @@ def sdss_asinh_to_maggies(mag=None, mag_err=None, extinction=None):
         return(maggies, maggies_ivar)
 
 
-def maggies2flambda(maggies=None, responses=None):
-    """Return arrays of wave, flambda for maggies"""
+def maggies2flambda(maggies=None, ivar=None, responses=None):
+    """Return arrays of wave, flambda for maggies
+
+    Parameters
+    ----------
+
+    maggies : np.float32 or ndarray of np.float32
+        maggies to convert
+
+    ivar : np.float32 or ndarray of np.float32
+        inverse variance of maggies to convert (or None)
+
+    responses : list of str
+        names of responses that each maggies corresponds to
+
+    Returns
+    -------
+
+    wave : np.float32 or ndarray of np.float32
+        effective wavelength of each response curve
+
+    flux : np.float32 or ndarray of np.float32
+        flux in erg/s/cm^2/A corresponding to maggies
+
+    flux_ivar : np.float32 or ndarray of np.float32
+        inverse variance of flux (if ivar input)
+
+    Notes
+    -----
+
+    If ivar is set on input, output is (wave, flux, flux_ivar).
+
+    If ivar is not set on input, output is (wave, flux)
+
+    Effective wavelength is derived from response curve; curve is
+    loaded into the response dictionary if it isn't there already.
+"""
     
     r = kcorrect.response.ResponseDict()
     for response in responses:
@@ -324,7 +359,16 @@ def maggies2flambda(maggies=None, responses=None):
 
     if(maggies.ndim == 1):
         flambda = m2f * maggies
+        if(ivar is not None):
+            fivar = ivar / m2f**2
     else:
         flambda = np.outer(np.ones(maggies.shape[0], dtype=np.float32),
                            m2f) * maggies
-    return(wave, flambda)
+        if(ivar is not None):
+            fivar = np.outer(np.ones(maggies.shape[0], dtype=np.float32),
+                             1. / m2f**2) * ivar
+
+    if(ivar is not None):
+        return(wave, flambda, fivar)
+    else:
+        return(wave, flambda)
