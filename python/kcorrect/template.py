@@ -242,8 +242,9 @@ class SED(object):
             plt.ylim([ymin, ymax])
 
         plt.xlabel('$\\log_{10}$ $\\lambda$  (Angstroms)')
-        plt.ylabel('$\\log_{10}$ $\\lambda f_\\lambda$ (erg s$^{-1}$ cm$^{-2}$ M$_{\odot}^{-1}$ at 10 pc)')
+        plt.ylabel('$\\log_{10}$ $\\lambda f_\\lambda$ (erg s$^{-1}$ cm$^{-2}$ M$_{\\odot}^{-1}$ at 10 pc)')
         return
+
 
 class Template(SED):
     """Spectral energy distribution template(s)
