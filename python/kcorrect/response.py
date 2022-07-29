@@ -313,15 +313,36 @@ class Response(object):
 
         Fluxes should be in erg cm^{-2} s^{-1} Angstrom^{-1}
 
+        If "flux" and "wave" are specified, then wave must be
+        a 1-dimensional array, and flux must be a 1-dimensional
+        or 2-dimensional array, with the last axis corresponding
+        to wavelength and with the same number of elements as
+        wave.
+
         Assumes AB calibration.
 
         If the bandpass is outside the range of the solar model, 0 is returned.
 """
         if(sed is None):
+            if((wave is None) or (flux is None)):
+                raise ValueError("must specify sed, or wave and flux")
+            wave = np.float32(wave)
+            flux = np.float32(flux)
+            if(wave.ndim != 1):
+                raise ValueError("wave must be 1-D array")
+            if(flux.shape[-1] != wave.shape[0]):
+                raise ValueError("last axis of flux must match wave")
+            if(flux.ndim > 2):
+                raise ValueError("flux must be 1-D or 2-D array")
             sed_wave = wave
-            interp = interpolate.interp1d(wave, flux, kind='cubic',
-                                          bounds_error=False, fill_value=0.)
-            nsed = 1
+            if(flux.ndim == 1):
+                interp = interpolate.interp1d(wave, flux, kind='cubic',
+                                              bounds_error=False, fill_value=0.)
+                nsed = 1
+            else:
+                nsed = flux.shape[0]
+                interp = interpolate.interp1d(wave, flux, kind='cubic',
+                                              bounds_error=False, fill_value=0.)
         else:
             sed_wave = sed.wave
             interp = sed.interp
