@@ -12,6 +12,7 @@ import kcorrect.fitter
 import kcorrect.template
 import astropy.cosmology
 import astropy.units
+import astropy.io.fits as fits
 
 
 class Kcorrect(kcorrect.fitter.Fitter):
@@ -113,35 +114,46 @@ class Kcorrect(kcorrect.fitter.Fitter):
     AmatrixOut is similar but returns a [nresponses_out, ntemplates]
     matrix for the output bandpasses.
 """
-    def __init__(self, responses=None, templates=None, responses_out=None,
-                 responses_map=None, redshift_range=[0., 2.], nredshift=4000,
+    def __init__(self, filename=None, responses=None, templates=None,
+                 responses_out=None, responses_map=None,
+                 redshift_range=[0., 2.], nredshift=4000,
                  abcorrect=False, cosmo=None):
 
-        # Read in templates
-        if(templates is None):
-            filename = os.path.join(kcorrect.KCORRECT_DIR, 'data', 'templates',
-                                    'kcorrect-default-v4.fits')
-            templates = kcorrect.template.Template(filename=filename)
+        if(filename is not None):
+            self.fromfits(filename=filename)
+        else:
+            # Read in templates
+            if(templates is None):
+                tfilename = os.path.join(kcorrect.KCORRECT_DIR, 'data',
+                                         'templates',
+                                         'kcorrect-default-v4.fits')
+                templates = kcorrect.template.Template(filename=tfilename)
 
-        # Initatialize using Fitter initialization
-        super().__init__(responses=responses, templates=templates,
-                         redshift_range=redshift_range,
-                         nredshift=nredshift, abcorrect=abcorrect)
+            # Initatialize using Fitter initialization
+            super().__init__(responses=responses, templates=templates,
+                             redshift_range=redshift_range,
+                             nredshift=nredshift, abcorrect=abcorrect)
 
-        # Set up the Amatrix for the input responses
-        self.set_Amatrix()
+            # Set up the Amatrix for the input responses
+            self.set_Amatrix()
 
-        # Set up the output responses
-        if(responses_out is None):
-            responses_out = self.responses
-        if(responses_map is None):
-            responses_map = self.responses
+            # Set up the output responses
+            if(responses_out is None):
+                responses_out = self.responses
+            if(responses_map is None):
+                responses_map = self.responses
 
-        if(len(responses_map) != len(responses_out)):
-            raise ValueError("responses_map must have the same number of elements as responses_out")
+            if(len(responses_map) != len(responses_out)):
+                raise ValueError("responses_map must have the same number of elements as responses_out")
 
-        self.responses_out = responses_out
-        self.responses_map = responses_map
+            self.responses_out = responses_out
+            self.responses_map = responses_map
+
+            # Set up the AmatrixOut for the output responses
+            if(self.responses_out == self.responses):
+                self.AmatrixOut = self.Amatrix
+            else:
+                self.AmatrixOut = self._calc_Amatrix(responses=self.responses_out)
 
         # Get index map to calculate kcorrection
         self.imap = np.zeros(len(self.responses_map), dtype=int)
@@ -150,12 +162,6 @@ class Kcorrect(kcorrect.fitter.Fitter):
                 self.imap[i] = self.responses.index(response)
             except ValueError:
                 raise ValueError("responses_map must contain only responses defined in responses")
-
-        # Set up the AmatrixOut for the output responses
-        if(self.responses_out == self.responses):
-            self.AmatrixOut = self.Amatrix
-        else:
-            self.AmatrixOut = self._calc_Amatrix(responses=self.responses_out)
 
         # Initialize cosmology used for derived properties and absmag
         if(cosmo is not None):
@@ -214,6 +220,9 @@ class Kcorrect(kcorrect.fitter.Fitter):
         and not accepted literally. After all, they are just the result
         of a 5-template fit to a few bandpasses. See Moustakas et al.
         (2013) for a comparison of the masses with other estimators.
+
+        For responses where solar_magnitude is not defined, mtol is in
+        per maggy units (not per solar luminosity)
 """
         (array, n, redshift, d1, d2,
          coeffs) = self._process_inputs(redshift=redshift, coeffs=coeffs)
@@ -251,21 +260,22 @@ class Kcorrect(kcorrect.fitter.Fitter):
             zero_redshift = np.zeros(len(redshift), dtype=np.float32)
         else:
             zero_redshift = 0.
-        rmaggies = self.reconstruct_out(redshift=zero_redshift,
-                                        coeffs=coeffs,
-                                        band_shift=band_shift)
+        rmaggies_solar = self.reconstruct_out(redshift=zero_redshift,
+                                              coeffs=coeffs,
+                                              band_shift=band_shift)
         for ir, response in enumerate(self.responses_out):
-            solar = 10.**(- 0.4 * f[response].solar_magnitude)
-            rmaggies[..., ir] = rmaggies[..., ir] / solar
+            if(f[response].solar_magnitude is not None):
+                solar = 10.**(- 0.4 * f[response].solar_magnitude)
+                rmaggies_solar[..., ir] = rmaggies_solar[..., ir] / solar
 
-        mtol = np.zeros(rmaggies.shape, dtype=np.float32)
-        ok = rmaggies > 0.
+        mtol = np.zeros(rmaggies_solar.shape, dtype=np.float32)
+        ok = rmaggies_solar > 0.
         if(array):
             mtol[ok] = (np.outer(coeffs.dot(self.templates.mremain),
                                  np.ones(len(self.responses), dtype=np.float32))[ok] /
-                        rmaggies[ok])
+                        rmaggies_solar[ok])
         else:
-            mtol[ok] = (coeffs * self.templates.mremain).sum() / rmaggies[ok]
+            mtol[ok] = (coeffs * self.templates.mremain).sum() / rmaggies_solar[ok]
 
         outdict = dict()
         outdict['mremain'] = mremain
@@ -426,6 +436,115 @@ class Kcorrect(kcorrect.fitter.Fitter):
         absmag[isz] = - 9999.
 
         return(absmag)
+
+    def tofits(self, filename=None):
+        """Output calculated information to FITS
+
+        Parameters
+        ----------
+
+        filename : str
+            name of output file
+
+        Notes
+        -----
+
+        Overwrites file if it already exists.
+
+        Stores HDUs:
+
+        * DATA : single row table with: 'nredshift', 'redshift_range', 'abcorrect'
+        * REDSHIFTS : redshift grid
+        * RESPONSES : array of input response names
+        * RESPONSES_OUT : array of output response names
+        * RESPONSES_MAP : array of response mapping
+        * A : A-matrix data
+        * AOUT : A-matrix output data
+"""
+        self.templates.tofits(filename=filename)
+        
+        hdul = fits.open(filename, mode='update')
+        data_dtype = np.dtype([('nredshift', np.int32),
+                               ('redshift_range', np.int32, 2),
+                               ('abcorrect', bool)])
+        data = np.zeros(1, dtype=data_dtype)
+        data['nredshift'] = self.nredshift
+        data['redshift_range'] = self.redshift_range
+        data['abcorrect'] = self.abcorrect
+        hdu = fits.BinTableHDU(data, name='DATA')
+        hdul.append(hdu)
+        hdu = fits.ImageHDU(self.redshifts, name='REDSHIFTS')
+        hdul.append(hdu)
+
+        responses_dtype = np.dtype([('responses', np.compat.unicode, 200)])
+        responses = np.zeros(len(self.responses), dtype=responses_dtype)
+        responses['responses'] = np.array(self.responses)
+        hdu = fits.BinTableHDU(responses, name='RESPONSES')
+        hdul.append(hdu)
+
+        responses_dtype = np.dtype([('responses_out', np.compat.unicode, 200)])
+        responses_out = np.zeros(len(self.responses_out), dtype=responses_dtype)
+        responses_out['responses_out'] = np.array(self.responses_out)
+        hdu = fits.BinTableHDU(responses_out, name='RESPONSES_OUT')
+        hdul.append(hdu)
+
+        responses_dtype = np.dtype([('responses_map', np.compat.unicode, 200)])
+        responses_map = np.zeros(len(self.responses_map), dtype=responses_dtype)
+        responses_map['responses_map'] = np.array(self.responses_map)
+        hdu = fits.BinTableHDU(responses_map, name='RESPONSES_MAP')
+        hdul.append(hdu)
+
+        A = self.Amatrix(self.redshifts)
+        hdu = fits.ImageHDU(A, name='A')
+        hdul.append(hdu)
+
+        Aout = self.AmatrixOut(self.redshifts)
+        hdu = fits.ImageHDU(Aout, name='AOUT')
+        hdul.append(hdu)
+
+        hdul.writeto(filename, overwrite=True)
+        return
+
+    def fromfits(self, filename=None):
+        """Input from FITS file
+
+        Parameters
+        ----------
+
+        filename : str
+            name of input file
+
+        Notes
+        -----
+
+        Expects format of tofits() output.
+"""
+        self.templates = kcorrect.template.Template(filename=filename)
+
+        hdul = fits.open(filename)
+
+        data = hdul['DATA'].data
+        self.nredshift = data['nredshift']
+        self.redshift_range = data['redshift_range']
+        self.abcorrect = data['abcorrect']
+
+        self.redshifts = hdul['REDSHIFTS'].data
+        self.responses = list(hdul['RESPONSES'].data['responses'])
+        self.responses_map = list(hdul['RESPONSES_MAP'].data['responses_map'])
+        self.responses_out = list(hdul['RESPONSES_OUT'].data['responses_out'])
+
+        f = kcorrect.response.ResponseDict()
+        for response in self.responses:
+            f.load_response(response)
+
+        A = hdul['A'].data
+        Aout = hdul['Aout'].data
+        self.Amatrix = self._interpolate_Amatrix(redshifts=self.redshifts, A=A)
+        self.AmatrixOut = self._interpolate_Amatrix(redshifts=self.redshifts,
+                                                    A=Aout)
+
+        hdul.close()
+        return
 
 
 class KcorrectSDSS(Kcorrect):
