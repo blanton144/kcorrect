@@ -156,7 +156,7 @@ class SED(object):
 
         ext : str or int
             extension to write to
-        
+
         clobber : bool
             whether to clobber the existing file or add an HDU
 
@@ -175,7 +175,7 @@ class SED(object):
         out['flux'] = self.restframe_flux
 
         hdu = fits.BinTableHDU(out, name=ext)
-        hdu.writeto(filename, overwrite=True)
+        hdu.writeto(filename, overwrite=clobber)
         return
 
     def set_redshift(self, redshift=0.):
@@ -255,12 +255,6 @@ class Template(SED):
     filename : str
         name of FITS file to read from
 
-    wave : ndarray of np.float32
-        rest frame wavelength grid in Angstroms
-
-    flux : ndarray of np.float32
-        [nsed, nwave] rest frame flux grid in erg/cm^2/s/A
-
     Attributes
     ----------
 
@@ -323,8 +317,8 @@ class Template(SED):
        M1000 : an [nsed]-array with mass formed within 1 Gy in solar units
 
 """
-    def __init__(self, filename=None, wave=None, flux=None, ext='FLUX'):
-        super().__init__(filename=filename)
+    def __init__(self, filename=None, ext='FLUX'):
+        super().__init__(filename=filename, ext=ext)
 
         hdul = fits.open(filename)
         self.info['filename'] = filename
@@ -335,3 +329,29 @@ class Template(SED):
         self.m1000 = hdul['M1000'].data
 
         return
+
+    def tofits(self, filename=None, clobber=True):
+        """Write template set to FITS
+
+        Parameters
+        ----------
+
+        filename : str
+            file to write to
+
+        clobber : bool
+            if True, overwrite existing file
+"""
+        super().tofits(filename=filename, clobber=clobber)
+        hdul = fits.open(filename, mode='update')
+        hdu = fits.ImageHDU(self.intsfh, name='INTSFH')
+        hdul.append(hdu)
+        hdu = fits.ImageHDU(self.mremain, name='MREMAIN')
+        hdul.append(hdu)
+        hdu = fits.ImageHDU(self.mets, name='METS')
+        hdul.append(hdu)
+        hdu = fits.ImageHDU(self.m300, name='M300')
+        hdul.append(hdu)
+        hdu = fits.ImageHDU(self.m1000, name='M1000')
+        hdul.append(hdu)
+        hdul.close()
