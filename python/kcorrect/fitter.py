@@ -71,6 +71,10 @@ class Fitter(object):
                           np.float32(nredshift - 1))
         return
 
+    def _interpolate_Amatrix(self, redshifts=None, A=None):
+        """Interpolate the A matrix to an interpolator"""
+        return(interpolate.interp1d(redshifts, A, axis=0))
+
     def _calc_Amatrix(self, responses=None):
         """Create an A matrix and return it (don't set attribute)"""
         # Make sure responses are loaded
@@ -88,7 +92,7 @@ class Fitter(object):
                 rmatrix[iz, ir, :] = f[response].project(sed=self.templates)
 
         # Now create Amatrix interpolator
-        Amatrix = interpolate.interp1d(self.redshifts, rmatrix, axis=0)
+        Amatrix = self._interpolate_Amatrix(redshifts=self.redshifts, A=rmatrix)
 
         # Return templates to z=0
         self.templates.set_redshift(redshift=0.)
@@ -135,7 +139,8 @@ class Fitter(object):
 
         return
 
-    def _fit_coeffs(self, redshift=None, maggies=None, ivar=None):
+    def _fit_coeffs(self, redshift=None, maggies=None, ivar=None,
+                    mc=0):
         """Fit coefficients to single object
 
         Parameters
@@ -150,11 +155,17 @@ class Fitter(object):
         ivar : ndarray of np.float32
             inverse variance of each band
 
+        mc : int
+            if greater than 0, generate Monte Carlo of coefficients
+
         Returns
         -------
 
         coeffs : ndarray of np.float32
-            coefficients for each template
+            [ntemplates] coefficients for each template
+
+        coeffs_mc : ndarray of np.float32
+            [mc, ntemplates] coefficients for each MC for each template
 """
         default_zeros = np.zeros(self.templates.nsed, dtype=np.float32)
 
@@ -163,7 +174,12 @@ class Fitter(object):
         try:
             A = inverr_matrix * self.Amatrix(redshift)
         except ValueError:
-            return(default_zeros)
+            if(mc == 0):
+                return(default_zeros)
+            else:
+                coeffs_mc = np.zeros((mc, self.templates.nsed),
+                                     dtype=np.float32)
+                return(default_zeros, coeffs_mc)
         b = maggies * inverr
 
         try:
@@ -171,7 +187,23 @@ class Fitter(object):
         except RuntimeError:
             coeffs, rnorm = optimize.nnls(A, b, maxiter=A.shape[1] * 100)
 
-        return(coeffs)
+        if(mc == 0):
+            return(coeffs)
+        else:
+            coeffs_mc = np.zeros((mc, self.templates.nsed), dtype=np.float32)
+            igd = np.where(inverr > 0)[0]
+            err = 1. / inverr[igd]
+            for imc in np.arange(mc, dtype=int):
+                mc_maggies = maggies
+                mc_maggies[igd] = mc_maggies[igd] + np.random.normal(size=len(igd)) * err
+                mc_b = mc_maggies * inverr
+                try:
+                    tmp_coeffs_mc, rnorm = optimize.nnls(A, mc_b)
+                except RuntimeError:
+                    tmp_coeffs_mc, rnorm = optimize.nnls(A, mc_b, maxiter=A.shape[1] * 100)
+                coeffs_mc[imc, :] = tmp_coeffs_mc
+
+            return(coeffs, coeffs_mc)
 
     def _process_inputs(self, redshift=None, maggies=None, ivar=None,
                         coeffs=None):
@@ -293,7 +325,7 @@ class Fitter(object):
 
         return(array, n, redshift, maggies, ivar, coeffs)
 
-    def fit_coeffs(self, redshift=None, maggies=None, ivar=None):
+    def fit_coeffs(self, redshift=None, maggies=None, ivar=None, mc=0):
         """Fit coefficients
 
         Parameters
@@ -308,11 +340,17 @@ class Fitter(object):
         ivar : ndarray of np.float32
             inverse variance of each band
 
+        mc : int
+            if greater than 1, generate Monte Carlo of coefficients
+
         Returns
         -------
 
         coeffs : ndarray of np.float32
             coefficients for each template
+
+        coeffs_mc : ndarray of np.float32
+            [mc, ntemplates] coefficients for each MC for each template
 
         Notes
         -----
@@ -342,20 +380,42 @@ class Fitter(object):
 
         # Call single
         if(n == 1):
-            coeffs = self._fit_coeffs(redshift=np.squeeze(redshift),
-                                      maggies=np.squeeze(maggies),
-                                      ivar=np.squeeze(ivar))
+            if(mc == 0):
+                coeffs = self._fit_coeffs(redshift=np.squeeze(redshift),
+                                          maggies=np.squeeze(maggies),
+                                          ivar=np.squeeze(ivar),
+                                          mc=mc)
+            else:
+                coeffs, coeffs_mc = self._fit_coeffs(redshift=np.squeeze(redshift),
+                                                     maggies=np.squeeze(maggies),
+                                                     ivar=np.squeeze(ivar),
+                                                     mc=mc)
             if(array):
-                coeffs = coeffs.reshape(1, len(coeffs))
+                coeffs = coeffs.reshape(1, len(redshift))
+                if(mc > 0):
+                    coeffs_mc = coeffs_mc.reshape(1, len(redshift), mc)
             return(coeffs)
 
         # Loop for multiple
         coeffs = np.zeros((n, self.templates.nsed), dtype=np.float32)
+        if(mc > 0):
+            coeffs_mc = np.zeros((n, mc, self.templates.nsed), dtype=np.float32)
         for i, r in enumerate(redshift):
-            coeffs[i, :] = self._fit_coeffs(redshift=r, maggies=maggies[i, :],
-                                            ivar=ivar[i, :])
+            if(mc == 0):
+                coeffs[i, :] = self._fit_coeffs(redshift=r, maggies=maggies[i, :],
+                                                ivar=ivar[i, :])
+            else:
+                tmp_coeffs, tmp_coeffs_mc = self._fit_coeffs(redshift=r,
+                                                             maggies=maggies[i, :],
+                                                             ivar=ivar[i, :],
+                                                             mc=mc)
+                coeffs[i, :] = tmp_coeffs
+                coeffs_mc[i, :, :] = tmp_coeffs_mc
 
-        return(coeffs)
+        if(mc == 0):
+            return(coeffs)
+        else:
+            return(coeffs, coeffs_mc)
 
     def _reconstruct(self, Amatrix=None, redshift=None, coeffs=None,
                      band_shift=0.):
