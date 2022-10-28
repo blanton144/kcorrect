@@ -139,7 +139,7 @@ log_stellar_mass = np.log10(derived_bv['mremain'][ok])
 ax.scatter(absmag_bv[ok, 1], log_stellar_mass, s=1, c=bmv)
 ax.set_xlabel('$M_V$')
 ax.set_ylabel('$\\log_{10} M_\\ast$ (solar masses)')
-fig.colorbar(ax=ax)
+#fig.colorbar(ax=ax)
 
 plt.tight_layout()
 plt.savefig(pngfile, dpi=150)
