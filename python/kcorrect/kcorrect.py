@@ -171,7 +171,8 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
         return
 
-    def derived(self, redshift=None, coeffs=None, band_shift=0.):
+    def derived(self, redshift=None, coeffs=None, band_shift=0.,
+                distance=None):
         """Return derived quantities based on coefficients
 
         Parameters
@@ -186,6 +187,9 @@ class Kcorrect(kcorrect.fitter.Fitter):
         band_shift : np.float32
             band shift to apply for output response
 
+        distance : ndarray of np.float32 or np.float32
+            luminosity distance in Mpc
+
         Returns
         -------
 
@@ -194,6 +198,9 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
         Notes
         -----
+
+        If distance is not specified, then it is derived from
+        the redshift assuming the cosmology in the cosmo attribute.
 
         The derived dictionary contains the following keys with the
         associated quantities:
@@ -227,31 +234,41 @@ class Kcorrect(kcorrect.fitter.Fitter):
         (array, n, redshift, d1, d2,
          coeffs) = self._process_inputs(redshift=redshift, coeffs=coeffs)
 
-        dm = self.cosmo.distmod(redshift).to_value(astropy.units.mag)
-        dfactor = 10.**(0.4 * dm)
+        if(distance is not None):
+            (array, n, distance, d1, d2,
+             d3) = self._process_inputs(redshift=distance, coeffs=coeffs)
+            dfactor = (distance / 1.e-5)**2  # factor relative to 10 pc
+        else:
+            dm = self.cosmo.distmod(redshift).to_value(astropy.units.mag)
+            dfactor = 10.**(0.4 * dm)
 
         intsfh = coeffs.dot(self.templates.intsfh) * dfactor
         mremain = coeffs.dot(self.templates.mremain) * dfactor
         metals = (coeffs.dot(self.templates.mremain * self.templates.mets) *
                   dfactor)
         m300 = coeffs.dot(self.templates.m300) * dfactor
+        m50 = coeffs.dot(self.templates.m50) * dfactor
         m1000 = coeffs.dot(self.templates.m1000) * dfactor
 
         if(array):
             ok = mremain > 0.
             metallicity = np.zeros(len(redshift), dtype=np.float32)
+            b50 = np.zeros(len(redshift), dtype=np.float32)
             b300 = np.zeros(len(redshift), dtype=np.float32)
             b1000 = np.zeros(len(redshift), dtype=np.float32)
             metallicity[ok] = metals[ok] / mremain[ok]
+            b50[ok] = m50[ok] / intsfh[ok]
             b300[ok] = m300[ok] / intsfh[ok]
             b1000[ok] = m1000[ok] / intsfh[ok]
         else:
             if(mremain > 0.):
                 metallicity = metals / mremain
+                b50 = m50 / intsfh
                 b300 = m300 / intsfh
                 b1000 = m1000 / intsfh
             else:
                 metallicity = 0.
+                b50 = 0.
                 b300 = 0.
                 b1000 = 0.
 
@@ -281,6 +298,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
         outdict['mremain'] = mremain
         outdict['intsfh'] = intsfh
         outdict['mtol'] = mtol
+        outdict['b50'] = b50
         outdict['b300'] = b300
         outdict['b1000'] = b1000
         outdict['metallicity'] = metallicity
@@ -336,7 +354,6 @@ class Kcorrect(kcorrect.fitter.Fitter):
          d2, coeffs) = self._process_inputs(redshift=redshift, maggies=None,
                                             ivar=None, coeffs=coeffs)
 
-
         # maggies associated with bandpass R at observed z
         maggies_in = self.reconstruct(redshift=redshift, coeffs=coeffs)
 
@@ -364,7 +381,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
         return(kcorrect)
 
     def absmag(self, maggies=None, ivar=None, redshift=None, coeffs=None,
-               band_shift=0.):
+               band_shift=0., distance=None):
         """Return absolute magnitude in output bands
 
         Parameters
@@ -385,6 +402,9 @@ class Kcorrect(kcorrect.fitter.Fitter):
         band_shift : np.float32
             shift to apply for output responses
 
+        distance : ndarray of np.float32 or np.float32
+            distance in Mpc (or None)
+
         Returns
         -------
 
@@ -394,16 +414,19 @@ class Kcorrect(kcorrect.fitter.Fitter):
         Notes
         -----
 
+        If distance is None, the distance is derived from the redshift
+        using the cosmo attribute.
+
         Returns the K-corrected absolute magnitude (or -9999 if there
         is no valid value).
 
         Depends on having run fit_coeffs on a consistent set of
-        maggies and ivars. If ivar=0 or the maggies are negative 
+        maggies and ivars. If ivar=0 or the maggies are negative
         for any band, it uses the reconstructed absolute magnitude.
 
         Determines the distance modulus with the object's "cosmo.distmod()"
         method. By default this is the Planck18 cosmology. This use
-        
+
         If abcorrect is True, calls to_ab() method on input maggies
         to convert to AB.
 """
@@ -411,7 +434,14 @@ class Kcorrect(kcorrect.fitter.Fitter):
          coeffs) = self._process_inputs(redshift=redshift, maggies=maggies,
                                         ivar=ivar, coeffs=coeffs)
 
-        dm = self.cosmo.distmod(redshift).to_value(astropy.units.mag)
+        if(distance is not None):
+            (array, n, distance, d1, d2,
+             d3) = self._process_inputs(redshift=distance, coeffs=coeffs)
+            dfactor = (distance / 1.e-5)**2  # factor relative to 10 pc
+            dm = 2.5 * np.log10(dfactor)
+        else:
+            dm = self.cosmo.distmod(redshift).to_value(astropy.units.mag)
+
         k = self.kcorrect(redshift=redshift, coeffs=coeffs,
                           band_shift=band_shift)
         omaggies = self.reconstruct_out(redshift=redshift, coeffs=coeffs,
