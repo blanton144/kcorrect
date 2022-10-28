@@ -206,6 +206,10 @@ def error_floor(floor=None, maggies=None, ivar=None):
     ivar : ndarray of np.float32
         [N, Nr] or [Nr] array of inverse variances
 """
+    floor = np.array(floor)
+    maggies = np.array(maggies)
+    ivar = np.array(ivar)
+
     if(maggies.ndim == 1):
         array = False
     else:
@@ -221,14 +225,14 @@ def error_floor(floor=None, maggies=None, ivar=None):
         for i in np.arange(floor.size):
             iok = np.where(ivar[:, i] > 0.)[0]
             if(len(iok) > 0):
-                ferr = 1. / (maggies[iok, i] * np.sqrt(ivar[iok, i]))
+                ferr = 1. / (np.abs(maggies[iok, i]) * np.sqrt(ivar[iok, i]))
                 ioklow = iok[np.where(ferr < floor[i])[0]]
                 ivar[ioklow, i] = 1. / (np.abs(maggies[ioklow, i]) *
                                         floor[i])**2
     else:
         for i in np.arange(floor.size):
             if(ivar[i] > 0.):
-                ferr = 1. / (maggies[i] * np.sqrt(ivar[i]))
+                ferr = 1. / (np.abs(maggies[i]) * np.sqrt(ivar[i]))
                 if(ferr < floor[i]):
                     ivar[i] = 1. / (np.abs(maggies[i]) * floor[i])**2
 
