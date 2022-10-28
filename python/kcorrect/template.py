@@ -327,6 +327,10 @@ class Template(SED):
         self.mets = hdul['METS'].data
         self.m300 = hdul['M300'].data
         self.m1000 = hdul['M1000'].data
+        try:
+            self.m50 = hdul['M50'].data
+        except:
+            self.m50 = self.m300 * 0.
 
         return
 
@@ -351,6 +355,8 @@ class Template(SED):
         hdu = fits.ImageHDU(self.mets, name='METS')
         hdul.append(hdu)
         hdu = fits.ImageHDU(self.m300, name='M300')
+        hdul.append(hdu)
+        hdu = fits.ImageHDU(self.m50, name='M50')
         hdul.append(hdu)
         hdu = fits.ImageHDU(self.m1000, name='M1000')
         hdul.append(hdu)
