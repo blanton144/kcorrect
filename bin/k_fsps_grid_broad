@@ -1,0 +1,148 @@
+#!/usr/bin/env python
+
+import numpy as np
+import fitsio
+import fsps
+
+# Creates a very broad grid from FSPS, output as fsps.fits
+
+nages = 15
+minlogage = 7.
+maxlogage = 10.349
+logages = (minlogage + (maxlogage - minlogage) * np.arange(nages) /
+           np.float32(nages - 1))
+
+nmets = 5
+minlogmet = -2.0
+maxlogmet = 0.5
+logmets = (minlogmet + (maxlogmet - minlogmet) * np.arange(nmets) /
+           np.float32(nmets - 1))
+
+ndusts = 4
+mindust = 0.
+maxdust = 3.
+dusts = (mindust + (maxdust - mindust) * np.arange(ndusts) /
+         np.float32(ndusts - 1))
+
+nuvbs = 4
+minuvb = 0.1
+maxuvb = 1.
+uvbs = (minuvb + (maxuvb - minuvb) * np.arange(nuvbs) /
+        np.float32(nuvbs - 1))
+
+ngammas = 4
+mingamma = 0.005
+maxgamma = 0.04
+gammas = (mingamma + (maxgamma - mingamma) * np.arange(ngammas) /
+          np.float32(ngammas - 1))
+
+numins = 4
+minumin = 0.1
+maxumin = 80.0
+umins = 10.**(np.log10(minumin) + (np.log10(maxumin) - np.log10(minumin)) *
+              np.arange(numins) / np.float32(numins - 1))
+
+nqpahs = 3
+minqpah = 0.1
+maxqpah = 5.0
+qpahs = 10.**(np.log10(minqpah) + (np.log10(maxqpah) - np.log10(minqpah)) *
+              np.arange(nqpahs) / np.float32(nqpahs - 1))
+
+print("Setting up StellarPopulation")
+sp = fsps.StellarPopulation(compute_vega_mags=False, zcontinuous=1,
+                            add_dust_emission=True,
+                            add_neb_emission=True,
+                            add_neb_continuum=True,
+                            imf_type=1,
+                            dust_type=1,
+                            sfh=0)
+
+print("Creating model grid")
+models_dtype = np.dtype([('logmet', np.float32),
+                         ('dust', np.float32),
+                         ('uvb', np.float32),
+                         ('gamma', np.float32),
+                         ('umin', np.float32),
+                         ('qpah', np.float32),
+                         ('logage', np.float32)])
+
+nsed = nages * ndusts * nmets * nuvbs * numins * ngammas * nqpahs
+shape = (nages, nmets, ndusts, nuvbs, numins, ngammas, nqpahs)
+models = np.zeros(shape, dtype=models_dtype)
+
+for iage, logage in enumerate(logages):
+    for imet, logmet in enumerate(logmets):
+        for idust, dust in enumerate(dusts):
+            for iuvb, uvb in enumerate(uvbs):
+                for iumin, umin in enumerate(umins):
+                    for igamma, gamma in enumerate(gammas):
+                        for iqpah, qpah in enumerate(qpahs):
+                            models[iage, imet, idust, iuvb, iumin, igamma, iqpah]['logmet'] = logmet
+                            models[iage, imet, idust, iuvb, iumin, igamma, iqpah]['dust'] = dust
+                            models[iage, imet, idust, iuvb, iumin, igamma, iqpah]['uvb'] = uvb
+                            models[iage, imet, idust, iuvb, iumin, igamma, iqpah]['gamma'] = gamma
+                            models[iage, imet, idust, iuvb, iumin, igamma, iqpah]['umin'] = umin
+                            models[iage, imet, idust, iuvb, iumin, igamma, iqpah]['logage'] = logage
+                            models[iage, imet, idust, iuvb, iumin, igamma, iqpah]['qpah'] = qpah
+                            
+models = models.flatten()
+intsfh = np.ones(nsed, dtype=np.float32)
+mremain = np.zeros(nsed, dtype=np.float32)
+mets = np.zeros(nsed, dtype=np.float32)
+m50 = np.zeros(nsed, dtype=np.float32)
+m300 = np.zeros(nsed, dtype=np.float32)
+m1000 = np.zeros(nsed, dtype=np.float32)
+
+print("Creating spectra from models")
+
+fluxes = None
+
+for imodel, model in enumerate(models):
+    sp.params['dust1'] = model['dust']
+    sp.params['dust2'] = model['dust']
+    sp.params['duste_umin'] = model['umin']
+    sp.params['duste_gamma'] = model['gamma']
+    sp.params['duste_qpah'] = model['qpah']
+    sp.params['uvb'] = model['uvb']
+    sp.params['logzsol'] = model['logmet']
+    logage = model['logage']
+    print(model)
+    wave, flux = sp.get_spectrum(tage=10.**(logage - 9.), peraa=True)
+
+    lodot = 3.828  # 10^{33} erg/s
+    tenpc2 = (10. * 3.0857)**2 * 1e+3  # 10^{33} cm^2
+
+    flux = flux * lodot / (4. * np.pi * tenpc2)
+
+    if(fluxes is None):
+        nwave = len(wave)
+        fluxes = np.zeros((nsed, nwave), dtype=np.float32)
+
+    fluxes[imodel, :] = flux
+    mremain[imodel] = sp.stellar_mass
+    mets[imodel] = 10.**logmet
+    if(10.**logage < 0.05e+9):
+        m50[imodel] = 1.
+    if(10.**logage < 0.3e+9):
+        m300[imodel] = 1.
+    if(10.**logage < 1.0e+9):
+        m1000[imodel] = 1.
+
+print("Outputting template file")
+
+f_dtype = np.dtype([('wave', np.float32, nwave),
+                    ('flux', np.float32, (nsed, nwave))])
+f = np.zeros(1, dtype=f_dtype)
+f['wave'] = wave
+f['flux'] = fluxes
+
+filename = 'fsps.fits'
+
+fitsio.write(filename, f, extname='FLUX', clobber=True)
+fitsio.write(filename, intsfh, extname='INTSFH', clobber=False)
+fitsio.write(filename, mremain, extname='MREMAIN', clobber=False)
+fitsio.write(filename, mets, extname='METS', clobber=False)
+fitsio.write(filename, m50, extname='M50', clobber=False)
+fitsio.write(filename, m300, extname='M300', clobber=False)
+fitsio.write(filename, m1000, extname='M1000', clobber=False)
+fitsio.write(filename, models, extname='MODELS', clobber=False)

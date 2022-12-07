@@ -1,0 +1,171 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import collections
+import argparse
+import kcorrect.kcorrect as kk
+import kcorrect.utils as ku
+import kcorrect.template as kt
+import numpy as np
+import fitsio
+
+
+# Fit SPS model for MNSA images.
+# Reads model grid from fsps.fits
+# Caches kc-fsps-north.fits and kc-fsps-south.fits 
+
+
+def north_or_south(ra, dec):
+    """Get the hemisphere based on a simple declination cut."""
+    if dec > 32.375:
+        if ra < 45 or ra > 315:
+            run = 'south'
+        else:
+            run = 'north'
+    else:
+        run = 'south'
+    return run
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(
+        prog=os.path.basename(sys.argv[0]),
+        description='Fit SPS models to ellipse photometry')
+
+    parser.add_argument('-a', '--aperture', dest='aperture',
+                        type=str, help='aperture name', required=True)
+
+    args = parser.parse_args()
+    aperture = args.aperture
+
+    r2c_north = [('galex_FUV', 'FUV'),
+                 ('galex_NUV', 'NUV'),
+                 ('bass_g', 'G'),
+                 ('bass_r', 'R'),
+                 ('mzls_z', 'Z'),
+                 ('wise_w1', 'W1'),
+                 ('wise_w2', 'W2'),
+                 ('wise_w3', 'W3'),
+                 ('wise_w4', 'W4')]
+    response2column_north = collections.OrderedDict()
+    for r2c in r2c_north:
+        response2column_north[r2c[0]] = r2c[1]
+    responses_north = list(response2column_north.keys())
+
+    r2c_south = [('galex_FUV', 'FUV'),
+                 ('galex_NUV', 'NUV'),
+                 ('decam_g', 'G'),
+                 ('decam_r', 'R'),
+                 ('decam_z', 'Z'),
+                 ('wise_w1', 'W1'),
+                 ('wise_w2', 'W2'),
+                 ('wise_w3', 'W3'),
+                 ('wise_w4', 'W4')]
+    response2column_south = collections.OrderedDict()
+    for r2c in r2c_south:
+        response2column_south[r2c[0]] = r2c[1]
+    responses_south = list(response2column_south.keys())
+
+    print("Prepping photometry", flush=True)
+    ellipse = fitsio.read(os.path.join(os.getenv('MNSA_DATA'), '0.3.0',
+                                       'manga-legacyphot-0.3.0.fits'),
+                          ext='ELLIPSE')
+    parent = fitsio.read(os.path.join(os.getenv('MNSA_DATA'), '0.3.0',
+                                      'manga-legacyphot-0.3.0.fits'),
+                         ext='PARENT')
+    
+    idone = np.where(parent['DO_ELLIPSE'] * parent['DO_IMAGING'] *
+                     (parent['Z'] > 0.))[0]
+
+    redshift = parent['Z'][idone]
+    maggies = np.zeros((len(idone), len(responses_north)), dtype=np.float32)
+    ivar = np.zeros((len(idone), len(responses_north)), dtype=np.float32)
+    mwtrans = np.zeros((len(idone), len(responses_north)), dtype=np.float32)
+
+    hemi = np.array([north_or_south(parent['IFURA'][i], parent['IFUDEC'][i])
+                     for i in idone])
+    inorth = np.where(hemi == 'north')[0]
+    isouth = np.where(hemi == 'south')[0]
+
+    for ir, response in enumerate(responses_north):
+        col = response2column_north[response]
+        mname = 'FLUX_{a}_{c}'.format(a=aperture, c=col)
+        iname = 'FLUX_IVAR_{a}_{c}'.format(a=aperture, c=col)
+        dname = 'MW_TRANSMISSION_{c}'.format(c=col)
+        maggies[inorth, ir] = ellipse[mname][idone[inorth]]
+        ivar[inorth, ir] = ellipse[iname][idone[inorth]]
+        mwtrans[inorth, ir] = ellipse[dname][idone[inorth]]
+
+    for ir, response in enumerate(responses_south):
+        col = response2column_south[response]
+        mname = 'FLUX_{a}_{c}'.format(a=aperture, c=col)
+        iname = 'FLUX_IVAR_{a}_{c}'.format(a=aperture, c=col)
+        dname = 'MW_TRANSMISSION_{c}'.format(c=col)
+        maggies[isouth, ir] = ellipse[mname][idone[isouth]]
+        ivar[isouth, ir] = ellipse[iname][idone[isouth]]
+        mwtrans[isouth, ir] = ellipse[dname][idone[isouth]]
+
+    maggies = maggies * 1.e-9
+    ivar = ivar * 1.e+18
+
+    maggies = maggies / mwtrans
+    ivar = ivar * mwtrans**2
+
+    floor = np.zeros(maggies.shape[1], dtype=np.float32) + 0.03
+    ivar = ku.error_floor(floor=floor, maggies=maggies, ivar=ivar)
+
+    if(os.path.exists('kc-fsps-north.fits')):
+        print("Reading Kcorrect object (north)", flush=True)
+        kcn = kk.Kcorrect(filename='kc-fsps-north.fits')
+    else:
+        print("Creating Kcorrect object (north)", flush=True)
+        templates = kt.Template(filename='fsps.fits')
+        kcn = kk.Kcorrect(responses=responses_north,
+                          templates=templates,
+                          redshift_range=[-0.002, 0.16],
+                          nredshift=50)
+        kcn.tofits('kc-fsps-north.fits')
+
+    if(os.path.exists('kc-fsps-south.fits')):
+        print("Reading Kcorrect object (south)", flush=True)
+        kcs = kk.Kcorrect(filename='kc-fsps-south.fits')
+    else:
+        print("Creating Kcorrect object (south)", flush=True)
+        templates = kt.Template(filename='fsps.fits')
+        kcs = kk.Kcorrect(responses=responses_south,
+                          templates=templates,
+                          redshift_range=[-0.002, 0.16],
+                          nredshift=50)
+        kcs.tofits('kc-fsps-south.fits')
+
+    print("Fitting the coeffs (north)", flush=True)
+    coeffs_north = kcn.fit_coeffs(redshift=redshift[inorth],
+                                  maggies=maggies[inorth, :],
+                                  ivar=ivar[inorth, :])
+
+    print("Fitting the coeffs (south)", flush=True)
+    coeffs_south = kcn.fit_coeffs(redshift=redshift[isouth],
+                                  maggies=maggies[isouth, :],
+                                  ivar=ivar[isouth, :])
+
+    print("Outputting coeffs", flush=True)
+    coeffs_dtype = np.dtype([('plateifu', str, 12),
+                             ('do_sps', np.int32),
+                             ('hemi', str, 5),
+                             ('redshift', np.float32),
+                             ('maggies', np.float32, maggies.shape[1]),
+                             ('ivar', np.float32, maggies.shape[1]),
+                             ('coeffs', np.float32, coeffs_north.shape[1])])
+    coeffs = np.zeros(len(parent), dtype=coeffs_dtype)
+    coeffs['plateifu'] = parent['PLATEIFU']
+    coeffs['do_sps'][idone] = 1
+    coeffs['hemi'][idone] = hemi
+    coeffs['redshift'][idone] = redshift
+    coeffs['maggies'][idone, :] = maggies
+    coeffs['ivar'][idone, :] = ivar
+    coeffs['coeffs'][idone[inorth]] = coeffs_north
+    coeffs['coeffs'][idone[isouth], :] = coeffs_south
+
+    fitsio.write('kc-coeffs-{a}.fits'.format(a=aperture), coeffs, clobber=True)

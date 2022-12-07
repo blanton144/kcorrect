@@ -1,0 +1,222 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import collections
+import argparse
+import kcorrect.kcorrect as kk
+import kcorrect.utils as ku
+import kcorrect.template as kt
+import numpy as np
+import fitsio
+
+
+def north_or_south(ra, dec):
+    """Get the hemisphere based on a simple declination cut."""
+    if dec > 32.375:
+        if ra < 45 or ra > 315:
+            run = 'south'
+        else:
+            run = 'north'
+    else:
+        run = 'south'
+    return run
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(
+        prog=os.path.basename(sys.argv[0]),
+        description='Fit SPS models to ellipse photometry')
+
+    parser.add_argument('-a', '--aperture', dest='aperture',
+                        type=str, help='aperture name', required=True)
+
+    parser.add_argument('-p', '--plateifu', dest='plateifu',
+                        type=str, help='plateifu to analyze', required=True)
+
+    args = parser.parse_args()
+    aperture = args.aperture
+    plateifu = args.plateifu
+
+    r2c_north = [('galex_FUV', 'FUV'),
+                 ('galex_NUV', 'NUV'),
+                 ('bass_g', 'G'),
+                 ('bass_r', 'R'),
+                 ('mzls_z', 'Z'),
+                 ('wise_w1', 'W1'),
+                 ('wise_w2', 'W2'),
+                 ('wise_w3', 'W3'),
+                 ('wise_w4', 'W4')]
+    response2column_north = collections.OrderedDict()
+    for r2c in r2c_north:
+        response2column_north[r2c[0]] = r2c[1]
+    responses_north = list(response2column_north.keys())
+
+    r2c_south = [('galex_FUV', 'FUV'),
+                 ('galex_NUV', 'NUV'),
+                 ('decam_g', 'G'),
+                 ('decam_r', 'R'),
+                 ('decam_z', 'Z'),
+                 ('wise_w1', 'W1'),
+                 ('wise_w2', 'W2'),
+                 ('wise_w3', 'W3'),
+                 ('wise_w4', 'W4')]
+    response2column_south = collections.OrderedDict()
+    for r2c in r2c_south:
+        response2column_south[r2c[0]] = r2c[1]
+    responses_south = list(response2column_south.keys())
+
+    print("Prepping photometry", flush=True)
+    ellipse = fitsio.read(os.path.join(os.getenv('MNSA_DATA'), '0.3.0',
+                                       'manga-legacyphot-0.3.0.fits'),
+                          ext='ELLIPSE')
+    parent = fitsio.read(os.path.join(os.getenv('MNSA_DATA'), '0.3.0',
+                                      'manga-legacyphot-0.3.0.fits'),
+                         ext='PARENT')
+
+    done = (parent['DO_ELLIPSE'] * parent['DO_IMAGING'] * (parent['Z'] > 0.))
+    iplateifu = np.where(parent['PLATEIFU'] == plateifu)[0]
+    if(len(iplateifu) == 0):
+        print("No such plate-ifu {p}".format(p=plateifu))
+        sys.exit()
+    iplateifu = iplateifu[0]
+    if(~done[iplateifu]):
+        print("plate-ifu {p} not analyzable".format(p=plateifu))
+        sys.exit()
+
+    redshift = parent['Z'][iplateifu]
+    maggies = np.zeros(len(responses_north), dtype=np.float32)
+    ivar = np.zeros(len(responses_north), dtype=np.float32)
+    mwtrans = np.zeros(len(responses_north), dtype=np.float32)
+
+    hemi = north_or_south(parent['IFURA'][iplateifu], parent['IFUDEC'][iplateifu])
+    if(hemi == 'north'):
+        responses = responses_north
+        response2column = response2column_north
+    else:
+        responses = responses_south
+        response2column = response2column_south
+
+    for ir, response in enumerate(responses):
+        col = response2column[response]
+        mname = 'FLUX_{a}_{c}'.format(a=aperture, c=col)
+        iname = 'FLUX_IVAR_{a}_{c}'.format(a=aperture, c=col)
+        dname = 'MW_TRANSMISSION_{c}'.format(c=col)
+        maggies[ir] = ellipse[mname][iplateifu]
+        ivar[ir] = ellipse[iname][iplateifu]
+        mwtrans[ir] = ellipse[dname][iplateifu]
+
+    maggies = maggies * 1.e-9
+    ivar = ivar * 1.e+18
+
+    maggies = maggies / mwtrans
+    ivar = ivar * mwtrans**2
+
+    floor = np.zeros(maggies.shape[-1], dtype=np.float32) + 0.03
+    ivar = ku.error_floor(floor=floor, maggies=maggies, ivar=ivar)
+
+    if(hemi == 'north'):
+        if(os.path.exists('kc-fsps-north.fits')):
+            print("Reading Kcorrect object (north)", flush=True)
+            kc = kk.Kcorrect(filename='kc-fsps-north.fits')
+        else:
+            print("Creating Kcorrect object (north)", flush=True)
+            templates = kt.Template(filename='fsps.fits')
+            kc = kk.Kcorrect(responses=responses_north,
+                             templates=templates,
+                             redshift_range=[-0.002, 0.16],
+                             nredshift=50)
+            kc.tofits('kc-fsps-north.fits')
+    else:
+        if(os.path.exists('kc-fsps-south.fits')):
+            print("Reading Kcorrect object (south)", flush=True)
+            kc = kk.Kcorrect(filename='kc-fsps-south.fits')
+        else:
+            print("Creating Kcorrect object (south)", flush=True)
+            templates = kt.Template(filename='fsps.fits')
+            kc = kk.Kcorrect(responses=responses_south,
+                             templates=templates,
+                             redshift_range=[-0.002, 0.16],
+                             nredshift=50)
+            kc.tofits('kc-fsps-south.fits')
+
+    print("Fitting the coeffs", flush=True)
+    nmc = 50
+    ccoeffs, ccoeffs_mc, maggies_mc = kc.fit_coeffs(redshift=redshift,
+                                                    maggies=maggies, ivar=ivar,
+                                                    mc=nmc)
+
+    print("Reconstructions", flush=True)
+    rmaggies = kc.reconstruct(redshift=redshift, coeffs=ccoeffs)
+    chi2 = ((rmaggies - maggies)**2 * ivar).sum()
+    dof = (np.int32(ivar > 0)).sum()
+
+    derived = kc.derived(redshift=redshift, coeffs=ccoeffs)
+    absmag = kc.absmag(redshift=redshift, coeffs=ccoeffs, maggies=maggies,
+                       ivar=ivar)
+
+    params_dtype = np.dtype([('plateifu', np.compat.unicode, 40),
+                             ('redshift', np.float32),
+                             ('maggies', np.float32, len(responses)),
+                             ('ivar', np.float32, len(responses)),
+                             ('rmaggies', np.float32, len(responses)),
+                             ('mass', np.float32),
+                             ('chi2', np.float32),
+                             ('dof', np.int32),
+                             ('intsfh', np.float32),
+                             ('sfr50', np.float32),
+                             ('sfr300', np.float32),
+                             ('sfr1000', np.float32),
+                             ('mass_mc', np.float32, nmc),
+                             ('intsfh_mc', np.float32, nmc),
+                             ('sfr50_mc', np.float32, nmc),
+                             ('sfr300_mc', np.float32, nmc),
+                             ('sfr1000_mc', np.float32, nmc)])
+    params = np.zeros(1, dtype=params_dtype)
+    params['plateifu'] = plateifu
+    params['chi2'] = chi2
+    params['dof'] = dof
+    params['redshift'] = redshift
+    params['maggies'] = maggies
+    params['rmaggies'] = rmaggies
+    params['ivar'] = ivar
+    params['mass'] = derived['mremain']
+    params['intsfh'] = derived['intsfh']
+    params['sfr50'] = derived['b50'] * derived['intsfh'] / 50.e+6
+    params['sfr300'] = derived['b300'] * derived['intsfh'] / 300.e+6
+    params['sfr1000'] = derived['b1000'] * derived['intsfh'] / 1000.e+6
+
+    r_dtype = np.dtype([('response', str, 100)])
+    r = np.zeros(len(responses), dtype=r_dtype)
+    r['response'] = np.array(responses)
+
+    for imc in np.arange(nmc, dtype=int):
+        derived_mc = kc.derived(redshift=redshift,
+                                coeffs=np.squeeze(ccoeffs_mc[imc, :]))
+        params['mass_mc'][:, imc] = derived_mc['mremain']
+        params['intsfh_mc'][:, imc] = derived_mc['intsfh']
+        params['sfr50_mc'][:, imc] = derived_mc['b50'] * derived_mc['intsfh'] / 50.e+6
+        params['sfr300_mc'][:, imc] = derived_mc['b300'] * derived_mc['intsfh'] / 300.e+6
+        params['sfr1000_mc'][:, imc] = derived_mc['b1000'] * derived_mc['intsfh'] / 1000.e+6
+
+    wave = kc.templates.restframe_wave
+    spec = ccoeffs.dot(kc.templates.restframe_flux)
+    spec_mc = ccoeffs_mc.dot(kc.templates.restframe_flux)
+    wave = wave * (1. + redshift)
+    spec = spec / (1. + redshift)
+    spec_mc = spec_mc / (1. + redshift)
+
+    outfile = 'kc-test-fit-{a}-{p}.fits'.format(a=aperture, p=plateifu)
+    fitsio.write(outfile, params, extname='PARAMS',
+                 clobber=True)
+    fitsio.write(outfile, r, extname='RESPONSES', clobber=False)
+    fitsio.write(outfile, wave, extname='WAVE', clobber=False)
+    fitsio.write(outfile, spec, extname='FLUX', clobber=False)
+    fitsio.write(outfile, spec_mc, extname='FLUX_MC', clobber=False)
+    fitsio.write(outfile, ccoeffs, extname='COEFFS',
+                 clobber=False)
+    fitsio.write(outfile, ccoeffs_mc, extname='COEFFSMC',
+                 clobber=False)
+    fitsio.write(outfile, maggies_mc, extname='MAGGIESMC',
+                 clobber=False)
