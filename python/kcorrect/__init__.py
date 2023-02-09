@@ -6,4 +6,4 @@ NAME = 'kcorrect'
 
 KCORRECT_DIR = os.path.dirname(__file__)
 
-__version__ = '5.0.0b'
+__version__ = '5.0.1b'
