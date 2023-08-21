@@ -1,5 +1,0 @@
-recursive-include python/kcorrect *
-recursive-include python/kcorrect/data *
-recursive-include python/kcorrect/data/basel *
-recursive-include python/kcorrect/data/responses *
-recursive-include python/kcorrect/data/templates *
