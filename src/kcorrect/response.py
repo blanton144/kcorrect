@@ -13,6 +13,7 @@ import kcorrect.utils
 import kcorrect.template
 import scipy.interpolate as interpolate
 import scipy.integrate as integrate
+import scipy.optimize as optimize
 import pydl.pydlutils.yanny as yanny
 import fitsio
 
@@ -169,15 +170,25 @@ class Response(object):
     format, readable and writeable by the class
     pydl.pydlutils.yanny.yanny
 
+    The wavelengths are sorted on input so the attribute wave is
+    always increasing.
+
     The attribute interp() takes wavelength in Angstroms as its one
     positional argument.
 
     The effective wavelength is defined as described in Blanton &
     Roweis (2007).
-"""
+
+    """
     def __init__(self, filename=None, wave=None, response=None):
-        self.wave = wave
-        self.response = response
+        if((wave is not None) &
+           (response is not None)):
+            isort = np.argsort(wave)
+            self.wave = wave[isort]
+            self.response = response[isort]
+        else:
+            self.wave = wave
+            self.response = response
         self.filename = filename
         self.solar_sed = None
         self.solar_magnitude = None
@@ -185,6 +196,9 @@ class Response(object):
         self.vega_magnitude = None
         self.lambda_eff = None
         self.interp = None
+        self.fwhm = None
+        self.fwhm_low = None
+        self.fwhm_high = None
         if(self.filename is not None):
             self.frompar(filename)
         else:
@@ -199,6 +213,7 @@ class Response(object):
         self.set_lambda_eff()
         self.set_solar_magnitude()
         self.set_vega2ab()
+        self.set_fwhm_limits()
         return
 
     def response_dtype(self):
@@ -232,8 +247,9 @@ class Response(object):
 """
         response = fitsio.read(filename, ext=ext)
         self.nwave = len(response)
-        self.wave = response['wave']
-        self.response = response['response']
+        isort = np.argsort(response['wave'])
+        self.wave = response['wave'][isort]
+        self.response = response['response'][isort]
         self._setup()
         return
 
@@ -258,6 +274,8 @@ class Response(object):
             infilename = os.path.join(kcorrect.KCORRECT_DIR, 'data',
                                       'responses', filename)
 
+        if(os.path.exists(infilename) is False):
+            raise ValueError("No response file: {f}".format(f=infilename))
         par = yanny.yanny(infilename)
         name = par.tables()[0]
         parstr = par[name]
@@ -411,6 +429,51 @@ class Response(object):
         # Set effective wavelength
         self.lambda_eff = np.exp(numer / denom)
 
+        return
+
+    def set_fwhm_limits(self):
+        """Set limits for FWHM
+
+        Notes
+        -----
+
+        Sets attributes fwhm_low, fwhm_high, fwhm.
+
+        fwhm_low is the lowest wavelength value for which the response
+        reaches 50% maximum when starting from the low end.
+
+        fwhm_high is the highest wavelength value for which the response
+        reaches 50% maximum when starting from the high end.
+
+        fwhm is (fwhm_high - fwhm_low)
+"""
+        # Just use original grid; good enough.
+        wave = self.wave.copy()
+        iresponse = self.interp(wave)
+        maxresponse = iresponse.max()
+        iresponse = iresponse / maxresponse
+
+        # Find lower
+        iupper = np.where(iresponse > 0.5)[0][0]
+        if(iupper == 0):
+            fwhm_low = wave[iupper]
+        else:
+            ilower = iupper - 1
+            fwhm_low = optimize.brentq(lambda x : (self.interp(x) / maxresponse - 0.5),
+                                       wave[ilower], wave[iupper])
+
+        # Find upper
+        ilower = np.where(iresponse >= 0.5)[0][-1]
+        if(ilower == len(iresponse) - 1):
+            fwhm_high = wave[-1]
+        else:
+            iupper = ilower + 1
+            fwhm_high = optimize.brentq(lambda x : (self.interp(x) / maxresponse - 0.5),
+                                        wave[ilower], wave[iupper])
+
+        self.fwhm_low = fwhm_low
+        self.fwhm_high = fwhm_high
+        self.fwhm = fwhm_high - fwhm_low
         return
 
     def set_solar_magnitude(self):

@@ -1,0 +1,52 @@
+#!/usr/bin/perl 
+
+#
+# Give the directory with the JEG results, and it 
+# extracts the 1.3 airmass results, putting them
+# into the filter format used.
+#
+
+@bands=("J","H","Ks");
+$twomassdir="twomass";
+$i=0;
+foreach $band (@bands) {
+	print "$twomassdir/sec6_4a.tbl$i.html\n";
+	
+	open(ifp,"$twomassdir/sec6_4a.tbl$i.html");
+	$nlines=0;
+	while(<ifp>) {
+		chomp;
+		split;
+		if($_[0]>0) {
+			$nlines++;	
+		}
+	}
+	
+	open(ofp,">./twomass_$band.par");
+	open(ifp,"twomassheader");
+	while(<ifp>) {
+		s/\[SPECIFY\]/$band/g;	
+		print ofp;
+	}
+	close(ifp);
+	print ofp "\ntypedef struct {\n";
+	print ofp "  double lambda;\n";
+	print ofp "  double pass;\n";
+	print ofp "} KFILTER;\n\n";
+	open(ifp,"$twomassdir/${band}total.html");
+	while(<ifp>) {
+		$line=$_;
+		chomp;
+		split;
+		if($_[0]>0) {
+			chomp;
+			split;
+			$lambda=$_[1]*10000.;
+			$response=$_[2];
+			printf ofp "KFILTER %e %e\n",$lambda,$response/$lambda;
+		} 
+	}
+	close(ifp);
+	close(ofp);
+  $i++;
+}

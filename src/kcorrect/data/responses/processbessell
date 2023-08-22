@@ -1,0 +1,51 @@
+#!/usr/bin/perl 
+
+#
+# Give the directory with the JEG results, and it 
+# extracts the 1.3 airmass results, putting them
+# into the filter format used.
+#
+
+@bands=("U","B","V","R","I");
+$besselldir="bessell";
+foreach $band (@bands) {
+	print "$besselldir/bessell_${band}.dat\n";
+	
+	open(ifp,"$besselldir/bessell_${band}.dat");
+	$nlines=0;
+	while(<ifp>) {
+		chomp;
+		split;
+		if($_[0]>0) {
+			$nlines++;	
+		}
+	}
+	
+	open(ofp,">./bessell_$band.par");
+	open(ifp,"bessellheader");
+	while(<ifp>) {
+		s/\[SPECIFY\]/$band/g;	
+		print ofp;
+	}
+	close(ifp);
+	print ofp "\ntypedef struct {\n";
+	print ofp "  double lambda;\n";
+	print ofp "  double pass;\n";
+	print ofp "} KFILTER;\n\n";
+	open(ifp,"$besselldir/bessell_${band}.dat");
+	while(<ifp>) {
+		$line=$_;
+		chomp;
+		split;
+		if($_[0]>0) {
+			if(!($line=~/^\#/)) {
+        chop $line;
+        @words=split(' ', $line);
+        $words[1]=$words[1]/($words[0]/5000.);
+				print ofp "KFILTER $words[0] $words[1]\n";
+			}
+		}
+	}
+	close(ifp);
+	close(ofp);
+}

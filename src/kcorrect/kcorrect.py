@@ -171,24 +171,23 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
         return
 
-    def derived(self, redshift=None, coeffs=None, band_shift=0.,
-                distance=None):
+    def derived(self, redshift=None, coeffs=None, band_shift=0., distance=None):
         """Return derived quantities based on coefficients
 
         Parameters
         ----------
 
         redshift : ndarray of np.float32, or np.float32
-            redshift
+            [ngalaxy] redshift
 
         coeffs : ndarray of np.float32
-            coefficients for each template for each object
+            [ngalaxy, ntemplates] coefficients for each template for each object
 
         band_shift : np.float32
             band shift to apply for output response
 
         distance : ndarray of np.float32 or np.float32
-            luminosity distance in Mpc
+            [ngalaxy] luminosity distance in Mpc
 
         Returns
         -------
@@ -206,27 +205,29 @@ class Kcorrect(kcorrect.fitter.Fitter):
         associated quantities:
 
         'mremain'  : ndarray of np.float32, or np.float32
-             current stellar mass in solar masses
+             [ngalaxy] current stellar mass in solar masses
 
         'intsfh' : ndarray of np.float32, or np.float32
-             current stellar mass in solar masses
+             [ngalaxy] current stellar mass in solar masses
 
         'mtol' : ndarray of np.float32, or np.float32
-             mass-to-light ratio in each output band
+             [ngalaxy] mass-to-light ratio in each output band
 
         'b300' : ndarray of np.float32, or np.float32
-             current (< 300 Myr) over past star formation
+             [ngalaxy] current (< 300 Myr) over past star formation
 
         'b1000' : ndarray of np.float32, or np.float32
-             current (< 1 Gyr) over past star formation
+             [ngalaxy] current (< 1 Gyr) over past star formation
 
         'metallicity' :
-             metallicity in current stars
+             [ngalaxy] metallicity in current stars
 
         All of these quantities should be taken with extreme caution
         and not accepted literally. After all, they are just the result
-        of a 5-template fit to a few bandpasses. See Moustakas et al.
-        (2013) for a comparison of the masses with other estimators.
+        of a template fit to a few bandpasses. 
+
+        For the default template set, see Moustakas et al. (2013) for
+        a comparison of the masses with other estimators.
 
         For responses where solar_magnitude is not defined, mtol is in
         per maggy units (not per solar luminosity)
@@ -246,8 +247,8 @@ class Kcorrect(kcorrect.fitter.Fitter):
         mremain = coeffs.dot(self.templates.mremain) * dfactor
         metals = (coeffs.dot(self.templates.mremain * self.templates.mets) *
                   dfactor)
-        m300 = coeffs.dot(self.templates.m300) * dfactor
         m50 = coeffs.dot(self.templates.m50) * dfactor
+        m300 = coeffs.dot(self.templates.m300) * dfactor
         m1000 = coeffs.dot(self.templates.m1000) * dfactor
 
         if(array):
@@ -280,10 +281,6 @@ class Kcorrect(kcorrect.fitter.Fitter):
         rmaggies_solar = self.reconstruct_out(redshift=zero_redshift,
                                               coeffs=coeffs,
                                               band_shift=band_shift)
-        for ir, response in enumerate(self.responses_out):
-            if(f[response].solar_magnitude is not None):
-                solar = 10.**(- 0.4 * f[response].solar_magnitude)
-                rmaggies_solar[..., ir] = rmaggies_solar[..., ir] / solar
 
         mtol = np.zeros(rmaggies_solar.shape, dtype=np.float32)
         ok = rmaggies_solar > 0.
@@ -303,6 +300,72 @@ class Kcorrect(kcorrect.fitter.Fitter):
         outdict['b1000'] = b1000
         outdict['metallicity'] = metallicity
 
+        return(outdict)
+
+    def derived_mc(self, redshift=None, coeffs_mc=None, band_shift=0., distance=None):
+        """Return derived quantities based on coefficients
+
+        Parameters
+        ----------
+
+        redshift : ndarray of np.float32, or np.float32
+            [ngalaxy] redshift
+
+        coeffs_mc : ndarray of np.float32
+            [ngalaxy, ntemplates, mc] coefficients for each template for each object
+
+        band_shift : np.float32
+            band shift to apply for output response
+
+        distance : ndarray of np.float32 or np.float32
+            [ngalaxy] luminosity distance in Mpc
+
+        Returns
+        -------
+
+        derived : dict()
+            dictionary with derived quantities (see below)
+
+        Notes
+        -----
+
+        Relies on repeated calls to the kcorrect.kcorrect.Kcorrect.derived() method.
+
+        The derived dictionary contains the following keys with the
+        associated quantities:
+
+        'mremain'  : ndarray of np.float32, or np.float32
+             [ngalaxy, mc] current stellar mass in solar masses
+
+        'intsfh' : ndarray of np.float32, or np.float32
+             [ngalaxy, mc] current stellar mass in solar masses
+
+        'mtol' : ndarray of np.float32, or np.float32
+             [ngalaxy, mc] mass-to-light ratio in each output band
+
+        'b300' : ndarray of np.float32, or np.float32
+             [ngalaxy, mc] current (< 300 Myr) over past star formation
+
+        'b1000' : ndarray of np.float32, or np.float32
+             [ngalaxy, mc] current (< 1 Gyr) over past star formation
+
+        'metallicity' :
+             [ngalaxy, mc] metallicity in current stars
+"""
+        outdict = None
+        mc = coeffs_mc.shape[-1]
+        for imc in np.arange(mc, dtype=np.int32):
+            coeffs_curr = coeffs_mc[..., imc]
+            derived = self.derived(redshift=redshift, band_shift=band_shift,
+                                   distance=distance, coeffs=coeffs_curr)
+            if(outdict is None):
+                outdict = dict()
+                for k in derived:
+                    shp = derived[k].shape
+                    shpmc = shp + (mc,)
+                    outdict[k] = np.zeros(shpmc, dtype=np.float32)
+            for k in derived:
+                outdict[k][..., imc] = derived[k]
         return(outdict)
 
     def reconstruct_out(self, redshift=None, coeffs=None, band_shift=0.):
@@ -381,35 +444,35 @@ class Kcorrect(kcorrect.fitter.Fitter):
         return(kcorrect)
 
     def absmag(self, maggies=None, ivar=None, redshift=None, coeffs=None,
-               band_shift=0., distance=None):
+               band_shift=0., distance=None, coeffs_mc=None):
         """Return absolute magnitude in output bands
 
         Parameters
         ----------
 
         redshift : ndarray of np.float32, or np.float32
-            redshift(s) for K-correction
+            [ngalaxy] redshift(s) for K-correction
 
         maggies : ndarray of np.float32
-            fluxes of each band in maggies
+            [ngalaxy, nbands] fluxes of each band in maggies
 
         ivar : ndarray of np.float32
-            inverse variance of each band
+            [ngalaxy, nbands] inverse variance of each band
 
         coeffs : ndarray of np.float32
-            coefficients for each template for each object
+            [ngalaxy, ntemplates] coefficients for each template for each object
 
         band_shift : np.float32
             shift to apply for output responses
 
         distance : ndarray of np.float32 or np.float32
-            distance in Mpc (or None)
+            [ngalaxy] distance in Mpc (or None)
 
         Returns
         -------
 
         absmag : ndarray of np.float32
-            AB absolute magnitude in each band for each object
+            [ngalaxy, nbands] AB absolute magnitude in each band for each object
 
         Notes
         -----
@@ -466,6 +529,54 @@ class Kcorrect(kcorrect.fitter.Fitter):
         absmag[isz] = - 9999.
 
         return(absmag)
+
+    def absmag_mc(self, maggies_mc=None, ivar=None, redshift=None,
+                  coeffs_mc=None, band_shift=0., distance=None):
+        """Return absolute magnitude in output bands for Monte Carlo results
+
+        Parameters
+        ----------
+
+        redshift : ndarray of np.float32, or np.float32
+            [ngalaxy] redshift(s) for K-correction
+
+        maggies_mc : ndarray of np.float32
+            [ngalaxy, nbands, mc] fluxes of each band in maggies
+
+        ivar : ndarray of np.float32
+            [ngalaxy, nbands] inverse variance of each band
+
+        coeffs_mc : ndarray of np.float32
+            [ngalaxy, ntemplates, mc] coefficients for each template for each object
+
+        band_shift : np.float32
+            shift to apply for output responses
+
+        distance : ndarray of np.float32 or np.float32
+            [ngalaxy] distance in Mpc (or None)
+
+        Returns
+        -------
+
+        absmag : ndarray of np.float32
+            [ngalaxy, nbands, mc] AB absolute magnitude in each band for each object
+
+        Notes
+        -----
+
+        Relies on multiple calls to kcorrect.kcorrect.Kcorrect.absmag() method.
+"""
+        mc = coeffs_mc.shape[-1]
+        absmag_mc = np.zeros(maggies_mc.shape, dtype=np.float32)
+        for imc in np.arange(mc, dtype=np.int32):
+            absmag_mc[..., imc] = self.absmag(redshift=redshift,
+                                              maggies=maggies_mc[..., imc],
+                                              ivar=ivar,
+                                              coeffs=coeffs_mc[..., imc],
+                                              band_shift=band_shift,
+                                              distance=distance)
+
+        return(absmag_mc)
 
     def tofits(self, filename=None):
         """Output calculated information to FITS

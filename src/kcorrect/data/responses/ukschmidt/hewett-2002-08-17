@@ -1,0 +1,75 @@
+From mb144 Sat Aug 17 10:26:27 2002
+Return-path: <phewett@ast.cam.ac.uk>
+Received: from mx1.nyu.edu (MX1.NYU.EDU [128.122.108.102])
+ by homemail.nyu.edu (iPlanet Messaging Server 5.2 HotFix 0.9 (built Jul 29
+ 2002)) with ESMTP id <0H0Z00CM673ZVJ@homemail.nyu.edu> for mb144@ims-ms-daemon
+ (ORCPT mb144@homemail.nyu.edu); Sat, 17 Aug 2002 02:52:47 -0400 (EDT)
+Received: from maroon.csi.cam.ac.uk (maroon.csi.cam.ac.uk [131.111.8.2])
+	by mx1.nyu.edu (Switch-2.2.1/Switch-2.2.0) with ESMTP id g7H6qkP29224	for
+ <mb144@nyu.edu>; Sat, 17 Aug 2002 02:52:46 -0400 (EDT)
+Received: from cass41.ast.cam.ac.uk ([131.111.69.186])
+	by maroon.csi.cam.ac.uk with esmtp (Exim 4.10)
+	id 17fxS1-0003JZ-00	for mb144@nyu.edu; Sat, 17 Aug 2002 07:52:45 +0100
+Received: from cass91.ast.cam.ac.uk (cass91 [131.111.69.111])
+	by cass41.ast.cam.ac.uk (8.11.6+Sun/8.11.6) with ESMTP id g7H6qj211272	for
+ <mb144@nyu.edu>; Sat, 17 Aug 2002 07:52:45 +0100 (BST)
+Received: (from phewett@localhost)	by cass91.ast.cam.ac.uk (8.11.6+Sun/8.10.2)
+ id g7H6qiT17591	for mb144@nyu.edu; Sat, 17 Aug 2002 07:52:44 +0100 (BST)
+Date: Sat, 17 Aug 2002 07:52:44 +0100 (BST)
+From: Paul Hewett <phewett@ast.cam.ac.uk>
+Subject: Re: b_j curve
+To: mb144@nyu.edu
+Message-id: <200208170652.g7H6qiT17591@cass91.ast.cam.ac.uk>
+X-Sun-Charset: US-ASCII
+Status: RO
+X-Status: A
+Content-Length: 1462
+Lines: 46
+
+Hi Michael,
+
+> I'm a postdoc at NYU, working with SDSS data. 
+> I had the message below passed along to me, along
+> with your data, and wanted to clear up a potential
+> ambiguity about what this curve is.
+> 
+> Is it effectively the "energy response" of the 
+> detector (plate)? 
+
+Pretty much yes - it also includes the UK Schmidt
+telescope optics.
+
+>That is, for a particular 
+> wavelength does it tell you the contribution 
+> which each unit of energy at that wavelength
+> makes to the signal? Another way of putting it,
+> is the magnitude you synthesize from the fluxed
+> spectrum defined to be:
+> 
+> m = ZP -2.5 \log_10 ( \int d\lambda f(\lambda) R_e(\lambda)
+> 
+> where f(\lambda) is your fluxed spectrum in units
+> ergs/cm^2/s/Angstrom, R_e(\lambda) is the number
+> in your file, and \lambda is in units of angstroms?
+> (and ZP is the zeropoint of the system).
+> 
+Yes
+
+> Out of curiosity, what sources did you use for
+> this? I don't see how it is possible with anything
+> except for QSOs...
+> 
+It was derived from spectra of both quasars and stars.
+What my original message doesn't make clear is that the
+curve was calculated using objective-prism spectra (on IIIaJ
+emulsion) and thus one can use any fluxed spectra - although
+resolved galaxies would need some thought.
+
+Remember that the photographic process is a nasty chemical
+one and the variations from plate to plate are not 
+insignificant. What are you planning to use the curve for?
+
+Regards
+
+Paul
+

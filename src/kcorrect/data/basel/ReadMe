@@ -1,0 +1,165 @@
+J/A+AS/125/229      A standard stellar library    (Lejeune+ 1997)
+================================================================================
+A standard stellar library for evolutionary synthesis.
+I. Calibration of theoretical spectra.
+       Lejeune T., Cuisinier F., Buser R.
+      <Astron. Astrophys. Suppl. Ser. 125, 229 (1997)>
+      =1997A&AS..125..229L      (SIMBAD/NED BibCode)
+================================================================================
+ADC_Keywords: Atlases ; Models, evolutionary ; Spectrophotometry
+Keywords: atlases - stars: fundamental parameters
+
+Description:
+    The present library provides an extensive and homogeneous grid of
+    low-resolution theoretical flux distributions for a large range of
+    stellar parameters : Teff=50,000K to K, logg=5.50 to -1.02 and
+    [M/H]=-5.0 to +1.0. The library has been constructed from different
+    grids of blanketed stellar atmosphere models (Bessell et al.
+    (1989A&AS...77....1B, 1991A&AS...89..335B), Fluks et al.
+    (1994, Cat. <J/A+AS/105/311>), Kurucz (1995, priv. comm.), Allard &
+    Hauschildt (1995ApJ...445..433A). The models described in the
+    accompanying paper (Lejeune et al. (1997A&AS..125..229L) are given
+    here as part of a more extensive data set including M dwarf model
+    spectra, which will be presented in a forthcoming paper (Lejeune et
+    al., 1998, Cat. <J/A+AS/130/65>). A correction procedure has been
+    applied to the theoretical energy in order to calibrate fluxes on
+    empirical-temperature relations (see also Lejeune et al., 1998, Cat.
+    <J/A+AS/130/65>). The library is given here in its two versions : the
+    first one (files *.ori) containing the "original" flux distributions
+    -- as given by the original grids of atmosphere models --, but
+    rebinned on a common wavelength scale (see also Leitherer et al.
+    1996PASP..108..996L) and the second one (files *.cor) which provides
+    the "corrected" flux distributions. Each version of the library
+    contains an ASCII file of models for each of the 19 values of the
+    metallicity ([M/H]=-5.0, -4.5, -4.0, -3.5, -3.0, -2.5, -2.0, -1.5,
+    -1.0, -0.5, -0.3, -0.2, -0.1, 0.0, +0.1, +0.2, +0.3, +0.5 and +1.0),
+    named as lcbxxx.yyy, where xxx designates the metallicity (ex:
+    'm15' --> [M/H]=-1.5), and yyy identifies the library version. For
+    each model (out of the total of 8315 models), a flux spectrum is given
+    for the (same) set of 1221 wavelength points covering the range 9.1 to
+    160000 nm, with a mean resolution of 10{AA} in the UV and 20{AA} in
+    the visible. In addition to the 19 metallicity files, two individual
+    files originating from the Kurucz (1991, in Precision Photometry:
+    Astrophysics of the Galaxy, Davis Philip A.G., Upgren A.R. & Janes
+    K.A. (eds.). Schenectady, NY, L. Davis Press, Inc., 1991, pp. 27-44))
+    models are given, lcbsun.ori and lcbvega.ori, which provide
+    theoretical flux distributions for the Sun and Vega respectively.
+
+File Summary:
+--------------------------------------------------------------------------------
+ FileName    Lrecl    Records    Explanations
+--------------------------------------------------------------------------------
+ReadMe          80          .    This file
+models.dat      62       8382    Summary of parameters
+lcbm01.ori      80      79881    Original flux distributions for [M/H] = -0.1
+lcbm02.ori      80      79881    Original flux distributions for [M/H] = -0.2
+lcbm03.ori      80      79881    Original flux distributions for [M/H] = -0.3
+lcbm05.ori      80      80409    Original flux distributions for [M/H] = -0.5
+lcbm10.ori      80      80057    Original flux distributions for [M/H] = -1.0
+lcbm15.ori      80      80409    Original flux distributions for [M/H] = -1.5
+lcbm20.ori      80      75657    Original flux distributions for [M/H] = -2.0
+lcbm25.ori      80      75305    Original flux distributions for [M/H] = -2.5
+lcbm30.ori      80      76889    Original flux distributions for [M/H] = -3.0
+lcbm35.ori      80      75833    Original flux distributions for [M/H] = -3.5
+lcbm40.ori      80      74601    Original flux distributions for [M/H] = -4.0
+lcbm45.ori      80      69321    Original flux distributions for [M/H] = -4.5
+lcbm50.ori      80      68265    Original flux distributions for [M/H] = -5.0
+lcbp00.ori      80      82345    Original flux distributions for [M/H] =  0.0
+lcbp01.ori      80      81289    Original flux distributions for [M/H] =  0.1
+lcbp02.ori      80      80585    Original flux distributions for [M/H] =  0.2
+lcbp03.ori      80      80057    Original flux distributions for [M/H] =  0.3
+lcbp05.ori      80      79705    Original flux distributions for [M/H] =  0.5
+lcbp10.ori      80      66153    Original flux distributions for [M/H] =  1.0
+lcbvega.ori     80        329    Original flux distributions for Vega
+lcbsun.ori      80        329    Original flux distributions for the Sun
+lcbm01.cor      80      79881    Corrected flux distributions for [M/H] = -0.1
+lcbm02.cor      80      79881    Corrected flux distributions for [M/H] = -0.2
+lcbm03.cor      80      79881    Corrected flux distributions for [M/H] = -0.3
+lcbm05.cor      80      80409    Corrected flux distributions for [M/H] = -0.5
+lcbm10.cor      80      80057    Corrected flux distributions for [M/H] = -1.0
+lcbm15.cor      80      80409    Corrected flux distributions for [M/H] = -1.5
+lcbm20.cor      80      75657    Corrected flux distributions for [M/H] = -2.0
+lcbm25.cor      80      75129    Corrected flux distributions for [M/H] = -2.5
+lcbm30.cor      80      76889    Corrected flux distributions for [M/H] = -3.0
+lcbm35.cor      80      75833    Corrected flux distributions for [M/H] = -3.5
+lcbm40.cor      80      74601    Corrected flux distributions for [M/H] = -4.0
+lcbm45.cor      80      69321    Corrected flux distributions for [M/H] = -4.5
+lcbm50.cor      80      68265    Corrected flux distributions for [M/H] = -5.0
+lcbp00.cor      80      82345    Corrected flux distributions for [M/H] =  0.0
+lcbp01.cor      80      81289    Corrected flux distributions for [M/H] =  0.1
+lcbp02.cor      80      80585    Corrected flux distributions for [M/H] =  0.2
+lcbp03.cor      80      80057    Corrected flux distributions for [M/H] =  0.3
+lcbp05.cor      80      79705    Corrected flux distributions for [M/H] =  0.5
+lcbp10.cor      80      66153    Corrected flux distributions for [M/H] =  1.0
+read_lcb.f      79         68    Fortran program to read the model spectra
+--------------------------------------------------------------------------------
+
+See also:
+   VI/39 : Model Atmospheres (Kurucz, 1979)
+   VI/78 : Theoretical Stellar Flux Spectra for F- to K-type Stars (Buser+ 1992)
+   J/A+AS/105/311 : M giants spectra and photometry (Fluks+, 1994)
+    J/A+AS/130/65 : A standard stellar library. II. (Lejeune+ 1998)
+
+Byte-by-byte Description of file: models.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1-  5  I5    K       Teff      Effective Temperature of Model
+   7- 11  F5.2  [cm/s2] logg      Gravity of Model
+  13- 17  F5.2  [Sun]   [M/H]     Metallicity of Model
+  19- 23  F5.2  km/s    Vturb     Microturbulence velocity
+  25- 29  F5.2  ----    xh        Mixing-length parameter
+  31- 41  A11   ---     oFluxes   Name of file containing the "original" fluxes
+  44- 46  I3    ---     oMod      Original model number within file oFluxes
+  48- 58  A11   ---     cFluxes   Name of file containing the "corrected" fluxes
+  60- 62  I3    ---     cMod      ? Corrected model number within file oFluxes
+--------------------------------------------------------------------------------
+
+Structure of file lcbxxx.yyy:
+------------------------------------------------------------------------------
+     Records Format             Explanations
+------------------------------------------------------------------------------
+     1-  153 8F10.1            Set of 1221 wavelengths (in nm)
+   Blocks of model fluxes.
+         154 2I6, 4F6.2        Each block contains in the first line an
+                                identifier as follows
+                                model number, Teff, logg, [M/H] , Vturb, xh
+   155-  328 174(7E11.4)       1221 values of the blanketed emergent surface
+   329           3E11.4         flux, expressed as flux moment (in mW/m^2^/Hz
+                                or ergs/s/cm/cm/Hz), H_nu_
+   329-82345 2I6,4F6.2/7E11.4  Repeating the above for maximum 466 other
+                                Teff, logg and [M/H] values
+
+Note about the parameters:
+   Teff is the effective temperature
+   logg the logarithm of the surface gravity
+   [M/H] the metallicity
+   Vturb the microturbulent velocity
+   xh the mixing-length parameter
+   For the M stars (Teff<3500K), the parameters Vturb and xh have no
+     meaning here and have been arbitrary fixed to 0.0
+Note about the units :
+   As H_nu_ is expressed as flux moment in the units erg/s/cm^2^/Hz
+    (SI: mW/m^2^/Hz),
+   F_lambda_, in units ergs/s/cm^2^/Angstrom, must be calculated from
+    H_nu_ using the equation
+                  F_lambda_=0.4*H_nu_*c/lambda/lambda,                (1)
+    where c=2.997925e17.......is the velocity of light and
+    lambda........is the wavelength in nanometers (as tabulated at the
+    beginning of each file lcbxxx.yyy)
+
+The numerical factor of 0.4 (=4*0.1) in equation (1) above comes from the
+ conversion of the flux moment into flux (*4) and from the conversion of flux
+ per nanometer into flux per Angstrom (*0.1).
+
+NOTICE however that F_lambda_ still is a surface flux; therefore, calculations
+ of absolute luminosities for the present models require additional assumptions
+ about the radii of the stars represented by the models.
+
+Within each file, the individual models are listed with Teff increasing, and
+ logg increasing at a given Teff.
+-----------------------------------------------------------------------------
+
+Acknowledgements: Thibault Lejeune <lejeune@astro.unibas.ch>
+================================================================================
+(End)        Lejeune [Ast. Inst. Univ. Basel], Patricia Bauer [CDS]  28-Nov-1997

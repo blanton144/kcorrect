@@ -1,0 +1,74 @@
+<Title> correcting SDSS magnitudes onto the AB system </Title>
+<H1>Subject: correcting SDSS magnitudes onto the AB system </H1>
+<H2>From: David Hogg</H2>
+<H2>Submitted: Wed, 14 Aug 2002 14:48:28 -0400</H2>
+<H2>Message number: 2486
+(previous: <a href="./msg.2485.html">2485</a>,
+next: <a href="./msg.2487.html">2487</a>
+up: <a href="./INDEX.html">Index</a>)
+</H2><p>
+
+
+<pre>
+SDSS data users,
+
+If you want 2.5m photometry that is as close to AB as we currently
+understand how to make it, apply the following corrections to the
+magnitudes output by the EDR or DR1 pipelines
+
+  u(AB,2.5m) = u(2.5m) - 0.042
+  g(AB,2.5m) = g(2.5m) + 0.036
+  r(AB,2.5m) = r(2.5m) + 0.015
+  i(AB,2.5m) = i(2.5m) + 0.013
+  z(AB,2.5m) = z(2.5m) - 0.002
+
+where, eg, u(AB,2.5m) is the best approximation to an AB magnitude in
+the 2.5m natural system, and u(2.5m) is the magnitude output by the
+SDSS photometric pipelines for EDR data (or post-EDR data processed
+with EDR pipelines) or the about-to-begin DR1 processing with new
+pipelines.
+
+For more information, see details in sdss-calib/845.
+
+To explain: It may not be widely recognized that in preparation for
+DR1, SDSS photometric calibration has moved away (very slightly) from
+a true AB definition.  This is because the calibrators on the survey
+wanted to use saner equations, but the target selectors wanted
+backwards-compatibility.  This led to a compromise, which could be
+described as:
+
+  The 2.5m photometry is presented in a 2.5m natural system, but
+  zeropointed so that the typical star used by NFCALIB has roughly
+  the same 2.5m and USNO magnitudes.
+
+With this compromise, DR1 and EDR photometry will be on the *same*
+system, albeit a slightly non-AB system.  (Please do not take this
+message to be an endorsement of the compromise.  Nor as an endorsement
+of the AB system!)
+
+For consideration: Note that the Collaboration *could* decide to apply
+these corrections *after* processing but *before* public data
+distribution in DR1.  Or we could leave things as-is, and list these
+corrections in the "documentation".  If I have to read the tea leaves,
+I predict that we will do the latter.
+
+Hogg
+-- 
+David W. Hogg        *  assistant professor
+Center for Cosmology and Particle Physics
+Department of Physics, New York University
+4 Washington Pl, New York, NY 10003
+212-992-8781 (tel)   *  212-995-4016 (fax)
+david.hogg@nyu.edu   *  http://physics.nyu.edu/hogg/
+
+DSS DSS DSS DSS DSS  Digital Sky Survey DSS DSS DSS DSS DSS DSS
+DSS
+DSS  This is message 2486 in the sdss-general archive, URL
+DSS         http://www.astro.princeton.edu:81/sdss-general/msg.2486.html
+DSS  The index is at http://www.astro.princeton.edu:81/sdss-general/INDEX.html
+DSS  To join/leave the list, go to
+DSS         http://www.astro.princeton.edu:81/cgi-bin/mailinglists.pl/show_subscription?list=sdss-general
+DSS  To post a message, mail it to sdss-general@astro.princeton.edu
+DSS
+DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS DSS
+</pre>

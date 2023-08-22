@@ -1,0 +1,66 @@
+Daniel Eisenstein 
+U of A
+2010-Jan-13
+
+These files are from http://www.cfa.harvard.edu/~bmcleod/Megacam/Filters/
+
+From that file:
+Ascii text files with transmission in percent at several radii(mm)
+from the filter center.  The total transmission estimate includes
+CCD quantum efficiency, reflectivity of primary and secondary
+mirrors, transmission of corrector and window lenses, and atmospheric
+transmission of 1.2 airmasses. The relevant columns in the table
+are:
+
+WAVE	 Wavelength in Angstroms
+T	 Transmission of filter
+WAVE	 Wavelength in Angstroms
+EXTINCT	 Atmospheric extinction at 1.2 airmasses
+QE	 CCD QE
+R	 Reflectivity of aluminum
+SOLGEL	 Transmission of a solgel surface
+WINDOW	 Transmission of a window surface
+THROUGHPUT   Combination of reflectivity and transmission terms
+TOTAL	 T+QE+Extinction+Throughput terms
+
+
+Numerical columns (guessing at some):
+
+1) Wavelength in A
+2) Unknown
+3) Filter transmission
+4) CCD QE (looks like this was approximated, piecewise linear between a few samples)
+5) Unknown
+6) Extinction of the atmosphere?   (Telluric bands seem overly broad)
+7) Total of reflectivity and transmission terms?
+8) Transmission of a solgel surface
+9) Transmission of a window surface
+10) Total
+
+
+Computing the effective wavelength (integral in wavelength of lambda*total)
+Effective wavelength for u is 3626.72
+Effective wavelength for g is 4815.65
+Effective wavelength for r is 6373.77
+Effective wavelength for i is 7815.23
+Effective wavelength for z is 9069.54
+
+For comparison, I think the numbers for SDSS are 3551, 4686, 6165, 7481, 8931
+So the MMT is redder in all bands, notably so i band.
+
+
+For CFHT, from http://www.astro.uvic.ca/~hsiao/talks/hsiao_kcorr.pdf, we
+have 379, 481, 620, 758, 881 nm.
+The page http://www2.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/community/CFHTLS-SG/docs/extra/filters.html
+confirms that CFHT u and g are redder than SDSS.  riz are similar.
+
+They suggest color terms of
+
+u_Mega = u_SDSS - 0.241 (u_SDSS - g_SDSS)
+g_Mega = g_SDSS - 0.153 (g_SDSS - r_SDSS)
+r_Mega = r_SDSS - 0.024 (g_SDSS - r_SDSS)
+i_Mega = i_SDSS - 0.085 (r_SDSS - i_SDSS)
+z_Mega = z_SDSS + 0.074 (i_SDSS - z_SDSS)
+
+But note that these calculations of effectively wavelength are possibly weighting 
+powers of lambda differently.

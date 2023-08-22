@@ -1,0 +1,53 @@
+#!/usr/local/bin/perl 
+
+#
+# Give the directory with the JEG results, and it 
+# extracts the 1.3 airmass results, putting them
+# into the filter format used.
+#
+
+@bands=("u", "g", "r", "i", "z");
+$jegdir="sdss";
+foreach $band (@bands) {
+	for($col=0;$col<7;$col++) {
+		print "$jegdir/sdss_$band$col.res\n";
+
+		open(ifp,"$jegdir/sdss_$band$col.res");
+		$nlines=0;
+		while(<ifp>) {
+			if(!/^\#/ && !/^\\/) {
+				$nlines++;	
+			}
+		}
+		close(ifp);
+
+		open(ofp,">./sdss_$band$col.par");
+		open(ifp,"sdssheader");
+		$colname="Column $col";
+		if($col == 0) {
+			$colname="Average over columns 1-6";
+		}
+		while(<ifp>) {
+			s/\[SPECIFY\]/$band/g;	
+			s/\[SPECIFY: WHICH COLUMN\]/$colname/g;	
+			print ofp;
+		}
+		close(ifp);
+		print ofp "\ntypedef struct {\n";
+		print ofp "  double lambda;\n";
+		print ofp "  double vacuum_pass;\n";
+		print ofp "  double pass_1_0;\n";
+		print ofp "  double pass;\n";
+		print ofp "  double pass_1_6;\n";
+		print ofp "  double pass_1_9;\n";
+		print ofp "} KFILTER_SDSS;\n\n";
+		open(ifp,"$jegdir/sdss_$band$col.res");
+		while(<ifp>) {
+			if(!/^\#.*/) {
+				print ofp "KFILTER_SDSS $_";
+			}
+		}
+		close(ifp);
+		close(ofp);
+	}
+}

@@ -1,0 +1,48 @@
+#!/usr/bin/perl 
+
+@bands=("acs_f435w",
+        "acs_f606w",
+        "acs_f775w",
+        "acs_f850lp",
+        "J_isaac_etc",
+        "H_isaac_etc",
+        "Ks_isaac_etc");
+$goodsdir="goods";
+foreach $band (@bands) {
+	print "$goodsdir/${band}.bp\n";
+	
+	open(ifp,"$goodsdir/${band}.bp");
+	$nlines=0;
+	while(<ifp>) {
+		chomp;
+		split;
+		if($_[0]>0) {
+			$nlines++;	
+		}
+	}
+	
+	open(ofp,">./goods_$band.par");
+	open(ifp,"goodsheader");
+	while(<ifp>) {
+		s/\[SPECIFY\]/$band/g;	
+		print ofp;
+	}
+	close(ifp);
+	print ofp "\ntypedef struct {\n";
+	print ofp "  double lambda;\n";
+	print ofp "  double pass;\n";
+	print ofp "} KFILTER;\n\n";
+	open(ifp,"$goodsdir/${band}.bp");
+	while(<ifp>) {
+		$line=$_;
+		chomp;
+		split;
+		if($_[0]>0) {
+			if(!($line=~/^\#/)) {
+				print ofp "KFILTER $line";
+			}
+		}
+	}
+	close(ifp);
+	close(ofp);
+}

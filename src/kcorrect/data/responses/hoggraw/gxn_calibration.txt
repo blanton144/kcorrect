@@ -1,0 +1,32 @@
+                                                  11 Dec 81, GXN
+                                                  updated 9 Mar 97
+
+                      ABSOLUTE CALIBRATION
+
+                                      Zero magnitude
+Band    lam     log[nu]         flam    fnu    log[fnu]  m0   notes
+        eff                     1E-11   Jy
+        mu      log[Hz]        W/m2 mu        lg[W/m2Hz] mag
+U       0.36    14.92           3980    1720    -22.76  15.59   1
+B       0.43    14.84           7285    4490    -22.35  16.63   1
+V       0.548   14.74           3526    3530    -22.45  16.37   2
+R       0.7     14.63           1702    2780    -22.56  16.11   1
+I       0.9     14.52           830     2240    -22.65  15.88   1
+J       1.25    14.38           303     1578    -22.80  15.50   2
+H       1.65    14.26           115     1041    -22.98  15.04   2
+K       2.2     14.13           40      646     -23.19  14.53   2
+L       3.5     13.93           6.8     278     -23.56  13.61   2
+L'      3.7     13.91           5.5     251     -23.60  13.50   2
+M       4.8     13.80           2.02    155     -23.81  12.98   2
+N       10.1    13.47           0.109   37      -24.43  11.42   3
+O       20.2    13.17           0.0074  10      -25.00  10.00   3
+
+ AB == -2.5 * log f nu - 56.13
+ log[f nu(mJy)] == (m0 - m)*0.4
+
+ Vega defined as 0 Mag for V and 1.25 <= lambda <= 4.8 mu.
+
+ 1) Hayes 1979, Dudley Obs. RN. 14, 297.
+ 2) Vega flux from Oke and Shild 1970, Ap.J., 161, 1015.
+    Kurucz, Peytreman and Avrett model 1972.
+ 3) Becklin 1972 calibration.

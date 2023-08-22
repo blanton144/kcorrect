@@ -1,0 +1,25 @@
+# Format:
+#  <nlines> <ncolumns> <default column (1-indexed)>
+#  <lambda_0> <response0_0> <response1_0> ...
+#  ...
+#  <lambda_(nlines-1)> <response0_(nlines-1)> <response1_(nlines-1)> ...
+#
+# Units:
+#  lambda is in Angstroms
+#  response is the contribution to the detector signal per photon
+#    entering the atmosphere of Earth
+#
+# Bandpass Name(s): [SPECIFY]
+#
+# Instrument: [SPECIFY]
+# 
+# Determined by: [SPECIFY]
+#
+# Date of determination: [SPECIFY]
+#
+# Meaning of/Reason for default column: [SPECIFY]
+#
+# Notes:
+#
+#  [INCLUDE NOTES ON METHOD]
+#

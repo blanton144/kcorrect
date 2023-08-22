@@ -1,0 +1,46 @@
+# Units:
+#  "lambda" is in Angstroms
+#  "pass" is the contribution to the detector signal per photon
+#         entering the atmosphere of Earth
+#
+# Bandpass Name(s): [SPECIFY]
+#
+# Instrument: 2MASS Cameras in Mt. Hopkins, AZ, and CTIO, Chile
+# 
+# Determined by: 2MASS team; notes on the web page are:
+# 			  
+#   "We thank Martin Cohen for providing us with the NICMOS3 data
+#    (originally from the manufacturer Rockwell, as obtained by Leslie
+#    Hunt), the atmospheric models, and the resulting total response
+#    curves.
+#
+#   "[Last Updated: 2000 June 27 by W. Wheaton. Modified 2000 Sep 13
+#     by S. Van Dyk.] "
+#
+# Date of determination: Unknown (see previous note for upper limit)
+#
+# Meaning of/Reason for default column: Only column available
+#
+# Notes:
+#
+# These curves obtained from:
+#
+# http://www.ipac.caltech.edu/2mass/releases/second/doc/sec3_1b1.tbl12.html
+# 
+# Apparently the differences between the two sites are small enough
+# that the 2MASS folks choose to ignore it.  
+# 
+# According to the web pages, these curves include mirror
+# reflectivity, dewar window transmission, camera coatings, dichroic
+# effects, filters, detector QE, as well as "representative
+# atmospheric transmission at the observatory sites." The quantum
+# efficiencies appear to have been determined from the NICMOS3 array
+# "similar to those used in the 2MASS cameras". They do not make 
+# clear on the site whether they used the ATRAN or PLEXUS atmospheric
+# models.
+#
+# I am not in a position to judge the quality of these curves, but
+# have no reason to doubt them.
+#
+# Michael Blanton 2002-08-19
+#

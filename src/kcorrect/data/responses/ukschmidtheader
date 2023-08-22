@@ -1,0 +1,36 @@
+# Units:
+#  "lambda" is in Angstroms
+#  "pass" is the contribution to the detector signal per photon
+#         entering the atmosphere of Earth
+#
+# Bandpass Name(s): b_j (NOT B_j!)
+#
+# Instrument: UK Schmidt telescope optics, IIIaJ emulsion 2mm  
+#             plus 2mm of GG395. Airmass included
+# 
+# Determined by: P. Hewett & S. J. Warren (private communication 2002, see
+#   correspondence in ukschmidt directory); Blanton divided by 
+#   lambda to obtain photon probability
+#  
+# Date of determination: Unknown (see correspondence for upper limit)
+#
+# Meaning of/Reason for default column: Only available.
+#
+# Notes:
+#
+# Please read the correspondence in the ukschmidt directory for
+# explanations of how this was determined. Note that it was determined
+# for a single photographic plate; Hewett does not trust that the
+# curve is repeatable at a high level of precision. That said, this 
+# is all we have got. Furthermore, this response appears to reproduce
+# the behavior of galaxy b_j magnitudes relative to B and V galaxy
+# magnitudes (b_j-B = -0.28 (B-V)). 
+# 
+# I don't understand how plate nonlinearities figure into this curve;
+# presumably the hope is that this respresents the response for the 
+# appropriately linearized b_j magnitude, for some definition of 
+# "appropriately".
+# 
+# Michael Blanton
+# 2002-08-19
+#

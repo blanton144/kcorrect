@@ -1,0 +1,30 @@
+
+These files are the response functions as measured by Mamoru Jan 2001,
+interpolated to fill in the sharp corner near the red cutoff using model
+filters and then splined to a standard wavelengh set, shared by all of
+the files in this set of response functions for all the telescopes.
+
+The files indexed 0 are the response functions averaged over the six
+columns of the camera.
+
+The file sdssav.lis is a list of magnitudes (V=0) and colors for these
+(average) response functions at 1.3 airmasses run against the
+Gunn-Stryker spectrophotometric atlas stars and the AB95 standards. 
+These are AB magnitudes, note, not whatever system we will come up with. 
+To transform from USNO magnitudes to a natural SDSS AB system, the
+best-guess transformations as of this writing are
+
+u_AB = u' - 0.04 - 0.003*(u'-g')
+
+g_AB = g'        + 0.069*(g'-r') 
+
+r_AB = r'        + 0.038*(r'-i') 
+
+i_AB = i'        + 0.049*(r'-i')
+
+z_AB = z' - 0.01 + 0.011*(i'-z')
+
+but these are based ENTIRELY on calculations, and should be much better
+determined by observations shortly.
+
+jeg011218

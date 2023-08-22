@@ -1,0 +1,46 @@
+Date: Fri, 20 Sep 2002 11:17:53 -0400
+From: Karl Glazebrook <kgb@pha.jhu.edu>
+Subject: [Fwd: Re: bj response]
+To: Jim Gunn <jeg@astro.PRINCETON.EDU>, Michael Blanton <mb144@nyu.edu>
+Organization: Johns Hopkins University
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+
+[-- Attachment #1 --]
+[-- Type: text/plain, Encoding: 7bit, Size: 0.2K --]
+
+About as much info as we are going to get. The real issue is how well one
+can calculate a pseudo-bj mag from a spectrum, this strikes me as quite complex
+as the real bj response is non-linear but has been linearised in some fashion
+against CCD mags
+
+[-- Attachment #2: Re: bj response --]
+[-- Type: message/rfc822, Encoding: 7bit, Size: 1.9K --]
+
+X-Sieve: cmu-sieve 2.0
+Date: Fri, 20 Sep 2002 08:03:19 +0100 (BST)
+From: Paul Hewett <phewett@ast.cam.ac.uk>
+To: kgb@pha.jhu.edu
+Subject: Re: bj response
+Cc: s.j.warren@ic.ac.uk
+X-Sun-Charset: US-ASCII
+
+Hi Karl,
+
+This curve seems to be generating a lot of interest recently - I had an
+e-mail with Michael Blanton about it last month. Perhaps I should publish
+a version based on the 20 or so plates for which I have data - needs some
+effort on my part.
+
+The numbers do indeed reflect energy response - ie the curve was
+calculated using spectra calibrated in erg/s/cm^2/A. You can clearly
+modify the transmission curve to equate to a photon counting device
+easily. The differences in the magnitudes turn out to be surprisingly
+small however and, unless you have some pretty odd SEDs, will be
+smaller than the uncertainties associated with the plate-to-plate
+variations in the response. Thinking about it, you may well have
+some odd SEDs so my observation may be optimistic.
+
+Regards
+
+Paul

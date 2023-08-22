@@ -1,0 +1,208 @@
+
+A DATABASE OF UV-OPTICAL SPECTRA OF NEARBY QUIESCENT AND ACTIVE GALAXIES
+
+Thaisa Storchi-Bergmann(1), Daniela Calzetti(2) and Anne L. Kinney(2)
+
+(1) Instituto de Fisica, UFRGS, Campus do Vale, C.P. 15051, Porto
+Alegre, RS, Brazil
+
+(2) Space Telescope Science Institute, 3700 San Martin Dr., Baltimore,
+MD 21218
+
+ABSTRACT
+
+We announce the availability of UV-optical spectra of 99 galaxies, the
+list of which is given at the bottom of this README file according to
+activity type: 1. quiescent galaxies (subdivided in ellipticals and
+spirals/later types) and 2. "active" galaxies (subdivided in
+starbursts/HII, Seyferts, and LINERs/mixed types). In summary, the
+available data consist of IUE UV (1200--3300A) spectra combined with
+ground-based optical spectra obtained with a matched aperture
+(10"x20").  Some of the quiescent galaxy spectra, the starburst and
+Seyfert 2 spectra have been already presented in McQuade, Calzetti &
+Kinney (1995, ApJS 97, 331) and Storchi-Bergmann, Kinney & Challis
+(1995, ApJS 98, 103). The optical spectra cover the range 3200-7500A
+for the Northern Hemisphere galaxies and the range 3200-10000A for the
+Sourthern Hemisphere galaxies.
+
+===============================================================
+
+REMARKS ABOUT THE IUE SPECTRA
+
+The IUE spectra consists of two segments obtained, respectively, with
+the short wavelength camera (SWS), covering the spectral range
+1150-2000A at 5A spectral resolution, and the long-wavelenght camera
+(LWS), covering the spectral range 1900-3300A at 8A spectral
+resolution.  In some cases, one spectral region (most often the SWS)
+is missing, because the data were not available or of poor
+quality. The quality of the data decreases towards the end of each
+spectral segment, which is often noticeable in the overlap region
+around 2000A.
+
+We have edited out from the spectra the strong geocoronal
+Lyman alpha emission line, using a straigth line to connect
+the two continuum points at both sides of the line.
+
+
+REMARKS ABOUT THE SPECTRA OF THE SOUTHERN SAMPLE
+
+The optical spectra of the southern sample were obtained with two
+different telescopes and setups (see Storchi-Bergmann et al.,
+reference above):
+
+(1) The 3200-6400A range was observed with the CTIO 1m telescope and
+2DFRUTTI detector, at a spectral resolution of 8A. The 2DFRUTTI had a
+very good response in the blue but poor response towards the red. The
+spectra thus have good signal-to-noise ratio in the blue, but poor
+signal above 6000A. Above 6000A, there are also uncertainties in the
+curvature of the spectra due to second order contamination from light
+at lambda ~3000-3200A.
+
+(2) The 6400-8200A and 8200-10000A wavelength ranges were observed
+with the 1.5m telescope and a CCD detector, at a spectral resolution
+of 5.5A.  Some nights were not photometric, and as a result, some of
+the segments of the spectra have low S/N ratio; we decided to keep
+them, as we could recover the average flux from the other segments of
+the spectra.
+
+In general there was a good agreement between the flux at the red end
+of the UV spectra and at the blue end of the optical spectra. In a few
+cases, however, the optical spectrum had to be scaled to match the UV
+spectrum. Uncertainties may still remain in some cases where the
+signal-to-noise at the end of the UV spectrum is poor.
+
+REMARKS ABOUT THE SPECTRA OF THE NORTHERN SAMPLE
+
+The optical spectra of the northern sample were obtained with the 0.9m
+telescope at KPNO and the now retired Intensified Reticon Scanner
+(IRS, see the McQuade et al. reference above), using a circular
+aperture of 13.5". Because of the close match between the IUE and
+optical apertures, no normalization between the UV and optical spectra
+was required. Two separate gratings were employed to obtain the blue
+(3200-5500A) and the red (5000-7500A) part of the spectra with
+resolution of about 10A.
+
+
+LIST OF GALAXIES
+
+1. QUIESCENT GALAXIES:
+
+1a. Ellipticals
+
+ngc205
+ngc210
+ngc221
+ngc584
+ngc1052
+ngc1316
+ngc1399
+ngc1404
+ngc1407
+ngc2865
+ngc6166
+ngc6868
+ngc7196
+
+1b. Spirals and later types
+
+ngc224
+ngc598
+ngc1023
+ngc1433
+ngc1553
+ngc2768
+ngc3031
+ngc3077
+ngc3115
+ngc4853
+ngc6340
+
+
+2. "ACTIVE" GALAXIES:
+
+2a. Starbursts/HII
+
+1050-04
+eso296-11
+eso572-34
+haro15
+ic1586
+ic214
+mrk309
+mrk357
+mrk499
+mrk542
+mrk66
+ngc1140
+ngc1313
+ngc1510
+ngc1569
+ngc1614
+ngc1705
+ngc1800
+ngc1808
+ngc2403
+ngc3049
+ngc3125
+ngc3256
+ngc4194
+ngc4385
+ngc4861
+ngc5102
+ngc5236
+ngc5253
+ngc5860
+ngc5996
+ngc6052
+ngc6090
+ngc6217
+ngc6221
+ngc7250
+ngc7496
+ngc7552
+ngc7673
+ngc7714
+ngc7793
+t1941-543
+tol1924-416
+ugc9560
+ugca410
+
+2b. Seyferts
+
+ic3639
+mkn313
+mrk477
+ngc1068
+ngc1275
+ngc1667
+ngc262
+ngc3081
+ngc3393
+ngc3660
+ngc4748
+ngc5135
+ngc5506
+ngc5643
+ngc5728
+ngc6221
+ngc6764
+ngc7130
+ngc7496
+ngc7582
+ngc7590
+
+2c. LINERs/mixed types
+
+ngc1097
+ngc1052
+ngc1326
+ngc1433
+ngc1672
+ngc245
+ngc3351
+ngc4569
+ngc4579
+ngc4594
+ngc5128
+ngc7083

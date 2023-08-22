@@ -1,0 +1,40 @@
+#!/usr/bin/perl 
+
+print "ukschmidt/bjresponse.dat\n";
+	
+open(ifp,"ukschmidt/bjresponse.dat");
+$nlines=0;
+while(<ifp>) {
+	chomp;
+	split;
+	if($_[0]>0) {
+		$nlines++;	
+	}
+}
+
+open(ofp,">./ukschmidt_bj.par");
+open(ifp,"ukschmidtheader");
+while(<ifp>) {
+	print ofp;
+}
+close(ifp);
+	print ofp "\ntypedef struct {\n";
+	print ofp "  double lambda;\n";
+	print ofp "  double pass;\n";
+	print ofp "} KFILTER;\n\n";
+open(ifp,"ukschmidt/bjresponse.dat");
+while(<ifp>) {
+	$line=$_;
+	chomp;
+	split;
+	if($_[0]>0) {
+		chomp;
+		split;
+		$lambda=$_[0];
+		$scale=$lambda/4500.;
+		$response=$_[1]/$scale;
+		printf ofp "KFILTER %e %e\n",$lambda,$response;
+	}
+}
+close(ifp);
+close(ofp);

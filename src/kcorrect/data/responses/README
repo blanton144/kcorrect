@@ -1,0 +1,15 @@
+This directory contains a number of filter responses 
+from different astronomical instruments. Most of them include 
+atmosphere. They are fully explained in their header documentation,
+as is the format of the files. 
+
+C-code which reads such a file, and returns the number of elements and
+pointers to lambda and the response, is in the k_load_filter() routine 
+included in the file $KCORRECT_DIR/src/k_load_filters.c
+
+At this time, 2MASS, SDSS, and UK Schmidt filter curves are included.
+
+Remember, the absolute values of the responses are arbitrary. 
+
+Michael Blanton
+Written 2002-08-19

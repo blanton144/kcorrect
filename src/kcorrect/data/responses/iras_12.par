@@ -1,0 +1,43 @@
+# Units:
+#  "lambda" is in Angstroms
+#  "pass" is *probably* the contribution to the detector signal per photon
+#
+# Bandpass Name(s): IRAS 12
+#
+# Instrument: IRAS
+# 
+# Determined by: ?
+#
+# Date of determination: ?
+#
+# Meaning of/Reason for default column: Only available
+#
+# Notes:
+#
+# Retrieved from http://irsa.ipac.caltech.edu/IRASdocs/exp.sup/ch2/tabC5.html 
+#
+# J. Moustakas, 2008-Jul-12, NYU
+
+typedef struct {
+  double lambda;
+  double pass;
+} KFILTER;
+
+KFILTER  7.0E4 0.000
+KFILTER  7.5E4 0.008
+KFILTER  8.0E4 0.535
+KFILTER  8.5E4 0.689
+KFILTER  9.0E4 0.735
+KFILTER  9.5E4 0.815
+KFILTER 10.0E4 0.900
+KFILTER 10.5E4 0.904
+KFILTER 11.0E4 0.834
+KFILTER 11.5E4 0.816
+KFILTER 12.0E4 0.793
+KFILTER 12.5E4 0.854
+KFILTER 13.0E4 0.938
+KFILTER 13.5E4 0.991
+KFILTER 14.0E4 1.000
+KFILTER 14.5E4 0.934
+KFILTER 15.0E4 0.388
+KFILTER 15.5E4 0.000

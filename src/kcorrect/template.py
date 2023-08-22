@@ -29,6 +29,9 @@ class SED(object):
     Attributes
     ----------
 
+    binimage : bool
+        if True, files use WAVE and FLUX extensions
+
     filename : str
         name of FITS file associated with this SED
 
@@ -67,12 +70,15 @@ class SED(object):
 
     If filename is set, overrides wave and flux.
 
-    """
+    If binimage is True, then instead of a FLUX HDU table, there should
+    be WAVE and FLUX HDUs with binary images.
+"""
     def __init__(self, filename=None, wave=None, flux=None, ext='FLUX'):
         self.restframe_wave = wave
         self.restframe_flux = flux
         self.filename = filename
         self.info = dict()
+        self.binimage = False
         if(self.filename is not None):
             self.fromfits(filename, ext=ext)
             return
@@ -136,12 +142,21 @@ class SED(object):
         Only imports the first row of the FITS table.
 """
         sed_hdus = fits.open(filename)
-        sed = sed_hdus[ext].data
-        self.restframe_wave = np.squeeze(sed['wave'])
-        if(len(sed['flux'][0].shape) > 1):
-            self.restframe_flux = sed['flux'][0]
+        self.binimage = ('FLUX' in sed_hdus) & ('WAVE' in sed_hdus)
+        if(self.binimage):
+            self.restframe_wave = sed_hdus['WAVE'].data
+            self.restframe_flux = sed_hdus['FLUX'].data
         else:
-            self.restframe_flux = sed['flux'].reshape(1, len(sed['flux'][0]))
+            sed = sed_hdus[ext].data
+            self.restframe_wave = sed['wave']
+            self.restframe_flux = sed['flux']
+        if(len(self.restframe_flux.shape) > 1):
+            nsed = self.restframe_flux.shape[-2]
+        else:
+            nsed = 1
+        self.restframe_wave = np.squeeze(self.restframe_wave)
+        nwave = len(self.restframe_wave)
+        self.restframe_flux = self.restframe_flux.reshape(nsed, nwave)
         self._setup()
         return
 
@@ -168,14 +183,24 @@ class SED(object):
            wave - an [nwave] array of restframe wavelengths in Angstrom
            flux - an [nsed, nwave] array of restframe fluxes
 
-        Only imports the first row of the FITS table.
+        If binimage is set for this object, instead write
+        two HDUs.
 """
-        out = np.zeros(1, self.sed_dtype())
-        out['wave'] = self.restframe_wave
-        out['flux'] = self.restframe_flux
+        if(self.binimage):
+            hdul = fits.HDUList()
+            whdu = fits.ImageHDU(self.restframe_wave, name='WAVE')
+            hdul.append(whdu)
+            fhdu = fits.ImageHDU(self.restframe_flux, name='FLUX')
+            fhdu.header['BINIMAGE'] = 'T'
+            hdul.append(fhdu)
+            hdul.writeto(filename, overwrite=clobber)
+        else:
+            out = np.zeros(1, self.sed_dtype())
+            out['wave'] = self.restframe_wave
+            out['flux'] = self.restframe_flux
 
-        hdu = fits.BinTableHDU(out, name=ext)
-        hdu.writeto(filename, overwrite=clobber)
+            hdu = fits.BinTableHDU(out, name=ext)
+            hdu.writeto(filename, overwrite=clobber)
         return
 
     def set_redshift(self, redshift=0.):
@@ -255,8 +280,14 @@ class Template(SED):
     filename : str
         name of FITS file to read from
 
+    binimage : bool
+        if True, read in WAVE and FLUX extensions as binary images
+
     Attributes
     ----------
+
+    binimage : bool
+        if True, read in WAVE and FLUX extensions as binary images
 
     filename : str
         name of FITS file associated with this SED
@@ -313,9 +344,12 @@ class Template(SED):
        METS : an [nsed]-array with metallicity
        INTSFH : an [nsed]-array with integrated SF in solar units
        MREMAIN : an [nsed]-array with current stellar mass in solar units
+       M50 : an [nsed]-array with mass formed within 50 My in solar units
        M300 : an [nsed]-array with mass formed within 300 My in solar units
        M1000 : an [nsed]-array with mass formed within 1 Gy in solar units
 
+    If binimage is True, then instead of a FLUX HDU table, there should 
+    be WAVE and FLUX HDUs with binary images.
 """
     def __init__(self, filename=None, ext='FLUX'):
         super().__init__(filename=filename, ext=ext)

@@ -1,0 +1,36 @@
+set_reload megacam.sm
+
+set lamlist = 2000,12000,10
+
+macro readfilter 1 {
+    data filterthroughput.megacam$1.txt
+    lines 3 0
+    read { lam 1 flux 2 T 3 QE 4 nu 5 extinct 6 throughput 7 solgel 8 Mwindow 9 total 10 }
+    spline lam total lamlist totallist
+    define efflam (sum(lamlist*totallist)/sum(totallist))
+    echo Effective wavelength for $1 is $efflam
+}
+
+#readfilter u
+
+macro megacam_filters {
+    myerase expand 1.6
+    limits 3000 11000 0 0.6
+    ticksize 0 0 0 0
+    lw 3 box 0 0 0 0 lw 2 box
+    xlabel Wavelength
+    ylabel Total QE (including atmosphere)
+    lw 3 
+    ctype black readfilter u
+    connect lam total
+    ctype blue readfilter g
+    connect lam total
+    ctype red readfilter r
+    connect lam total
+    ctype magenta readfilter i
+    connect lam total
+    ctype black readfilter z
+    connect lam total
+}
+
+megacam_filters
