@@ -39,8 +39,8 @@ k = kcorrect.kcorrect.KcorrectGST()
 # of GALEX, SDSS, and 2MASS photometry.
 print("Reading in file", flush=True)
 
-gstfile = os.path.join(os.getenv('KCORRECT_DIR'), 'python', 'kcorrect',
-                       'data', 'test', 'gst_tests_small.fits')
+gstfile = os.path.join(kcorrect.KCORRECT_DIR, 'data', 'test',
+                       'gst_tests_small.fits')
 gst = fitsio.read(gstfile)
 
 # (4) We calculate the maggies in all based, on an AB system. This
@@ -157,8 +157,7 @@ absmag_bv = kbv.absmag(redshift=gst['Z'], coeffs=coeffs,
 # Finally a bunch of plots
 
 print("Make plot", flush=True)
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.gst.png')
+pngfile = 'kcorrect-default-v4.gst.png'
 
 matplotlib.rcParams['figure.figsize'] = [5., 7.]
 
@@ -197,8 +196,7 @@ print("Reconstruct maggies", flush=True)
 rm = k.reconstruct(redshift=gst['Z'], coeffs=coeffs)
 
 print("Make mag residual plot", flush=True)
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.gst.deltam.png')
+pngfile = 'kcorrect-default-v4.gst.deltam.png'
 
 fig, ax = plt.subplots(5, 2, sharex=True,
                        gridspec_kw={'hspace': 0,
@@ -234,8 +232,7 @@ plt.tight_layout()
 plt.savefig(pngfile, dpi=150)
 
 print("Make color residual plot", flush=True)
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.gst.deltac.png')
+pngfile = 'kcorrect-default-v4.gst.deltac.png'
 
 fig, ax = plt.subplots(5, 2, sharex=True,
                        gridspec_kw={'hspace': 0,
@@ -276,14 +273,14 @@ plt.savefig(pngfile, dpi=150)
 
 print("Make M/L versus B-V plot", flush=True)
 
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.gst.mtolv.png')
+pngfile = 'kcorrect-default-v4.gst.mtolv.png'
 
 matplotlib.rcParams['figure.figsize'] = [5. , 5.]
 fig, ax = plt.subplots()
 
 # Note that to compare to Bell & De Jong (2001) you need to be in Vega!
 ok = derived_bv['mtol'][:, 1] > 0.
+print(derived_bv['mtol'][:, 1])
 ab2vega_factor = 10.**(0.4 * responseDict['bessell_V'].vega2ab)
 log_mtolv = np.log10(derived_bv['mtol'][ok, 1] / ab2vega_factor)
 bmv = absmag_bv[ok, 0] - absmag_bv[ok, 1]

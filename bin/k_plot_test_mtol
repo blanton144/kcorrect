@@ -28,11 +28,11 @@ k = kcorrect.kcorrect.KcorrectSDSS(abcorrect=False)
 # to z<0.2 because that is what the 2007 paper did.
 print("Reading in file", flush=True)
 
-postfile = os.path.join(os.getenv('KCORRECT_DIR'), 'python', 'kcorrect',
-                        'data', 'test', 'post_catalog.dr4bsafe1.fits')
+postfile = os.path.join(kcorrect.KCORRECT_DIR, 'data', 'test',
+                        'post_catalog.dr4bsafe1.fits')
 post = fitsio.read(postfile)
-imfile = os.path.join(os.getenv('KCORRECT_DIR'), 'python', 'kcorrect',
-                      'data', 'test', 'object_sdss_imaging.fits')
+imfile = os.path.join(kcorrect.KCORRECT_DIR, 'data', 'test',
+                      'object_sdss_imaging.fits')
 im = fitsio.read(imfile)
 
 ikeep = np.where(post['Z'] < 0.2)[0]
@@ -99,8 +99,7 @@ print(kc[0:10, :])
 # Finally a bunch of plots
 print("Make M/L versus B-V plot", flush=True)
 
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.lss.mtolv.png')
+pngfile = 'kcorrect-default-v4.lss.mtolv.png'
 
 matplotlib.rcParams['figure.figsize'] = [5., 5.]
 fig, ax = plt.subplots()
@@ -129,8 +128,7 @@ plt.tight_layout()
 plt.savefig(pngfile, dpi=150)
 plt.clf()
 
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.lss.masses.png')
+pngfile ='kcorrect-default-v4.lss.masses.png'
 
 fig, ax = plt.subplots()
 

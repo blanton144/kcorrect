@@ -5,14 +5,13 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import fitsio
-import kcorrect.kcorrect
-import kcorrect.utils
+import kcorrect
 
 print("Initialize KcorrectSDSS object", flush=True)
 k = kcorrect.kcorrect.KcorrectSDSS()
 
 print("Reading in file", flush=True)
-gstfile = os.path.join(os.getenv('KCORRECT_DIR'), 'python', 'kcorrect',
+gstfile = os.path.join(kcorrect.KCORRECT_DIR,
                        'data', 'test', 'gst_tests_small.fits')
 gst = fitsio.read(gstfile)
 
@@ -26,8 +25,7 @@ print("Calculate K-corrections", flush=True)
 kc = k.kcorrect(redshift=gst['Z'], coeffs=coeffs)
 
 print("Make plot", flush=True)
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.sdss.png')
+pngfile = 'kcorrect-default-v4.sdss.png'
 
 matplotlib.rcParams['figure.figsize'] = [5., 7.]
 
@@ -53,8 +51,7 @@ print("Calculate K-corrections to 0.1", flush=True)
 kc = k.kcorrect(redshift=gst['Z'], coeffs=coeffs, band_shift=0.1)
 
 print("Make plot", flush=True)
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.sdss.0.1.png')
+pngfile = 'kcorrect-default-v4.sdss.0.1.png'
 
 matplotlib.rcParams['figure.figsize'] = [5., 7.]
 
@@ -80,8 +77,7 @@ print("Reconstruct maggies", flush=True)
 rm = k.reconstruct(redshift=gst['Z'], coeffs=coeffs)
 
 print("Make mag residual plot", flush=True)
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.sdss.deltam.png')
+pngfile = 'kcorrect-default-v4.sdss.deltam.png'
 
 fig, ax = plt.subplots(5, 1, sharex=True,
                        gridspec_kw={'hspace': 0})
@@ -105,8 +101,7 @@ ax[4].set_xlabel('redshift')
 plt.savefig(pngfile, dpi=150)
 
 print("Make color residual plot", flush=True)
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.sdss.deltac.png')
+pngfile = 'kcorrect-default-v4.sdss.deltac.png'
 
 fig, ax = plt.subplots(4, 1, sharex=True,
                        gridspec_kw={'hspace': 0})

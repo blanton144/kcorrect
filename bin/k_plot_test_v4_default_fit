@@ -3,15 +3,12 @@
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-import kcorrect.response
-import kcorrect.template
-import kcorrect.fitter
-import kcorrect.utils
+import kcorrect
 
 rd = kcorrect.response.ResponseDict()
 
-filename = os.path.join(os.getenv('KCORRECT_DIR'), 'python',
-                        'kcorrect', 'data', 'templates',
+filename = os.path.join(kcorrect.KCORRECT_DIR,
+                        'data', 'templates',
                         'kcorrect-default-v4.fits')
 templates = kcorrect.template.SED(filename=filename)
 
@@ -37,8 +34,7 @@ fitmaggies = fitter.reconstruct(redshift=redshift, coeffs=coeffs)
 
 ab = kcorrect.utils.sed_ab(wave=templates.wave)
 
-pngfile = os.path.join(os.getenv('KCORRECT_DIR'), 'docs',
-                       'figures', 'kcorrect-default-v4.fit.png')
+pngfile = os.path.join('kcorrect-default-v4.fit.png')
 
 plt.plot(np.log10(templates.wave), np.log10(fitspec / ab), color='black',
          label='Fit spectrum')
