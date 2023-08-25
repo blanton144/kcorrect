@@ -282,14 +282,18 @@ class Kcorrect(kcorrect.fitter.Fitter):
                                               coeffs=coeffs,
                                               band_shift=band_shift)
 
+        for ir, response in enumerate(self.responses_out):
+            solar = 10.**(- 0.4 * (f[response].solar_magnitude + dm))
+            rmaggies_solar[..., ir] = rmaggies_solar[..., ir] / solar
+
         mtol = np.zeros(rmaggies_solar.shape, dtype=np.float32)
         ok = rmaggies_solar > 0.
         if(array):
-            mtol[ok] = (np.outer(coeffs.dot(self.templates.mremain),
+            mtol[ok] = (np.outer(mremain,
                                  np.ones(len(self.responses), dtype=np.float32))[ok] /
                         rmaggies_solar[ok])
         else:
-            mtol[ok] = (coeffs * self.templates.mremain).sum() / rmaggies_solar[ok]
+            mtol[ok] = mremain[ok] / rmaggies_solar[ok]
 
         outdict = dict()
         outdict['mremain'] = mremain
