@@ -293,7 +293,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
                                  np.ones(len(self.responses), dtype=np.float32))[ok] /
                         rmaggies_solar[ok])
         else:
-            mtol[ok] = mremain[ok] / rmaggies_solar[ok]
+            mtol[ok] = mremain / rmaggies_solar[ok]
 
         outdict = dict()
         outdict['mremain'] = mremain
