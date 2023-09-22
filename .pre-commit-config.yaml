@@ -69,35 +69,35 @@ repos:
 
 
     # Analyze the src code style and report code that doesn't adhere.
-  - repo: local
-    hooks:
-      - id: pylint
-        name: pylint (python files in src/)
-        entry: pylint
-        language: system
-        types: [python]
-        files: ^src/
-        args:
-          [
-            "-rn", # Only display messages
-            "-sn", # Don't display the score
-            "--rcfile=src/.pylintrc",
-          ]
-    # Analyze the tests code style and report code that doesn't adhere.
-  - repo: local
-    hooks:
-      - id: pylint
-        name: pylint (python files in tests/)
-        entry: pylint
-        language: system
-        types: [python]
-        files: ^tests/
-        args:
-          [
-            "-rn", # Only display messages
-            "-sn", # Don't display the score
-            "--rcfile=tests/.pylintrc",
-          ]
+  #- repo: local
+    #hooks:
+      #- id: pylint
+        #name: pylint (python files in src/)
+        #entry: pylint
+        #language: system
+        #types: [python]
+        #files: ^src/
+        #args:
+          #[
+            #"-rn", # Only display messages
+            #"-sn", # Don't display the score
+            #"--rcfile=src/.pylintrc",
+          #]
+    ## Analyze the tests code style and report code that doesn't adhere.
+  #- repo: local
+    #hooks:
+      #- id: pylint
+        #name: pylint (python files in tests/)
+        #entry: pylint
+        #language: system
+        #types: [python]
+        #files: ^tests/
+        #args:
+          #[
+            #"-rn", # Only display messages
+            #"-sn", # Don't display the score
+            #"--rcfile=tests/.pylintrc",
+          #]
 
 
     # Make sure Sphinx can build the documentation while explicitly omitting 

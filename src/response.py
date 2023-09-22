@@ -7,15 +7,17 @@
 
 import os
 import re
-import numpy as np
-import kcorrect
-import kcorrect.utils
-import kcorrect.template
-import scipy.interpolate as interpolate
-import scipy.integrate as integrate
-import scipy.optimize as optimize
-import pydl.pydlutils.yanny as yanny
+
 import fitsio
+import numpy as np
+import pydl.pydlutils.yanny as yanny
+import scipy.integrate as integrate
+import scipy.interpolate as interpolate
+import scipy.optimize as optimize
+
+import kcorrect
+import kcorrect.template
+import kcorrect.utils
 
 
 def all_responses(response_dir=os.path.join(kcorrect.KCORRECT_DIR, 'data',

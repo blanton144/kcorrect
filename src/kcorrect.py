@@ -6,13 +6,15 @@
 
 
 import os
+
+import astropy.cosmology
+import astropy.io.fits as fits
+import astropy.units
 import numpy as np
+
 import kcorrect
 import kcorrect.fitter
 import kcorrect.template
-import astropy.cosmology
-import astropy.units
-import astropy.io.fits as fits
 
 
 class Kcorrect(kcorrect.fitter.Fitter):

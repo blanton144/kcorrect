@@ -5,11 +5,13 @@
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 
+import multiprocessing
+
 import numpy as np
 import scipy.interpolate as interpolate
 import scipy.optimize as optimize
+
 import kcorrect.response
-import multiprocessing
 
 
 class Fitter(object):

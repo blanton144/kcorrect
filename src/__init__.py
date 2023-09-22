@@ -1,9 +1,10 @@
 # encoding: utf-8
 
 import os
+
 KCORRECT_DIR = os.path.dirname(__file__)
 
-from . import kcorrect, response, template, fitter, utils
+from . import fitter, kcorrect, response, template, utils
 
 __all__ = ["kcorrect", "response", "template", "fitter", "utils"]
 

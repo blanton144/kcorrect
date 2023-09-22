@@ -5,10 +5,10 @@
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 
+import astropy.io.fits as fits
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.interpolate as interpolate
-import astropy.io.fits as fits
 
 
 class SED(object):
