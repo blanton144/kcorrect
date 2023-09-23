@@ -55,5 +55,5 @@ write_to = "src/kcorrect/_version.py"
 
 [tool.pytest.ini_options]
 testpaths = [
-    "tests/kcorrect",
+    "tests/",
 ]

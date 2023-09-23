@@ -8,9 +8,9 @@
 import os
 import re
 
+import astropy.io.ascii
 import fitsio
 import numpy as np
-import pydl.pydlutils.yanny as yanny
 import scipy.integrate as integrate
 import scipy.interpolate as interpolate
 import scipy.optimize as optimize
@@ -43,7 +43,7 @@ def all_responses(response_dir=os.path.join(kcorrect.KCORRECT_DIR, 'data',
     Notes
     -----
 
-    Returns all base names of files with the suffix '.par' in the
+    Returns all base names of files with the suffix '.dat' in the
     response_dir directory.
 
     By default, response_dir is the "data/responses" directory within
@@ -62,7 +62,7 @@ def all_responses(response_dir=os.path.join(kcorrect.KCORRECT_DIR, 'data',
     f = ResponseDict()
     for filename in files:
         if(os.path.isfile(os.path.join(rdir, filename))):
-            m = re.match('^(.*)\\.par$', filename)
+            m = re.match('^(.*)\\.dat$', filename)
             if(m is not None):
                 response = m.group(1)
                 valid = True
@@ -108,7 +108,7 @@ class ResponseDict(dict, metaclass=ResponseDictSingleton):
         if((response in self) & (reload is False)):
             return
         self[response] = Response()
-        self[response].frompar(filename='{n}.par'.format(n=response))
+        self[response].fromdat(filename='{n}.dat'.format(n=response))
         return
 
 
@@ -168,9 +168,8 @@ class Response(object):
     given wavelength entering the Earth's atmosphere (for a ground
     based telescope) or the telescope aperture (space based).
 
-    If a file is given it is assumed to be in Yanny parameter
-    format, readable and writeable by the class
-    pydl.pydlutils.yanny.yanny
+    If a file is given it is assumed to be in fixed_width 
+    format, readable and writeable by astropy.io.ascii
 
     The wavelengths are sorted on input so the attribute wave is
     always increasing.
@@ -202,7 +201,7 @@ class Response(object):
         self.fwhm_low = None
         self.fwhm_high = None
         if(self.filename is not None):
-            self.frompar(filename)
+            self.fromdat(filename)
         else:
             if(self.wave is not None):
                 self.nwave = len(self.wave)
@@ -255,8 +254,8 @@ class Response(object):
         self._setup()
         return
 
-    def frompar(self, filename=None):
-        """Read response from Yanny parameter file
+    def fromdat(self, filename=None):
+        """Read response from fixed_width file
 
         Parameters
         ----------
@@ -278,13 +277,12 @@ class Response(object):
 
         if(os.path.exists(infilename) is False):
             raise ValueError("No response file: {f}".format(f=infilename))
-        par = yanny.yanny(infilename)
-        name = par.tables()[0]
-        parstr = par[name]
-        self.nwave = len(parstr)
-        isort = np.argsort(parstr['lambda'])
-        self.wave = parstr['lambda'][isort]
-        self.response = parstr['pass'][isort]
+        dat = astropy.io.ascii.read(infilename, format='fixed_width')
+        self.nwave = len(dat)
+        print(dat.dtype.names)
+        isort = np.argsort(dat['lambda'])
+        self.wave = dat['lambda'][isort]
+        self.response = dat['pass'][isort]
         self._setup()
         return
 
