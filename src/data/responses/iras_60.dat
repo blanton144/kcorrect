@@ -1,0 +1,41 @@
+# Units:
+#  "lambda" is in Angstroms
+#  "pass" is *probably* the contribution to the detector signal per photon
+# 
+# Bandpass Name(s): IRAS 60
+# 
+# Instrument: IRAS
+# 
+# Determined by: ?
+# 
+# Date of determination: ?
+# 
+# Meaning of/Reason for default column: Only available
+# 
+# Notes:
+# 
+# Retrieved from http://irsa.ipac.caltech.edu/IRASdocs/exp.sup/ch2/tabC5.html 
+# 
+# J. Moustakas, 2008-Jul-12, NYU
+    lambda    pass  
+  270000.0     0.0  
+  300000.0    0.01  
+  330000.0   0.036  
+  360000.0   0.068  
+  390000.0   0.174  
+  420000.0   0.315  
+  450000.0   0.483  
+  480000.0   0.585  
+  510000.0   0.658  
+  540000.0   0.716  
+  570000.0   0.824  
+  600000.0   0.915  
+  630000.0   0.987  
+  660000.0    0.99  
+  690000.0     1.0  
+  720000.0   0.946  
+  750000.0   0.713  
+  780000.0   0.531  
+  810000.0   0.174  
+  840000.0   0.047  
+  870000.0     0.0  
