@@ -41,6 +41,8 @@ def test_write_and_read_sed():
     assert (t.flux == flux).min() == True
     assert (t.restframe_wave == wave).min() == True
     assert (t.restframe_flux == flux).min() == True
+
+    os.remove('tmp-sed-write-and-read.fits')
     return
 
 
