@@ -9,7 +9,8 @@ import os
 import re
 
 import astropy.io.ascii
-import fitsio
+import astropy.io.fits
+import astropy.table
 import numpy as np
 import scipy.integrate as integrate
 import scipy.interpolate as interpolate
@@ -246,7 +247,8 @@ class Response(object):
         ext : str or int
             extension to read from
 """
-        response = fitsio.read(filename, ext=ext)
+        response_hdulist = astropy.io.fits.open(filename)
+        response = response_hdulist[ext]
         self.nwave = len(response)
         isort = np.argsort(response['wave'])
         self.wave = response['wave'][isort]
@@ -302,7 +304,9 @@ class Response(object):
         out['wave'] = self.wave
         out['response'] = self.flux
 
-        fitsio.write(filename, out, clobber=clobber)
+        out_table = astropy.table.Table(out)
+
+        out_table.writeto(filename, overwrite=clobber)
         return
 
     def project(self, sed=None, wave=None, flux=None):
