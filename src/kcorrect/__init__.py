@@ -10,5 +10,8 @@ __all__ = ["kcorrect", "response", "template", "fitter", "utils"]
 
 NAME = 'kcorrect'
 
-__version__ = '5.1.0b'
 
+try:
+    from kcorrect._version import __version__, __version_tuple__
+except:
+    __version__ = 'work'
