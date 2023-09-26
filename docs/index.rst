@@ -14,7 +14,7 @@ This page has documentation for the kcorrect product to calculate
 astronomical K-corrections for galaxies.
 
 .. toctree::
-   :maxdepth: -1
+   :maxdepth: 2
 
    intro
    new
@@ -22,4 +22,4 @@ astronomical K-corrections for galaxies.
    install
    basics
    examples
-   api <autoapi/index>
+   API <autoapi/index>
