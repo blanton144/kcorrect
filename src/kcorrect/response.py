@@ -281,7 +281,6 @@ class Response(object):
             raise ValueError("No response file: {f}".format(f=infilename))
         dat = astropy.io.ascii.read(infilename, format='fixed_width')
         self.nwave = len(dat)
-        print(dat.dtype.names)
         isort = np.argsort(dat['lambda'])
         self.wave = dat['lambda'][isort]
         self.response = dat['pass'][isort]
