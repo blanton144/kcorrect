@@ -22,4 +22,4 @@ astronomical K-corrections for galaxies.
    install
    basics
    examples
-   api
+   api <autoapi/index>
