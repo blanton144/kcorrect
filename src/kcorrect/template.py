@@ -72,6 +72,7 @@ class SED(object):
 
     If binimage is True, then instead of a FLUX HDU table, there should
     be WAVE and FLUX HDUs with binary images.
+
 """
     def __init__(self, filename=None, wave=None, flux=None, ext='FLUX'):
         self.restframe_wave = wave
@@ -136,8 +137,8 @@ class SED(object):
 
         The FITS table should have two columns:
 
-           wave - an [nwave] array of wavelengths in Angstrom
-           flux - an [nsed, nwave] array of fluxes
+            wave - an [nwave] array of wavelengths in Angstrom
+            flux - an [nsed, nwave] array of fluxes
 
         Only imports the first row of the FITS table.
 """
@@ -180,8 +181,9 @@ class SED(object):
 
         Writes a one-row FITS table with two columns:
 
-           wave - an [nwave] array of restframe wavelengths in Angstrom
-           flux - an [nsed, nwave] array of restframe fluxes
+            wave : an [nwave] array of restframe wavelengths in Angstrom
+
+            flux : an [nsed, nwave] array of restframe fluxes
 
         If binimage is set for this object, instead write
         two HDUs.
@@ -230,7 +232,7 @@ class SED(object):
         ----------
 
         indx : np.int32 or ndarray of np.int32
-           index of template(s) to plot
+            index of template(s) to plot
 
         wavelim : list or ndarray of np.float32
             [2] wavelength limits of plot
@@ -339,8 +341,8 @@ class Template(SED):
     The file should have the HDUs:
 
        FLUX : an ndarray with two tags: 
-         'wave' : an [nwave]-array of np.float32 with wavelength in Ang.
-         'flux' : an [nsed, nwave]-array of np.float32 with flux in erg/s/cm^2/A
+           'wave' : an [nwave]-array of np.float32 with wavelength in Ang.
+           'flux' : an [nsed, nwave]-array of np.float32 with flux in erg/s/cm^2/A
        METS : an [nsed]-array with metallicity
        INTSFH : an [nsed]-array with integrated SF in solar units
        MREMAIN : an [nsed]-array with current stellar mass in solar units
@@ -379,6 +381,7 @@ class Template(SED):
 
         clobber : bool
             if True, overwrite existing file
+
 """
         super().tofits(filename=filename, clobber=clobber)
         hdul = fits.open(filename, mode='update')
