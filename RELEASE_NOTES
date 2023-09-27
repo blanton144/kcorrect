@@ -1,4 +1,12 @@
 -------------------------------------------------------------------------------
+5.1.0 (???)
+
+- Switched to LINCC Python Project Template packaging
+- Converted .par response files to .dat (fixed_width), removing pydl
+  dependency
+- Removed fitsio dependency
+
+-------------------------------------------------------------------------------
 5.0.0b (Aug 2022)
 
 - Beta Python version wrtten from scratch

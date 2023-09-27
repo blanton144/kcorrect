@@ -14,6 +14,10 @@ variables to be set.
 The methodology is otherwise almost the same, using the same set of
 templates as ``v4``.
 
+As of 5.1.0, the responses have been converted to a
+``fixed_width`` format readable by ``astropy.io.ascii``, and the 
+dependencies on ``fitsio`` and ``pydl`` have been removed.
+
 The only methodological difference to the K-corrections is that the
 nonnegative least squares is performed with :py:func:`the SciPy NNLS function
 <scipy.optimize.nnls>`
