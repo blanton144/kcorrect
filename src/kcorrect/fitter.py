@@ -141,8 +141,7 @@ class Fitter(object):
 
         return
 
-    def _fit_coeffs(self, redshift=None, maggies=None, ivar=None,
-                    mc=0):
+    def _fit_coeffs(self, redshift=None, maggies=None, ivar=None, mc=0):
         """Fit coefficients to single object
 
         Parameters

@@ -26,6 +26,9 @@ class Kcorrect(kcorrect.fitter.Fitter):
     abcorrect : bool
         correct maggies to AB (default False)
 
+    filename : str
+        input file to define kcorrect object (overrides responses, responses_out, responses_map, templates, redshift_range, nredshift, abcorrect)
+
     responses : list of str
         names of input responses to base SED on
 
@@ -115,6 +118,10 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
     AmatrixOut is similar but returns a [nresponses_out, ntemplates]
     matrix for the output bandpasses.
+
+    Once defined, a Kcorrect object can be output to a FITS file with 
+    the method tofits(), and reimported with fromfits(). The filename
+    parameter expects this format.
 """
     def __init__(self, filename=None, responses=None, templates=None,
                  responses_out=None, responses_map=None,
@@ -214,6 +221,9 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
         'mtol' : ndarray of np.float32, or np.float32
              [ngalaxy] mass-to-light ratio in each output band
+
+        'b50' : ndarray of np.float32, or np.float32
+             [ngalaxy] current (< 50 Myr) over past star formation
 
         'b300' : ndarray of np.float32, or np.float32
              [ngalaxy] current (< 300 Myr) over past star formation
@@ -349,6 +359,9 @@ class Kcorrect(kcorrect.fitter.Fitter):
         'mtol' : ndarray of np.float32, or np.float32
              [ngalaxy, mc] mass-to-light ratio in each output band
 
+        'b50' : ndarray of np.float32, or np.float32
+             [ngalaxy] current (< 50 Myr) over past star formation
+
         'b300' : ndarray of np.float32, or np.float32
              [ngalaxy, mc] current (< 300 Myr) over past star formation
 
@@ -450,7 +463,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
         return(kcorrect)
 
     def absmag(self, maggies=None, ivar=None, redshift=None, coeffs=None,
-               band_shift=0., distance=None, coeffs_mc=None):
+               band_shift=0., distance=None):
         """Return absolute magnitude in output bands
 
         Parameters

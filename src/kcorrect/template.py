@@ -26,6 +26,9 @@ class SED(object):
     flux : ndarray of np.float32
         [nsed, nwave] rest frame flux grid in erg/cm^2/s/A at 10pc
 
+    ext : str
+        extension from which to read FLUX in FITS file
+
     Attributes
     ----------
 
@@ -284,6 +287,9 @@ class Template(SED):
 
     binimage : bool
         if True, read in WAVE and FLUX extensions as binary images
+
+    ext : str
+        extension from which to read FLUX in FITS file
 
     Attributes
     ----------

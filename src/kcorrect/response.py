@@ -134,6 +134,9 @@ class Response(object):
     filename : str
         source filename, or None
 
+    fwhm, fwhm_low, fwhm_hight : np.float32
+        FWHM of response, with low and high wavelength limits (Angstroms)
+
     interp : scipy.interpolate.interp1d object
         interpolation object
 
