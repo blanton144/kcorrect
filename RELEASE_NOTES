@@ -1,5 +1,10 @@
 -------------------------------------------------------------------------------
-5.1.0 (???)
+5.1.1
+
+- Remove extraneous print
+
+-------------------------------------------------------------------------------
+5.1.0
 
 - Switched to LINCC Python Project Template packaging
 - Converted .par response files to .dat (fixed_width), removing pydl
