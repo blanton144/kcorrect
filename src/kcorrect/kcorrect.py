@@ -280,16 +280,16 @@ class Kcorrect(kcorrect.fitter.Fitter):
                 b300 = m300 / intsfh
                 b1000 = m1000 / intsfh
             else:
-                metallicity = 0.
-                b50 = 0.
-                b300 = 0.
-                b1000 = 0.
+                metallicity = np.float32(0.)
+                b50 = np.float32(0.)
+                b300 = np.float32(0.)
+                b1000 = np.float32(0.)
 
         f = kcorrect.response.ResponseDict()
         if(array):
             zero_redshift = np.zeros(len(redshift), dtype=np.float32)
         else:
-            zero_redshift = 0.
+            zero_redshift = np.float32(0.)
         rmaggies_solar = self.reconstruct_out(redshift=zero_redshift,
                                               coeffs=coeffs,
                                               band_shift=band_shift)
