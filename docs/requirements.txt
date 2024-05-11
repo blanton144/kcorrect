@@ -6,3 +6,5 @@ sphinx
 sphinx-autoapi
 sphinx-copybutton
 sphinx-rtd-theme
+matplotlib
+numpy
