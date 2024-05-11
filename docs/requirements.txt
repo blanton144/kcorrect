@@ -1,3 +1,4 @@
+<<<<<<< before updating
 #sphinx==6.1.3
 #sphinx-rtd-theme==1.2.0
 #sphinx-autoapi==2.0.1
@@ -6,8 +7,15 @@ sphinx
 sphinx-rtd-theme
 sphinx-autoapi
 nbsphinx
+=======
+
+ipykernel
+>>>>>>> after updating
 ipython
 jupytext
-jupyter
-matplotlib
-numpy
+nbconvert
+nbsphinx
+sphinx
+sphinx-autoapi
+sphinx-copybutton
+sphinx-rtd-theme

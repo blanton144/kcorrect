@@ -7,7 +7,8 @@ name: Run benchmarks nightly job
 on:
   schedule:
     - cron: 45 6 * * *
-
+  workflow_dispatch:
+  
 env:
   PYTHON_VERSION: "3.10"
   WORKING_DIR: ${{ github.workspace }}/benchmarks
@@ -24,18 +25,18 @@ jobs:
 
     steps:
       - name: Checkout main branch of the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Cache Python ${{ env.PYTHON_VERSION }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: python-${{ env.PYTHON_VERSION }}
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
@@ -43,10 +44,24 @@ jobs:
         run: |
           sudo apt-get update
           python -m pip install --upgrade pip
-          pip install asv==0.5.1 virtualenv
+          pip install asv==0.6.1 virtualenv
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Create ASV machine config file
         run: asv machine --machine gh-runner --yes
+
+      - name: Fetch previous results from the "benchmarks" branch
+        run: |
+          if git ls-remote --exit-code origin benchmarks > /dev/null 2>&1; then
+            git merge origin/benchmarks \
+              --allow-unrelated-histories \
+              --no-commit
+            mv ../_results .
+          fi
 
       - name: Get nightly dates under comparison
         id: nightly-dates
@@ -55,7 +70,7 @@ jobs:
           echo "today=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
       - name: Use last nightly commit hash from cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.WORKING_DIR }}
           key: nightly-results-${{ steps.nightly-dates.outputs.yesterday }}
@@ -64,17 +79,15 @@ jobs:
         run: |
           HASH_FILE=${{ env.NIGHTLY_HASH_FILE }}
           CURRENT_HASH=${{ github.sha }}
-
           if [ -f $HASH_FILE ]; then          
             PREV_HASH=$(cat $HASH_FILE)
-            asv continuous $PREV_HASH $CURRENT_HASH || true
-            asv compare $PREV_HASH $CURRENT_HASH --sort ratio
+            asv continuous $PREV_HASH $CURRENT_HASH --verbose || true
+            asv compare $PREV_HASH $CURRENT_HASH --sort ratio --verbose
           fi
-
           echo $CURRENT_HASH > $HASH_FILE
 
       - name: Update last nightly hash in cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.WORKING_DIR }}
           key: nightly-results-${{ steps.nightly-dates.outputs.today }}

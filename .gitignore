@@ -150,3 +150,6 @@ tmp/
 # Airspeed Velocity performance results
 _results/
 _html/
+
+# Project initialization script
+.initialize_new_project.sh

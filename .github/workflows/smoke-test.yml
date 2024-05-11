@@ -6,8 +6,16 @@
 name: Unit test smoke test
 
 on:
+
+  # Runs this workflow automatically
   schedule:
     - cron: 45 6 * * *
+<<<<<<< before updating
+=======
+    
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+>>>>>>> after updating
 
 jobs:
   build:
@@ -15,24 +23,23 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.9', '3.10', '3.11']
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
         sudo apt-get update
         python -m pip install --upgrade pip
-        pip install .
-        pip install .[dev]
+        pip install -e .[dev]
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: List dependencies
       run: |
         pip list
     - name: Run unit tests with pytest
       run: |
-        python -m pytest tests
+        python -m pytest
