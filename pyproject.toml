@@ -31,7 +31,7 @@ dev = [
     "pytest-cov", # Used to report total code coverage
     "matplotlib", # Used in sample notebook intro_notebook.ipynb
     "numpy", # Used in sample notebook intro_notebook.ipynb
-    "asv==0.5.1", # Used to compute performance benchmarks
+    "ruff", # Used for static linting of files
 # before updating
   #  "pre-commit", # Used to run checks before finalizing a git commit
   #  "sphinx", # Used to automatically generate documentation
@@ -44,7 +44,6 @@ dev = [
   #  # "nbconvert", # Needed for pre-commit check to clear output from Python notebooks
   #  "nbsphinx", # Used to integrate Python notebooks into Sphinx documentation
   #  # "ipython", # Also used in building notebooks into Sphinx
-    "ruff", # Used for static linting of files
 ]
 
 [build-system]
