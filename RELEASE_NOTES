@@ -1,4 +1,15 @@
 -------------------------------------------------------------------------------
+5.2.0
+
+- Update LINCCC template
+- Change absmag outputs to be -9999 when maggies<=0, instead of
+  reconstructed value.
+- Add option to kcorrect.kcorrect.Kcorrect.absmag() to additionally return
+  reconstructed absmags 
+- Add option to kcorrect.kcorrect.Kcorrect.absmag() to additionally return
+  absmag one-sigma limits 
+
+-------------------------------------------------------------------------------
 5.1.1
 
 - Remove extraneous print
