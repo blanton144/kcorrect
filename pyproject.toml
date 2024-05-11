@@ -16,6 +16,10 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.9"
 dependencies = [
+    "matplotlib>=3.5.2", 
+    "numpy>=1.18.1", 
+    "scipy>=1.8.1", 
+    "astropy>=3.0.0", 
 ]
 
 [project.urls]
@@ -29,8 +33,6 @@ dev = [
     "pre-commit", # Used to run checks before finalizing a git commit
     "pytest",
     "pytest-cov", # Used to report total code coverage
-    "matplotlib", # Used in sample notebook intro_notebook.ipynb
-    "numpy", # Used in sample notebook intro_notebook.ipynb
     "ruff", # Used for static linting of files
 # before updating
   #  "pre-commit", # Used to run checks before finalizing a git commit
