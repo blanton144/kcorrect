@@ -41,56 +41,6 @@ repos:
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.28.0
     hooks:
-<<<<<<< before updating
-      - id: isort
-        name: Run isort
-        description: Sort and organize imports in .py and .pyi files.
-        types_or: [python, pyi]
-
-
-
-    # Analyze the src code style and report code that doesn't adhere.
-  #- repo: local
-    #hooks:
-      #- id: pylint
-        #name: pylint (python files in src/)
-        #entry: pylint
-        #language: system
-        #types: [python]
-        #files: ^src/
-        #args:
-          #[
-            #"-rn", # Only display messages
-            #"-sn", # Don't display the score
-            #"--rcfile=src/.pylintrc",
-          #]
-#
-    # Analyze the tests code style and report code that doesn't adhere.
-  #- repo: local
-    #hooks:
-      #- id: pylint
-        #name: pylint (python files in tests/ and benchmarks/)
-        #entry: pylint
-        #language: system
-        #types: [python]
-        #files: ^(tests|benchmarks)/
-        #args:
-          #[
-            #"-rn", # Only display messages
-            #"-sn", # Don't display the score
-            #"--rcfile=tests/.pylintrc",
-          #]
-
-
-
-
-    # Run unit tests, verify that they pass. Note that coverage is run against
-    # the ./src directory here because that is what will be committed. In the 
-    # github workflow script, the coverage is run against the installed package
-    # and uploaded to Codecov by calling pytest like so:
-    # `python -m pytest --cov=<package_name> --cov-report=xml`
-  - repo: local
-=======
       - id: check-github-workflows
         args: ["--verbose"]
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -104,7 +54,6 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
     rev: v0.2.1
->>>>>>> after updating
     hooks:
       - id: ruff-format
         name: Format code using ruff

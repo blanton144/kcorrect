@@ -1,16 +1,3 @@
-<<<<<<< before updating
-#sphinx==6.1.3
-#sphinx-rtd-theme==1.2.0
-#sphinx-autoapi==2.0.1
-#astroid==2.15.7
-sphinx
-sphinx-rtd-theme
-sphinx-autoapi
-nbsphinx
-=======
-
-ipykernel
->>>>>>> after updating
 ipython
 jupytext
 nbconvert

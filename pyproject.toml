@@ -16,14 +16,6 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.9"
 dependencies = [
-<<<<<<< before updating
-    "ipykernel", # Support for Jupyter notebooks
-    "matplotlib>=3.5.2",
-    "numpy>=1.18.1",
-    "scipy>=1.8.1",
-    "astropy>=3.0.0"
-=======
->>>>>>> after updating
 ]
 
 [project.urls]
@@ -37,24 +29,22 @@ dev = [
     "pre-commit", # Used to run checks before finalizing a git commit
     "pytest",
     "pytest-cov", # Used to report total code coverage
-<<<<<<< before updating
-    "pre-commit", # Used to run checks before finalizing a git commit
-    "sphinx", # Used to automatically generate documentation
-    "sphinx-rtd-theme", # Used to render documentation
-    "sphinx-autoapi", # Used to automatically generate api documentation
-    "pylint", # Used for static linting of files
-    # if you add dependencies here while experimenting in a notebook and you
-    # want that notebook to render in your documentation, please add the
-    # dependencies to ./docs/requirements.txt as well.
-    # "nbconvert", # Needed for pre-commit check to clear output from Python notebooks
-    "nbsphinx", # Used to integrate Python notebooks into Sphinx documentation
-    # "ipython", # Also used in building notebooks into Sphinx
-    "matplotlib", # Used in sample notebook intro_notebook.ipynb
-    "numpy", # Used in sample notebook intro_notebook.ipynb
-    "asv==0.5.1", # Used to compute performance benchmarks
-=======
+# before updating
+  #  "pre-commit", # Used to run checks before finalizing a git commit
+  #  "sphinx", # Used to automatically generate documentation
+  #  "sphinx-rtd-theme", # Used to render documentation
+  #  "sphinx-autoapi", # Used to automatically generate api documentation
+  #  "pylint", # Used for static linting of files
+  #  # if you add dependencies here while experimenting in a notebook and you
+  #  # want that notebook to render in your documentation, please add the
+  #  # dependencies to ./docs/requirements.txt as well.
+  #  # "nbconvert", # Needed for pre-commit check to clear output from Python notebooks
+  #  "nbsphinx", # Used to integrate Python notebooks into Sphinx documentation
+  #  # "ipython", # Also used in building notebooks into Sphinx
+  #  "matplotlib", # Used in sample notebook intro_notebook.ipynb
+  #  "numpy", # Used in sample notebook intro_notebook.ipynb
+  #  "asv==0.5.1", # Used to compute performance benchmarks
     "ruff", # Used for static linting of files
->>>>>>> after updating
 ]
 
 [build-system]
