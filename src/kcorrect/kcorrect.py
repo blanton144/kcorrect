@@ -463,7 +463,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
         return(kcorrect)
 
     def absmag(self, maggies=None, ivar=None, redshift=None, coeffs=None,
-               band_shift=0., distance=None):
+               band_shift=0., distance=None, reconstruct=False, limit=False):
         """Return absolute magnitude in output bands
 
         Parameters
@@ -487,11 +487,23 @@ class Kcorrect(kcorrect.fitter.Fitter):
         distance : ndarray of np.float32 or np.float32
             [ngalaxy] distance in Mpc (or None)
 
+        reconstruct : bool
+            if set, return absmag_reconstruct
+
+        limit : bool
+            if set, return absmag_limit
+
         Returns
         -------
 
         absmag : ndarray of np.float32
             [ngalaxy, nbands] AB absolute magnitude in each band for each object
+
+        absmag_reconstruct : ndarray of np.float32
+            [ngalaxy, nbands] reconstructed AB absolute magnitude from SED fit (if reconstruct set)
+
+        absmag_limit : ndarray of np.float32
+            [ngalaxy, nbands] 1-sigma bright limit on absolute mag from error
 
         Notes
         -----
@@ -499,15 +511,24 @@ class Kcorrect(kcorrect.fitter.Fitter):
         If distance is None, the distance is derived from the redshift
         using the cosmo attribute.
 
-        Returns the K-corrected absolute magnitude (or -9999 if there
-        is no valid value).
-
         Depends on having run fit_coeffs on a consistent set of
-        maggies and ivars. If ivar=0 or the maggies are negative
-        for any band, it uses the reconstructed absolute magnitude.
+        maggies and ivars. 
 
         Determines the distance modulus with the object's "cosmo.distmod()"
-        method. By default this is the Planck18 cosmology. This use
+        method. By default this is the Planck18 cosmology. 
+
+        Returns the K-corrected absolute magnitude (or -9999 if there
+        ivar=0, magggies are negative, or there is no valid value)
+
+        The "reconstructed" absolute magnitude is calculated from the
+        kcorrect nonnegative fit instead of being a K-correction of the data.
+        These values are -9999 if there is no valid value (usually meaning
+        all of the coefficients input are zero).
+
+        The absolute magnitude "limit" is set to the 1-sigma limit from 
+        the error in each band (using the K-correction from the real fit).
+        It is returned for every object with ivar != 0 and positive
+        coefficients, and is -9999 otherwise.
 
         If abcorrect is True, calls to_ab() method on input maggies
         to convert to AB.
@@ -526,31 +547,65 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
         k = self.kcorrect(redshift=redshift, coeffs=coeffs,
                           band_shift=band_shift)
-        omaggies = self.reconstruct_out(redshift=redshift, coeffs=coeffs,
-                                        band_shift=band_shift)
 
         use_maggies = maggies[..., self.imap]
         use_ivar = ivar[..., self.imap]
-        ibad = np.where((use_maggies <= 0.) | (use_ivar <= 0.))
-        use_maggies[ibad] = omaggies[ibad]
 
-        nz = use_maggies > 0.
+        gd = np.where((use_maggies > 0.) & (use_ivar > 0.))
+        bd = np.where((use_maggies <= 0.) | (use_ivar <= 0.))
+
         mags = np.zeros(use_maggies.shape, dtype=np.float32)
-        mags[nz] = - 2.5 * np.log10(use_maggies[nz])
+        mags[gd] = - 2.5 * np.log10(use_maggies[gd])
+
+        absmag = np.zeros(use_maggies.shape, dtype=np.float32)
 
         if(array):
             dm = np.outer(dm, np.ones(len(self.responses_out),
                                       dtype=np.float32))
+            absmag[gd] = mags[gd] - dm[gd] - k[gd]
+        else:
+            absmag[gd] = mags[gd] - dm - k[gd]
 
-        absmag = mags - dm - k
+        absmag[bd] = - 9999.
 
-        isz = use_maggies <= 0.
-        absmag[isz] = - 9999.
+        if(reconstruct):
+            omaggies = self.reconstruct_out(redshift=redshift, coeffs=coeffs,
+                                            band_shift=band_shift)
+            gd = np.where(omaggies > 0.)
+            bd = np.where(omaggies <= 0.)
+            omags = np.zeros(omaggies.shape, dtype=np.float32)
+            omags[gd] = - 2.5 * np.log10(omaggies[gd])
+            absmag_reconstruct = np.zeros(omaggies.shape, dtype=np.float32) - 9999.
+            if(array):
+                absmag_reconstruct[gd] = omags[gd] - dm[gd] - k[gd]
+            else:
+                absmag_reconstruct[gd] = omags[gd] - dm - k[gd]
+            absmag_reconstruct[bd] = - 9999.
 
+        if(limit):
+            absmag_limit = np.zeros(use_maggies.shape, dtype=np.float32) - 9999.
+            gd = np.where(use_ivar > 0.)
+            bd = np.where(use_ivar <= 0.)
+            
+            lmags = np.zeros(use_maggies.shape, dtype=np.float32)
+            lmags[gd] = - 2.5 * np.log10(1. / np.sqrt(use_ivar[gd]))
+
+            if(array):
+                absmag_limit[gd] = lmags[gd] - dm[gd] - k[gd]
+            else:
+                absmag_limit[gd] = lmags[gd] - dm - k[gd]
+            absmag_limit[bd] = - 9999.
+
+        if(reconstruct & limit):
+            return(absmag, absmag_reconstruct, absmag_limit)
+        if(reconstruct):
+            return(absmag, absmag_reconstruct)
+        if(limit):
+            return(absmag, absmag_limit)
         return(absmag)
 
     def absmag_mc(self, maggies_mc=None, ivar=None, redshift=None,
-                  coeffs_mc=None, band_shift=0., distance=None):
+                  coeffs_mc=None, band_shift=0., distance=None, reconstruct=False):
         """Return absolute magnitude in output bands for Monte Carlo results
 
         Parameters
@@ -574,11 +629,17 @@ class Kcorrect(kcorrect.fitter.Fitter):
         distance : ndarray of np.float32 or np.float32
             [ngalaxy] distance in Mpc (or None)
 
+        reconstruct : bool
+            if set, return absmag_reconstruct
+
         Returns
         -------
 
         absmag : ndarray of np.float32
             [ngalaxy, nbands, mc] AB absolute magnitude in each band for each object
+
+        absmag_reconstruct : ndarray of np.float32
+            [ngalaxy, nbands] reconstructed AB absolute magnitude from SED fits (if reconstruct set)
 
         Notes
         -----
@@ -587,15 +648,31 @@ class Kcorrect(kcorrect.fitter.Fitter):
 """
         mc = coeffs_mc.shape[-1]
         absmag_mc = np.zeros(maggies_mc.shape, dtype=np.float32)
-        for imc in np.arange(mc, dtype=np.int32):
-            absmag_mc[..., imc] = self.absmag(redshift=redshift,
-                                              maggies=maggies_mc[..., imc],
-                                              ivar=ivar,
-                                              coeffs=coeffs_mc[..., imc],
-                                              band_shift=band_shift,
-                                              distance=distance)
+        if(reconstruct):
+            absmag_reconstruct_mc = np.zeros(maggies_mc.shape, dtype=np.float32)
+            for imc in np.arange(mc, dtype=np.int32):
+                tmp_absmag, tmp_absmag_reconstruct = self.absmag(redshift=redshift,
+                                                                 maggies=maggies_mc[..., imc],
+                                                                 ivar=ivar,
+                                                                 coeffs=coeffs_mc[..., imc],
+                                                                 band_shift=band_shift,
+                                                                 distance=distance,
+                                                                 reconstruct=reconstruct)
+                absmag_mc[..., imc] = tmp_absmag
+                absmag_reconstruct_mc[..., imc] = tmp_absmag_reconstruct
+            return(absmag_mc, absmag_reconstruct_mc)
+        else:
+            for imc in np.arange(mc, dtype=np.int32):
+                absmag_mc[..., imc] = self.absmag(redshift=redshift,
+                                                  maggies=maggies_mc[..., imc],
+                                                  ivar=ivar,
+                                                  coeffs=coeffs_mc[..., imc],
+                                                  band_shift=band_shift,
+                                                  distance=distance,
+                                                  reconstruct=reconstruct)
+            return(absmag_mc)
 
-        return(absmag_mc)
+        raise RuntimeError("Should not reach this point")
 
     def tofits(self, filename=None):
         """Output calculated information to FITS

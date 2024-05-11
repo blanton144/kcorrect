@@ -129,7 +129,7 @@ def test_derived():
 
 
 def test_absmag():
-    """Test absolute magnitude quantity calculation (doesn't test quantitatively"""
+    """Test absolute magnitude quantity calculation (doesn't test quantitatively)"""
 
     responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
                  'wise_w1']
@@ -161,6 +161,135 @@ def test_absmag():
 
     assert absmag.size == maggies.size
     assert absmag.shape == maggies.shape
+
+    return
+
+
+def test_absmag_reconstruct():
+    """Test absolute magnitude quantity calculation (doesn't test quantitatively)"""
+
+    responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
+                 'wise_w1']
+
+    kc = kcorrect.kcorrect.Kcorrect(responses=responses,
+                                    redshift_range=[0., 0.3],
+                                    nredshift=100)
+
+    redshift = 0.2532
+    maggies = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+    ivar = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    absmag, absmag_reconstruct = kc.absmag(redshift=redshift, maggies=maggies,
+                                           ivar=ivar, coeffs=coeffs, reconstruct=True)
+
+    assert absmag.size == maggies.size
+    assert absmag.shape == maggies.shape
+    assert absmag_reconstruct.size == maggies.size
+    assert absmag_reconstruct.shape == maggies.shape
+
+    redshift = np.array([0.2532, 0.11], dtype=np.float32)
+    maggies = np.ones((2, len(responses)), dtype=np.float32)
+    ivar = np.ones((2, len(responses)), dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    absmag, absmag_reconstruct = kc.absmag(redshift=redshift, maggies=maggies,
+                                           ivar=ivar, coeffs=coeffs, reconstruct=True)
+
+    assert absmag.size == maggies.size
+    assert absmag.shape == maggies.shape
+    assert absmag_reconstruct.size == maggies.size
+    assert absmag_reconstruct.shape == maggies.shape
+
+    return
+
+
+def test_absmag_limit():
+    """Test absolute magnitude quantity calculation (doesn't test quantitatively)"""
+
+    responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
+                 'wise_w1']
+
+    kc = kcorrect.kcorrect.Kcorrect(responses=responses,
+                                    redshift_range=[0., 0.3],
+                                    nredshift=100)
+
+    redshift = 0.2532
+    maggies = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+    ivar = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    absmag, absmag_limit = kc.absmag(redshift=redshift, maggies=maggies,
+                                     ivar=ivar, coeffs=coeffs, limit=True)
+
+    assert absmag.size == maggies.size
+    assert absmag.shape == maggies.shape
+    assert absmag_limit.size == maggies.size
+    assert absmag_limit.shape == maggies.shape
+
+    redshift = np.array([0.2532, 0.11], dtype=np.float32)
+    maggies = np.ones((2, len(responses)), dtype=np.float32)
+    ivar = np.ones((2, len(responses)), dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    absmag, absmag_limit = kc.absmag(redshift=redshift, maggies=maggies,
+                                     ivar=ivar, coeffs=coeffs, limit=True)
+
+    assert absmag.size == maggies.size
+    assert absmag.shape == maggies.shape
+    assert absmag_limit.size == maggies.size
+    assert absmag_limit.shape == maggies.shape
+
+    return
+
+
+def test_absmag_reconstruct_limit():
+    """Test absolute magnitude quantity calculation (doesn't test quantitatively)"""
+
+    responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
+                 'wise_w1']
+
+    kc = kcorrect.kcorrect.Kcorrect(responses=responses,
+                                    redshift_range=[0., 0.3],
+                                    nredshift=100)
+
+    redshift = 0.2532
+    maggies = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+    ivar = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    absmag, absmag_reconstruct, absmag_limit = kc.absmag(redshift=redshift, maggies=maggies,
+                                                         ivar=ivar, coeffs=coeffs, limit=True,
+                                                         reconstruct=True)
+
+    assert absmag.size == maggies.size
+    assert absmag.shape == maggies.shape
+    assert absmag_limit.size == maggies.size
+    assert absmag_limit.shape == maggies.shape
+    assert absmag_reconstruct.size == maggies.size
+    assert absmag_reconstruct.shape == maggies.shape
+
+    redshift = np.array([0.2532, 0.11], dtype=np.float32)
+    maggies = np.ones((2, len(responses)), dtype=np.float32)
+    ivar = np.ones((2, len(responses)), dtype=np.float32)
+
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    absmag, absmag_reconstruct, absmag_limit = kc.absmag(redshift=redshift, maggies=maggies,
+                                                         ivar=ivar, coeffs=coeffs, limit=True,
+                                                         reconstruct=True)
+
+    assert absmag.size == maggies.size
+    assert absmag.shape == maggies.shape
+    assert absmag_limit.size == maggies.size
+    assert absmag_limit.shape == maggies.shape
+    assert absmag_reconstruct.size == maggies.size
+    assert absmag_reconstruct.shape == maggies.shape
 
     return
 
