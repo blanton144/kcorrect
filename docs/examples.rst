@@ -91,10 +91,11 @@ next section).
    absmag = kc.absmag(redshift=redshift, maggies=maggies, ivar=ivar, coeffs=coeffs)
 
 If one of the maggies is zero or negative, the corresponding absolute magnitude
-is returned as :math:`-9999`. In the code below, the u-band absolute magnitude
+is returned as ``-9999``. In the code below, the u-band absolute magnitude
 of the first object should have this value.
 
 .. code::
+
     maggies = [[-3.26e-9, 73.98e-9, 132.56e-9, 198.52e-9],
                [4.022e-9, 29.36e-9, 98.230e-9, 155.63e-9]]
     coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
@@ -106,13 +107,15 @@ This returns the one-sigma detection limit for all objects and bands (even the d
 ones). 
  
 .. code::
+
     absmag, absmag_limit = kc.absmag(redshift=redshift, maggies=maggies, ivar=ivar, coeffs=coeffs, limit=True)
 
 If one of the input inverse variances is zero or negative, the corresponding
 absolute magnitude and (if it is requested) the limit are returned as
-:math:`-9999`.
+``-9999``.
 
 .. code::
+
     ivar = [[0., 0., 2.429e+18, 1.042e+18],
 		        [4.022e-9, 29.36e-9, 98.230e-9, 155.63e-9]]
     coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
@@ -127,6 +130,7 @@ comparison to the input data, see below). It also may be useful as a guess of
 the absolute magnitude for missing bands.
 
 .. code::
+
     absmag, absmag_reconstruct = kc.absmag(redshift=redshift, maggies=maggies, ivar=ivar, coeffs=coeffs, reconstruct=True)
 
 Reconstructing spectra and fluxes
