@@ -1,5 +1,10 @@
 -------------------------------------------------------------------------------
-5.2.0
+5.1.3
+
+- Return kcorrect in kcorrect.kcorrect.Kcorrect.absmag() and absmag_mc()
+
+-------------------------------------------------------------------------------
+5.1.2
 
 - Update LINCCC template
 - Change absmag outputs to be -9999 when maggies<=0, instead of
