@@ -223,8 +223,8 @@ class Response(object):
 
     def response_dtype(self):
         """Returns numpy dtype for SED"""
-        response_dtype = np.dtype([('wave', np.zeros(self.nwave, dtype=np.float32)),
-                                   ('response', np.zeros(self.nwave, dtype=np.float32))])
+        response_dtype = np.dtype([('wave', type(self.wave[0]), self.nwave),
+                                   ('response', type(self.response[0]), self.nwave)])
         return(response_dtype)
 
     def set_interp(self):
@@ -238,7 +238,7 @@ class Response(object):
                                            fill_value=0.)
         return
 
-    def fromfits(self, filename=None, ext='RESPONSE'):
+    def fromfits(self, filename=None, ext=1):
         """Read response from FITS files
 
         Parameters
@@ -251,8 +251,8 @@ class Response(object):
             extension to read from
 """
         response_hdulist = astropy.io.fits.open(filename)
-        response = response_hdulist[ext]
-        self.nwave = len(response)
+        response = response_hdulist[ext].data[0]
+        self.nwave = len(response['wave'])
         isort = np.argsort(response['wave'])
         self.wave = response['wave'][isort]
         self.response = response['response'][isort]
@@ -304,11 +304,11 @@ class Response(object):
 """
         out = np.zeros(1, self.response_dtype())
         out['wave'] = self.wave
-        out['response'] = self.flux
+        out['response'] = self.response
 
         out_table = astropy.table.Table(out)
 
-        out_table.writeto(filename, overwrite=clobber)
+        out_table.write(filename, overwrite=clobber)
         return
 
     def project(self, sed=None, wave=None, flux=None):

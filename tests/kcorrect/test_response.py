@@ -37,6 +37,27 @@ def test_load_response():
     return
 
 
+def test_fits_response():
+    """Test exporting and importing response in FITS"""
+    f = kcorrect.response.ResponseDict()
+
+    # Test the load
+    f.load_response('sdss_u0')
+
+    f['sdss_u0'].tofits('tmp-response-write-and-read.fits')
+
+    r = kcorrect.response.Response()
+    r.fromfits('tmp-response-write-and-read.fits')
+
+    assert(np.all(r.nwave == f['sdss_u0'].nwave))
+    assert(np.all(r.wave == f['sdss_u0'].wave))
+    assert(np.all(r.response == f['sdss_u0'].response))
+
+    os.remove('tmp-response-write-and-read.fits')
+
+    return
+
+
 def test_load_all_response():
     """Test loading of response into ResponseDict"""
     f = kcorrect.response.ResponseDict()
