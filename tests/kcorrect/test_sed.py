@@ -28,6 +28,7 @@ def test_write_and_read_sed():
     wave = np.exp(np.log(1000.) + (np.log(1.e+6) - np.log(1000.)) *
                   (np.arange(nwave, dtype=np.float32) + 0.5) /
                   np.float32(nwave))
+    wave = np.float32(wave)
     flux = np.ones(nwave, dtype=np.float32)
     s = kcorrect.template.SED(wave=wave, flux=flux)
 

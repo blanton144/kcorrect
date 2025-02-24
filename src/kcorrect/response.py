@@ -394,12 +394,12 @@ class Response(object):
         numer = np.zeros(nsed, dtype=np.float32)
         if(nsed == 1):
             integrand_numer = integrate_sed * integrate_response * integrate_wave
-            numer = integrate.trapezoid(integrate_wave, integrand_numer)
+            numer = integrate.trapezoid(integrate_wave, np.squeeze(integrand_numer))
         else:
             for ised in np.arange(nsed, dtype=int):
                 integrand_numer = integrate_sed[ised, :] * integrate_response * integrate_wave
                 numer[ised] = integrate.trapezoid(integrate_wave,
-                                                  integrand_numer)
+                                                  np.squeeze(integrand_numer))
 
         # Perform integration for denominator
         integrand_denom = (kcorrect.utils.sed_ab(integrate_wave) *
