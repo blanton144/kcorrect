@@ -187,9 +187,10 @@ class Fitter(object):
         b = maggies * inverr
 
         try:
-            coeffs, rnorm = optimize.nnls(A, b)
+            coeffs, rnorm = optimize.nnls(np.float64(A), np.float64(b))
         except RuntimeError:
-            coeffs, rnorm = optimize.nnls(A, b, maxiter=A.shape[1] * 100)
+            coeffs, rnorm = optimize.nnls(np.float64(A), np.float64(b),
+                                          maxiter=A.shape[1] * 100)
 
         if(mc == 0):
             return(coeffs)
