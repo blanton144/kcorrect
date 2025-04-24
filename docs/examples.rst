@@ -15,7 +15,7 @@ it precalculates the projections of the K-correction templates onto
 the response function on a grid of redshifts.
 
 Given redshifts and photometry in units of maggies (and their inverse
-variance), the object's :py:func:`fit_coeffs <kcorrect.kcorrect.Fitter.fit_coeffs>` method fits the templates to
+variance), the object's :py:func:`fit_coeffs <kcorrect.fitter.Fitter.fit_coeffs>` method fits the templates to
 the photometry. 
 
 These coefficients can then be used to calculate the kcorrections with
@@ -301,7 +301,7 @@ been pinned to zero, and would also be rather complicated.
 
 Within ``kcorrect``, we give the user a simple (though expensive) way to
 calculate errors through a Monte Carlo process.  The
-:py:func:`fit_coeffs <kcorrect.kcorrect.Fitter.fit_coeffs>` method
+:py:func:`fit_coeffs <kcorrect.fitter.Fitter.fit_coeffs>` method
 can generate a Monte Carlo sample using the errors in the input
 maggies (assuming Gaussian errors). It will return the Monte Carlo
 maggies and their associated best-fit coefficients. Subsequently,
@@ -314,7 +314,7 @@ around the best-fit value.
 
 The example below shows the use of this technique. It is invoked by
 providing :py:func:`fit_coeffs
-<kcorrect.kcorrect.Fitter.fit_coeffs>` with a non-zero input
+<kcorrect.fitter.Fitter.fit_coeffs>` with a non-zero input
 parameter ``mc``, containing the number of Monte Carlos to
 perform. Then after calling :py:func:`absmag_mc
 <kcorrect.kcorrect.Kcorrect.absmag_mc>`, we can look at the standard
