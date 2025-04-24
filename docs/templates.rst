@@ -83,7 +83,6 @@ redshifts (``nredshift``) to be too small. The :py:class:`Kcorrect
 <kcorrect.kcorrect.Kcorrect.tofits>` that allows you to save the
 result to disk for later use.
 
- 
 .. code::
 
    import kcorrect.template
@@ -102,7 +101,6 @@ result to disk for later use.
 
    kc.tofits('kcorrect_broad.fits')
 
-
 Once the ``kcorrect_broad.fits`` file exists, it can be used to
 actually perform template fitting and K-correction determination. Note
 that whenever you are using a new set of responses or templates, you
@@ -111,8 +109,8 @@ reconstructing the original set of maggies you gave it; as shown
 below, you can do that with the :py:func:`reconstruct
 <kcorrect.kcorrect.Kcorrect.reconstruct>` method.
 
-
 .. code::
+
    import kcorrect.kcorrect
 
    redshift = 0.030317
