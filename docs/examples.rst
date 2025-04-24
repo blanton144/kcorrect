@@ -276,3 +276,85 @@ so using the ``response_map`` and ``response_out`` arguments:
    # and the distance modulus
    absmag = kc.absmag(redshift=redshift, maggies=maggies, ivar=ivar, coeffs=coeffs)
 
+Monte Carlo Error Estimates
+---------------------------
+
+Here we describe how to get K-correction, absolute magnitudes, and
+derived quantity errors using a Monte Carlo process built into
+``kcorrect``.
+
+The error in the K-correction and/or the resoluting absolute magnitude
+is a problematic quantity. There is no perfect way to calculate it,
+because even when the statistical errors are small, there are
+systematic errors to contend with, having to do with the faithfulness
+and completeness of the template set, the accuracy of the filter
+curves, and other issues.
+
+For purely statistical errors, in principle if all of the best-fit
+coefficients are non-zero, we could use the Hessian at the best-fit
+position to estimate the errors in the coefficients. We could use a
+matrix of derivatives (i.e. the Jacobian) between the coefficients and
+the model fluxes to get errors in the model fluxes, and propagate
+errors to K-corrections and absolute magnitudes. However, this
+procedure would not work if any of the non-negative coefficients had
+been pinned to zero, and would also be rather complicated. 
+
+With ``kcorrect``, we give the user a simple (though expensive) way to
+calculate errors through a Monte Carlo process.  The
+:py:func:`fit_coeffs <kcorrect.kcorrect.Kcorrect.fit_coeffs>` method
+can generate a Monte Carlo sample using the errors in the input
+maggies (assuming Gaussian errors). It will return the Monte Carlo
+maggies and their associated best-fit coefficients. Subsequently,
+calls to the :py:func:`absmag_mc
+<kcorrect.kcorrect.Kcorrect.absmag_mc>` and :py:func:`derived_mc
+<kcorrect.kcorrect.Kcorrect.derived_mc>` methods will return absolute
+magnitudes and derived parameters for the Monte Carlo samples.  The
+distribution of these quantities then yields the error distribution
+around the best-fit value.
+
+The example below shows the use of this technique. It is invoked by
+providing :py:func:`fit_coeffs
+<kcorrect.kcorrect.Kcorrect.fit_coeffs>` with a non-zero input
+parameter ``mc``, containing the number of Monte Carlos to
+perform. Then after calling :py:func:`absmag_mc
+<kcorrect.kcorrect.Kcorrect.absmag_mc>`, we can look at the standard
+deviation of the absolute magnitudes to get an error estimate. In this
+case, the errors are dominated by the statistical error we input, but
+try decreasing the u-band inverse variance to get a sense of how the
+template fitting uncertainty propagates into the errors.
+
+Note that in calculating the standard deviation, we have to account
+for the possibility that the maggies fluctuate negative, in which case
+the absolute magnitude is not defined. This is an annoying property of
+absolute magnitudes, and to properly deal with this you have to
+perform a more careful analysis of the Monte Carlo distribution. In
+these circumstances you may also want to look at the ``absmag_limit``
+ouput of the :py:func:`absmag <kcorrect.kcorrect.Kcorrect.absmag>`
+method.
+
+.. code::
+
+   import kcorrect.kcorrect
+
+   responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0']
+   kc = kcorrect.kcorrect.Kcorrect(responses=responses)
+
+   redshift = [0.0826, 0.111]
+   maggies = [[27.26e-9, 73.98e-9, 132.56e-9, 198.52e-9],
+	      [4.022e-9, 29.36e-9, 98.230e-9, 155.63e-9]]
+   ivar = [[1.528e+18, 5.23e+18, 2.429e+18, 1.042e+18],
+	   [2.360e+18, 9.87e+18, 3.006e+18, 1.122e+18]]  
+   
+   # "coeffs" is a [2, 5]-array of coefficients
+   # "coeffs_mc" is a [2, 5, 100]-array of coefficients for each Monte Carlo
+   # "maggies_mc" is a [2, 4, 100]-array of the Monte Carloed maggies used
+   coeffs, coeffs_mc, maggies_mc = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar, mc=100)
+   
+   # "absmag" is a [2, 4]-array of the absolute magnitudes
+   absmag = kc.absmag(redshift=redshift, maggies=maggies, ivar=ivar, coeffs=coeffs)
+
+   # "absmag_mc" is a [2, 4, 100]-array of the Monte Carloed absolute magnitudes
+   absmag_mc = kc.absmag_mc(redshift=redshift, maggies_mc=maggies_mc, ivar=ivar, coeffs_mc=coeffs_mc)
+
+   # The standard deviation over the Monte Carlos is an estimate of errors
+   absmag_err = absmag_mc.std(axis=2, where=(absmag_mc != -9999.))
