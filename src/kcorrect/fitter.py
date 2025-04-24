@@ -170,6 +170,14 @@ class Fitter(object):
 
         maggies_mc : ndarray of np.float32
             [len(maggies), mc] maggies for each MC
+
+        Notes
+        -----
+
+        This recasts the A and b matrices as np.float64 before sending them
+        to scipy.optimize.nnls(). This is necessitated by a change in the algorithm
+        for NNLS in SciPy 1.12.0 and later, which is apparently less numerically robust
+        than the original algorithm.
 """
         default_zeros = np.zeros(self.templates.nsed, dtype=np.float32)
 
@@ -204,9 +212,10 @@ class Fitter(object):
                 maggies_mc[igd, imc] = maggies_mc[igd, imc] + np.random.normal(size=len(igd)) * err
                 b_mc = maggies_mc[:, imc] * inverr
                 try:
-                    tmp_coeffs_mc, rnorm = optimize.nnls(A, b_mc)
+                    tmp_coeffs_mc, rnorm = optimize.nnls(np.float64(A), np.float64(b_mc))
                 except RuntimeError:
-                    tmp_coeffs_mc, rnorm = optimize.nnls(A, b_mc, maxiter=A.shape[1] * 100)
+                    tmp_coeffs_mc, rnorm = optimize.nnls(np.float64(A), np.float64(b_mc),
+                                                         maxiter=A.shape[1] * 100)
                 coeffs_mc[:, imc] = tmp_coeffs_mc
 
             return(coeffs, coeffs_mc, maggies_mc)
