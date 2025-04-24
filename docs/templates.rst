@@ -109,7 +109,7 @@ that whenever you are using a new set of responses or templates, you
 should always make sure that the SED-fitting is adequately
 reconstructing the original set of maggies you gave it; as shown
 below, you can do that with the :py:func:`reconstruct
-<kcorrect.kcorrect.Kcorrect.tofits>` method.
+<kcorrect.kcorrect.Kcorrect.reconstruct>` method.
 
 
 .. code::
