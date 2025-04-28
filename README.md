@@ -4,4 +4,4 @@
 
 kcorrect performs broad-band SED fitting to galaxies.
 
-See the `full documentation <https://kcorrect.readthedocs.io>`_ for more information.
+See the [full documentation](https://kcorrect.readthedocs.io) for more information.
