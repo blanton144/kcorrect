@@ -101,6 +101,10 @@ result to disk for later use.
 
    kc.tofits('kcorrect_broad.fits')
 
+This preprocessing step can take a lot of memory, because the
+both the templates and an interpolation object for each template are
+stored. 
+
 Once the ``kcorrect_broad.fits`` file exists, it can be used to
 actually perform template fitting and K-correction determination. Note
 that whenever you are using a new set of responses or templates, you
@@ -134,3 +138,4 @@ below, you can do that with the :py:func:`reconstruct
 
    # We can then calculate the absolute magnitudes as usual
    absmag = kc.absmag(redshift=redshift, maggies=maggies, ivar=ivar, coeffs=coeffs)
+

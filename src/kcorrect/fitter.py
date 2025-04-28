@@ -97,7 +97,6 @@ class Fitter(object):
                     # project SEDs in groups if there is a very large # of them
                     nchunk = 1000
                     for ised in np.arange(0, self.templates.nsed, nchunk, dtype=np.int32):
-                        print(ised)
                         ised_start = ised
                         ised_end = ised + nchunk
                         if(ised_end > self.templates.nsed):
