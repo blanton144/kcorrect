@@ -101,9 +101,33 @@ result to disk for later use.
 
    kc.tofits('kcorrect_broad.fits')
 
-This preprocessing step can take a lot of memory, because the
-both the templates and an interpolation object for each template are
-stored. 
+This preprocessing step can take a lot of memory (up to about 20 GB),
+because the both the templates and an interpolation object for all the
+templates are stored. We can tell the ``Template`` class to not store
+this object by specifying ``interpolate=False``.  In this case, the
+interpolation necessary is done when the :py:class:`Kcorrect
+<kcorrect.kcorrect.Kcorrect>` object is instantiated, and a full
+interpolation object is never created. This is a bit slower
+performance but uses much less memory (less than 4 GB).
+
+.. code::
+
+   import kcorrect.template
+   import kcorrect.kcorrect
+
+   responses = ['galex_FUV', 'galex_NUV',
+                'decam_g', 'decam_r', 'decam_z',
+                'wise_w1', 'wise_w2', 'wise_w3', 'wise_w4']
+
+   templates = kcorrect.template.Template(filename='templates_broad.fits',
+                                          interpolate=False)
+
+   kc = kcorrect.kcorrect.Kcorrect(responses=responses,
+                                   templates=templates,
+                                   redshift_range=[-0.002, 0.4],
+                                   nredshift=50)
+
+   kc.tofits('kcorrect_broad.fits')
 
 Once the ``kcorrect_broad.fits`` file exists, it can be used to
 actually perform template fitting and K-correction determination. Note
