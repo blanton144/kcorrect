@@ -360,13 +360,11 @@ class Response(object):
                 raise ValueError("flux must be 1-D or 2-D array")
             sed_wave = wave
             if(flux.ndim == 1):
-                interp = interpolate.interp1d(wave, flux, kind='cubic',
-                                              bounds_error=False, fill_value=0.)
                 nsed = 1
             else:
                 nsed = flux.shape[0]
-                interp = interpolate.interp1d(wave, flux, kind='cubic',
-                                              bounds_error=False, fill_value=0.)
+            interp = interpolate.interp1d(wave, flux, kind='cubic',
+                                          bounds_error=False, fill_value=0.)
         else:
             sed_wave = sed.wave
             interp = sed.interp

@@ -22,6 +22,24 @@ def test_init_sed():
     return
 
 
+def test_init_sed_nointerp():
+    """Test initialization of SED (no interpolate flag)"""
+    nwave = 10000
+    wave = np.exp(np.log(1000.) + (np.log(1.e+6) - np.log(1000.)) *
+                  (np.arange(nwave, dtype=np.float32) + 0.5) /
+                  np.float32(nwave))
+    flux = np.ones(nwave, dtype=np.float32)
+    s = kcorrect.template.SED(wave=wave, flux=flux, interpolate=False)
+    assert s.nwave == nwave
+    assert len(s.wave) == nwave
+    assert len(s.flux[0, :]) == nwave
+    assert (s.wave == s.restframe_wave).min() == True
+    assert (s.flux == s.restframe_flux).min() == True
+    assert (s.interpolate == False)
+    assert (s.interp == None)
+    return
+
+
 def test_write_and_read_sed():
     """Test reading and writing of SED"""
     nwave = 10000

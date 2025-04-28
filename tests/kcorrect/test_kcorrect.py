@@ -48,6 +48,31 @@ def test_kcorrect_fit_coeffs():
     return
 
 
+def test_kcorrect_fit_coeffs_nointerp():
+    """Test fitting of SED is same with and without initial interpolation"""
+
+    responses = ['sdss_u0', 'sdss_g0', 'sdss_r0', 'sdss_i0', 'sdss_z0',
+                 'wise_w1']
+
+    redshift = 0.2532
+    maggies = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+    ivar = np.array([1., 1., 1., 1., 1., 1.], dtype=np.float32)
+
+    kc = kcorrect.kcorrect.Kcorrect(responses=responses,
+                                    redshift_range=[0.2, 0.3],
+                                    nredshift=100, interpolate_templates=True)
+    coeffs = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    kc_nointerp = kcorrect.kcorrect.Kcorrect(responses=responses,
+                                             redshift_range=[0.2, 0.3],
+                                             nredshift=100, interpolate_templates=False)
+    coeffs_nointerp = kc.fit_coeffs(redshift=redshift, maggies=maggies, ivar=ivar)
+
+    assert (np.all(coeffs == coeffs_nointerp))
+
+    return
+
+
 def test_kcorrect():
     """Test K-correction calculation (doesn't test quantitatively"""
 

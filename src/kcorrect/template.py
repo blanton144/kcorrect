@@ -29,6 +29,9 @@ class SED(object):
     ext : str
         extension from which to read FLUX in FITS file
 
+    interpolate : bool
+        create interpolation object
+
     Attributes
     ----------
 
@@ -43,6 +46,12 @@ class SED(object):
 
     info : dict
         dictionary for storing assorted metadata associated with spectra
+
+    interp : scipy.interpolate.interp1d object
+        interpolation object for spectra
+
+    interpolate : bool
+        "interp" object created
 
     nsed : np.float32
         number of SEDs
@@ -77,10 +86,12 @@ class SED(object):
     be WAVE and FLUX HDUs with binary images.
 
 """
-    def __init__(self, filename=None, wave=None, flux=None, ext='FLUX'):
+    def __init__(self, filename=None, wave=None, flux=None, ext='FLUX', interpolate=True):
         self.restframe_wave = wave
         self.restframe_flux = flux
         self.filename = filename
+        self.interp = None
+        self.interpolate = interpolate
         self.info = dict()
         self.binimage = False
         if(self.filename is not None):
@@ -102,7 +113,8 @@ class SED(object):
             self.nsed = self.restframe_flux.shape[0]
         self.wave = self.restframe_wave
         self.flux = self.restframe_flux
-        self.set_interp()
+        if(self.interpolate):
+            self.set_interp()
         return
 
     def sed_dtype(self):
@@ -121,6 +133,9 @@ class SED(object):
                                            kind='cubic',
                                            bounds_error=False,
                                            fill_value=0.)
+
+        # If set_interp() is called, set flag
+        self.interpolate = True
         return
 
     def fromfits(self, filename=None, ext='FLUX'):
@@ -225,7 +240,8 @@ class SED(object):
         self.wave = self.restframe_wave * (1. + redshift)
         self.flux = self.restframe_flux / (1. + redshift)
         self.redshift = redshift
-        self.set_interp()
+        if(self.interpolate):
+            self.set_interp()
         return
 
     def plot(self, indx=None, wavelim=None):
@@ -291,6 +307,9 @@ class Template(SED):
     ext : str
         extension from which to read FLUX in FITS file
 
+    interpolate : bool
+        create interpolation object
+
     Attributes
     ----------
 
@@ -305,6 +324,12 @@ class Template(SED):
 
     info : dict
         dictionary for storing assorted metadata associated with spectra
+
+    interp : scipy.interpolate.interp1d object
+        interpolation object for spectra
+
+    interpolate : bool
+        "interp" object created
 
     intsfh : ndarray of np.float32
         [nsed] integrated star formation history in solar masses
@@ -359,8 +384,8 @@ class Template(SED):
     If binimage is True, then instead of a FLUX HDU table, there should 
     be WAVE and FLUX HDUs with binary images.
 """
-    def __init__(self, filename=None, ext='FLUX'):
-        super().__init__(filename=filename, ext=ext)
+    def __init__(self, filename=None, ext='FLUX', interpolate=False):
+        super().__init__(filename=filename, ext=ext, interpolate=interpolate)
 
         hdul = fits.open(filename)
         self.info['filename'] = filename

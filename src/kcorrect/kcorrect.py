@@ -32,7 +32,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
     responses : list of str
         names of input responses to base SED on
 
-    templates : list of kcorrect.template.SED
+    templates : kcorrect.template.SED or kcorrect.template.Template object
         templates to use (if None uses v4 default template set)
 
     responses_out : list of str
@@ -49,6 +49,9 @@ class Kcorrect(kcorrect.fitter.Fitter):
 
     cosmo : astropy.cosmology.FLRW-like object
         object with distmod() method (default Planck18)
+
+    interpolate_templates : bool
+        whether to initially interpolate templates
 
     Attributes
     ----------
@@ -126,7 +129,7 @@ class Kcorrect(kcorrect.fitter.Fitter):
     def __init__(self, filename=None, responses=None, templates=None,
                  responses_out=None, responses_map=None,
                  redshift_range=[0., 2.], nredshift=4000,
-                 abcorrect=False, cosmo=None):
+                 abcorrect=False, cosmo=None, interpolate_templates=True):
 
         if(filename is not None):
             self.fromfits(filename=filename)
@@ -136,7 +139,8 @@ class Kcorrect(kcorrect.fitter.Fitter):
                 tfilename = os.path.join(kcorrect.KCORRECT_DIR, 'data',
                                          'templates',
                                          'kcorrect-default-v4.fits')
-                templates = kcorrect.template.Template(filename=tfilename)
+                templates = kcorrect.template.Template(filename=tfilename,
+                                                       interpolate=interpolate_templates)
 
             # Initatialize using Fitter initialization
             super().__init__(responses=responses, templates=templates,

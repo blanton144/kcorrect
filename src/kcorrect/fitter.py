@@ -91,7 +91,19 @@ class Fitter(object):
         for iz, z in enumerate(self.redshifts):
             self.templates.set_redshift(redshift=z)
             for ir, response in enumerate(responses):
-                rmatrix[iz, ir, :] = f[response].project(sed=self.templates)
+                if(self.templates.interpolate):
+                    rmatrix[iz, ir, :] = f[response].project(sed=self.templates)
+                else:
+                    # project SEDs in groups if there is a very large # of them
+                    nchunk = 1000
+                    for ised in np.arange(0, self.templates.nsed, nchunk, dtype=np.int32):
+                        print(ised)
+                        ised_start = ised
+                        ised_end = ised + nchunk
+                        if(ised_end > self.templates.nsed):
+                            ised_end = self.templates.nsed
+                        rmatrix[iz, ir, ised_start:ised_end] = f[response].project(wave=self.templates.wave,
+                                                                                   flux=self.templates.flux[ised_start:ised_end, :])
 
         # Now create Amatrix interpolator
         Amatrix = self._interpolate_Amatrix(redshifts=self.redshifts, A=rmatrix)
