@@ -306,7 +306,7 @@ def sdss_asinh_to_maggies(mag=None, mag_err=None, extinction=None):
             maggies_err = (2. * b0[k] * np.cosh(- np.log(b0[k])
                                                 - (0.4 * np.log(10.) *
                                                    mag[..., k])) *
-                           0.4 * np.log10(10.) * mag_err[..., k])
+                           0.4 * np.log(10.) * mag_err[..., k])
             maggies_ivar[..., k] = 1. / maggies_err**2
 
     if(mag_err is None):
